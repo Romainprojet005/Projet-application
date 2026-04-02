@@ -927,6 +927,7 @@ let state = {
   theme: 'classique',
   roles: [],
   currentPlayer: 0,
+  usedPairs: {}, // { themeKey: Set d'indices déjà joués }
 };
 
 // ── Particles ─────────────────────────────────────────────────────────────
@@ -1045,7 +1046,24 @@ function shuffle(arr) {
 
 function startGame() {
   const theme = THEMES[state.theme];
-  const pair = theme.pairs[Math.floor(Math.random() * theme.pairs.length)];
+  const key = state.theme;
+
+  // Init le set pour ce thème si besoin
+  if (!state.usedPairs[key]) state.usedPairs[key] = new Set();
+
+  // Indices encore disponibles
+  let available = theme.pairs.map((_, i) => i).filter(i => !state.usedPairs[key].has(i));
+
+  // Si tous les mots ont été joués, on repart de zéro pour ce thème
+  if (available.length === 0) {
+    state.usedPairs[key] = new Set();
+    available = theme.pairs.map((_, i) => i);
+  }
+
+  // Tirage aléatoire parmi les disponibles
+  const idx = available[Math.floor(Math.random() * available.length)];
+  state.usedPairs[key].add(idx);
+  const pair = theme.pairs[idx];
   const roles = [];
   const civCount = state.players - state.undercover - (state.mrWhite ? 1 : 0);
   for (let i = 0; i < civCount; i++) roles.push({ type:'civilian', word: pair.c });

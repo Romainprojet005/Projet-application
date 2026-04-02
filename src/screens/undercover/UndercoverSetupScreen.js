@@ -13,6 +13,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { wordThemes } from '../../data/wordLists';
 
+// Persiste en mémoire tant que l'app n'est pas fermée
+const usedPairsPerTheme = {};
+
 const MIN_PLAYERS = 3;
 const MAX_PLAYERS = 12;
 
@@ -49,7 +52,19 @@ export default function UndercoverSetupScreen({ navigation }) {
 
   const handleStart = () => {
     const theme = wordThemes[selectedTheme];
-    const randomPair = theme.pairs[Math.floor(Math.random() * theme.pairs.length)];
+
+    if (!usedPairsPerTheme[selectedTheme]) usedPairsPerTheme[selectedTheme] = new Set();
+
+    let available = theme.pairs.map((_, i) => i).filter(i => !usedPairsPerTheme[selectedTheme].has(i));
+
+    if (available.length === 0) {
+      usedPairsPerTheme[selectedTheme] = new Set();
+      available = theme.pairs.map((_, i) => i);
+    }
+
+    const idx = available[Math.floor(Math.random() * available.length)];
+    usedPairsPerTheme[selectedTheme].add(idx);
+    const randomPair = theme.pairs[idx];
     navigation.navigate('UndercoverDistribute', {
       playerCount,
       wordPair: randomPair,
