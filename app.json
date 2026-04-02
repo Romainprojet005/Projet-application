@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "La Soirée des Légendes",
+    "slug": "la-soiree-des-legendes",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0A0A1B"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.soireelegendes.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0A0A1B"
+      },
+      "package": "com.soireelegendes.app"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
