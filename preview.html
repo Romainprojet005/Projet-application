@@ -1219,6 +1219,18 @@ const QUIZ_CATS={
     {q:"En quelle année a eu lieu la Révolution russe bolchévique ?",c:['1905','1914','1917','1920'],a:2,f:"La Révolution d'octobre 1917 a porté Lénine au pouvoir et conduit à la création de l'URSS."},
     {q:"Quel est le nom de la bombe atomique larguée sur Hiroshima ?",c:['Fat Man','Little Boy','Big Bang','Thin Man'],a:1,f:"Little Boy (bombe à uranium) sur Hiroshima le 6 août 1945. Fat Man (plutonium) sur Nagasaki le 9."},
   ]},
+  hot:{label:'Hot',emoji:'🔞',color:'#EF4444',adult:true,questions:[
+    {q:"Quelle est la durée moyenne d'un rapport sexuel selon les études scientifiques ?",c:['1-2 min','5-7 min','15-20 min','30 min'],a:1,f:"Une étude du Journal of Sexual Medicine (2005) indique une durée moyenne de 5,4 min de pénétration — bien loin des films !"},
+    {q:"Dans quel film y a-t-il la célébre scène d'orgasme simulé au restaurant ?",c:['Pretty Woman','Basic Instinct','Quand Harry rencontre Sally','9 semaines et demie'],a:2,f:"'Je prendrai la même chose qu\'elle !' — tournée au Katz\'s Deli à New York qui a depuis installé une plaque commémorative."},
+    {q:"Quelle hormone est principalement responsable de la libido chez les deux sexes ?",c:['Ocytocine','Testostérone','Dopamine','Œstrogène'],a:1,f:"La testostérone (présente chez les deux sexes) est le principal moteur du désir. Les femmes en produisent 10x moins que les hommes."},
+    {q:"Dans le Kama Sutra, combien d'actes (angas) sont décrits ?",c:['16','36','64','108'],a:2,f:"Le Kama Sutra décrit 64 actes, mais est avant tout un traité philosophique sur l'amour et la vie en société — pas juste un guide de positions."},
+    {q:"Quel pays a été le premier à légaliser le mariage homosexuel ?",c:['Suède','Canada','Pays-Bas','Espagne'],a:2,f:"Les Pays-Bas ont légalisé le mariage homosexuel le 1er avril 2001, premiers au monde."},
+    {q:"Quel acteur s'est inspiré de sa propre expérience de strip-teaseur pour son rôle dans 'Magic Mike' ?",c:['Ryan Reynolds','Channing Tatum','Chris Evans','Zac Efron'],a:1,f:"Channing Tatum a été strip-teaseur à 18 ans à Tampa, Floride. Il a co-produit le film pour raconter cette période de sa vie."},
+    {q:"Quelle célébrité vend des sex-toys via sa marque de bien-être 'Goop' ?",c:['Kim Kardashian','Gwyneth Paltrow','Jennifer Lopez','Bella Hadid'],a:1,f:"Gwyneth Paltrow via Goop vend également des bougies à l'odeur 'de son vagin' à 75€ — sold-out en quelques heures."},
+    {q:"Quelle est la capitale mondiale de l'industrie du film adulte ?",c:['Hollywood','Las Vegas','San Fernando Valley','Miami'],a:2,f:"La San Fernando Valley (banlieue de L.A.) abrite la majorité des studios X américains depuis les années 80. On l'appelle 'Porn Valley'."},
+    {q:"Quel était le vrai métier de la femme qui a inspiré le personnage de Pretty Woman ?",c:['Strip-teaseuse','Escort','Barmaid','Serveuse'],a:1,f:"Le scénario original s'appelait '3000' (le prix de la nuit), était beaucoup plus sombre et ne finissait pas bien pour Vivian."},
+    {q:"Quelle est la zone érogène la plus méconnue selon une étude de 2016 ?",c:['Le cou','Le lobe de l\'oreille','La nuque','Le clitoris interne'],a:3,f:"L'anatomie complète du clitoris (10-12 cm sous la peau) n'a été modélisée en 3D qu'en 2016 par la chercheuse Helen O'Connell."},
+  ]},
   cuisine:{label:'Cuisine',emoji:'🍕',color:'#F97316',questions:[
     {q:"Dans quelle cuisine est né le sushi ?",c:['Thaïlandaise','Japonaise','Coréenne','Chinoise'],a:1,f:"Le sushi moderne sous sa forme actuelle est apparu à Tokyo au début du XIXe siècle."},
     {q:"Quelle épice est la plus chère au monde au kilo ?",c:['Vanille','Truffe','Safran','Cardamome'],a:2,f:"Le safran peut coûter jusqu'à 30 000€/kg. Il faut 150 000 fleurs pour en produire 1 kg."},
@@ -1236,18 +1248,29 @@ const QUIZ_CATS={
 /* ══════════════════════════════════════════════════════
    QUIZ SETUP
 ══════════════════════════════════════════════════════ */
-const qs={players:3,qCount:10,timer:30,cats:new Set(Object.keys(QUIZ_CATS))};
+const defaultCats=new Set(Object.keys(QUIZ_CATS).filter(k=>!QUIZ_CATS[k].adult));
+const qs={players:3,qCount:10,timer:30,cats:new Set(defaultCats)};
 
 (function buildCatGrid(){
   const g=document.getElementById('cat-grid');
   Object.entries(QUIZ_CATS).forEach(([k,cat])=>{
     const btn=document.createElement('button');
-    btn.className='cat-chip on'; btn.dataset.k=k;
-    btn.innerHTML=`<span class="cat-chip-e">${cat.emoji}</span><span class="cat-chip-l">${cat.label}</span><span class="cat-check">✓</span>`;
+    const isOn=!cat.adult;
+    btn.className='cat-chip'+(isOn?' on':''); btn.dataset.k=k;
+    const extra=cat.adult?` style="border-color:rgba(239,68,68,.3);"`:'';
+    btn.innerHTML=`<span class="cat-chip-e">${cat.emoji}</span><span class="cat-chip-l" style="${cat.adult?'color:#FCA5A5':''}">${cat.label}${cat.adult?' <span style="font-size:9px;opacity:.7">18+</span>':''}</span><span class="cat-check">${isOn?'✓':''}</span>`;
+    if(extra) btn.setAttribute('style',btn.getAttribute('style')||'');
+    if(cat.adult) btn.style.cssText='border-color:rgba(239,68,68,.25)';
     btn.addEventListener('click',()=>{
+      const nowOn=!btn.classList.contains('on');
+      if(cat.adult && nowOn){
+        if(!confirm('⚠️ Catégorie adulte (18+)\nConfirmes-tu l\'ajout des questions Hot ?')) return;
+      }
       btn.classList.toggle('on');
       btn.querySelector('.cat-check').textContent=btn.classList.contains('on')?'✓':'';
       if(btn.classList.contains('on')) qs.cats.add(k); else qs.cats.delete(k);
+      if(cat.adult && btn.classList.contains('on')) btn.style.cssText='border-color:rgba(239,68,68,.6);background:rgba(239,68,68,.1)';
+      else if(cat.adult) btn.style.cssText='border-color:rgba(239,68,68,.25)';
       updQSum();
     });
     g.appendChild(btn);
