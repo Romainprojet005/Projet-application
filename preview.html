@@ -217,12 +217,18 @@
   .version { font-size: 11px; color: var(--text-muted); margin-top: 14px; animation: fadeIn .5s 1.6s both; }
 
   /* ─── MENU SCREEN ─── */
-  #screen-menu { display: flex; flex-direction: column; }
+  #screen-menu {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
 
   .menu-header {
     display: flex;
     align-items: center;
     padding: 52px 20px 8px;
+    flex-shrink: 0;
     position: relative;
   }
   .back-btn {
@@ -238,30 +244,36 @@
   .header-center { flex: 1; text-align: center; }
   .header-title { font-size: 20px; font-weight: 900; color: var(--text); letter-spacing: 4px; }
   .header-sub { font-size: 11px; color: var(--primary-light); letter-spacing: 2px; }
-  .count-line { text-align: center; font-size: 11px; color: var(--text-muted); margin-bottom: 14px; }
+  .count-line { text-align: center; font-size: 11px; color: var(--text-muted); margin-bottom: 12px; flex-shrink: 0; }
 
   .cards-scroll {
     display: flex;
     gap: 14px;
     overflow-x: auto;
-    padding: 0 24px 16px;
+    overflow-y: hidden;
+    padding: 4px 24px 16px;
     scrollbar-width: none;
     -ms-overflow-style: none;
     flex: 1;
-    align-items: center;
+    min-height: 0;
+    align-items: stretch;
   }
   .cards-scroll::-webkit-scrollbar { display: none; }
 
   .game-card {
-    min-width: 268px;
+    min-width: 260px;
+    max-width: 268px;
     border-radius: 24px;
-    padding: 22px;
+    padding: 18px 20px;
     border: 1px solid #2D2D5E;
     box-shadow: 0 10px 30px rgba(0,0,0,.4);
     cursor: pointer;
     transition: transform .18s, box-shadow .18s;
     position: relative;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
   .game-card:hover { transform: scale(1.02); box-shadow: 0 16px 40px rgba(0,0,0,.55); }
   .game-card.locked { opacity: .72; cursor: default; }
@@ -276,33 +288,40 @@
     font-weight: 800;
     letter-spacing: 1px;
     color: var(--text);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
   }
   .gc-badge.available { background: var(--success); }
   .gc-badge.locked-badge { background: var(--surface); color: var(--text-muted); }
 
   .gc-avatar {
-    width: 80px;
-    height: 80px;
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
     border: 2px solid rgba(255,255,255,.15);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 46px;
-    margin-bottom: 12px;
+    font-size: 40px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
   }
-  .gc-name { font-size: 22px; font-weight: 900; color: var(--text); margin-bottom: 3px; }
-  .gc-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
-  .gc-desc { font-size: 12px; color: var(--text-sec); line-height: 1.6; margin-bottom: 12px; }
-  .gc-sep { height: 1px; margin-bottom: 12px; }
-  .gc-stats { margin-bottom: 12px; }
-  .stat-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .gc-name { font-size: 20px; font-weight: 900; color: var(--text); margin-bottom: 2px; flex-shrink: 0; }
+  .gc-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; flex-shrink: 0; }
+  .gc-desc {
+    font-size: 11px; color: var(--text-sec); line-height: 1.55; margin-bottom: 10px;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    flex-shrink: 0;
+  }
+  .gc-spacer { flex: 1; min-height: 6px; }
+  .gc-sep { height: 1px; margin-bottom: 10px; flex-shrink: 0; }
+  .gc-stats { margin-bottom: 10px; flex-shrink: 0; }
+  .stat-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
   .stat-label { font-size: 10px; color: var(--text-sec); width: 80px; }
   .stat-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
   .stat-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
   .stat-val { font-size: 10px; color: var(--text-muted); width: 24px; text-align: right; }
-  .gc-quote { font-size: 11px; color: var(--text-muted); font-style: italic; text-align: center; line-height: 1.5; margin-bottom: 14px; }
+  .gc-quote { font-size: 11px; color: var(--text-muted); font-style: italic; text-align: center; line-height: 1.5; margin-bottom: 12px; flex-shrink: 0; }
   .gc-play-btn {
     width: 100%;
     padding: 10px;
@@ -314,6 +333,8 @@
     color: var(--text);
     cursor: pointer;
     transition: opacity .15s, transform .12s;
+    flex-shrink: 0;
+    margin-top: auto;
   }
   .gc-play-btn:hover { opacity: .88; transform: scale(1.02); }
   .gc-play-btn:active { transform: scale(.97); }
@@ -768,6 +789,10 @@
             <span class="theme-btn-emoji">🔥</span>
             <span class="theme-btn-label">Hot 🔥</span>
           </button>
+          <button class="theme-btn" data-theme="aleatoire" onclick="selectTheme(this)">
+            <span class="theme-btn-emoji">✨</span>
+            <span class="theme-btn-label">Aléatoire</span>
+          </button>
         </div>
       </div>
 
@@ -910,7 +935,71 @@ const THEMES = {
     {c:'Phoque',u:'Morse'},{c:'Jupe',u:'Tanga'},{c:'Poils',u:'Clément'},
     {c:'Cowgirl',u:'Équitation'},{c:'Tarte à la crème',u:'Tarte aux pommes'},
   ]},
+  aleatoire: { label:'Aléatoire ✨', pairs: [] }, // généré dynamiquement
 };
+
+// ── Word clusters pour le mode Aléatoire ─────────────────────────────────
+const WORD_CLUSTERS = [
+  ['Chien','Chat','Lapin','Hamster'],
+  ['Lion','Tigre','Panthère','Guépard'],
+  ['Aigle','Faucon','Vautour','Buse'],
+  ['Dauphin','Baleine','Orque','Marsouin'],
+  ['Fourmi','Abeille','Guêpe','Frelon'],
+  ['Pizza','Burger','Hot-dog','Kebab'],
+  ['Café','Thé','Chocolat chaud','Cappuccino'],
+  ['Glace','Sorbet','Granita','Crème glacée'],
+  ['Croissant','Pain au chocolat','Brioche','Chausson'],
+  ['Vélo','Trottinette','Scooter','Moto'],
+  ['Avion','Hélicoptère','Planeur','ULM'],
+  ['Train','Métro','Tram','RER'],
+  ['Football','Rugby','Handball','Basket'],
+  ['Tennis','Badminton','Squash','Ping-pong'],
+  ['Natation','Plongée','Surf','Kayak'],
+  ['Pluie','Averse','Orage','Tempête'],
+  ['Neige','Grêle','Givre','Verglas'],
+  ['Boulanger','Pâtissier','Chocolatier','Confiseur'],
+  ['Médecin','Chirurgien','Urgentiste','Anesthésiste'],
+  ['Guitare','Violon','Alto','Violoncelle'],
+  ['Flûte','Clarinette','Hautbois','Saxophone'],
+  ['Fraise','Framboise','Cerise','Groseille'],
+  ['Orange','Citron','Pamplemousse','Mandarine'],
+  ['Carotte','Navet','Radis','Betterave'],
+  ['Camembert','Brie','Coulommiers','Munster'],
+  ['Château','Palais','Manoir','Forteresse'],
+  ['Maison','Villa','Chalet','Pavillon'],
+  ['Valse','Tango','Salsa','Bachata'],
+  ['Spider-Man','Batman','Superman','Iron Man'],
+  ['Fée','Sorcière','Elfe','Gnome'],
+  ['Instagram','TikTok','Snapchat','Pinterest'],
+  ['PlayStation','Xbox','Nintendo Switch','Steam Deck'],
+  ['Mars','Jupiter','Saturne','Vénus'],
+  ['Tour Eiffel','Arc de Triomphe','Sacré-Cœur','Panthéon'],
+  ['Boxe','Judo','Karaté','Taekwondo'],
+  ['Collier','Bracelet','Bague','Boucles d\'oreilles'],
+  ['Pantalon','Jean','Short','Bermuda'],
+  ['Baskets','Mocassins','Bottes','Sandales'],
+  ['Champagne','Prosecco','Cava','Crémant'],
+  ['Whisky','Rhum','Vodka','Gin'],
+  ['Riz','Pâtes','Semoule','Quinoa'],
+  ['Brocoli','Épinard','Courgette','Haricot vert'],
+  ['Piscine','Jacuzzi','Spa','Hammam'],
+  ['Roman','Nouvelle','Conte','Fable'],
+  ['Peinture','Dessin','Aquarelle','Gravure'],
+  ['Randonnée','Trekking','Alpinisme','Escalade'],
+  ['Anniversaire','Mariage','Baptême','Fiançailles'],
+  ['Hôtel','Auberge','Camping','Gîte'],
+  ['Bibliothèque','Médiathèque','Librairie','Bouquiniste'],
+  ['Pompier','Policier','Gendarme','Secouriste'],
+];
+
+function generateRandomPair(usedSet) {
+  let available = WORD_CLUSTERS.map((_, i) => i).filter(i => !usedSet.has(i));
+  if (available.length === 0) { usedSet.clear(); available = WORD_CLUSTERS.map((_, i) => i); }
+  const ci = available[Math.floor(Math.random() * available.length)];
+  usedSet.add(ci);
+  const words = [...WORD_CLUSTERS[ci]].sort(() => Math.random() - .5);
+  return { c: words[0], u: words[1] };
+}
 
 const ROLE_CFG = {
   civilian:   { grad:'linear-gradient(135deg,#1A0A3B,#2D1069)', msg:'Décris ton mot sans jamais le prononcer.' },
@@ -978,6 +1067,7 @@ let state = {
       <div class="gc-name">${ch.name}</div>
       <div class="gc-title" style="color:${ch.color}">${ch.title}</div>
       <div class="gc-desc">${ch.desc}</div>
+      <div class="gc-spacer"></div>
       <div class="gc-sep" style="background:${ch.color}35"></div>
       <div class="gc-stats">${statsHTML}</div>
       <div class="gc-quote">${ch.quote}</div>
@@ -1030,7 +1120,8 @@ function selectTheme(btn) {
   document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   state.theme = btn.dataset.theme;
-  document.getElementById('sum-theme').textContent = THEMES[state.theme].label;
+  const labels = { classique:'Classique', nature:'Nature', cinema:'Cinéma', hot:'Hot 🔥', aleatoire:'Aléatoire ✨' };
+  document.getElementById('sum-theme').textContent = labels[state.theme] || state.theme;
 }
 updateSetupUI();
 
@@ -1045,25 +1136,23 @@ function shuffle(arr) {
 }
 
 function startGame() {
-  const theme = THEMES[state.theme];
   const key = state.theme;
-
-  // Init le set pour ce thème si besoin
   if (!state.usedPairs[key]) state.usedPairs[key] = new Set();
 
-  // Indices encore disponibles
-  let available = theme.pairs.map((_, i) => i).filter(i => !state.usedPairs[key].has(i));
-
-  // Si tous les mots ont été joués, on repart de zéro pour ce thème
-  if (available.length === 0) {
-    state.usedPairs[key] = new Set();
-    available = theme.pairs.map((_, i) => i);
+  let pair;
+  if (key === 'aleatoire') {
+    pair = generateRandomPair(state.usedPairs[key]);
+  } else {
+    const theme = THEMES[key];
+    let available = theme.pairs.map((_, i) => i).filter(i => !state.usedPairs[key].has(i));
+    if (available.length === 0) {
+      state.usedPairs[key] = new Set();
+      available = theme.pairs.map((_, i) => i);
+    }
+    const idx = available[Math.floor(Math.random() * available.length)];
+    state.usedPairs[key].add(idx);
+    pair = theme.pairs[idx];
   }
-
-  // Tirage aléatoire parmi les disponibles
-  const idx = available[Math.floor(Math.random() * available.length)];
-  state.usedPairs[key].add(idx);
-  const pair = theme.pairs[idx];
   const roles = [];
   const civCount = state.players - state.undercover - (state.mrWhite ? 1 : 0);
   for (let i = 0; i < civCount; i++) roles.push({ type:'civilian', word: pair.c });
@@ -1122,7 +1211,8 @@ function revealCard() {
   document.getElementById('card-back-grad').style.background = cfg.grad;
   document.getElementById('role-badge').style.display = 'none';
   document.getElementById('role-word').textContent = role.type === 'mrwhite' ? '???' : role.word;
-  document.getElementById('role-theme-lbl').textContent = `Thème : ${THEMES[state.theme].label}`;
+  const themeLabels = { classique:'Classique', nature:'Nature', cinema:'Cinéma', hot:'Hot 🔥', aleatoire:'Aléatoire ✨' };
+  document.getElementById('role-theme-lbl').textContent = `Thème : ${themeLabels[state.theme] || state.theme}`;
   document.getElementById('role-msg').textContent = cfg.msg;
 
   // Animate

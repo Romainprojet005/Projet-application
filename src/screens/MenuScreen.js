@@ -199,6 +199,8 @@ export default function MenuScreen({ navigation }) {
   const handleSelectGame = (character) => {
     if (character.game === 'undercover') {
       navigation.navigate('UndercoverSetup');
+    } else if (character.game === 'quiz') {
+      navigation.navigate('QuizSetup');
     }
   };
 
@@ -254,7 +256,7 @@ export default function MenuScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

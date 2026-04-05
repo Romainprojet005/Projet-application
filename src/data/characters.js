@@ -28,7 +28,7 @@ export const characters = [
     color: '#0EA5E9',
     gradientColors: ['#0A1A3B', '#0A2B4A'],
     game: 'quiz',
-    available: false,
+    available: true,
     stats: {
       Savoir: 99,
       Rapidité: 91,

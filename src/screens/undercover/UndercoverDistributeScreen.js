@@ -266,7 +266,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   content: {
     flex: 1,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,

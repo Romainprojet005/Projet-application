@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
-import { wordThemes } from '../../data/wordLists';
+import { wordThemes, generateRandomPair } from '../../data/wordLists';
 
 // Persiste en mémoire tant que l'app n'est pas fermée
 const usedPairsPerTheme = {};
@@ -51,26 +51,30 @@ export default function UndercoverSetupScreen({ navigation }) {
   const civilianCount = playerCount - undercoverCount - (hasMrWhite ? 1 : 0);
 
   const handleStart = () => {
-    const theme = wordThemes[selectedTheme];
+    let randomPair;
 
-    if (!usedPairsPerTheme[selectedTheme]) usedPairsPerTheme[selectedTheme] = new Set();
-
-    let available = theme.pairs.map((_, i) => i).filter(i => !usedPairsPerTheme[selectedTheme].has(i));
-
-    if (available.length === 0) {
-      usedPairsPerTheme[selectedTheme] = new Set();
-      available = theme.pairs.map((_, i) => i);
+    if (selectedTheme === 'aleatoire') {
+      if (!usedPairsPerTheme['aleatoire']) usedPairsPerTheme['aleatoire'] = new Set();
+      randomPair = generateRandomPair(usedPairsPerTheme['aleatoire']);
+    } else {
+      const theme = wordThemes[selectedTheme];
+      if (!usedPairsPerTheme[selectedTheme]) usedPairsPerTheme[selectedTheme] = new Set();
+      let available = theme.pairs.map((_, i) => i).filter(i => !usedPairsPerTheme[selectedTheme].has(i));
+      if (available.length === 0) {
+        usedPairsPerTheme[selectedTheme] = new Set();
+        available = theme.pairs.map((_, i) => i);
+      }
+      const idx = available[Math.floor(Math.random() * available.length)];
+      usedPairsPerTheme[selectedTheme].add(idx);
+      randomPair = theme.pairs[idx];
     }
 
-    const idx = available[Math.floor(Math.random() * available.length)];
-    usedPairsPerTheme[selectedTheme].add(idx);
-    const randomPair = theme.pairs[idx];
     navigation.navigate('UndercoverDistribute', {
       playerCount,
       wordPair: randomPair,
       undercoverCount,
       hasMrWhite,
-      themeName: theme.label,
+      themeName: wordThemes[selectedTheme].label,
     });
   };
 
@@ -78,7 +82,7 @@ export default function UndercoverSetupScreen({ navigation }) {
     <LinearGradient colors={['#0A0A1B', '#1A0A3B', '#0A0A1B']} style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
       >
         {/* Header */}
         <Animated.View
@@ -242,7 +246,7 @@ const summaryRowStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { paddingBottom: spacing.xl },
 
   header: {

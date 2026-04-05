@@ -195,7 +195,7 @@ export default function WelcomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   content: {
     flex: 1,
     alignItems: 'center',
