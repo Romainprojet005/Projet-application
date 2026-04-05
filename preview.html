@@ -3,1262 +3,1451 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>La Soirée des Légendes — Preview</title>
+<title>La Soirée des Légendes — Aperçu v2</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ═══════════════════════════════════════════════════
+   DESIGN SYSTEM
+═══════════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-  :root {
-    --bg: #0A0A1B;
-    --surface: #141428;
-    --card: #1A1A35;
-    --border: #1E1E4E;
-    --primary: #7C3AED;
-    --primary-dark: #5B21B6;
-    --primary-light: #A78BFA;
-    --secondary: #EC4899;
-    --accent: #F59E0B;
-    --text: #F8FAFC;
-    --text-sec: #94A3B8;
-    --text-muted: #475569;
-    --success: #10B981;
-    --danger: #EF4444;
-  }
+:root {
+  --bg:      #05050E;
+  --surface: #0D0D1C;
+  --card:    #111120;
+  --card2:   #16162A;
+  --border:  rgba(255,255,255,.07);
+  --border2: rgba(255,255,255,.13);
+  --text:    #EEF2FF;
+  --text2:   #94A3B8;
+  --text3:   #4B5563;
+  --green:   #10B981;
+  --red:     #EF4444;
+  --gold:    #F59E0B;
+  /* Sherlock / Undercover */
+  --amb:     #D97706;
+  --amb-l:   #FCD34D;
+  --amb-dim: rgba(217,119,6,.14);
+  /* Génie / Quiz */
+  --ind:     #6366F1;
+  --ind-l:   #A5B4FC;
+  --ind-dim: rgba(99,102,241,.14);
+}
 
-  body {
-    background: #060610;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    padding: 24px 16px 48px;
-    gap: 16px;
-  }
+body {
+  background:#030308;
+  min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  display:flex; flex-direction:column; align-items:center;
+  padding:28px 16px 60px; gap:18px;
+}
+.page-label { color:var(--text3); font-size:11px; letter-spacing:3px; text-transform:uppercase; }
 
-  .page-title {
-    color: var(--text-muted);
-    font-size: 13px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
+/* ═══════════════════════════════════════════════════
+   PHONE
+═══════════════════════════════════════════════════ */
+.phone {
+  width:375px; height:812px;
+  background:#000; border-radius:50px;
+  border:2px solid rgba(255,255,255,.07);
+  box-shadow:0 0 0 8px #0A0A18,0 50px 100px rgba(99,102,241,.22),0 0 80px rgba(99,102,241,.07);
+  overflow:hidden; position:relative; flex-shrink:0;
+}
+.notch {
+  position:absolute; top:14px; left:50%; transform:translateX(-50%);
+  width:108px; height:26px; background:#000; border-radius:13px; z-index:200;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.notch-dot { width:9px; height:9px; border-radius:50%; background:#111; border:1px solid #222; }
 
-  /* ─── Phone frame ─── */
-  .phone {
-    width: 375px;
-    height: 780px;
-    background: #000;
-    border-radius: 46px;
-    border: 2px solid #2a2a4a;
-    box-shadow: 0 0 0 6px #111122, 0 40px 80px rgba(124,58,237,.35), 0 0 60px rgba(124,58,237,.1);
-    overflow: hidden;
-    position: relative;
-    flex-shrink: 0;
-  }
+/* ═══════════════════════════════════════════════════
+   SCREEN SYSTEM
+═══════════════════════════════════════════════════ */
+.screen { position:absolute; inset:0; overflow:hidden; opacity:0; pointer-events:none; transition:opacity .28s ease; }
+.screen.active { opacity:1; pointer-events:all; }
 
-  .phone-notch {
-    position: absolute;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 28px;
-    background: #000;
-    border-radius: 14px;
-    z-index: 100;
-  }
+.bg-welcome { background:linear-gradient(160deg,#05050E 0%,#0C0830 50%,#05050E 100%); }
+.bg-menu    { background:var(--bg); }
+.bg-sheriff { background:linear-gradient(160deg,#090400 0%,#1A0B00 55%,#090400 100%); }
+.bg-genie   { background:linear-gradient(160deg,#05050E 0%,#0C0A2C 55%,#05050E 100%); }
+.bg-quiz-g  { background:linear-gradient(180deg,#05050E,#090820); }
 
-  /* ─── Screen system ─── */
-  .screen {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .35s ease;
-  }
-  .screen.active {
-    opacity: 1;
-    pointer-events: all;
-  }
+/* ═══════════════════════════════════════════════════
+   COMPONENTS
+═══════════════════════════════════════════════════ */
+.btn-back {
+  background:none; border:none; color:var(--text2);
+  font-size:13px; font-weight:600; cursor:pointer; padding:0;
+  display:flex; align-items:center; gap:5px; transition:color .15s;
+}
+.btn-back:hover { color:var(--text); }
 
-  /* ─── Gradient backgrounds ─── */
-  .grad-welcome { background: linear-gradient(160deg, #0A0A1B 0%, #170A35 50%, #0A1228 100%); }
-  .grad-menu    { background: linear-gradient(180deg, #0A0A1B 0%, #0D0D22 50%, #0A0A1B 100%); }
-  .grad-setup   { background: linear-gradient(160deg, #0A0A1B 0%, #1A0A3B 50%, #0A0A1B 100%); }
-  .grad-distrib { background: linear-gradient(160deg, #0A0A1B 0%, #150A2E 50%, #0A0A1B 100%); }
+.btn-primary {
+  width:100%; padding:15px; border-radius:99px; border:none;
+  font-size:14px; font-weight:800; letter-spacing:1.5px; color:var(--text);
+  cursor:pointer; transition:transform .12s, box-shadow .12s;
+}
+.btn-primary:hover  { transform:scale(1.02); }
+.btn-primary:active { transform:scale(.97); }
+.btn-amb { background:linear-gradient(90deg,var(--amb),#92400E); box-shadow:0 8px 24px rgba(217,119,6,.4); }
+.btn-ind { background:linear-gradient(90deg,var(--ind),#3730A3); box-shadow:0 8px 24px rgba(99,102,241,.4); }
+.btn-amb:hover { box-shadow:0 10px 30px rgba(217,119,6,.55); }
+.btn-ind:hover { box-shadow:0 10px 30px rgba(99,102,241,.55); }
 
-  /* ─── WELCOME SCREEN ─── */
-  #screen-welcome {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 28px 32px;
-    gap: 0;
-  }
+.card { background:var(--card); border-radius:16px; padding:16px; border:1px solid var(--border); }
+.card-label { font-size:14px; font-weight:700; color:var(--text); margin-bottom:3px; }
+.card-hint  { font-size:11px; color:var(--text3); margin-bottom:8px; }
 
-  .particles {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-  .particle {
-    position: absolute;
-    border-radius: 50%;
-    animation: twinkle var(--dur) ease-in-out infinite alternate;
-  }
-  @keyframes twinkle {
-    from { opacity: var(--from); }
-    to   { opacity: var(--to); }
-  }
+.counter { display:flex; align-items:center; justify-content:center; gap:18px; margin-top:8px; }
+.ctr-btn {
+  width:42px; height:42px; border-radius:50%;
+  background:var(--card2); border:1px solid var(--border2);
+  color:var(--text); font-size:22px; font-weight:300;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background .15s, transform .1s;
+}
+.ctr-btn:hover  { background:rgba(255,255,255,.1); transform:scale(1.08); }
+.ctr-btn:active { transform:scale(.92); }
+.ctr-btn:disabled { opacity:.3; cursor:default; transform:none; }
+.ctr-num { font-size:42px; font-weight:900; color:var(--text); min-width:62px; text-align:center; line-height:1; }
 
-  .logo-wrap {
-    text-align: center;
-    margin-bottom: 18px;
-    animation: logoIn .8s cubic-bezier(.2,1,.5,1) both;
-  }
-  @keyframes logoIn {
-    from { opacity: 0; transform: scale(.4) translateY(-30px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
-  }
-  .logo-emoji { font-size: 64px; display: block; margin-bottom: 8px; }
-  .logo-title {
-    font-size: 38px;
-    font-weight: 900;
-    color: var(--text);
-    letter-spacing: 8px;
-    line-height: 1;
-  }
-  .logo-sub {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--primary-light);
-    letter-spacing: 6px;
-    margin-top: 2px;
-  }
-  .logo-divider {
-    width: 60px;
-    height: 2px;
-    background: var(--primary);
-    border-radius: 99px;
-    margin: 12px auto 0;
-  }
+.toggle {
+  position:relative; width:46px; height:25px; border-radius:13px;
+  background:var(--border2); border:none; cursor:pointer; flex-shrink:0;
+  transition:background .25s;
+}
+.toggle.on-amb { background:rgba(217,119,6,.65); }
+.toggle.on-ind { background:rgba(99,102,241,.65); }
+.toggle::after {
+  content:''; position:absolute; top:3px; left:3px;
+  width:19px; height:19px; border-radius:50%;
+  background:var(--text3); transition:transform .25s, background .25s;
+}
+.toggle.on-amb::after, .toggle.on-ind::after { transform:translateX(21px); background:var(--text); }
 
-  .tagline {
-    font-size: 13px;
-    color: var(--text-sec);
-    text-align: center;
-    line-height: 1.6;
-    margin-bottom: 20px;
-    animation: fadeIn .5s .8s both;
-  }
+.stat-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+.stat-lbl   { font-size:10px; color:var(--text2); width:76px; }
+.stat-track { flex:1; height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
+.stat-fill  { height:100%; border-radius:2px; transition:width 1.2s cubic-bezier(.2,1,.5,1); }
+.stat-val   { font-size:10px; color:var(--text3); width:22px; text-align:right; }
 
-  .char-card {
-    width: 100%;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid rgba(124,58,237,.35);
-    box-shadow: 0 6px 24px rgba(124,58,237,.25);
-    margin-bottom: 20px;
-    animation: slideUp .6s .9s cubic-bezier(.2,1,.5,1) both;
-  }
-  .char-card-inner {
-    background: linear-gradient(135deg, #2D1069, #1A0A3B);
-    display: flex;
-    align-items: center;
-    padding: 16px;
-    gap: 14px;
-    position: relative;
-  }
-  .char-avatar {
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    background: rgba(124,58,237,.25);
-    border: 2px solid rgba(124,58,237,.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    flex-shrink: 0;
-  }
-  .char-name { font-size: 14px; font-weight: 800; color: var(--text); letter-spacing: 2px; }
-  .char-role { font-size: 11px; color: var(--primary-light); margin-top: 2px; }
-  .char-quote { font-size: 11px; color: var(--text-sec); font-style: italic; margin-top: 4px; line-height: 1.4; }
-  .char-star { position: absolute; top: 8px; right: 12px; color: var(--accent); font-size: 18px; }
+.sum-card { border-radius:14px; padding:14px; border:1px solid var(--border); }
+.sum-row  { display:flex; justify-content:space-between; margin-bottom:6px; }
+.sum-row:last-child { margin-bottom:0; }
+.sum-key  { font-size:12px; color:var(--text2); }
+.sum-val  { font-size:12px; font-weight:700; color:var(--text); }
 
-  .cta-btn {
-    width: 100%;
-    padding: 16px;
-    border-radius: 99px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    border: none;
-    color: var(--text);
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(124,58,237,.5);
-    animation: scaleIn .4s 1.4s cubic-bezier(.2,1.5,.5,1) both, pulse 2s 1.8s ease-in-out infinite;
-    transition: transform .12s, box-shadow .12s;
-  }
-  .cta-btn:hover { transform: scale(1.03); box-shadow: 0 10px 30px rgba(124,58,237,.65); }
-  .cta-btn:active { transform: scale(.97); }
-  @keyframes pulse {
-    0%,100% { transform: scale(1); }
-    50% { transform: scale(1.04); }
-  }
-  @keyframes scaleIn {
-    from { opacity:0; transform: scale(.4); }
-    to   { opacity:1; transform: scale(1); }
-  }
-  .version { font-size: 11px; color: var(--text-muted); margin-top: 14px; animation: fadeIn .5s 1.6s both; }
+/* ═══════════════════════════════════════════════════
+   WELCOME
+═══════════════════════════════════════════════════ */
+#s-welcome {
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; padding:55px 26px 36px; gap:0;
+}
+.stars { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.star  { position:absolute; border-radius:50%; animation:twinkle var(--d) ease-in-out infinite alternate; }
+@keyframes twinkle { from{opacity:var(--f)} to{opacity:var(--t)} }
 
-  /* ─── MENU SCREEN ─── */
-  #screen-menu {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-  }
+.w-logo { text-align:center; margin-bottom:26px; animation:logoIn .9s cubic-bezier(.2,1,.4,1) both; }
+@keyframes logoIn { from{opacity:0;transform:scale(.25) translateY(-40px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.w-crown { font-size:52px; display:block; margin-bottom:10px; filter:drop-shadow(0 0 18px rgba(245,158,11,.55)); }
+.w-line1 { font-size:11px; font-weight:700; color:var(--text3); letter-spacing:6px; text-transform:uppercase; }
+.w-line2 { font-size:38px; font-weight:900; color:var(--text); letter-spacing:5px; line-height:1.05; }
+.w-line3 { font-size:17px; font-weight:700; color:var(--ind-l); letter-spacing:9px; }
+.w-divider { width:44px; height:2px; background:linear-gradient(90deg,var(--ind),var(--amb)); border-radius:2px; margin:12px auto 0; }
 
-  .menu-header {
-    display: flex;
-    align-items: center;
-    padding: 52px 20px 8px;
-    flex-shrink: 0;
-    position: relative;
-  }
-  .back-btn {
-    background: none;
-    border: none;
-    color: var(--primary-light);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0;
-    width: 60px;
-  }
-  .header-center { flex: 1; text-align: center; }
-  .header-title { font-size: 20px; font-weight: 900; color: var(--text); letter-spacing: 4px; }
-  .header-sub { font-size: 11px; color: var(--primary-light); letter-spacing: 2px; }
-  .count-line { text-align: center; font-size: 11px; color: var(--text-muted); margin-bottom: 12px; flex-shrink: 0; }
+.w-chars { display:flex; gap:10px; margin-bottom:24px; animation:fadeUp .6s .55s both; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+.w-char {
+  flex:1; border-radius:16px; padding:13px 8px;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  border:1px solid var(--border); cursor:pointer; position:relative; overflow:hidden;
+  transition:transform .2s, border-color .2s;
+}
+.w-char:hover { transform:translateY(-3px); }
+.w-char.locked { opacity:.4; cursor:default; }
+.w-char.locked:hover { transform:none; }
+.w-char-glow { position:absolute; inset:0; border-radius:16px; opacity:.1; pointer-events:none; }
+.w-char.amb .w-char-glow { background:radial-gradient(circle at 50% 20%,#D97706,transparent); }
+.w-char.ind .w-char-glow { background:radial-gradient(circle at 50% 20%,#6366F1,transparent); }
+.w-char.amb { border-color:rgba(217,119,6,.3); }
+.w-char.ind { border-color:rgba(99,102,241,.3); }
+.w-char-emoji { font-size:30px; }
+.w-char-name  { font-size:9px; font-weight:800; color:var(--text); letter-spacing:1px; text-align:center; }
+.w-char-game  { font-size:8px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; }
 
-  .cards-scroll {
-    display: flex;
-    gap: 14px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 4px 24px 16px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    flex: 1;
-    min-height: 0;
-    align-items: stretch;
-  }
-  .cards-scroll::-webkit-scrollbar { display: none; }
+.w-cta {
+  width:100%; padding:17px; border-radius:99px; border:none;
+  background:linear-gradient(135deg,var(--ind),#3730A3);
+  color:var(--text); font-size:14px; font-weight:800; letter-spacing:2px;
+  cursor:pointer; box-shadow:0 10px 28px rgba(99,102,241,.5);
+  animation:fadeUp .6s .95s both, pulse 3.5s 2.5s ease-in-out infinite;
+  transition:transform .12s, box-shadow .12s;
+}
+.w-cta:hover  { transform:scale(1.02); box-shadow:0 12px 34px rgba(99,102,241,.65); }
+.w-cta:active { transform:scale(.97); }
+@keyframes pulse {
+  0%,100%{box-shadow:0 10px 28px rgba(99,102,241,.5)}
+  50%{box-shadow:0 12px 38px rgba(99,102,241,.7),0 0 0 5px rgba(99,102,241,.1)}
+}
+.w-ver { font-size:11px; color:var(--text3); margin-top:11px; animation:fadeUp .5s 1.2s both; }
 
-  .game-card {
-    min-width: 260px;
-    max-width: 268px;
-    border-radius: 24px;
-    padding: 18px 20px;
-    border: 1px solid #2D2D5E;
-    box-shadow: 0 10px 30px rgba(0,0,0,.4);
-    cursor: pointer;
-    transition: transform .18s, box-shadow .18s;
-    position: relative;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  .game-card:hover { transform: scale(1.02); box-shadow: 0 16px 40px rgba(0,0,0,.55); }
-  .game-card.locked { opacity: .72; cursor: default; }
-  .game-card.locked:hover { transform: none; }
+/* ═══════════════════════════════════════════════════
+   MENU
+═══════════════════════════════════════════════════ */
+#s-menu { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+.menu-hdr {
+  padding:54px 20px 12px; flex-shrink:0;
+  display:flex; align-items:center; gap:10px;
+}
+.menu-ttl-block { flex:1; text-align:center; }
+.menu-ttl { font-size:18px; font-weight:900; color:var(--text); letter-spacing:4px; }
+.menu-sub { font-size:10px; color:var(--text3); letter-spacing:2px; margin-top:1px; }
 
-  .gc-badge {
-    align-self: flex-end;
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 99px;
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    color: var(--text);
-    margin-bottom: 10px;
-    flex-shrink: 0;
-  }
-  .gc-badge.available { background: var(--success); }
-  .gc-badge.locked-badge { background: var(--surface); color: var(--text-muted); }
+.menu-scroll {
+  flex:1; min-height:0; overflow-y:auto; overflow-x:hidden;
+  padding:4px 18px 24px; display:flex; flex-direction:column; gap:12px;
+  scrollbar-width:none;
+}
+.menu-scroll::-webkit-scrollbar { display:none; }
 
-  .gc-avatar {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-    margin-bottom: 10px;
-    flex-shrink: 0;
-  }
-  .gc-name { font-size: 20px; font-weight: 900; color: var(--text); margin-bottom: 2px; flex-shrink: 0; }
-  .gc-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; flex-shrink: 0; }
-  .gc-desc {
-    font-size: 11px; color: var(--text-sec); line-height: 1.55; margin-bottom: 10px;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-    flex-shrink: 0;
-  }
-  .gc-spacer { flex: 1; min-height: 6px; }
-  .gc-sep { height: 1px; margin-bottom: 10px; flex-shrink: 0; }
-  .gc-stats { margin-bottom: 10px; flex-shrink: 0; }
-  .stat-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-  .stat-label { font-size: 10px; color: var(--text-sec); width: 80px; }
-  .stat-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .stat-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
-  .stat-val { font-size: 10px; color: var(--text-muted); width: 24px; text-align: right; }
-  .gc-quote { font-size: 11px; color: var(--text-muted); font-style: italic; text-align: center; line-height: 1.5; margin-bottom: 12px; flex-shrink: 0; }
-  .gc-play-btn {
-    width: 100%;
-    padding: 10px;
-    border-radius: 99px;
-    border: none;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: var(--text);
-    cursor: pointer;
-    transition: opacity .15s, transform .12s;
-    flex-shrink: 0;
-    margin-top: auto;
-  }
-  .gc-play-btn:hover { opacity: .88; transform: scale(1.02); }
-  .gc-play-btn:active { transform: scale(.97); }
-  .gc-play-btn.dim { background: var(--surface); color: var(--text-muted); cursor: default; }
-  .gc-play-btn.dim:hover { opacity: 1; transform: none; }
+.m-card {
+  border-radius:20px; overflow:hidden; border:1px solid var(--border);
+  flex-shrink:0; cursor:pointer; transition:transform .2s, box-shadow .2s;
+  box-shadow:0 4px 18px rgba(0,0,0,.45);
+}
+.m-card:hover { transform:translateY(-2px) scale(1.005); box-shadow:0 10px 30px rgba(0,0,0,.55); }
+.m-card.locked { opacity:.55; cursor:default; }
+.m-card.locked:hover { transform:none; box-shadow:0 4px 18px rgba(0,0,0,.45); }
 
-  .swipe-hint { text-align: center; font-size: 11px; color: var(--text-muted); padding-bottom: 18px; }
+.m-card-head { padding:18px 18px 14px; display:flex; align-items:flex-start; gap:14px; }
+.m-card-avi  {
+  width:62px; height:62px; border-radius:17px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:36px;
+  border:1px solid rgba(255,255,255,.1);
+}
+.m-card-info { flex:1; min-width:0; }
+.m-card-name  { font-size:18px; font-weight:900; color:var(--text); margin-bottom:2px; }
+.m-card-title { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:7px; }
+.m-card-desc  { font-size:11px; color:var(--text2); line-height:1.5; }
 
-  /* ─── SETUP SCREEN ─── */
-  #screen-setup { display: flex; flex-direction: column; overflow-y: auto; }
+.m-card-stats { padding:0 18px 10px; }
+.m-card-sep   { height:1px; background:var(--border); margin-bottom:10px; }
 
-  .setup-header {
-    padding: 52px 24px 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-shrink: 0;
-  }
+.m-card-foot  { padding:0 18px 16px; display:flex; align-items:center; gap:10px; }
+.m-card-quote { flex:1; font-size:11px; color:var(--text3); font-style:italic; line-height:1.4; }
+.m-card-btn {
+  padding:8px 16px; border-radius:99px; border:none;
+  font-size:11px; font-weight:800; letter-spacing:1px; color:var(--text);
+  cursor:pointer; flex-shrink:0; transition:transform .12s, opacity .15s;
+}
+.m-card-btn:hover  { opacity:.85; transform:scale(1.05); }
+.m-card-btn:active { transform:scale(.95); }
+.m-card-btn.dim { background:var(--surface); color:var(--text3); cursor:default; }
+.m-card-btn.dim:hover { opacity:1; transform:none; }
 
-  .agent-pill {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(124,58,237,.18);
-    border: 1px solid rgba(124,58,237,.35);
-    border-radius: 99px;
-    padding: 8px 16px;
-    margin-bottom: 16px;
-  }
-  .agent-pill-name { font-size: 13px; font-weight: 700; color: var(--text); }
-  .agent-pill-quote { font-size: 10px; color: var(--text-sec); font-style: italic; }
+.badge-ok  { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:99px; font-size:9px; font-weight:700; letter-spacing:1px; background:rgba(16,185,129,.15); color:var(--green); border:1px solid rgba(16,185,129,.28); }
+.badge-no  { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:99px; font-size:9px; font-weight:700; letter-spacing:1px; background:var(--surface); color:var(--text3); border:1px solid var(--border); }
 
-  .setup-title { font-size: 30px; font-weight: 900; color: var(--text); letter-spacing: 4px; }
-  .setup-sub { font-size: 11px; color: var(--primary-light); letter-spacing: 2px; margin-top: 4px; }
+/* ═══════════════════════════════════════════════════
+   UNDERCOVER SETUP
+═══════════════════════════════════════════════════ */
+#s-uc-setup { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+.uc-scroll { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; padding:0 18px 32px; }
+.uc-scroll::-webkit-scrollbar { display:none; }
 
-  .setup-body { padding: 0 24px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.uc-hero {
+  padding:52px 20px 20px;
+  display:flex; flex-direction:column; align-items:center;
+  background:linear-gradient(180deg,rgba(217,119,6,.06),transparent);
+  flex-shrink:0;
+}
+.uc-badge {
+  display:flex; align-items:center; gap:10px;
+  background:rgba(217,119,6,.1); border:1px solid rgba(217,119,6,.25);
+  border-radius:99px; padding:7px 14px; margin-bottom:14px;
+}
+.uc-badge-emoji { font-size:26px; }
+.uc-badge-name  { font-size:13px; font-weight:800; color:var(--text); }
+.uc-badge-quote { font-size:10px; color:var(--text2); font-style:italic; }
+.uc-title { font-size:30px; font-weight:900; color:var(--text); letter-spacing:3px; }
+.uc-sub   { font-size:11px; color:var(--amb-l); letter-spacing:2px; margin-top:3px; }
 
-  .setting-card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 16px;
-    border: 1px solid var(--border);
-  }
-  .setting-label { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .setting-hint { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+.fstack { display:flex; flex-direction:column; gap:11px; }
 
-  .counter {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 8px;
-  }
-  .counter-btn {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: var(--primary);
-    border: none;
-    color: var(--text);
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background .15s, transform .1s;
-  }
-  .counter-btn:hover { transform: scale(1.1); }
-  .counter-btn:active { transform: scale(.9); }
-  .counter-btn:disabled { background: var(--border); cursor: default; transform: none; }
-  .counter-num {
-    font-size: 44px;
-    font-weight: 900;
-    color: var(--text);
-    width: 70px;
-    text-align: center;
-    line-height: 1;
-  }
+.theme-grid { display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
+.t-chip {
+  background:var(--surface); border-radius:10px; padding:7px 9px;
+  border:1px solid var(--border); cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; min-width:62px;
+  transition:border-color .15s, background .15s;
+}
+.t-chip.on { border-color:var(--amb); background:var(--amb-dim); }
+.t-chip-e { font-size:18px; margin-bottom:2px; }
+.t-chip-l { font-size:9px; font-weight:600; color:var(--text2); }
+.t-chip.on .t-chip-l { color:var(--amb-l); }
 
-  .setting-row { display: flex; align-items: center; gap: 12px; }
-  .toggle {
-    position: relative;
-    width: 48px;
-    height: 26px;
-    border-radius: 13px;
-    background: var(--border);
-    border: none;
-    cursor: pointer;
-    transition: background .25s;
-    flex-shrink: 0;
-  }
-  .toggle.on { background: rgba(124,58,237,.7); }
-  .toggle::after {
-    content: '';
-    position: absolute;
-    top: 3px; left: 3px;
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    background: var(--text-muted);
-    transition: transform .25s, background .25s;
-  }
-  .toggle.on::after { transform: translateX(22px); background: var(--primary); }
+.uc-footer { padding:10px 18px 32px; flex-shrink:0; }
 
-  .theme-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-  .theme-btn {
-    background: var(--surface);
-    border-radius: 12px;
-    padding: 8px 10px;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 68px;
-    transition: border-color .15s, background .15s;
-  }
-  .theme-btn.selected { border-color: var(--primary); background: rgba(124,58,237,.15); }
-  .theme-btn-emoji { font-size: 20px; margin-bottom: 3px; }
-  .theme-btn-label { font-size: 10px; font-weight: 600; color: var(--text-sec); }
-  .theme-btn.selected .theme-btn-label { color: var(--primary-light); }
+/* ═══════════════════════════════════════════════════
+   UNDERCOVER DISTRIBUTE
+═══════════════════════════════════════════════════ */
+#s-uc-distrib { display:flex; flex-direction:column; height:100%; }
 
-  .summary-card {
-    background: rgba(124,58,237,.1);
-    border-radius: 16px;
-    padding: 16px;
-    border: 1px solid rgba(124,58,237,.25);
-  }
-  .summary-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
-  .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
-  .summary-key { font-size: 12px; color: var(--text-sec); }
-  .summary-val { font-size: 12px; font-weight: 700; color: var(--text); }
+.d-top { padding:52px 18px 12px; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.cancel-btn { background:none; border:none; color:var(--red); font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; }
+.pdots { flex:1; display:flex; flex-wrap:wrap; justify-content:center; gap:5px; }
+.pdot { width:7px; height:7px; border-radius:50%; background:var(--border); transition:all .2s; }
+.pdot.done { background:var(--green); }
+.pdot.cur  { background:var(--amb); width:11px; height:11px; }
 
-  .launch-wrap { padding: 12px 24px 36px; flex-shrink: 0; }
-  .launch-btn {
-    width: 100%;
-    padding: 16px;
-    border-radius: 99px;
-    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-    border: none;
-    color: var(--text);
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(124,58,237,.5);
-    transition: transform .12s, box-shadow .12s;
-  }
-  .launch-btn:hover { transform: scale(1.02); box-shadow: 0 10px 32px rgba(124,58,237,.65); }
-  .launch-btn:active { transform: scale(.97); }
+.player-sec { display:flex; flex-direction:column; align-items:center; padding:2px 22px 14px; flex-shrink:0; }
+.p-lbl  { font-size:10px; font-weight:700; color:var(--text2); letter-spacing:4px; }
+.p-num  { font-size:68px; font-weight:900; color:var(--text); line-height:1; }
+.p-instr { font-size:12px; color:var(--text2); text-align:center; line-height:1.6; }
 
-  /* ─── DISTRIBUTE SCREEN ─── */
-  #screen-distrib { display: flex; flex-direction: column; }
+.card-zone { flex:1; margin:0 18px; position:relative; min-height:0; }
+.flip-card { position:absolute; inset:0; border-radius:20px; overflow:hidden; transition:opacity .25s; }
+.fc-hidden  { opacity:1; cursor:pointer; }
+.fc-reveal  { opacity:0; pointer-events:none; }
+.fc-face { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:22px; text-align:center; }
+.fc-lock-e { font-size:40px; margin-bottom:10px; }
+.fc-lock-t { font-size:11px; font-weight:800; color:var(--text2); letter-spacing:2px; margin-bottom:6px; }
+.fc-lock-s { font-size:11px; color:var(--text3); line-height:1.5; }
 
-  .distrib-top {
-    display: flex;
-    align-items: center;
-    padding: 52px 24px 16px;
-    gap: 12px;
-  }
-  .cancel-btn {
-    background: none;
-    border: none;
-    color: var(--danger);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .progress-dots {
-    flex: 1;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 5px;
-  }
-  .pdot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--border);
-    transition: background .2s, width .2s, height .2s;
-  }
-  .pdot.done { background: var(--success); }
-  .pdot.cur  { background: var(--primary); width: 11px; height: 11px; }
+.role-badge { display:flex; align-items:center; gap:7px; border:1px solid rgba(255,255,255,.2); border-radius:99px; padding:4px 12px; margin-bottom:12px; }
+.rb-e { font-size:16px; }
+.rb-l { font-size:10px; font-weight:800; letter-spacing:2px; }
+.word-lbl  { font-size:9px; font-weight:700; color:rgba(255,255,255,.32); letter-spacing:4px; margin-bottom:5px; }
+.word-text { font-size:26px; font-weight:900; color:var(--text); margin-bottom:3px; }
+.word-theme { font-size:10px; color:rgba(255,255,255,.28); margin-bottom:11px; }
+.role-msg   { font-size:11px; color:rgba(255,255,255,.5); font-style:italic; line-height:1.5; }
 
-  .player-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 24px 20px;
-  }
-  .player-lbl { font-size: 10px; font-weight: 600; color: var(--text-sec); letter-spacing: 4px; margin-bottom: 0; }
-  .player-num { font-size: 80px; font-weight: 900; color: var(--text); line-height: 1; }
-  .player-instr { font-size: 12px; color: var(--text-sec); text-align: center; line-height: 1.6; }
+.next-wrap { padding:10px 18px 30px; flex-shrink:0; }
+.next-btn {
+  width:100%; padding:13px; border-radius:99px;
+  background:linear-gradient(90deg,var(--amb),#92400E); border:none;
+  color:var(--text); font-size:13px; font-weight:800; letter-spacing:1px;
+  cursor:pointer; box-shadow:0 6px 18px rgba(217,119,6,.4);
+  opacity:0; pointer-events:none; transition:opacity .3s, transform .12s;
+}
+.next-btn.vis { opacity:1; pointer-events:all; }
+.next-btn:hover  { transform:scale(1.02); }
+.next-btn:active { transform:scale(.97); }
 
-  .card-zone {
-    flex: 1;
-    margin: 0 24px;
-    position: relative;
-    min-height: 240px;
-    max-height: 280px;
-  }
-  .flip-card {
-    position: absolute;
-    inset: 0;
-    border-radius: 20px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    box-shadow: 0 10px 30px rgba(0,0,0,.5);
-    cursor: pointer;
-    transition: opacity .3s ease;
-  }
-  .flip-card.hidden-card { opacity: 1; }
-  .flip-card.reveal-card { opacity: 0; pointer-events: none; }
-  .flip-card.revealed .hidden-card { opacity: 0; pointer-events: none; }
-  .flip-card.revealed .reveal-card { opacity: 1; pointer-events: all; }
+.done-sc {
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  position:absolute; inset:0; padding:38px 26px; text-align:center;
+  background:linear-gradient(160deg,#0A0600,#1C0C00);
+}
+.done-sc.show { display:flex; }
+.done-e   { font-size:58px; margin-bottom:13px; }
+.done-ttl { font-size:20px; font-weight:900; color:var(--text); letter-spacing:4px; margin-bottom:4px; }
+.done-sub { font-size:11px; color:var(--amb-l); letter-spacing:2px; margin-bottom:12px; }
+.done-body { font-size:13px; color:var(--text2); line-height:1.7; margin-bottom:20px; }
+.done-stats { display:flex; gap:26px; margin-bottom:26px; }
+.done-snum { font-size:34px; font-weight:900; display:block; }
+.done-slbl { font-size:11px; color:var(--text2); }
+.done-back {
+  background:rgba(255,255,255,.06); border:1px solid var(--border2);
+  border-radius:99px; padding:9px 24px;
+  color:var(--text2); font-size:13px; font-weight:600; cursor:pointer;
+}
+.done-back:hover { opacity:.7; }
 
-  .fc-grad {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    text-align: center;
-  }
-  .fc-lock-emoji { font-size: 48px; margin-bottom: 12px; }
-  .fc-lock-title { font-size: 13px; font-weight: 800; color: var(--text-sec); letter-spacing: 2px; margin-bottom: 8px; }
-  .fc-lock-sub { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
-  .fc-pattern {
-    position: absolute;
-    bottom: 8px; right: 8px;
-    display: flex;
-    flex-wrap: wrap;
-    width: 80px;
-    opacity: .06;
-    font-size: 13px;
-    line-height: 1.4;
-  }
+/* ═══════════════════════════════════════════════════
+   QUIZ SETUP
+═══════════════════════════════════════════════════ */
+#s-quiz-setup { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+.qsetup-scroll { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; padding:0 18px 32px; }
+.qsetup-scroll::-webkit-scrollbar { display:none; }
 
-  .role-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border: 1px solid rgba(255,255,255,.2);
-    border-radius: 99px;
-    padding: 5px 14px;
-    margin-bottom: 16px;
-  }
-  .role-badge-emoji { font-size: 18px; }
-  .role-badge-label { font-size: 12px; font-weight: 800; letter-spacing: 2px; }
-  .word-lbl { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.4); letter-spacing: 4px; margin-bottom: 8px; }
-  .word-text { font-size: 30px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
-  .word-theme-lbl { font-size: 10px; color: rgba(255,255,255,.35); margin-bottom: 14px; }
-  .role-msg { font-size: 12px; color: rgba(255,255,255,.6); font-style: italic; line-height: 1.5; }
+.genie-hero {
+  padding:52px 20px 20px;
+  display:flex; flex-direction:column; align-items:center;
+  background:linear-gradient(180deg,rgba(99,102,241,.07),transparent);
+  flex-shrink:0;
+}
+.genie-badge {
+  display:flex; align-items:center; gap:10px;
+  background:rgba(99,102,241,.1); border:1px solid rgba(99,102,241,.25);
+  border-radius:99px; padding:7px 14px; margin-bottom:14px;
+}
+.genie-badge-e { font-size:26px; }
+.genie-badge-n { font-size:13px; font-weight:800; color:var(--text); }
+.genie-badge-q { font-size:10px; color:var(--text2); font-style:italic; }
+.genie-title   { font-size:28px; font-weight:900; color:var(--text); letter-spacing:3px; }
+.genie-sub     { font-size:11px; color:var(--ind-l); letter-spacing:2px; margin-top:3px; }
 
-  .next-wrap { padding: 12px 24px 28px; }
-  .next-btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 99px;
-    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-    border: none;
-    color: var(--text);
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    cursor: pointer;
-    box-shadow: 0 6px 20px rgba(124,58,237,.45);
-    transition: transform .12s;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .3s, transform .12s;
-  }
-  .next-btn.visible { opacity: 1; pointer-events: all; }
-  .next-btn:hover { transform: scale(1.02); }
-  .next-btn:active { transform: scale(.97); }
+.cat-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:9px; }
+.cat-chip {
+  border-radius:12px; padding:10px 11px;
+  border:1px solid var(--border); background:var(--surface);
+  cursor:pointer; display:flex; align-items:center; gap:8px;
+  transition:border-color .15s, background .15s;
+}
+.cat-chip.on { border-color:var(--ind); background:var(--ind-dim); }
+.cat-chip-e { font-size:17px; }
+.cat-chip-l { font-size:11px; font-weight:600; color:var(--text2); flex:1; }
+.cat-chip.on .cat-chip-l { color:var(--ind-l); }
+.cat-check {
+  width:15px; height:15px; border-radius:50%; background:var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; flex-shrink:0; transition:background .15s;
+}
+.cat-chip.on .cat-check { background:var(--ind); color:#fff; content:'✓'; }
 
-  /* Done screen */
-  .done-screen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 40px 28px;
-    text-align: center;
-    animation: fadeIn .5s ease;
-  }
-  .done-screen.show { display: flex; }
-  .done-emoji { font-size: 64px; margin-bottom: 16px; }
-  .done-title { font-size: 24px; font-weight: 900; color: var(--text); letter-spacing: 4px; margin-bottom: 4px; }
-  .done-sub { font-size: 12px; color: var(--primary-light); letter-spacing: 2px; margin-bottom: 16px; }
-  .done-body { font-size: 14px; color: var(--text-sec); line-height: 1.7; margin-bottom: 24px; }
-  .done-stats { display: flex; gap: 32px; margin-bottom: 32px; }
-  .done-stat-num { font-size: 40px; font-weight: 900; display: block; }
-  .done-stat-lbl { font-size: 11px; color: var(--text-sec); }
-  .done-back-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: 10px 28px;
-    color: var(--text-sec);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity .15s;
-  }
-  .done-back-btn:hover { opacity: .75; }
+.dur-row { display:flex; gap:7px; margin-top:8px; }
+.dur-chip {
+  flex:1; padding:8px; border-radius:10px; text-align:center;
+  border:1px solid var(--border); background:var(--surface);
+  font-size:12px; font-weight:600; color:var(--text2); cursor:pointer;
+  transition:border-color .15s, background .15s;
+}
+.dur-chip.on { border-color:var(--ind); background:var(--ind-dim); color:var(--ind-l); }
 
-  /* ─── Utils ─── */
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.qsetup-footer { padding:10px 18px 32px; flex-shrink:0; }
 
-  /* ─── Tabs below phone ─── */
-  .tabs {
-    display: flex;
-    gap: 10px;
-    background: #111122;
-    border: 1px solid #1E1E4E;
-    border-radius: 12px;
-    padding: 6px;
-  }
-  .tab-btn {
-    padding: 8px 16px;
-    border-radius: 8px;
-    border: none;
-    background: none;
-    color: var(--text-muted);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background .15s, color .15s;
-  }
-  .tab-btn.active { background: var(--primary); color: var(--text); }
-  .tab-btn:hover:not(.active) { color: var(--text-sec); background: rgba(255,255,255,.05); }
+/* ═══════════════════════════════════════════════════
+   QUIZ GAME
+═══════════════════════════════════════════════════ */
+#s-quiz-game { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+
+.qg-header {
+  padding:52px 18px 10px; flex-shrink:0;
+  display:flex; align-items:center; gap:10px;
+}
+.qg-prog-wrap { flex:1; text-align:center; }
+.qg-count   { font-size:11px; font-weight:700; color:var(--text3); letter-spacing:2px; }
+.qg-prog-bar { height:3px; background:var(--border); border-radius:2px; overflow:hidden; margin:4px 0; }
+.qg-prog-fill { height:100%; background:linear-gradient(90deg,var(--ind),var(--ind-l)); border-radius:2px; transition:width .35s ease; }
+
+.timer-bar { height:4px; flex-shrink:0; margin:0 18px 6px; background:var(--border); border-radius:2px; overflow:hidden; }
+.timer-fill { height:100%; border-radius:2px; transition:width 1s linear, background .3s; }
+.timer-fill.ok   { background:var(--green); }
+.timer-fill.warn { background:var(--gold); }
+.timer-fill.hot  { background:var(--red); }
+
+.player-tag {
+  margin:0 18px 10px; padding:6px 13px; border-radius:99px;
+  background:var(--surface); border:1px solid var(--border);
+  display:flex; align-items:center; gap:8px; flex-shrink:0;
+}
+.pt-lbl   { font-size:10px; color:var(--text3); }
+.pt-name  { font-size:12px; font-weight:700; color:var(--text); }
+.pt-score { margin-left:auto; font-size:12px; font-weight:800; color:var(--ind-l); }
+
+.q-zone { flex:1; min-height:0; margin:0 18px; display:flex; flex-direction:column; justify-content:center; }
+.q-cat  { display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+.q-text { font-size:17px; font-weight:800; color:var(--text); line-height:1.4; margin-bottom:18px; }
+.q-choices { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+
+.choice {
+  border-radius:13px; padding:12px 9px;
+  border:1px solid var(--border); background:var(--card);
+  cursor:pointer; display:flex; align-items:flex-start; gap:7px;
+  transition:border-color .15s, background .15s, transform .1s;
+}
+.choice:hover:not(:disabled) { border-color:var(--ind); background:var(--ind-dim); transform:scale(1.02); }
+.choice:active:not(:disabled) { transform:scale(.97); }
+.choice:disabled { cursor:default; transform:none !important; }
+.choice-l {
+  width:21px; height:21px; border-radius:6px;
+  background:var(--surface); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:800; color:var(--text3);
+}
+.choice-t { font-size:11px; font-weight:600; color:var(--text); line-height:1.4; padding-top:2px; }
+.choice.correct { border-color:var(--green); background:rgba(16,185,129,.1); }
+.choice.correct .choice-l { background:var(--green); color:#fff; }
+.choice.wrong   { border-color:var(--red); background:rgba(239,68,68,.08); opacity:.65; }
+.choice.wrong   .choice-l { background:var(--red); color:#fff; }
+
+.q-anecdote {
+  margin:10px 18px 0; padding:10px 13px;
+  background:rgba(99,102,241,.07); border:1px solid rgba(99,102,241,.18);
+  border-radius:11px; display:none; flex-shrink:0;
+}
+.q-anecdote.show { display:block; }
+.q-anecdote-txt { font-size:11px; color:var(--text2); line-height:1.55; }
+
+.q-next-wrap { padding:8px 18px 26px; flex-shrink:0; }
+.q-next-btn {
+  width:100%; padding:13px; border-radius:99px;
+  background:linear-gradient(90deg,var(--ind),#3730A3); border:none;
+  color:var(--text); font-size:13px; font-weight:800; letter-spacing:1px;
+  cursor:pointer; box-shadow:0 6px 18px rgba(99,102,241,.4);
+  opacity:0; pointer-events:none; transition:opacity .3s, transform .12s;
+}
+.q-next-btn.vis { opacity:1; pointer-events:all; }
+.q-next-btn:hover  { transform:scale(1.02); }
+.q-next-btn:active { transform:scale(.97); }
+
+/* ═══════════════════════════════════════════════════
+   QUIZ RESULTS
+═══════════════════════════════════════════════════ */
+#s-quiz-res {
+  display:flex; flex-direction:column; align-items:center;
+  height:100%; overflow-y:auto; overflow-x:hidden;
+  padding:50px 18px 36px; scrollbar-width:none;
+  background:linear-gradient(160deg,#05050E,#0C0A2C);
+}
+#s-quiz-res::-webkit-scrollbar { display:none; }
+.res-genie  { font-size:50px; margin-bottom:7px; filter:drop-shadow(0 0 14px rgba(99,102,241,.6)); }
+.res-title  { font-size:20px; font-weight:900; color:var(--text); letter-spacing:4px; }
+.res-sub    { font-size:11px; color:var(--ind-l); letter-spacing:2px; margin-top:2px; margin-bottom:20px; }
+
+.podium { display:flex; align-items:flex-end; gap:7px; width:100%; margin-bottom:16px; }
+.pod {
+  flex:1; border-radius:13px; padding:10px 6px;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  border:1px solid var(--border);
+}
+.pod.p1 { background:linear-gradient(180deg,rgba(245,158,11,.14),rgba(245,158,11,.04)); border-color:rgba(245,158,11,.28); padding-bottom:14px; }
+.pod-medal { font-size:20px; }
+.pod.p1 .pod-medal { font-size:26px; }
+.pod-name  { font-size:10px; font-weight:700; color:var(--text); text-align:center; line-height:1.3; }
+.pod-score { font-size:18px; font-weight:900; color:var(--text2); }
+.pod.p1 .pod-score { font-size:24px; color:var(--gold); }
+.pod.p2 .pod-score { color:#94A3B8; }
+.pod.p3 .pod-score { font-size:16px; color:#A97140; }
+
+.res-list { width:100%; display:flex; flex-direction:column; gap:7px; margin-bottom:20px; }
+.res-row {
+  display:flex; align-items:center; gap:11px;
+  background:var(--card); border-radius:11px; padding:11px 13px;
+  border:1px solid var(--border);
+}
+.res-rank  { font-size:14px; font-weight:900; color:var(--text3); width:22px; }
+.res-name  { flex:1; font-size:13px; font-weight:700; color:var(--text); }
+.res-score { font-size:16px; font-weight:900; color:var(--ind-l); }
+.res-pct   { font-size:10px; color:var(--text3); }
+.res-acts  { width:100%; display:flex; flex-direction:column; gap:9px; }
+.btn-sec {
+  width:100%; padding:12px; border-radius:99px;
+  background:var(--surface); border:1px solid var(--border2);
+  color:var(--text2); font-size:13px; font-weight:700; cursor:pointer;
+  transition:background .15s;
+}
+.btn-sec:hover { background:var(--card2); color:var(--text); }
+
+/* ═══════════════════════════════════════════════════
+   EXTERNAL NAV
+═══════════════════════════════════════════════════ */
+.nav-tabs {
+  display:flex; gap:7px; flex-wrap:wrap; justify-content:center;
+  background:#0D0D1C; border:1px solid var(--border);
+  border-radius:13px; padding:5px;
+}
+.tab-btn {
+  padding:6px 13px; border-radius:8px; border:none;
+  background:none; color:var(--text3);
+  font-size:11px; font-weight:600; cursor:pointer;
+  transition:background .15s, color .15s;
+}
+.tab-btn.on { background:var(--ind); color:var(--text); }
+.tab-btn:hover:not(.on) { color:var(--text2); background:rgba(255,255,255,.04); }
+
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 </style>
 </head>
 <body>
 
-<p class="page-title">🎭 La Soirée des Légendes — Aperçu</p>
+<p class="page-label">🎭 La Soirée des Légendes — Aperçu v2</p>
 
 <div class="phone">
-  <div class="phone-notch"></div>
+  <div class="notch"><div class="notch-dot"></div></div>
 
-  <!-- ══════════════════════ WELCOME ══════════════════════ -->
-  <div id="screen-welcome" class="screen grad-welcome active">
-    <div class="particles" id="particles"></div>
-    <div class="logo-wrap">
-      <span class="logo-emoji">🎭</span>
-      <div class="logo-title">LA SOIRÉE</div>
-      <div class="logo-sub">DES LÉGENDES</div>
-      <div class="logo-divider"></div>
+  <!-- ══════════ WELCOME ══════════ -->
+  <div id="s-welcome" class="screen bg-welcome active">
+    <div class="stars" id="stars"></div>
+    <div class="w-logo">
+      <span class="w-crown">👑</span>
+      <div class="w-line1">La Soirée</div>
+      <div class="w-line2">DES</div>
+      <div class="w-line3">LÉGENDES</div>
+      <div class="w-divider"></div>
     </div>
-    <div class="tagline">Les meilleurs jeux pour vos soirées inoubliables ✨</div>
-    <div class="char-card">
-      <div class="char-card-inner">
-        <div class="char-avatar">🕵️</div>
-        <div>
-          <div class="char-name">AGENT OMBRE</div>
-          <div class="char-role">Maître de l'Infiltration</div>
-          <div class="char-quote">"Qui cache quoi... et pourquoi ?"</div>
-        </div>
-        <span class="char-star">✦</span>
+    <div class="w-chars">
+      <div class="w-char amb" onclick="goto('uc-setup')">
+        <div class="w-char-glow"></div>
+        <div class="w-char-emoji">🕵️</div>
+        <div class="w-char-name">SHERLOCK</div>
+        <div class="w-char-game">Undercover</div>
+      </div>
+      <div class="w-char ind" onclick="goto('quiz-setup')">
+        <div class="w-char-glow"></div>
+        <div class="w-char-emoji">🧞</div>
+        <div class="w-char-name">LE GÉNIE</div>
+        <div class="w-char-game">Quiz</div>
+      </div>
+      <div class="w-char locked">
+        <div class="w-char-emoji">👑</div>
+        <div class="w-char-name">CLÉO</div>
+        <div class="w-char-game">🔒 Bientôt</div>
+      </div>
+      <div class="w-char locked">
+        <div class="w-char-emoji">🧙</div>
+        <div class="w-char-name">MERLIN</div>
+        <div class="w-char-game">🔒 Bientôt</div>
       </div>
     </div>
-    <button class="cta-btn" onclick="goto('menu')">🎮  COMMENCER LA SOIRÉE</button>
-    <div class="version">v1.0 · Bêta</div>
+    <button class="w-cta" onclick="goto('menu')">🎮  COMMENCER LA SOIRÉE</button>
+    <div class="w-ver">v2.0 · Bêta</div>
   </div>
 
-  <!-- ══════════════════════ MENU ══════════════════════ -->
-  <div id="screen-menu" class="screen grad-menu">
-    <div class="menu-header">
-      <button class="back-btn" onclick="goto('welcome')">← Retour</button>
-      <div class="header-center">
-        <div class="header-title">CHOISISSEZ</div>
-        <div class="header-sub">votre aventure</div>
+  <!-- ══════════ MENU ══════════ -->
+  <div id="s-menu" class="screen bg-menu">
+    <div class="menu-hdr">
+      <button class="btn-back" onclick="goto('welcome')">←</button>
+      <div class="menu-ttl-block">
+        <div class="menu-ttl">CHOISISSEZ</div>
+        <div class="menu-sub">votre aventure</div>
       </div>
-      <div style="width:60px"></div>
+      <div style="width:28px"></div>
     </div>
-    <div class="count-line">1 jeu disponible · 3 en développement</div>
-
-    <div class="cards-scroll" id="cards-scroll"></div>
-
-    <div class="swipe-hint">← Faites glisser pour tous les voir →</div>
+    <div class="menu-scroll" id="menu-scroll"></div>
   </div>
 
-  <!-- ══════════════════════ SETUP ══════════════════════ -->
-  <div id="screen-setup" class="screen grad-setup">
-    <div class="setup-header">
-      <button class="back-btn" onclick="goto('menu')" style="align-self:flex-start; margin-bottom:12px">← Retour</button>
-      <div class="agent-pill">
-        <span style="font-size:24px">🕵️</span>
-        <div>
-          <div class="agent-pill-name">Agent Ombre</div>
-          <div class="agent-pill-quote">"Préparez-vous à mentir..."</div>
-        </div>
+  <!-- ══════════ UNDERCOVER SETUP ══════════ -->
+  <div id="s-uc-setup" class="screen bg-sheriff">
+    <div class="uc-hero">
+      <button class="btn-back" style="align-self:flex-start;margin-bottom:12px" onclick="goto('menu')">← Retour</button>
+      <div class="uc-badge">
+        <span class="uc-badge-emoji">🕵️</span>
+        <div><div class="uc-badge-name">Sherlock Holmes</div><div class="uc-badge-quote">"Élémentaire, mon cher Watson."</div></div>
       </div>
-      <div class="setup-title">UNDERCOVER</div>
-      <div class="setup-sub">Configuration de la mission</div>
+      <div class="uc-title">UNDERCOVER</div>
+      <div class="uc-sub">Configuration de la mission</div>
     </div>
-
-    <div class="setup-body">
-      <!-- Players -->
-      <div class="setting-card">
-        <div class="setting-label">👥 Nombre de joueurs</div>
-        <div class="counter">
-          <button class="counter-btn" id="btn-pl-minus" onclick="changePlayers(-1)">−</button>
-          <div class="counter-num" id="player-count">5</div>
-          <button class="counter-btn" id="btn-pl-plus" onclick="changePlayers(1)">+</button>
-        </div>
-      </div>
-
-      <!-- Undercover -->
-      <div class="setting-card">
-        <div class="setting-label">🕵️ Nombre d'espions</div>
-        <div class="setting-hint">Recommandé : 1 espion pour 3 joueurs</div>
-        <div class="counter">
-          <button class="counter-btn" id="btn-uc-minus" onclick="changeUndercover(-1)">−</button>
-          <div class="counter-num" id="uc-count">1</div>
-          <button class="counter-btn" id="btn-uc-plus" onclick="changeUndercover(1)">+</button>
-        </div>
-      </div>
-
-      <!-- Mr. White -->
-      <div class="setting-card">
-        <div class="setting-row">
-          <div style="flex:1">
-            <div class="setting-label">👻 Monsieur Blanc</div>
-            <div class="setting-hint" style="margin-bottom:0">Un joueur sans mot qui bluff</div>
+    <div class="uc-scroll">
+      <div class="fstack">
+        <div class="card">
+          <div class="card-label">👥 Nombre de joueurs</div>
+          <div class="counter">
+            <button class="ctr-btn" id="bplm" onclick="chPl(-1)">−</button>
+            <div class="ctr-num" id="pl-n">5</div>
+            <button class="ctr-btn" id="bplp" onclick="chPl(1)">+</button>
           </div>
-          <button class="toggle" id="toggle-mw" onclick="toggleMrWhite()"></button>
+        </div>
+        <div class="card">
+          <div class="card-label">🕵️ Nombre d'espions</div>
+          <div class="card-hint">1 espion recommandé pour 3 joueurs</div>
+          <div class="counter">
+            <button class="ctr-btn" id="bucm" onclick="chUC(-1)">−</button>
+            <div class="ctr-num" id="uc-n">1</div>
+            <button class="ctr-btn" id="bucp" onclick="chUC(1)">+</button>
+          </div>
+        </div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="flex:1">
+              <div class="card-label">👻 Monsieur Blanc</div>
+              <div class="card-hint" style="margin-bottom:0">Un joueur sans mot qui doit bluffer</div>
+            </div>
+            <button class="toggle" id="tog-mw" onclick="togMW()"></button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">🎲 Thème des mots</div>
+          <div class="theme-grid">
+            <button class="t-chip on" data-t="classique" onclick="selT(this)"><span class="t-chip-e">🎯</span><span class="t-chip-l">Classique</span></button>
+            <button class="t-chip" data-t="nature"    onclick="selT(this)"><span class="t-chip-e">🌿</span><span class="t-chip-l">Nature</span></button>
+            <button class="t-chip" data-t="cinema"    onclick="selT(this)"><span class="t-chip-e">🎬</span><span class="t-chip-l">Cinéma</span></button>
+            <button class="t-chip" data-t="hot"       onclick="selT(this)"><span class="t-chip-e">🔥</span><span class="t-chip-l">Hot 🔥</span></button>
+            <button class="t-chip" data-t="aleatoire" onclick="selT(this)"><span class="t-chip-e">✨</span><span class="t-chip-l">Aléatoire</span></button>
+          </div>
+        </div>
+        <div class="sum-card" style="background:rgba(217,119,6,.06);border-color:rgba(217,119,6,.18)">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:9px">📋 Résumé</div>
+          <div class="sum-row"><span class="sum-key">Joueurs</span><span class="sum-val" id="s-pl">5</span></div>
+          <div class="sum-row"><span class="sum-key">Villageois</span><span class="sum-val" id="s-civ" style="color:var(--green)">4</span></div>
+          <div class="sum-row"><span class="sum-key">Espions</span><span class="sum-val" id="s-uc" style="color:var(--red)">1</span></div>
+          <div class="sum-row" id="s-mwr" style="display:none"><span class="sum-key">M. Blanc</span><span class="sum-val" style="color:var(--gold)">1</span></div>
+          <div class="sum-row"><span class="sum-key">Thème</span><span class="sum-val" id="s-th">Classique</span></div>
         </div>
       </div>
-
-      <!-- Theme -->
-      <div class="setting-card">
-        <div class="setting-label">🎲 Thème des mots</div>
-        <div class="theme-grid">
-          <button class="theme-btn selected" data-theme="classique" onclick="selectTheme(this)">
-            <span class="theme-btn-emoji">🎯</span>
-            <span class="theme-btn-label">Classique</span>
-          </button>
-          <button class="theme-btn" data-theme="nature" onclick="selectTheme(this)">
-            <span class="theme-btn-emoji">🌿</span>
-            <span class="theme-btn-label">Nature</span>
-          </button>
-          <button class="theme-btn" data-theme="cinema" onclick="selectTheme(this)">
-            <span class="theme-btn-emoji">🎬</span>
-            <span class="theme-btn-label">Cinéma</span>
-          </button>
-          <button class="theme-btn" data-theme="hot" onclick="selectTheme(this)">
-            <span class="theme-btn-emoji">🔥</span>
-            <span class="theme-btn-label">Hot 🔥</span>
-          </button>
-          <button class="theme-btn" data-theme="aleatoire" onclick="selectTheme(this)">
-            <span class="theme-btn-emoji">✨</span>
-            <span class="theme-btn-label">Aléatoire</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Summary -->
-      <div class="summary-card">
-        <div class="summary-title">📋 Résumé de la partie</div>
-        <div class="summary-row"><span class="summary-key">Joueurs</span><span class="summary-val" id="sum-players">5</span></div>
-        <div class="summary-row"><span class="summary-key">Villageois</span><span class="summary-val" id="sum-civ" style="color:var(--success)">4</span></div>
-        <div class="summary-row"><span class="summary-key">Espions</span><span class="summary-val" id="sum-uc" style="color:var(--danger)">1</span></div>
-        <div class="summary-row" id="sum-mw-row" style="display:none"><span class="summary-key">M. Blanc</span><span class="summary-val" style="color:var(--accent)">1</span></div>
-        <div class="summary-row"><span class="summary-key">Thème</span><span class="summary-val" id="sum-theme">Classique</span></div>
-      </div>
     </div>
-
-    <div class="launch-wrap">
-      <button class="launch-btn" onclick="startGame()">🚀  LANCER LA MISSION</button>
-    </div>
+    <div class="uc-footer"><button class="btn-primary btn-amb" onclick="startUC()">🚀  LANCER LA MISSION</button></div>
   </div>
 
-  <!-- ══════════════════════ DISTRIBUTE ══════════════════════ -->
-  <div id="screen-distrib" class="screen grad-distrib">
-    <!-- Game area -->
-    <div id="distrib-game" style="display:flex;flex-direction:column;height:100%">
-      <div class="distrib-top">
-        <button class="cancel-btn" onclick="goto('setup')">✕ Annuler</button>
-        <div class="progress-dots" id="progress-dots"></div>
+  <!-- ══════════ UNDERCOVER DISTRIBUTE ══════════ -->
+  <div id="s-uc-distrib" class="screen bg-sheriff">
+    <div id="d-game" style="display:flex;flex-direction:column;height:100%">
+      <div class="d-top">
+        <button class="cancel-btn" onclick="goto('uc-setup')">✕ Annuler</button>
+        <div class="pdots" id="pdots"></div>
       </div>
-      <div class="player-section">
-        <div class="player-lbl">JOUEUR</div>
-        <div class="player-num" id="cur-player-num">1</div>
-        <div class="player-instr" id="player-instr">Prends le téléphone seul et appuie pour révéler ton rôle 👀</div>
+      <div class="player-sec">
+        <div class="p-lbl">JOUEUR</div>
+        <div class="p-num" id="p-num">1</div>
+        <div class="p-instr" id="p-instr">Prends le téléphone seul et appuie pour révéler 👀</div>
       </div>
       <div class="card-zone">
-        <!-- Hidden (front) -->
-        <div class="flip-card hidden-card" id="card-front" onclick="revealCard()">
-          <div class="fc-grad" style="background:linear-gradient(135deg,#1A1A35,#141428)">
-            <div class="fc-lock-emoji">🔒</div>
-            <div class="fc-lock-title">APPUYER POUR RÉVÉLER</div>
-            <div class="fc-lock-sub">Assure-toi que personne<br>ne regarde ton écran !</div>
-            <div class="fc-pattern">🕵️🕵️🕵️🕵️🕵️🕵️🕵️🕵️🕵️</div>
+        <div class="flip-card fc-hidden" id="fc-front" onclick="revealRole()">
+          <div class="fc-face" style="background:linear-gradient(135deg,#1A1005,#2A1A00)">
+            <div class="fc-lock-e">🔒</div>
+            <div class="fc-lock-t">APPUYER POUR RÉVÉLER</div>
+            <div class="fc-lock-s">Assure-toi que personne<br>ne regarde ton écran !</div>
           </div>
         </div>
-        <!-- Revealed (back) -->
-        <div class="flip-card reveal-card" id="card-back">
-          <div class="fc-grad" id="card-back-grad">
-            <div class="role-badge" id="role-badge">
-              <span class="role-badge-emoji" id="role-emoji">👤</span>
-              <span class="role-badge-label" id="role-label">VILLAGEOIS</span>
-            </div>
+        <div class="flip-card fc-reveal" id="fc-back">
+          <div class="fc-face" id="fc-back-face">
+            <div class="role-badge" id="rbadge"><span class="rb-e" id="remoji">👤</span><span class="rb-l" id="rlabel">VILLAGEOIS</span></div>
             <div class="word-lbl">TON MOT</div>
-            <div class="word-text" id="role-word">—</div>
-            <div class="word-theme-lbl" id="role-theme-lbl">Thème : Classique</div>
-            <div class="role-msg" id="role-msg">Décris ton mot sans jamais le prononcer.</div>
+            <div class="word-text" id="rword">—</div>
+            <div class="word-theme" id="rtheme">Thème : Classique</div>
+            <div class="role-msg" id="rmsg">Décris ton mot sans jamais le prononcer.</div>
           </div>
         </div>
       </div>
-      <div class="next-wrap">
-        <button class="next-btn" id="next-btn" onclick="nextPlayer()">Joueur 2 →</button>
-      </div>
+      <div class="next-wrap"><button class="next-btn" id="next-btn" onclick="nextPlayer()">Joueur 2 →</button></div>
     </div>
-    <!-- Done -->
-    <div class="done-screen" id="done-screen">
-      <div class="done-emoji">⚔️</div>
-      <div class="done-title">MISSION LANCÉE</div>
-      <div class="done-sub">Tous les rôles ont été distribués</div>
+    <div class="done-sc" id="done-sc">
+      <div class="done-e">⚔️</div>
+      <div class="done-ttl">MISSION LANCÉE</div>
+      <div class="done-sub">Tous les rôles distribués</div>
       <div class="done-body">La partie peut commencer.<br>Que le meilleur menteur gagne !</div>
       <div class="done-stats" id="done-stats"></div>
-      <button class="done-back-btn" onclick="goto('menu')">Retour au menu</button>
+      <button class="done-back" onclick="goto('menu')">Retour au menu</button>
     </div>
   </div>
+
+  <!-- ══════════ QUIZ SETUP ══════════ -->
+  <div id="s-quiz-setup" class="screen bg-genie">
+    <div class="genie-hero">
+      <button class="btn-back" style="align-self:flex-start;margin-bottom:12px" onclick="goto('menu')">← Retour</button>
+      <div class="genie-badge">
+        <span class="genie-badge-e">🧞</span>
+        <div><div class="genie-badge-n">Le Génie</div><div class="genie-badge-q">"Ton souhait est ma connaissance !"</div></div>
+      </div>
+      <div class="genie-title">QUIZ MASTER</div>
+      <div class="genie-sub">Préparez vos neurones</div>
+    </div>
+    <div class="qsetup-scroll">
+      <div class="fstack">
+        <div class="card">
+          <div class="card-label">👥 Nombre de joueurs</div>
+          <div class="counter">
+            <button class="ctr-btn" id="bqplm" onclick="chQPl(-1)">−</button>
+            <div class="ctr-num" id="qpl-n">3</div>
+            <button class="ctr-btn" id="bqplp" onclick="chQPl(1)">+</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">🏷️ Catégories</div>
+          <div class="card-hint">Sélectionne une ou plusieurs catégories</div>
+          <div class="cat-grid" id="cat-grid"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">❓ Nombre de questions</div>
+          <div class="dur-row">
+            <button class="dur-chip" data-q="5"  onclick="selQC(this)">5</button>
+            <button class="dur-chip on" data-q="10" onclick="selQC(this)">10</button>
+            <button class="dur-chip" data-q="15" onclick="selQC(this)">15</button>
+            <button class="dur-chip" data-q="20" onclick="selQC(this)">20</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">⏱️ Temps par question</div>
+          <div class="dur-row">
+            <button class="dur-chip" data-s="15"  onclick="selTim(this)">15s</button>
+            <button class="dur-chip on" data-s="30" onclick="selTim(this)">30s</button>
+            <button class="dur-chip" data-s="60" onclick="selTim(this)">60s</button>
+            <button class="dur-chip" data-s="0"  onclick="selTim(this)">∞</button>
+          </div>
+        </div>
+        <div class="sum-card" style="background:rgba(99,102,241,.06);border-color:rgba(99,102,241,.18)">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:9px">📋 Résumé</div>
+          <div class="sum-row"><span class="sum-key">Joueurs</span><span class="sum-val" id="qs-pl">3</span></div>
+          <div class="sum-row"><span class="sum-key">Questions</span><span class="sum-val" id="qs-q">10</span></div>
+          <div class="sum-row"><span class="sum-key">Timer</span><span class="sum-val" id="qs-t">30s</span></div>
+          <div class="sum-row"><span class="sum-key">Catégories</span><span class="sum-val" id="qs-cat">Toutes</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="qsetup-footer"><button class="btn-primary btn-ind" onclick="startQuiz()">🧞  EXAUCER LE VŒU</button></div>
+  </div>
+
+  <!-- ══════════ QUIZ GAME ══════════ -->
+  <div id="s-quiz-game" class="screen bg-quiz-g">
+    <div class="qg-header">
+      <button class="cancel-btn" style="color:var(--text3);font-size:11px" onclick="goto('quiz-setup')">✕</button>
+      <div class="qg-prog-wrap">
+        <div class="qg-count" id="qg-count">Q 1 / 10</div>
+        <div class="qg-prog-bar"><div class="qg-prog-fill" id="qg-prog" style="width:10%"></div></div>
+      </div>
+      <div style="font-size:18px">🧞</div>
+    </div>
+    <div class="timer-bar"><div class="timer-fill ok" id="timer-fill" style="width:100%"></div></div>
+    <div class="player-tag" id="player-tag">
+      <span class="pt-lbl">🎯 À toi :</span>
+      <span class="pt-name" id="pt-name">Joueur 1</span>
+      <span class="pt-score" id="pt-score">0 pts</span>
+    </div>
+    <div class="q-zone">
+      <div class="q-cat" id="q-cat">🧠 Culture G.</div>
+      <div class="q-text" id="q-text">Question...</div>
+      <div class="q-choices" id="q-choices"></div>
+    </div>
+    <div class="q-anecdote" id="q-anecdote"><div class="q-anecdote-txt" id="q-anecdote-txt"></div></div>
+    <div class="q-next-wrap"><button class="q-next-btn" id="q-next-btn" onclick="nextQ()">Suivant →</button></div>
+  </div>
+
+  <!-- ══════════ QUIZ RESULTS ══════════ -->
+  <div id="s-quiz-res" class="screen">
+    <div class="res-genie">🧞</div>
+    <div class="res-title">RÉSULTATS</div>
+    <div class="res-sub" id="res-sub">Quiz terminé !</div>
+    <div class="podium" id="podium"></div>
+    <div class="res-list" id="res-list"></div>
+    <div class="res-acts">
+      <button class="btn-primary btn-ind" onclick="startQuiz()">🔄 Rejouer</button>
+      <button class="btn-sec" onclick="goto('menu')">← Menu principal</button>
+    </div>
+  </div>
+
 </div><!-- /phone -->
 
-<!-- Navigation tabs -->
-<div class="tabs">
-  <button class="tab-btn active" id="tab-welcome" onclick="goto('welcome')">🎭 Accueil</button>
-  <button class="tab-btn" id="tab-menu" onclick="goto('menu')">🎮 Menu</button>
-  <button class="tab-btn" id="tab-setup" onclick="goto('setup')">⚙️ Config</button>
-  <button class="tab-btn" id="tab-distrib" onclick="goto('distrib')">🃏 Distribution</button>
+<div class="nav-tabs">
+  <button class="tab-btn on" id="tab-welcome"    onclick="goto('welcome')">🎭 Accueil</button>
+  <button class="tab-btn"    id="tab-menu"       onclick="goto('menu')">🎮 Menu</button>
+  <button class="tab-btn"    id="tab-uc-setup"   onclick="goto('uc-setup')">🕵️ Undercover</button>
+  <button class="tab-btn"    id="tab-uc-distrib" onclick="goto('uc-distrib')">🃏 Distribution</button>
+  <button class="tab-btn"    id="tab-quiz-setup" onclick="goto('quiz-setup')">🧞 Quiz Setup</button>
+  <button class="tab-btn"    id="tab-quiz-game"  onclick="goto('quiz-game')">❓ Quiz</button>
+  <button class="tab-btn"    id="tab-quiz-res"   onclick="goto('quiz-res')">🏆 Résultats</button>
 </div>
 
 <script>
-// ── Data ──────────────────────────────────────────────────────────────────
-
-const CHARACTERS = [
-  {
-    name: 'Agent Ombre', emoji: '🕵️', title: 'Maître de l\'Infiltration',
-    desc: 'Expert en mensonges et double sens, Agent Ombre connaît tous vos secrets… même ceux que vous n\'avez pas encore dits.',
-    quote: '"Qui cache quoi... et pourquoi ?"',
-    color: '#7C3AED', grad: ['#1A0A3B','#2D1069'],
-    stats: [['Bluff',95],['Stratégie',88],['Charisme',72]],
-    available: true, game: 'undercover',
-  },
-  {
-    name: 'Maestro Zap', emoji: '⚡', title: 'Génie des Questions',
-    desc: 'Avec son intelligence foudroyante et sa mémoire photographique, Maestro Zap teste vos connaissances dans tous les domaines.',
-    quote: '"La connaissance est un pouvoir... électrisant !"',
-    color: '#0EA5E9', grad: ['#0A1A3B','#0A2B4A'],
-    stats: [['Savoir',99],['Rapidité',91],['Piège',85]],
-    available: false,
-  },
-  {
-    name: 'Lola Fiesta', emoji: '🎉', title: 'Reine de la Fête',
-    desc: 'Explosive, imprévisible, et toujours prête à faire monter la soirée d\'un cran. Lola Fiesta ne connaît pas la modération.',
-    quote: '"On est là pour s\'amuser, pas pour se souvenir !"',
-    color: '#EC4899', grad: ['#3B0A2A','#5B1040'],
-    stats: [['Chaos',97],['Audace',94],['Humour',89]],
-    available: false,
-  },
-  {
-    name: 'Doc Mystère', emoji: '🔮', title: 'Gardien des Secrets',
-    desc: 'Personne ne sait d\'où il vient ni ce qu\'il trame. Doc Mystère orchestre des jeux de rôle et d\'enquête inoubliables.',
-    quote: '"Le mystère est partout… cherchez bien."',
-    color: '#059669', grad: ['#0A2B1A','#0A3B25'],
-    stats: [['Énigme',98],['Manipulation',87],['Patience',76]],
-    available: false,
-  },
-];
-
-const THEMES = {
-  classique: { label:'Classique', pairs: [
-    {c:'Voiture',u:'Moto'},{c:'Plage',u:'Piscine'},{c:'Pizza',u:'Burger'},
-    {c:'Chat',u:'Chien'},{c:'Café',u:'Thé'},{c:'Football',u:'Rugby'},
-    {c:'Film',u:'Série'},{c:'Montagne',u:'Colline'},{c:'Soleil',u:'Lune'},
-    {c:'Chocolat',u:'Caramel'},
-  ]},
-  nature: { label:'Nature', pairs: [
-    {c:'Lion',u:'Tigre'},{c:'Forêt',u:'Jungle'},{c:'Rivière',u:'Lac'},
-    {c:'Oiseau',u:'Papillon'},{c:'Orage',u:'Tempête'},{c:'Désert',u:'Savane'},
-  ]},
-  cinema: { label:'Cinéma', pairs: [
-    {c:'Héros',u:'Super-héros'},{c:'Comédie',u:'Drame'},{c:'Oscar',u:'César'},
-    {c:'Popcorn',u:'Bonbons'},{c:'Horreur',u:'Thriller'},{c:'Streaming',u:'DVD'},
-  ]},
-  hot: { label:'Hot 🔥', pairs: [
-    {c:'Bondage',u:'Attaché'},{c:'Club échangisme',u:'Partouze'},{c:'Sextoy',u:'Jouet'},
-    {c:'Prostate',u:'Point G'},{c:'Fouet',u:'Matraque'},{c:'Lubrifiant',u:'Crème'},
-    {c:'Bidule',u:'Chose'},{c:'Pense-bête',u:'Post-it'},{c:'Raton-laveur',u:'Lave-vaisselle'},
-    {c:'Sucer',u:'Lécher'},{c:'Strip-tease',u:'Pole dance'},{c:'Capote',u:'Ballon'},
-    {c:'Prendre',u:'Enfiler'},{c:'Amuse-bouche',u:'Micro pénis'},{c:'Pamplemousse',u:'Orange'},
-    {c:'Phoque',u:'Morse'},{c:'Jupe',u:'Tanga'},{c:'Poils',u:'Clément'},
-    {c:'Cowgirl',u:'Équitation'},{c:'Tarte à la crème',u:'Tarte aux pommes'},
-  ]},
-  aleatoire: { label:'Aléatoire ✨', pairs: [] }, // généré dynamiquement
-};
-
-// ── Word clusters pour le mode Aléatoire ─────────────────────────────────
-const WORD_CLUSTERS = [
-  ['Chien','Chat','Lapin','Hamster'],
-  ['Lion','Tigre','Panthère','Guépard'],
-  ['Aigle','Faucon','Vautour','Buse'],
-  ['Dauphin','Baleine','Orque','Marsouin'],
-  ['Fourmi','Abeille','Guêpe','Frelon'],
-  ['Pizza','Burger','Hot-dog','Kebab'],
-  ['Café','Thé','Chocolat chaud','Cappuccino'],
-  ['Glace','Sorbet','Granita','Crème glacée'],
-  ['Croissant','Pain au chocolat','Brioche','Chausson'],
-  ['Vélo','Trottinette','Scooter','Moto'],
-  ['Avion','Hélicoptère','Planeur','ULM'],
-  ['Train','Métro','Tram','RER'],
-  ['Football','Rugby','Handball','Basket'],
-  ['Tennis','Badminton','Squash','Ping-pong'],
-  ['Natation','Plongée','Surf','Kayak'],
-  ['Pluie','Averse','Orage','Tempête'],
-  ['Neige','Grêle','Givre','Verglas'],
-  ['Boulanger','Pâtissier','Chocolatier','Confiseur'],
-  ['Médecin','Chirurgien','Urgentiste','Anesthésiste'],
-  ['Guitare','Violon','Alto','Violoncelle'],
-  ['Flûte','Clarinette','Hautbois','Saxophone'],
-  ['Fraise','Framboise','Cerise','Groseille'],
-  ['Orange','Citron','Pamplemousse','Mandarine'],
-  ['Carotte','Navet','Radis','Betterave'],
-  ['Camembert','Brie','Coulommiers','Munster'],
-  ['Château','Palais','Manoir','Forteresse'],
-  ['Maison','Villa','Chalet','Pavillon'],
-  ['Valse','Tango','Salsa','Bachata'],
-  ['Spider-Man','Batman','Superman','Iron Man'],
-  ['Fée','Sorcière','Elfe','Gnome'],
-  ['Instagram','TikTok','Snapchat','Pinterest'],
-  ['PlayStation','Xbox','Nintendo Switch','Steam Deck'],
-  ['Mars','Jupiter','Saturne','Vénus'],
-  ['Tour Eiffel','Arc de Triomphe','Sacré-Cœur','Panthéon'],
-  ['Boxe','Judo','Karaté','Taekwondo'],
-  ['Collier','Bracelet','Bague','Boucles d\'oreilles'],
-  ['Pantalon','Jean','Short','Bermuda'],
-  ['Baskets','Mocassins','Bottes','Sandales'],
-  ['Champagne','Prosecco','Cava','Crémant'],
-  ['Whisky','Rhum','Vodka','Gin'],
-  ['Riz','Pâtes','Semoule','Quinoa'],
-  ['Brocoli','Épinard','Courgette','Haricot vert'],
-  ['Piscine','Jacuzzi','Spa','Hammam'],
-  ['Roman','Nouvelle','Conte','Fable'],
-  ['Peinture','Dessin','Aquarelle','Gravure'],
-  ['Randonnée','Trekking','Alpinisme','Escalade'],
-  ['Anniversaire','Mariage','Baptême','Fiançailles'],
-  ['Hôtel','Auberge','Camping','Gîte'],
-  ['Bibliothèque','Médiathèque','Librairie','Bouquiniste'],
-  ['Pompier','Policier','Gendarme','Secouriste'],
-];
-
-function generateRandomPair(usedSet) {
-  let available = WORD_CLUSTERS.map((_, i) => i).filter(i => !usedSet.has(i));
-  if (available.length === 0) { usedSet.clear(); available = WORD_CLUSTERS.map((_, i) => i); }
-  const ci = available[Math.floor(Math.random() * available.length)];
-  usedSet.add(ci);
-  const words = [...WORD_CLUSTERS[ci]].sort(() => Math.random() - .5);
-  return { c: words[0], u: words[1] };
-}
-
-const ROLE_CFG = {
-  civilian:   { grad:'linear-gradient(135deg,#1A0A3B,#2D1069)', msg:'Décris ton mot sans jamais le prononcer.' },
-  undercover: { grad:'linear-gradient(135deg,#1A0A3B,#2D1069)', msg:'Décris ton mot sans jamais le prononcer.' },
-  mrwhite:    { grad:'linear-gradient(135deg,#1A0A3B,#2D1069)', msg:'Décris ce que tu ressens... joue le jeu !' },
-};
-
-// ── State ────────────────────────────────────────────────────────────────
-
-let state = {
-  players: 5,
-  undercover: 1,
-  mrWhite: false,
-  theme: 'classique',
-  roles: [],
-  currentPlayer: 0,
-  usedPairs: {}, // { themeKey: Set d'indices déjà joués }
-};
-
-// ── Particles ─────────────────────────────────────────────────────────────
-
-(function buildParticles() {
-  const container = document.getElementById('particles');
-  const colors = ['#7C3AED','#EC4899','#F59E0B'];
-  for (let i = 0; i < 28; i++) {
-    const el = document.createElement('div');
-    el.className = 'particle';
-    const size = Math.random() * 4 + 2;
-    const from = (Math.random() * .4 + .05).toFixed(2);
-    const to = (parseFloat(from) + Math.random() * .45 + .1).toFixed(2);
-    el.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;background:${colors[i%3]};--from:${from};--to:${to};--dur:${(2+Math.random()*4).toFixed(1)}s`;
-    container.appendChild(el);
+/* ══════════════════════════════════════════════════════
+   STARS
+══════════════════════════════════════════════════════ */
+(function(){
+  const c=document.getElementById('stars');
+  const cols=['#6366F1','#D97706','#EC4899','#10B981','#A5B4FC'];
+  for(let i=0;i<32;i++){
+    const e=document.createElement('div'); e.className='star';
+    const s=Math.random()*3.5+1;
+    const f=(Math.random()*.3+.03).toFixed(2);
+    const t=(+f+Math.random()*.4+.08).toFixed(2);
+    e.style.cssText=`width:${s}px;height:${s}px;top:${Math.random()*100}%;left:${Math.random()*100}%;background:${cols[i%5]};--f:${f};--t:${t};--d:${(2.5+Math.random()*4).toFixed(1)}s`;
+    c.appendChild(e);
   }
 })();
 
-// ── Cards ──────────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════
+   CHARACTERS + MENU
+══════════════════════════════════════════════════════ */
+const CHARS=[
+  { name:'Sherlock Holmes', emoji:'🕵️', title:'Maître de la Déduction', game:'undercover',
+    desc:'Le plus grand détective de tous les temps. Chaque mot est un indice, chaque joueur un suspect.',
+    quote:'"Élémentaire, mon cher Watson."',
+    color:'#D97706', grad:['#1C0A00','#2D1500'],
+    stats:[['Déduction',98],['Bluff',95],['Sang-froid',87]], available:true },
+  { name:'Le Génie', emoji:'🧞', title:'Gardien de la Sagesse', game:'quiz',
+    desc:'Omniscient et facétieux, il exauce les souhaits des curieux et piège les ignorants.',
+    quote:'"Ton souhait est ma connaissance !"',
+    color:'#6366F1', grad:['#080820','#14143A'],
+    stats:[['Savoir',99],['Rapidité',91],['Pièges',88]], available:true },
+  { name:'Cléopâtre', emoji:'👑', title:'Reine de la Fête', game:'party',
+    desc:"La grande pharaonne revient pour mettre le feu à vos soirées avec audace et majesté.",
+    quote:'"L\'Égypte entière dansait pour moi !"',
+    color:'#EC4899', grad:['#2A0A18','#3A0A22'],
+    stats:[['Audace',97],['Séduction',94],['Chaos',89]], available:false },
+  { name:'Merlin', emoji:'🧙', title:"L'Enchanteur", game:'mystery',
+    desc:"Le plus grand sorcier orchestre des aventures épiques où chaque joueur incarne un héros.",
+    quote:'"La magie est partout… cherchez bien."',
+    color:'#10B981', grad:['#0A1F12','#0A2D18'],
+    stats:[['Magie',98],['Mystère',96],['Sagesse',93]], available:false },
+];
 
-(function buildCards() {
-  const scroll = document.getElementById('cards-scroll');
-  CHARACTERS.forEach(ch => {
-    const card = document.createElement('div');
-    card.className = 'game-card' + (ch.available ? '' : ' locked');
-    card.style.background = `linear-gradient(135deg, ${ch.grad[0]}, ${ch.grad[1]})`;
-    card.style.borderColor = ch.available ? ch.color + '50' : '#1E1E4E';
-    if (ch.available) card.addEventListener('click', () => goto('setup'));
-
-    const badgeClass = ch.available ? 'available' : 'locked-badge';
-    const badgeText = ch.available ? '● DISPONIBLE' : '🔒 BIENTÔT';
-
-    const statsHTML = ch.stats.map(([k,v]) =>
-      `<div class="stat-row">
-        <div class="stat-label">${k}</div>
-        <div class="stat-track"><div class="stat-fill" style="width:${v}%;background:${ch.color}"></div></div>
-        <div class="stat-val">${v}</div>
-      </div>`
-    ).join('');
-
-    const playBtnClass = ch.available ? '' : ' dim';
-    const playBtnText = ch.available ? 'JOUER →' : 'En développement';
-    const playBtnStyle = ch.available ? `background:${ch.color}` : '';
-
-    card.innerHTML = `
-      <div class="gc-badge ${badgeClass}">${badgeText}</div>
-      <div class="gc-avatar" style="border-color:${ch.color}60;background:${ch.color}18">${ch.emoji}</div>
-      <div class="gc-name">${ch.name}</div>
-      <div class="gc-title" style="color:${ch.color}">${ch.title}</div>
-      <div class="gc-desc">${ch.desc}</div>
-      <div class="gc-spacer"></div>
-      <div class="gc-sep" style="background:${ch.color}35"></div>
-      <div class="gc-stats">${statsHTML}</div>
-      <div class="gc-quote">${ch.quote}</div>
-      <button class="gc-play-btn${playBtnClass}" style="${playBtnStyle}">${playBtnText}</button>
-    `;
-    scroll.appendChild(card);
+(function buildMenu(){
+  const sc=document.getElementById('menu-scroll');
+  CHARS.forEach(ch=>{
+    const d=document.createElement('div');
+    d.className='m-card'+(ch.available?'':' locked');
+    d.style.background=`linear-gradient(145deg,${ch.grad[0]},${ch.grad[1]})`;
+    d.style.borderColor=ch.available?ch.color+'28':'rgba(255,255,255,.05)';
+    if(ch.available) d.addEventListener('click',()=>goto(ch.game==='undercover'?'uc-setup':'quiz-setup'));
+    const stats=ch.stats.map(([k,v])=>`<div class="stat-row"><div class="stat-lbl">${k}</div><div class="stat-track"><div class="stat-fill" style="width:0%;background:${ch.color}" data-w="${v}"></div></div><div class="stat-val">${v}</div></div>`).join('');
+    const badge=ch.available?`<span class="badge-ok">● DISPONIBLE</span>`:`<span class="badge-no">🔒 BIENTÔT</span>`;
+    const btnC=ch.available?'':' dim';
+    const btnS=ch.available?`background:${ch.color};box-shadow:0 4px 12px ${ch.color}44`:'';
+    const btnT=ch.available?'JOUER →':'Bientôt';
+    d.innerHTML=`
+      <div class="m-card-head">
+        <div class="m-card-avi" style="background:${ch.color}18;border-color:${ch.color}28">${ch.emoji}</div>
+        <div class="m-card-info">
+          <div class="m-card-name">${ch.name}</div>
+          <div class="m-card-title" style="color:${ch.color}">${ch.title}</div>
+          ${badge}
+        </div>
+      </div>
+      <div style="padding:0 18px 6px"><div class="m-card-desc">${ch.desc}</div></div>
+      <div class="m-card-stats"><div class="m-card-sep"></div>${stats}</div>
+      <div class="m-card-foot">
+        <div class="m-card-quote">${ch.quote}</div>
+        <button class="m-card-btn${btnC}" style="${btnS}">${btnT}</button>
+      </div>`;
+    sc.appendChild(d);
   });
 })();
 
-// ── Navigation ─────────────────────────────────────────────────────────────
-
-function goto(screen) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('screen-' + screen).classList.add('active');
-  const tab = document.getElementById('tab-' + screen);
-  if (tab) tab.classList.add('active');
-
-  if (screen === 'distrib') initDistrib();
+function animStats(){
+  document.querySelectorAll('.stat-fill[data-w]').forEach(el=>{
+    setTimeout(()=>{el.style.width=el.dataset.w+'%'},150);
+  });
 }
 
-// ── Setup ──────────────────────────────────────────────────────────────────
-
-function updateSetupUI() {
-  const maxUC = Math.max(1, Math.floor(state.players / 3));
-  if (state.undercover > maxUC) state.undercover = maxUC;
-
-  document.getElementById('player-count').textContent = state.players;
-  document.getElementById('uc-count').textContent = state.undercover;
-  document.getElementById('btn-pl-minus').disabled = state.players <= 3;
-  document.getElementById('btn-pl-plus').disabled = state.players >= 12;
-  document.getElementById('btn-uc-minus').disabled = state.undercover <= 1;
-  document.getElementById('btn-uc-plus').disabled = state.undercover >= maxUC;
-
-  const civ = state.players - state.undercover - (state.mrWhite ? 1 : 0);
-  document.getElementById('sum-players').textContent = state.players;
-  document.getElementById('sum-civ').textContent = civ;
-  document.getElementById('sum-uc').textContent = state.undercover;
-  document.getElementById('sum-mw-row').style.display = state.mrWhite ? '' : 'none';
+/* ══════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════ */
+function goto(screen){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  const el=document.getElementById('s-'+screen);
+  if(el) el.classList.add('active');
+  const tab=document.getElementById('tab-'+screen);
+  if(tab) tab.classList.add('on');
+  if(screen==='menu') animStats();
+  if(screen==='uc-distrib') initDistrib();
 }
 
-function changePlayers(d) { state.players = Math.min(12, Math.max(3, state.players + d)); updateSetupUI(); }
-function changeUndercover(d) { const max = Math.max(1,Math.floor(state.players/3)); state.undercover = Math.min(max, Math.max(1, state.undercover + d)); updateSetupUI(); }
-function toggleMrWhite() {
-  state.mrWhite = !state.mrWhite;
-  document.getElementById('toggle-mw').classList.toggle('on', state.mrWhite);
-  updateSetupUI();
+/* ══════════════════════════════════════════════════════
+   UNDERCOVER DATA
+══════════════════════════════════════════════════════ */
+const THEMES={
+  classique:{label:'Classique',pairs:[
+    {c:'Voiture',u:'Moto'},{c:'Plage',u:'Piscine'},{c:'Pizza',u:'Burger'},{c:'Chat',u:'Chien'},
+    {c:'Café',u:'Thé'},{c:'Football',u:'Rugby'},{c:'Film',u:'Série'},{c:'Montagne',u:'Colline'},
+    {c:'Soleil',u:'Lune'},{c:'Chocolat',u:'Caramel'},{c:'Livre',u:'Magazine'},{c:'Avion',u:'Hélicoptère'},
+    {c:'Pluie',u:'Neige'},{c:'Musique',u:'Chanson'},{c:'Téléphone',u:'Tablette'},
+  ]},
+  nature:{label:'Nature',pairs:[
+    {c:'Lion',u:'Tigre'},{c:'Forêt',u:'Jungle'},{c:'Rivière',u:'Lac'},{c:'Fleur',u:'Plante'},
+    {c:'Oiseau',u:'Papillon'},{c:'Rocher',u:'Pierre'},{c:'Nuage',u:'Brouillard'},{c:'Feuille',u:'Herbe'},
+    {c:'Mer',u:'Océan'},{c:'Volcan',u:'Montagne'},{c:'Fourmi',u:'Abeille'},{c:'Orage',u:'Tempête'},
+    {c:'Cascade',u:'Fontaine'},{c:'Désert',u:'Savane'},{c:'Hibou',u:'Chouette'},
+  ]},
+  cinema:{label:'Cinéma',pairs:[
+    {c:'Héros',u:'Super-héros'},{c:'Cinéma',u:'Théâtre'},{c:'Comédie',u:'Drame'},
+    {c:'Réalisateur',u:'Producteur'},{c:'Oscar',u:'César'},{c:'Popcorn',u:'Bonbons'},
+    {c:'Effets spéciaux',u:'Cascades'},{c:'Horreur',u:'Thriller'},{c:'Animation',u:'Dessin animé'},
+    {c:'Remake',u:'Suite'},{c:'Streaming',u:'DVD'},{c:'Acteur',u:'Figurant'},
+    {c:'Scénario',u:'Roman'},{c:'Avant-première',u:'Festival'},{c:'Bande-annonce',u:'Affiche'},
+  ]},
+  hot:{label:'Hot 🔥',pairs:[
+    {c:'Bondage',u:'Attaché'},{c:'Club échangisme',u:'Partouze'},{c:'Sextoy',u:'Jouet'},
+    {c:'Prostate',u:'Point G'},{c:'Fouet',u:'Matraque'},{c:'Lubrifiant',u:'Crème'},
+    {c:'Bidule',u:'Chose'},{c:'Sucer',u:'Lécher'},{c:'Strip-tease',u:'Pole dance'},
+    {c:'Capote',u:'Ballon'},{c:'Prendre',u:'Enfiler'},{c:'Jupe',u:'Tanga'},
+    {c:'Cowgirl',u:'Équitation'},{c:'Amuse-bouche',u:'Micro pénis'},{c:'Pamplemousse',u:'Orange'},
+  ]},
+  aleatoire:{label:'Aléatoire ✨',pairs:[]},
+};
+
+const CLUSTERS=[
+  ['Chien','Chat','Lapin','Hamster'],['Lion','Tigre','Panthère','Guépard'],
+  ['Aigle','Faucon','Vautour','Buse'],['Dauphin','Baleine','Orque','Marsouin'],
+  ['Fourmi','Abeille','Guêpe','Frelon'],['Pizza','Burger','Hot-dog','Kebab'],
+  ['Café','Thé','Chocolat chaud','Cappuccino'],['Glace','Sorbet','Granita','Crème glacée'],
+  ['Croissant','Pain au chocolat','Brioche','Chausson'],['Vélo','Trottinette','Scooter','Moto'],
+  ['Avion','Hélicoptère','Planeur','ULM'],['Train','Métro','Tram','RER'],
+  ['Football','Rugby','Handball','Basket'],['Tennis','Badminton','Squash','Ping-pong'],
+  ['Natation','Plongée','Surf','Kayak'],['Pluie','Averse','Orage','Tempête'],
+  ['Neige','Grêle','Givre','Verglas'],['Boulanger','Pâtissier','Chocolatier','Confiseur'],
+  ['Médecin','Chirurgien','Urgentiste','Anesthésiste'],['Guitare','Violon','Alto','Violoncelle'],
+  ['Flûte','Clarinette','Hautbois','Saxophone'],['Fraise','Framboise','Cerise','Groseille'],
+  ['Orange','Citron','Pamplemousse','Mandarine'],['Carotte','Navet','Radis','Betterave'],
+  ['Camembert','Brie','Coulommiers','Munster'],['Château','Palais','Manoir','Forteresse'],
+  ['Maison','Villa','Chalet','Pavillon'],['Valse','Tango','Salsa','Bachata'],
+  ['Spider-Man','Batman','Superman','Iron Man'],['Fée','Sorcière','Elfe','Gnome'],
+  ['Instagram','TikTok','Snapchat','Pinterest'],['PlayStation','Xbox','Nintendo Switch','Steam Deck'],
+  ['Mars','Jupiter','Saturne','Vénus'],['Tour Eiffel','Arc de Triomphe','Sacré-Cœur','Panthéon'],
+  ['Boxe','Judo','Karaté','Taekwondo'],["Collier","Bracelet","Bague","Boucles d'oreilles"],
+  ['Pantalon','Jean','Short','Bermuda'],['Baskets','Mocassins','Bottes','Sandales'],
+  ['Champagne','Prosecco','Cava','Crémant'],['Whisky','Rhum','Vodka','Gin'],
+  ['Riz','Pâtes','Semoule','Quinoa'],['Brocoli','Épinard','Courgette','Haricot vert'],
+  ['Piscine','Jacuzzi','Spa','Hammam'],['Roman','Nouvelle','Conte','Fable'],
+  ['Peinture','Dessin','Aquarelle','Gravure'],['Randonnée','Trekking','Alpinisme','Escalade'],
+  ['Anniversaire','Mariage','Baptême','Fiançailles'],['Hôtel','Auberge','Camping','Gîte'],
+  ['Bibliothèque','Médiathèque','Librairie','Bouquiniste'],['Pompier','Policier','Gendarme','Secouriste'],
+];
+
+function genPair(used){
+  let av=CLUSTERS.map((_,i)=>i).filter(i=>!used.has(i));
+  if(!av.length){used.clear();av=CLUSTERS.map((_,i)=>i);}
+  const ci=av[Math.floor(Math.random()*av.length)];
+  used.add(ci);
+  const w=[...CLUSTERS[ci]].sort(()=>Math.random()-.5);
+  return {c:w[0],u:w[1]};
 }
-function selectTheme(btn) {
-  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  state.theme = btn.dataset.theme;
-  const labels = { classique:'Classique', nature:'Nature', cinema:'Cinéma', hot:'Hot 🔥', aleatoire:'Aléatoire ✨' };
-  document.getElementById('sum-theme').textContent = labels[state.theme] || state.theme;
+
+/* ══════════════════════════════════════════════════════
+   UNDERCOVER STATE + LOGIC
+══════════════════════════════════════════════════════ */
+const uc={pl:5,spies:1,mw:false,theme:'classique',roles:[],cur:0,used:{}};
+
+function updUC(){
+  const max=Math.max(1,Math.floor(uc.pl/3));
+  if(uc.spies>max) uc.spies=max;
+  document.getElementById('pl-n').textContent=uc.pl;
+  document.getElementById('uc-n').textContent=uc.spies;
+  document.getElementById('bplm').disabled=uc.pl<=3;
+  document.getElementById('bplp').disabled=uc.pl>=12;
+  document.getElementById('bucm').disabled=uc.spies<=1;
+  document.getElementById('bucp').disabled=uc.spies>=max;
+  const civ=uc.pl-uc.spies-(uc.mw?1:0);
+  document.getElementById('s-pl').textContent=uc.pl;
+  document.getElementById('s-civ').textContent=civ;
+  document.getElementById('s-uc').textContent=uc.spies;
+  document.getElementById('s-mwr').style.display=uc.mw?'':'none';
 }
-updateSetupUI();
-
-// ── Game logic ─────────────────────────────────────────────────────────────
-
-function shuffle(arr) {
-  for (let i = arr.length-1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i+1));
-    [arr[i],arr[j]] = [arr[j],arr[i]];
-  }
-  return arr;
+function chPl(d){uc.pl=Math.min(12,Math.max(3,uc.pl+d));updUC();}
+function chUC(d){const m=Math.max(1,Math.floor(uc.pl/3));uc.spies=Math.min(m,Math.max(1,uc.spies+d));updUC();}
+function togMW(){
+  uc.mw=!uc.mw;
+  document.getElementById('tog-mw').classList.toggle('on-amb',uc.mw);
+  updUC();
 }
+function selT(btn){
+  document.querySelectorAll('.t-chip').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  uc.theme=btn.dataset.t;
+  const lbl={classique:'Classique',nature:'Nature',cinema:'Cinéma',hot:'Hot 🔥',aleatoire:'Aléatoire ✨'};
+  document.getElementById('s-th').textContent=lbl[uc.theme]||uc.theme;
+}
+updUC();
 
-function startGame() {
-  const key = state.theme;
-  if (!state.usedPairs[key]) state.usedPairs[key] = new Set();
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
+function startUC(){
   let pair;
-  if (key === 'aleatoire') {
-    pair = generateRandomPair(state.usedPairs[key]);
+  const key=uc.theme;
+  if(!uc.used[key]) uc.used[key]=new Set();
+  if(key==='aleatoire'){
+    pair=genPair(uc.used[key]);
   } else {
-    const theme = THEMES[key];
-    let available = theme.pairs.map((_, i) => i).filter(i => !state.usedPairs[key].has(i));
-    if (available.length === 0) {
-      state.usedPairs[key] = new Set();
-      available = theme.pairs.map((_, i) => i);
-    }
-    const idx = available[Math.floor(Math.random() * available.length)];
-    state.usedPairs[key].add(idx);
-    pair = theme.pairs[idx];
+    const t=THEMES[key];
+    let av=t.pairs.map((_,i)=>i).filter(i=>!uc.used[key].has(i));
+    if(!av.length){uc.used[key]=new Set();av=t.pairs.map((_,i)=>i);}
+    const idx=av[Math.floor(Math.random()*av.length)];
+    uc.used[key].add(idx);
+    pair=t.pairs[idx];
   }
-  const roles = [];
-  const civCount = state.players - state.undercover - (state.mrWhite ? 1 : 0);
-  for (let i = 0; i < civCount; i++) roles.push({ type:'civilian', word: pair.c });
-  for (let i = 0; i < state.undercover; i++) roles.push({ type:'undercover', word: pair.u });
-  if (state.mrWhite) roles.push({ type:'mrwhite', word: null });
-  state.roles = shuffle(roles);
-  state.currentPlayer = 0;
-  goto('distrib');
+  const civ=uc.pl-uc.spies-(uc.mw?1:0);
+  const roles=[];
+  for(let i=0;i<civ;i++) roles.push({type:'civ',word:pair.c});
+  for(let i=0;i<uc.spies;i++) roles.push({type:'spy',word:pair.u});
+  if(uc.mw) roles.push({type:'mw',word:null});
+  uc.roles=shuffle(roles); uc.cur=0;
+  goto('uc-distrib');
 }
 
-// ── Distribute ─────────────────────────────────────────────────────────────
-
-function initDistrib() {
-  state.currentPlayer = 0;
-
-  // Show game, hide done
-  document.getElementById('distrib-game').style.display = 'flex';
-  document.getElementById('done-screen').classList.remove('show');
-
-  // Reset cards
-  document.getElementById('card-front').style.opacity = '1';
-  document.getElementById('card-front').style.pointerEvents = 'auto';
-  document.getElementById('card-back').style.opacity = '0';
-  document.getElementById('card-back').style.pointerEvents = 'none';
-  document.getElementById('next-btn').classList.remove('visible');
-  document.getElementById('player-instr').textContent = 'Prends le téléphone seul et appuie pour révéler ton rôle 👀';
-
-  updateDistribUI();
+function initDistrib(){
+  uc.cur=0;
+  document.getElementById('d-game').style.display='flex';
+  document.getElementById('done-sc').classList.remove('show');
+  const ff=document.getElementById('fc-front');
+  const fb=document.getElementById('fc-back');
+  ff.style.opacity='1'; ff.style.pointerEvents='auto';
+  fb.style.opacity='0'; fb.style.pointerEvents='none';
+  document.getElementById('next-btn').classList.remove('vis');
+  document.getElementById('p-instr').textContent='Prends le téléphone seul et appuie pour révéler 👀';
+  updDistrib();
 }
 
-function updateDistribUI() {
-  const n = state.currentPlayer;
-  const total = state.players;
-
-  document.getElementById('cur-player-num').textContent = n + 1;
-
-  // Dots
-  const dots = document.getElementById('progress-dots');
-  dots.innerHTML = '';
-  for (let i = 0; i < total; i++) {
-    const d = document.createElement('div');
-    d.className = 'pdot' + (i < n ? ' done' : i === n ? ' cur' : '');
+function updDistrib(){
+  const n=uc.cur, tot=uc.pl;
+  document.getElementById('p-num').textContent=n+1;
+  const dots=document.getElementById('pdots');
+  dots.innerHTML='';
+  for(let i=0;i<tot;i++){
+    const d=document.createElement('div');
+    d.className='pdot'+(i<n?' done':i===n?' cur':'');
     dots.appendChild(d);
   }
-
-  // Next btn text
-  const isLast = n === total - 1;
-  document.getElementById('next-btn').textContent = isLast ? '✅  TOUT LE MONDE A VU' : `Joueur ${n+2}  →`;
+  const isLast=n===tot-1;
+  document.getElementById('next-btn').textContent=isLast?'✅  TOUT LE MONDE A VU':`Joueur ${n+2}  →`;
 }
 
-function revealCard() {
-  const role = state.roles[state.currentPlayer];
-  const cfg = ROLE_CFG[role.type];
+function revealRole(){
+  const r=uc.roles[uc.cur];
+  const face=document.getElementById('fc-back-face');
+  const lbl={classique:'Classique',nature:'Nature',cinema:'Cinéma',hot:'Hot 🔥',aleatoire:'Aléatoire ✨'};
 
-  // Fill reveal card — même apparence pour tout le monde, pas d'indice sur le rôle
-  document.getElementById('card-back-grad').style.background = cfg.grad;
-  document.getElementById('role-badge').style.display = 'none';
-  document.getElementById('role-word').textContent = role.type === 'mrwhite' ? '???' : role.word;
-  const themeLabels = { classique:'Classique', nature:'Nature', cinema:'Cinéma', hot:'Hot 🔥', aleatoire:'Aléatoire ✨' };
-  document.getElementById('role-theme-lbl').textContent = `Thème : ${themeLabels[state.theme] || state.theme}`;
-  document.getElementById('role-msg').textContent = cfg.msg;
-
-  // Animate
-  document.getElementById('card-front').style.opacity = '0';
-  document.getElementById('card-front').style.pointerEvents = 'none';
-  setTimeout(() => {
-    document.getElementById('card-back').style.opacity = '1';
-    document.getElementById('card-back').style.pointerEvents = 'auto';
-    setTimeout(() => {
-      document.getElementById('next-btn').classList.add('visible');
-      document.getElementById('player-instr').textContent = 'Mémorise bien, puis passe le téléphone !';
-    }, 350);
-  }, 220);
-}
-
-function nextPlayer() {
-  if (state.currentPlayer >= state.players - 1) {
-    showDone();
-    return;
+  if(r.type==='civ'){
+    face.style.background='linear-gradient(135deg,#1C1207,#2A1800)';
+    document.getElementById('remoji').textContent='🏘️';
+    document.getElementById('rlabel').textContent='VILLAGEOIS';
+    document.getElementById('rmsg').textContent='Décris ton mot sans jamais le prononcer.';
+  } else if(r.type==='spy'){
+    face.style.background='linear-gradient(135deg,#1A0A00,#2D1200)';
+    document.getElementById('remoji').textContent='🕵️';
+    document.getElementById('rlabel').textContent='ESPION';
+    document.getElementById('rmsg').textContent='Tu as un mot proche. Bluff sans te faire repérer !';
+  } else {
+    face.style.background='linear-gradient(135deg,#0F0F1A,#1A1A2E)';
+    document.getElementById('remoji').textContent='👻';
+    document.getElementById('rlabel').textContent='M. BLANC';
+    document.getElementById('rmsg').textContent="Tu n'as aucun mot. Écoute et improvise !";
   }
-  state.currentPlayer++;
+  document.getElementById('rbadge').style.borderColor=r.type==='civ'?'rgba(217,119,6,.4)':r.type==='spy'?'rgba(239,68,68,.4)':'rgba(99,102,241,.4)';
+  document.getElementById('rword').textContent=r.word||'???';
+  document.getElementById('rtheme').textContent='Thème : '+(lbl[uc.theme]||uc.theme);
 
-  // Reset
-  document.getElementById('card-front').style.opacity = '1';
-  document.getElementById('card-front').style.pointerEvents = 'auto';
-  document.getElementById('card-back').style.opacity = '0';
-  document.getElementById('card-back').style.pointerEvents = 'none';
-  document.getElementById('role-badge').style.display = '';
-  document.getElementById('next-btn').classList.remove('visible');
-  document.getElementById('player-instr').textContent = 'Prends le téléphone seul et appuie pour révéler ton rôle 👀';
-
-  updateDistribUI();
+  const ff=document.getElementById('fc-front');
+  const fb=document.getElementById('fc-back');
+  ff.style.opacity='0'; ff.style.pointerEvents='none';
+  setTimeout(()=>{
+    fb.style.opacity='1'; fb.style.pointerEvents='auto';
+    setTimeout(()=>{
+      document.getElementById('next-btn').classList.add('vis');
+      document.getElementById('p-instr').textContent='Mémorise bien, puis passe le téléphone !';
+    },300);
+  },200);
 }
 
-function showDone() {
-  document.getElementById('distrib-game').style.display = 'none';
-  const done = document.getElementById('done-screen');
-  done.classList.add('show');
+function nextPlayer(){
+  if(uc.cur>=uc.pl-1){ showDone(); return; }
+  uc.cur++;
+  const ff=document.getElementById('fc-front');
+  const fb=document.getElementById('fc-back');
+  ff.style.opacity='1'; ff.style.pointerEvents='auto';
+  fb.style.opacity='0'; fb.style.pointerEvents='none';
+  document.getElementById('next-btn').classList.remove('vis');
+  document.getElementById('p-instr').textContent='Prends le téléphone seul et appuie pour révéler 👀';
+  updDistrib();
+}
 
-  const civCount = state.players - state.undercover - (state.mrWhite ? 1 : 0);
-  const statsEl = document.getElementById('done-stats');
-  statsEl.innerHTML = `
-    <div style="text-align:center"><span class="done-stat-num" style="color:var(--success)">${civCount}</span><div class="done-stat-lbl">Villageois</div></div>
-    <div style="text-align:center"><span class="done-stat-num" style="color:var(--danger)">${state.undercover}</span><div class="done-stat-lbl">${state.undercover>1?'Espions':'Espion'}</div></div>
-    ${state.mrWhite ? `<div style="text-align:center"><span class="done-stat-num" style="color:var(--accent)">1</span><div class="done-stat-lbl">M. Blanc</div></div>` : ''}
-  `;
+function showDone(){
+  document.getElementById('d-game').style.display='none';
+  document.getElementById('done-sc').classList.add('show');
+  const civ=uc.pl-uc.spies-(uc.mw?1:0);
+  document.getElementById('done-stats').innerHTML=`
+    <div style="text-align:center"><span class="done-snum" style="color:var(--green)">${civ}</span><div class="done-slbl">Villageois</div></div>
+    <div style="text-align:center"><span class="done-snum" style="color:var(--red)">${uc.spies}</span><div class="done-slbl">${uc.spies>1?'Espions':'Espion'}</div></div>
+    ${uc.mw?`<div style="text-align:center"><span class="done-snum" style="color:var(--gold)">1</span><div class="done-slbl">M. Blanc</div></div>`:''}`;
+}
+
+/* ══════════════════════════════════════════════════════
+   QUIZ DATA
+══════════════════════════════════════════════════════ */
+const QUIZ_CATS={
+  culture:{label:'Culture G.',emoji:'🧠',color:'#8B5CF6',questions:[
+    {q:'Combien de côtés a un hexagone ?',c:['5','6','7','8'],a:1,f:"L'hexagone est aussi le surnom de la France métropolitaine, car sa forme y ressemble."},
+    {q:'Quel est le pays le plus peuplé du monde ?',c:['Chine','Inde','États-Unis','Indonésie'],a:1,f:"En 2023, l'Inde a dépassé la Chine avec plus de 1,4 milliard d'habitants."},
+    {q:'Quel animal est le plus rapide sur terre ?',c:['Guépard','Lion','Autruche','Antilope'],a:0,f:'Le guépard peut atteindre 112 km/h sur de courtes distances, mais se fatigue très vite.'},
+    {q:"Combien d'os compte le squelette d'un adulte ?",c:['196','206','216','226'],a:1,f:"Les bébés naissent avec ~270 os qui fusionnent progressivement pour arriver à 206."},
+    {q:'Quel est le plus grand océan du monde ?',c:['Atlantique','Indien','Pacifique','Arctique'],a:2,f:"L'océan Pacifique représente plus de 30% de la surface totale de la Terre."},
+    {q:'Quel est le métal le plus abondant dans la croûte terrestre ?',c:['Fer','Aluminium','Cuivre','Or'],a:1,f:"L'aluminium représente environ 8% de la croûte terrestre."},
+    {q:'Quelle planète est surnommée la planète rouge ?',c:['Vénus','Jupiter','Mars','Saturne'],a:2,f:'Mars doit sa couleur rouge à l\'oxyde de fer (rouille) qui recouvre sa surface.'},
+    {q:"Quelle langue est la plus parlée au monde (tous locuteurs confondus) ?",c:['Mandarin','Anglais','Espagnol','Hindi'],a:1,f:"L'anglais est 1er en comptant les locuteurs non-natifs. Le mandarin reste 1er en natifs."},
+    {q:"En quelle année a débuté la Première Guerre mondiale ?",c:['1912','1914','1916','1918'],a:1,f:"La guerre a débuté le 28 juillet 1914 après l'assassinat de l'archiduc François-Ferdinand."},
+    {q:"Quel pays a la plus grande superficie au monde ?",c:['Russie','Canada','États-Unis','Chine'],a:0,f:'La Russie couvre plus de 17 millions de km², soit presque deux fois le Canada.'},
+  ]},
+  cinema:{label:'Cinéma',emoji:'🎬',color:'#EC4899',questions:[
+    {q:"Qui a réalisé 'Inception' (2010) ?",c:['Christopher Nolan','James Cameron','Denis Villeneuve','David Fincher'],a:0,f:'Nolan a développé l\'idée d\'Inception pendant 10 ans avant de la réaliser.'},
+    {q:"Quel film Disney est le premier entièrement en CGI ?",c:["A Bug's Life",'Toy Story','Monsters Inc.','Finding Nemo'],a:1,f:'Toy Story (1995) est le premier long métrage entièrement réalisé en images de synthèse.'},
+    {q:"Qui joue le Joker dans 'The Dark Knight' (2008) ?",c:['Joaquin Phoenix','Heath Ledger','Jack Nicholson','Jared Leto'],a:1,f:'Heath Ledger a remporté l\'Oscar à titre posthume. Il s\'était enfermé seul dans une chambre.'},
+    {q:"Quel film a remporté l'Oscar du Meilleur Film en 2020 ?",c:['1917','Joker','Parasite','Once Upon a Time in Hollywood'],a:2,f:'Parasite est le premier film non-anglophone à remporter l\'Oscar du Meilleur Film.'},
+    {q:"Quel acteur joue Iron Man dans le MCU ?",c:['Robert Downey Jr.','Chris Evans','Chris Hemsworth','Mark Ruffalo'],a:0,f:'RDJ a failli ne pas obtenir le rôle. C\'est le réalisateur Jon Favreau qui a insisté.'},
+    {q:"Quel réalisateur a tourné 'Pulp Fiction' et 'Kill Bill' ?",c:['Martin Scorsese','David Fincher','Quentin Tarantino','Guy Ritchie'],a:2,f:'Tarantino est aussi acteur et apparaît dans presque tous ses propres films.'},
+    {q:"Dans quel film Tom Hanks survit avec un ballon de volley 'Wilson' ?",c:['The Blue Lagoon','Cast Away','Uncharted','The Beach'],a:1,f:'Tom Hanks a pris 25 kg pour le début du film puis les a perdus pour montrer l\'état du naufragé.'},
+    {q:"Qui a composé la musique de la saga Star Wars ?",c:['Hans Zimmer','John Williams','Ennio Morricone','Howard Shore'],a:1,f:"John Williams a remporté 5 Oscars. Il a aussi composé Jaws, Indiana Jones et Harry Potter."},
+    {q:"Quel est le film le plus rentable de tous les temps ?",c:['Avatar','Avengers: Endgame','Titanic','Star Wars VII'],a:0,f:'Avatar (2009) a rapporté 2,9 milliards de dollars. Sa suite en 2022, 2,3 milliards.'},
+    {q:"Dans 'Forrest Gump', avec quoi compare-t-il la vie ?",c:['Un long fleuve','Une boîte de chocolats','Une plume au vent','Un marathon'],a:1,f:"La phrase exacte : 'Life was like a box of chocolats, you never know what you're gonna get.'"},
+  ]},
+  musique:{label:'Musique',emoji:'🎵',color:'#F59E0B',questions:[
+    {q:"Quel groupe a chanté 'Bohemian Rhapsody' ?",c:['Led Zeppelin','The Beatles','Queen','Rolling Stones'],a:2,f:'Bohemian Rhapsody (1975) a été le 1er clip diffusé à la TV pour promouvoir un single.'},
+    {q:'En quelle année The Beatles se sont-ils séparés ?',c:['1968','1970','1972','1975'],a:1,f:'La séparation officielle fut annoncée par Paul McCartney en avril 1970.'},
+    {q:"De quel pays vient le groupe ABBA ?",c:['Danemark','Norvège','Suède','Finlande'],a:2,f:"ABBA = initiales des 4 membres : Agnetha, Björn, Benny, Anni-Frid."},
+    {q:"Quel instrument joue Jimi Hendrix ?",c:['Batterie','Basse','Guitare','Piano'],a:2,f:'Hendrix était gaucher et jouait sur une guitare droite retournée et re-cordée.'},
+    {q:"Quel chanteur français est surnommé 'Le Taulier' ?",c:['Stromae','Johnny Hallyday','Francis Cabrel','Charles Aznavour'],a:1,f:"Johnny Hallyday a vendu plus de 110 millions d'albums en 60 ans de carrière."},
+    {q:"Quelle chanson de Michael Jackson a le plus grand nombre de ventes ?",c:['Bad','Thriller','Billie Jean','Smooth Criminal'],a:1,f:"L'album Thriller est le plus vendu de l'histoire de la musique (~70M d'exemplaires)."},
+    {q:"Dans quelle ville se déroule le festival de Coachella ?",c:['Los Angeles','San Francisco','Indio','Las Vegas'],a:2,f:'Coachella se tient dans le désert de Californie, à Indio, depuis 1999.'},
+    {q:"Quel artiste détient le record du plus grand nombre de Grammys remportés en une seule soirée (32) ?",c:['Beyoncé','Taylor Swift','Adele','Lady Gaga'],a:0,f:'Beyoncé est la plus titrée de l\'histoire des Grammy Awards avec 32 récompenses.'},
+    {q:"Quel est le vrai nom de Lady Gaga ?",c:['Stephanie Bennett','Stefani Germanotta','Sandra Cortez','Sylvia Gaston'],a:1,f:'Stefani Joanne Angelina Germanotta de son vrai nom, née en 1986 à New York.'},
+    {q:"De quel pays vient le style musical 'bossa nova' ?",c:['Argentine','Cuba','Brésil','Colombie'],a:2,f:"La bossa nova est née à Rio de Janeiro à la fin des années 1950, fusion de samba et jazz."},
+  ]},
+  sport:{label:'Sport',emoji:'⚽',color:'#10B981',questions:[
+    {q:'Combien de joueurs y a-t-il dans une équipe de basketball sur le terrain ?',c:['4','5','6','7'],a:1,f:'5 joueurs par équipe sur le terrain. Les équipes ont généralement 12-15 joueurs au total.'},
+    {q:'Quel pays a remporté la Coupe du Monde 2018 en Russie ?',c:['Argentine','Brésil','France','Allemagne'],a:2,f:"La France a battu la Croatie 4-2 en finale. C'était son 2e titre mondial."},
+    {q:"Quel joueur a remporté le plus de titres du Grand Chelem en tennis ?",c:['Roger Federer','Rafael Nadal','Novak Djokovic','Pete Sampras'],a:2,f:'Djokovic détient 24 titres du Grand Chelem, record absolu.'},
+    {q:'Dans quel pays les Jeux Olympiques modernes ont-ils été créés en 1896 ?',c:['France','Grèce','États-Unis','Angleterre'],a:1,f:'Les 1ers JO modernes se sont tenus à Athènes en 1896, grâce à Pierre de Coubertin.'},
+    {q:"Quel club de football a remporté le plus de Ligues des Champions ?",c:['FC Barcelone','Bayern Munich','Real Madrid','Liverpool'],a:2,f:'Le Real Madrid a remporté 15 Ligues des Champions, un record absolu.'},
+    {q:'En quelle année Zinédine Zidane a-t-il donné son coup de tête en finale de Coupe du Monde ?',c:['2002','2004','2006','2008'],a:2,f:"La finale France-Italie de 2006 s'est terminée aux tirs au but. Zidane venait d'être Ballon d'Or."},
+    {q:"Combien d'étapes compte le Tour de France ?",c:['18','19','20','21'],a:3,f:'Le Tour de France compte 21 étapes chaque année depuis 1913.'},
+    {q:"Quel sport se joue avec un volant ?",c:['Tennis','Squash','Badminton','Pelote basque'],a:2,f:'Le badminton est l\'un des sports les plus rapides du monde, avec des volants à +300 km/h.'},
+    {q:"En combien de sets se joue un match de tennis (en Grand Chelem pour les hommes) ?",c:['3 sets','4 sets','5 sets','6 sets'],a:2,f:"Les hommes jouent en 5 sets maximum en Grand Chelem. Les femmes en 3 sets."},
+    {q:"Quel pays a remporté le plus de Coupes du Monde de football ?",c:['Allemagne','Argentine','Brésil','France'],a:2,f:'Le Brésil est 5 fois champion du monde (1958, 1962, 1970, 1994, 2002).'},
+  ]},
+  geo:{label:'Géographie',emoji:'🌍',color:'#0EA5E9',questions:[
+    {q:"Quelle est la capitale de l'Australie ?",c:['Sydney','Melbourne','Canberra','Brisbane'],a:2,f:'Canberra a été fondée en 1913 comme compromis entre Sydney et Melbourne.'},
+    {q:"Quel est le plus long fleuve du monde ?",c:['Amazone','Nil','Mississippi','Yangtsé'],a:1,f:"Le Nil mesure 6 650 km. L'Amazone a cependant le plus grand débit d'eau."},
+    {q:"Quelle est la plus grande île du monde ?",c:['Madagascar','Nouvelle-Guinée','Groenland','Bornéo'],a:2,f:'Le Groenland (2 166 000 km²) est 3 fois plus grand que la 2e plus grande île.'},
+    {q:"Quel pays possède le plus long littoral au monde ?",c:['Russie','Canada','Australie','Norvège'],a:1,f:"Le Canada possède 202 080 km de côtes, soit 15% du littoral mondial."},
+    {q:"Dans quel pays se trouve le Machu Picchu ?",c:['Bolivie','Chili','Pérou','Colombie'],a:2,f:"Le Machu Picchu (Pérou) est une ancienne cité inca construite vers 1450."},
+    {q:"Quel pays est surnommé 'La botte' ?",c:['Grèce','Portugal','Espagne','Italie'],a:3,f:"La forme de l'Italie ressemble effectivement à une botte sur les cartes."},
+    {q:"Combien y a-t-il de pays en Afrique ?",c:['44','48','54','60'],a:2,f:"L'Afrique compte 54 pays reconnus par l'ONU, dont le Soudan du Sud (2011)."},
+    {q:"Quelle est la ville la plus peuplée du monde ?",c:['Shanghai','Pékin','Tokyo','Mumbai'],a:2,f:"Tokyo (Greater Tokyo) est la plus grande zone urbaine avec ~37 millions d'habitants."},
+    {q:"Quel est le plus petit pays du monde ?",c:['Monaco','San Marin','Liechtenstein','Vatican'],a:3,f:'Le Vatican (0,44 km²) est le plus petit État souverain du monde.'},
+    {q:"Quel continent est le plus grand ?",c:['Amérique','Afrique','Asie','Europe'],a:2,f:"L'Asie couvre 44 millions de km², soit 30% des terres émergées de la planète."},
+  ]},
+  science:{label:'Science',emoji:'🔬',color:'#6366F1',questions:[
+    {q:"Quel est le symbole chimique de l'or ?",c:['Au','Ag','Fe','Or'],a:0,f:"Au vient du latin 'Aurum'. L'argent (Ag) vient d'Argentum."},
+    {q:"Combien de chromosomes possède une cellule humaine normale ?",c:['23','44','46','48'],a:2,f:"23 paires = 46 chromosomes. Le spermatozoïde et l'ovule n'en ont que 23 chacun."},
+    {q:"Quelle est la vitesse de la lumière dans le vide ?",c:['200 000 km/s','300 000 km/s','400 000 km/s','150 000 km/s'],a:1,f:"299 792 km/s exactement. Aucune information ne peut voyager plus vite."},
+    {q:"Quel scientifique a découvert la pénicilline ?",c:['Marie Curie','Louis Pasteur','Alexander Fleming','Albert Einstein'],a:2,f:"Alexander Fleming a découvert la pénicilline en 1928 par accident."},
+    {q:"Quelle planète tourne sur le côté (axe incliné à 98°) ?",c:['Saturne','Neptune','Uranus','Jupiter'],a:2,f:"Uranus tourne pratiquement sur son côté, probablement suite à une collision ancienne."},
+    {q:"Quel élément est le plus abondant dans l'univers ?",c:['Oxygène','Carbone','Hélium','Hydrogène'],a:3,f:"L'hydrogène représente environ 75% de la masse baryonique de l'univers observable."},
+    {q:"Combien de neurones contient le cerveau humain ?",c:['1 milliard','10 milliards','86 milliards','1 000 milliards'],a:2,f:"Le cerveau contient environ 86 milliards de neurones et autant de cellules gliales."},
+    {q:"Quelle est la formule chimique de l'eau ?",c:['HO','H2O','H2O2','H3O'],a:1,f:"H2O : 2 atomes d'hydrogène liés à 1 atome d'oxygène. Simple mais vital !"},
+    {q:"Quel os est le plus long du corps humain ?",c:['Radius','Humérus','Tibia','Fémur'],a:3,f:"Le fémur (os de la cuisse) peut mesurer jusqu'à 50 cm et est aussi le plus solide."},
+    {q:"En quelle année Einstein a-t-il publié sa théorie de la relativité restreinte ?",c:['1895','1900','1905','1915'],a:2,f:"En 1905, dite 'annus mirabilis', Einstein a publié 4 articles révolutionnaires."},
+  ]},
+  histoire:{label:'Histoire',emoji:'📜',color:'#DC2626',questions:[
+    {q:"En quelle année a débuté la Révolution française ?",c:['1787','1789','1791','1793'],a:1,f:"La prise de la Bastille le 14 juillet 1789 est le symbole de la Révolution."},
+    {q:"Qui était le premier président des États-Unis ?",c:['John Adams','Benjamin Franklin','George Washington','Thomas Jefferson'],a:2,f:"George Washington a été président de 1789 à 1797 et a refusé un 3e mandat."},
+    {q:"En quelle année le mur de Berlin est-il tombé ?",c:['1987','1989','1991','1993'],a:1,f:"Le 9 novembre 1989, des milliers de Berlinois ont commencé à démolir le mur."},
+    {q:"Qui a découvert l'Amérique en 1492 ?",c:['Amerigo Vespucci','Christophe Colomb','Vasco de Gama','Magellan'],a:1,f:"Colomb cherchait une route vers l'Asie et ne savait pas avoir découvert un nouveau continent."},
+    {q:"En quelle année la Première Guerre mondiale a-t-elle pris fin ?",c:['1916','1917','1918','1919'],a:2,f:"L'armistice a été signé le 11 novembre 1918 à 11h, d'où les commémorations du 11 novembre."},
+    {q:"Quel empire était le plus étendu de l'histoire ?",c:['Empire romain','Empire mongol','Empire britannique','Empire ottoman'],a:2,f:"L'Empire britannique couvrait 24% des terres émergées et 23% de la population mondiale."},
+    {q:"Qui a commandé les armées alliées lors du Débarquement en Normandie (1944) ?",c:['Patton','MacArthur','Eisenhower','Montgomery'],a:2,f:"Le général Eisenhower commandait les forces alliées (SHAEF). Il deviendra ensuite président des USA."},
+    {q:"Quelle civilisation a construit les pyramides de Gizeh ?",c:['Sumérienne','Mésopotamienne','Égyptienne','Grecque'],a:2,f:"La Grande Pyramide de Khéops, construite vers 2560 av. J.-C., est l'une des 7 merveilles du monde."},
+    {q:"En quelle année a eu lieu la Révolution russe bolchévique ?",c:['1905','1914','1917','1920'],a:2,f:"La Révolution d'octobre 1917 a porté Lénine au pouvoir et conduit à la création de l'URSS."},
+    {q:"Quel est le nom de la bombe atomique larguée sur Hiroshima ?",c:['Fat Man','Little Boy','Big Bang','Thin Man'],a:1,f:"Little Boy (bombe à uranium) sur Hiroshima le 6 août 1945. Fat Man (plutonium) sur Nagasaki le 9."},
+  ]},
+  cuisine:{label:'Cuisine',emoji:'🍕',color:'#F97316',questions:[
+    {q:"Dans quelle cuisine est né le sushi ?",c:['Thaïlandaise','Japonaise','Coréenne','Chinoise'],a:1,f:"Le sushi moderne sous sa forme actuelle est apparu à Tokyo au début du XIXe siècle."},
+    {q:"Quelle épice est la plus chère au monde au kilo ?",c:['Vanille','Truffe','Safran','Cardamome'],a:2,f:"Le safran peut coûter jusqu'à 30 000€/kg. Il faut 150 000 fleurs pour en produire 1 kg."},
+    {q:"De quel pays vient la paella ?",c:['Portugal','Mexique','Espagne','Italie'],a:2,f:"La paella est originaire de Valence, en Espagne. La recette traditionnelle contient du lapin."},
+    {q:"Quel fruit contient une enzyme qui empêche la gélatine de prendre ?",c:['Ananas','Mangue','Papaye','Kiwi'],a:0,f:"La broméline de l'ananas frais dégrade les protéines de la gélatine. Cuit, ce n'est plus un problème."},
+    {q:"De quel pays vient le fromage Gouda ?",c:['Belgique','France','Pays-Bas','Allemagne'],a:2,f:"Gouda est une ville des Pays-Bas. Le fromage y était commercialisé depuis le Moyen Âge."},
+    {q:"Quel est le temps de cuisson d'un œuf à la coque ?",c:['3 min','6 min','9 min','12 min'],a:0,f:"3 minutes dans l'eau bouillante : le blanc est cuit, le jaune encore coulant."},
+    {q:"Dans quelle ville est né le croissant ?",c:['Paris','Vienne','Budapest','Lyon'],a:1,f:"Le croissant est d'origine viennoise (Autriche), importé en France par Marie-Antoinette."},
+    {q:"Quelle est l'épice principale du curry ?",c:['Cumin','Cardamome','Curcuma','Coriandre'],a:2,f:"Le curcuma donne sa couleur jaune caractéristique au curry. Il est aussi réputé anti-inflammatoire."},
+    {q:"De quel pays vient le tiramisu ?",c:['Grèce','France','Espagne','Italie'],a:3,f:"Le tiramisu (qui signifie 'remonte-moi le moral') est originaire de Vénétie, en Italie."},
+    {q:"Quelle boisson alcoolisée est faite à base d'agave ?",c:['Rhum','Vodka','Tequila','Gin'],a:2,f:"La tequila est produite à partir de l'agave bleu, dans la région de Jalisco au Mexique."},
+  ]},
+};
+
+/* ══════════════════════════════════════════════════════
+   QUIZ SETUP
+══════════════════════════════════════════════════════ */
+const qs={players:3,qCount:10,timer:30,cats:new Set(Object.keys(QUIZ_CATS))};
+
+(function buildCatGrid(){
+  const g=document.getElementById('cat-grid');
+  Object.entries(QUIZ_CATS).forEach(([k,cat])=>{
+    const btn=document.createElement('button');
+    btn.className='cat-chip on'; btn.dataset.k=k;
+    btn.innerHTML=`<span class="cat-chip-e">${cat.emoji}</span><span class="cat-chip-l">${cat.label}</span><span class="cat-check">✓</span>`;
+    btn.addEventListener('click',()=>{
+      btn.classList.toggle('on');
+      btn.querySelector('.cat-check').textContent=btn.classList.contains('on')?'✓':'';
+      if(btn.classList.contains('on')) qs.cats.add(k); else qs.cats.delete(k);
+      updQSum();
+    });
+    g.appendChild(btn);
+  });
+})();
+
+function updQSum(){
+  document.getElementById('qpl-n').textContent=qs.players;
+  document.getElementById('qs-pl').textContent=qs.players;
+  document.getElementById('qs-q').textContent=qs.qCount;
+  document.getElementById('qs-t').textContent=qs.timer===0?'Illimité':qs.timer+'s';
+  document.getElementById('qs-cat').textContent=qs.cats.size===Object.keys(QUIZ_CATS).length?'Toutes':qs.cats.size+' cat.';
+}
+function chQPl(d){
+  qs.players=Math.min(8,Math.max(2,qs.players+d));
+  document.getElementById('bqplm').disabled=qs.players<=2;
+  document.getElementById('bqplp').disabled=qs.players>=8;
+  updQSum();
+}
+function selQC(btn){
+  document.querySelectorAll('[data-q]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); qs.qCount=+btn.dataset.q; updQSum();
+}
+function selTim(btn){
+  document.querySelectorAll('[data-s]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); qs.timer=+btn.dataset.s; updQSum();
+}
+updQSum();
+
+/* ══════════════════════════════════════════════════════
+   QUIZ GAME LOGIC
+══════════════════════════════════════════════════════ */
+let qGame={questions:[],cur:0,scores:[],timerIv:null,timeLeft:0,answered:false};
+
+function buildQuestions(){
+  const pool=[];
+  qs.cats.forEach(k=>{
+    if(QUIZ_CATS[k]) QUIZ_CATS[k].questions.forEach(q=>pool.push({...q,cat:k}));
+  });
+  shuffle(pool);
+  return pool.slice(0,qs.qCount);
+}
+
+function startQuiz(){
+  if(!qs.cats.size){ alert('Sélectionne au moins une catégorie !'); return; }
+  qGame.questions=buildQuestions();
+  if(!qGame.questions.length){ alert('Pas assez de questions !'); return; }
+  qGame.cur=0;
+  qGame.scores=Array.from({length:qs.players},(_,i)=>({name:`Joueur ${i+1}`,score:0,correct:0}));
+  goto('quiz-game');
+  loadQ(0);
+}
+
+function loadQ(idx){
+  if(qGame.timerIv){ clearInterval(qGame.timerIv); qGame.timerIv=null; }
+  qGame.answered=false;
+  const q=qGame.questions[idx];
+  const cat=QUIZ_CATS[q.cat];
+  const playerIdx=idx%qs.players;
+  const player=qGame.scores[playerIdx];
+
+  // Header
+  const total=qGame.questions.length;
+  document.getElementById('qg-count').textContent=`Q ${idx+1} / ${total}`;
+  document.getElementById('qg-prog').style.width=((idx+1)/total*100)+'%';
+
+  // Player tag
+  document.getElementById('pt-name').textContent=player.name;
+  document.getElementById('pt-score').textContent=player.score+' pts';
+
+  // Question
+  document.getElementById('q-cat').textContent=cat.emoji+' '+cat.label;
+  document.getElementById('q-text').textContent=q.q;
+
+  // Choices
+  const choicesEl=document.getElementById('q-choices');
+  choicesEl.innerHTML='';
+  const letters=['A','B','C','D'];
+  q.c.forEach((txt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='choice';
+    btn.innerHTML=`<span class="choice-l">${letters[i]}</span><span class="choice-t">${txt}</span>`;
+    btn.addEventListener('click',()=>answerQ(i));
+    choicesEl.appendChild(btn);
+  });
+
+  // Anecdote hidden
+  const anec=document.getElementById('q-anecdote');
+  anec.classList.remove('show');
+  document.getElementById('q-anecdote-txt').textContent='';
+
+  // Next btn hidden
+  document.getElementById('q-next-btn').classList.remove('vis');
+
+  // Timer
+  const tf=document.getElementById('timer-fill');
+  tf.style.transition='none'; tf.style.width='100%';
+  tf.className='timer-fill ok';
+  if(qs.timer>0){
+    qGame.timeLeft=qs.timer;
+    setTimeout(()=>{
+      tf.style.transition=`width ${qs.timer}s linear`;
+      tf.style.width='0%';
+    },50);
+    qGame.timerIv=setInterval(()=>{
+      qGame.timeLeft--;
+      const pct=qGame.timeLeft/qs.timer;
+      if(pct<0.2) tf.className='timer-fill hot';
+      else if(pct<0.45) tf.className='timer-fill warn';
+      if(qGame.timeLeft<=0){
+        clearInterval(qGame.timerIv);
+        if(!qGame.answered) revealQ(-1);
+      }
+    },1000);
+  } else {
+    tf.style.width='100%';
+  }
+}
+
+function answerQ(idx){
+  if(qGame.answered) return;
+  qGame.answered=true;
+  if(qGame.timerIv){ clearInterval(qGame.timerIv); qGame.timerIv=null; }
+  revealQ(idx);
+}
+
+function revealQ(chosen){
+  const q=qGame.questions[qGame.cur];
+  const playerIdx=qGame.cur%qs.players;
+  const btns=document.querySelectorAll('.choice');
+
+  btns.forEach((btn,i)=>{
+    btn.disabled=true;
+    if(i===q.a) btn.classList.add('correct');
+    else if(i===chosen) btn.classList.add('wrong');
+  });
+
+  if(chosen===q.a){
+    const pts=qs.timer>0?Math.max(10,Math.round(100*qGame.timeLeft/qs.timer)):100;
+    qGame.scores[playerIdx].score+=pts;
+    qGame.scores[playerIdx].correct++;
+  }
+  document.getElementById('pt-score').textContent=qGame.scores[playerIdx].score+' pts';
+
+  // Anecdote
+  if(q.f){
+    document.getElementById('q-anecdote-txt').textContent='💡 '+q.f;
+    document.getElementById('q-anecdote').classList.add('show');
+  }
+
+  // Timer bar stop
+  const tf=document.getElementById('timer-fill');
+  tf.style.transition='none';
+
+  // Next btn
+  const isLast=qGame.cur>=qGame.questions.length-1;
+  const nextBtn=document.getElementById('q-next-btn');
+  nextBtn.textContent=isLast?'🏆 Voir les résultats':'Suivant →';
+  setTimeout(()=>nextBtn.classList.add('vis'),400);
+}
+
+function nextQ(){
+  if(qGame.cur>=qGame.questions.length-1){ showResults(); return; }
+  qGame.cur++;
+  loadQ(qGame.cur);
+}
+
+function showResults(){
+  if(qGame.timerIv){ clearInterval(qGame.timerIv); qGame.timerIv=null; }
+  const sorted=[...qGame.scores].sort((a,b)=>b.score-a.score);
+  const total=qGame.questions.length;
+
+  // Sub title
+  document.getElementById('res-sub').textContent=`${total} questions · Gagnant : ${sorted[0].name} 🏆`;
+
+  // Podium (top 3)
+  const podEl=document.getElementById('podium');
+  podEl.innerHTML='';
+  const order=sorted.length>=3?[sorted[1],sorted[0],sorted[2]]:[sorted[0]];
+  const medals=['🥈','🥇','🥉'];
+  const cls=['p2','p1','p3'];
+  order.forEach((pl,i)=>{
+    const d=document.createElement('div');
+    d.className='pod '+cls[i];
+    d.innerHTML=`<div class="pod-medal">${medals[i]}</div><div class="pod-name">${pl.name}</div><div class="pod-score">${pl.score}</div>`;
+    podEl.appendChild(d);
+  });
+  if(sorted.length<2) podEl.innerHTML='';
+
+  // Full list
+  const list=document.getElementById('res-list');
+  list.innerHTML='';
+  sorted.forEach((pl,i)=>{
+    const pct=total>0?Math.round(pl.correct/total*100):0;
+    const d=document.createElement('div'); d.className='res-row';
+    d.innerHTML=`<div class="res-rank">${i+1}</div><div class="res-name">${pl.name}</div><div class="res-score">${pl.score}<span class="res-pct" style="font-size:11px;color:var(--text3);margin-left:4px">(${pct}%)</span></div>`;
+    list.appendChild(d);
+  });
+
+  goto('quiz-res');
 }
 </script>
 </body>
