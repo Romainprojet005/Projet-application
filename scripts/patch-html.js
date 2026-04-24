@@ -23,3 +23,8 @@ console.log('Patched dist/index.html (no-zoom)');
 const previewPath = path.join(__dirname, '..', 'dist', 'preview.html');
 fs.writeFileSync(previewPath, html, 'utf8');
 console.log('Replaced dist/preview.html with app');
+
+// Disable Jekyll so GitHub Pages serves _expo/ folder correctly
+const nojekyllPath = path.join(__dirname, '..', 'dist', '.nojekyll');
+fs.writeFileSync(nojekyllPath, '', 'utf8');
+console.log('Created .nojekyll');
