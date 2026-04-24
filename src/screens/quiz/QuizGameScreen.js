@@ -8,11 +8,12 @@ import {
   ScrollView,
   Platform,
   Dimensions,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 
-const ZAPCOLOR = '#0EA5E9';
+const ZAPCOLOR = '#6366F1';
 const TIME_LIMIT = 15;
 const POINTS_CORRECT = 100;
 const POINTS_SPEED_BONUS = 50;
@@ -163,9 +164,9 @@ function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
     <LinearGradient colors={['#0A0A1B', '#001A2E']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
       <ScrollView contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={true} style={Platform.OS === 'web' && { flex: 1, overflowY: 'scroll' }}>
         <Animated.View style={{ opacity: podiumAnim, transform: [{ scale: podiumAnim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }] }}>
-          <Text style={styles.finalEmoji}>⚡</Text>
+          <Text style={styles.finalEmoji}>✨</Text>
           <Text style={styles.finalTitle}>QUIZ TERMINÉ !</Text>
-          <Text style={styles.finalSub}>Maestro Zap a parlé</Text>
+          <Text style={styles.finalSub}>Hermione Granger a parlé</Text>
         </Animated.View>
 
         <View style={styles.rankList}>
@@ -235,6 +236,7 @@ export default function QuizGameScreen({ navigation, route }) {
   const [scores, setScores] = useState(Array(players.length).fill(0));
   const [pointsGained, setPointsGained] = useState(0);
   const [answerTimestamp, setAnswerTimestamp] = useState(null);
+  const [imageError, setImageError] = useState(false);
   const questionStartTime = useRef(null);
 
   const currentPlayer = qIndex % players.length;
@@ -256,6 +258,7 @@ export default function QuizGameScreen({ navigation, route }) {
   }, []);
 
   useEffect(() => {
+    setImageError(false);
     animateIn();
   }, [qIndex, phase]);
 
@@ -336,7 +339,7 @@ export default function QuizGameScreen({ navigation, route }) {
   // --- INTRO phase ---
   if (phase === 'intro') {
     return (
-      <LinearGradient colors={['#0A0A1B', '#001A2E', '#0A0A1B']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+      <LinearGradient colors={['#05050E', '#0C0A2C', '#05050E']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
         <Animated.View
           style={[styles.introBox, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
         >
@@ -413,7 +416,7 @@ export default function QuizGameScreen({ navigation, route }) {
   const wasTimeout = selected === -1;
 
   return (
-    <LinearGradient colors={['#0A0A1B', '#001A2E', '#0A0A1B']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+    <LinearGradient colors={['#05050E', '#0C0A2C', '#05050E']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
       {/* Timer bar */}
       <View style={styles.topBar}>
         <Text style={styles.topBarPlayer}>{players[currentPlayer]}</Text>
@@ -433,6 +436,19 @@ export default function QuizGameScreen({ navigation, route }) {
           <View style={[styles.catBadge, { borderColor: question.categoryColor + '50', backgroundColor: question.categoryColor + '15' }]}>
             <Text style={styles.catBadgeText}>{question.categoryEmoji} {question.categoryLabel}</Text>
           </View>
+
+          {/* Question Image (catégorie Disney, etc.) */}
+          {question.image && !imageError && (
+            <View style={styles.questionImageContainer}>
+              <Image
+                key={qIndex}
+                source={{ uri: question.image }}
+                style={styles.questionImage}
+                resizeMode="cover"
+                onError={() => setImageError(true)}
+              />
+            </View>
+          )}
 
           {/* Question */}
           <Text style={styles.questionText}>{question.q}</Text>
@@ -708,6 +724,19 @@ const styles = StyleSheet.create({
   },
   startBtnGrad: { paddingVertical: spacing.md + 6, alignItems: 'center' },
   startBtnText: { fontSize: 16, fontWeight: '800', color: colors.text, letterSpacing: 2 },
+
+  // Question image
+  questionImageContainer: {
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(232,121,249,0.3)',
+  },
+  questionImage: {
+    width: '100%',
+    height: 200,
+  },
 
   // Final screen
   finalScroll: {

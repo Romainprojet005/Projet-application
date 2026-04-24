@@ -7,15 +7,17 @@ import {
   ScrollView,
   Animated,
   Platform,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { quizCategories, buildQuestions } from '../../data/quizQuestions';
 
-const ZAPCOLOR = '#0EA5E9';
+const ZAPCOLOR = '#6366F1';
+const HOT_COLOR = '#EF4444';
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 8;
-const QUESTION_OPTIONS = [5, 10, 20];
+const QUESTION_OPTIONS = [5, 10, 15];
 
 export default function QuizSetupScreen({ navigation }) {
   const [playerCount, setPlayerCount] = useState(3);
@@ -37,9 +39,27 @@ export default function QuizSetupScreen({ navigation }) {
   };
 
   const toggleCategory = (key) => {
+    const cat = quizCategories[key];
+    if (cat?.adult && !selectedCategories.includes(key)) {
+      if (Platform.OS === 'web') {
+        if (window.confirm('🔞 Contenu adulte\n\nCette catégorie contient des questions réservées aux adultes (+18). Confirmer ?')) {
+          setSelectedCategories((prev) => [...prev, key]);
+        }
+      } else {
+        Alert.alert(
+          '🔞 Contenu adulte',
+          'Cette catégorie contient des questions réservées aux adultes (+18). Confirmer ?',
+          [
+            { text: 'Annuler', style: 'cancel' },
+            { text: 'Confirmer', onPress: () => setSelectedCategories((prev) => [...prev, key]) },
+          ]
+        );
+      }
+      return;
+    }
     setSelectedCategories((prev) => {
       if (prev.includes(key)) {
-        if (prev.length === 1) return prev; // au moins une catégorie
+        if (prev.length === 1) return prev;
         return prev.filter((k) => k !== key);
       }
       return [...prev, key];
@@ -62,7 +82,7 @@ export default function QuizSetupScreen({ navigation }) {
   const canStart = selectedCategories.length > 0 && effectiveCount > 0;
 
   return (
-    <LinearGradient colors={['#0A0A1B', '#001A2E', '#0A0A1B']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+    <LinearGradient colors={['#05050E', '#0C0A2C', '#05050E']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={true} style={Platform.OS === 'web' && { flex: 1, overflowY: 'scroll' }}>
 
         {/* Header */}
@@ -71,10 +91,10 @@ export default function QuizSetupScreen({ navigation }) {
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
           <View style={styles.agentBadge}>
-            <Text style={styles.agentBadgeEmoji}>⚡</Text>
+            <Text style={styles.agentBadgeEmoji}>✨</Text>
             <View>
-              <Text style={styles.agentBadgeName}>Maestro Zap</Text>
-              <Text style={styles.agentBadgeQuote}>"La connaissance est électrisante !"</Text>
+              <Text style={styles.agentBadgeName}>Hermione Granger</Text>
+              <Text style={styles.agentBadgeQuote}>"Ce n'est pas de la magie, c'est du savoir !"</Text>
             </View>
           </View>
           <Text style={styles.pageTitle}>QUIZ</Text>
@@ -112,18 +132,20 @@ export default function QuizSetupScreen({ navigation }) {
             <View style={styles.categoryGrid}>
               {Object.entries(quizCategories).map(([key, cat]) => {
                 const selected = selectedCategories.includes(key);
+                const isAdult = cat.adult === true;
                 return (
                   <TouchableOpacity
                     key={key}
                     onPress={() => toggleCategory(key)}
                     style={[
                       styles.categoryBtn,
+                      isAdult && styles.categoryBtnAdult,
                       selected && { borderColor: cat.color, backgroundColor: cat.color + '22' },
                     ]}
                     activeOpacity={0.8}
                   >
                     <Text style={styles.categoryEmoji}>{cat.emoji}</Text>
-                    <Text style={[styles.categoryLabel, selected && { color: cat.color }]}>
+                    <Text style={[styles.categoryLabel, selected && { color: cat.color }, isAdult && !selected && { color: HOT_COLOR }]}>
                       {cat.label}
                     </Text>
                     <Text style={styles.categoryCount}>{cat.questions.length} Q</Text>
@@ -327,6 +349,10 @@ const styles = StyleSheet.create({
   categoryEmoji: { fontSize: 24, marginBottom: 4 },
   categoryLabel: { fontSize: 11, fontWeight: '600', color: colors.textSecondary, textAlign: 'center' },
   categoryCount: { fontSize: 10, color: colors.textMuted, marginTop: 2 },
+  categoryBtnAdult: {
+    borderColor: HOT_COLOR + '66',
+    borderStyle: 'dashed',
+  },
   categoryCheck: {
     position: 'absolute',
     top: -5,

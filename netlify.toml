@@ -1,0 +1,3 @@
+[build]
+  command = "expo export -p web && node scripts/copy-personalities.js && node scripts/patch-html.js"
+  publish = "dist"

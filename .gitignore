@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Expo
+.expo/
+
+# Netlify
+.netlify
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local env
+.env
+.env.local

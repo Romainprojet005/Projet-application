@@ -10,13 +10,17 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 
+const AMB       = '#D97706';
+const AMB_DARK  = '#92400E';
+const AMB_LIGHT = '#FCD34D';
+
 // --- Role config ---
 const ROLE_CONFIG = {
   civilian: {
     label: 'VILLAGEOIS',
-    emoji: '👤',
-    color: colors.success,
-    gradient: ['#064E3B', '#065F46'],
+    emoji: '🏘️',
+    color: AMB_LIGHT,
+    gradient: ['#1C1207', '#2A1800'],
     message: 'Décris ton mot sans jamais le prononcer.\nTrouve l\'espion parmi vous !',
   },
   undercover: {
@@ -65,7 +69,7 @@ function DoneScreen({ playerCount, undercoverCount, hasMrWhite, onBackToMenu }) 
   const civCount = playerCount - undercoverCount - (hasMrWhite ? 1 : 0);
 
   return (
-    <LinearGradient colors={['#0A0A1B', '#150A2E']} style={styles.container}>
+    <LinearGradient colors={['#0A0600', '#1C0C00']} style={styles.container}>
       <Animated.View
         style={[styles.doneBox, { opacity: opacityAnim, transform: [{ scale: scaleAnim }] }]}
       >
@@ -157,7 +161,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
   const isLast = currentPlayer === playerCount - 1;
 
   return (
-    <LinearGradient colors={['#0A0A1B', '#150A2E', '#0A0A1B']} style={styles.container}>
+    <LinearGradient colors={['#0A0600', '#1C0C00', '#0A0600']} style={styles.container}>
       <Animated.View style={[styles.content, { opacity: screenFade }]}>
 
         {/* Header row */}
@@ -249,7 +253,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
         <Animated.View style={[styles.nextWrap, { opacity: nextBtnOpacity }]}>
           <TouchableOpacity onPress={handleNext} style={styles.nextBtn} activeOpacity={0.88}>
             <LinearGradient
-              colors={[colors.primary, colors.primaryDark]}
+              colors={[AMB, AMB_DARK]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.nextGrad}
@@ -290,7 +294,7 @@ const styles = StyleSheet.create({
   },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border },
   dotDone: { backgroundColor: colors.success },
-  dotActive: { backgroundColor: colors.primary, width: 12, height: 12, borderRadius: 6 },
+  dotActive: { backgroundColor: AMB, width: 12, height: 12, borderRadius: 6 },
 
   // Player section
   playerSection: {
@@ -421,7 +425,7 @@ const styles = StyleSheet.create({
   nextBtn: {
     borderRadius: radius.full,
     overflow: 'hidden',
-    shadowColor: colors.primary,
+    shadowColor: AMB,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.5,
     shadowRadius: 14,
@@ -452,7 +456,7 @@ const styles = StyleSheet.create({
   },
   doneSub: {
     fontSize: 13,
-    color: colors.primaryLight,
+    color: AMB_LIGHT,
     letterSpacing: 2,
     marginTop: spacing.xs,
     marginBottom: spacing.xl,

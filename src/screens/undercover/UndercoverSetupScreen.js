@@ -13,6 +13,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { wordThemes, generateRandomPair } from '../../data/wordLists';
 
+const AMB       = '#D97706';
+const AMB_DARK  = '#92400E';
+const AMB_LIGHT = '#FCD34D';
+
 // Persiste en mémoire tant que l'app n'est pas fermée
 const usedPairsPerTheme = {};
 
@@ -79,7 +83,7 @@ export default function UndercoverSetupScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={['#0A0A1B', '#1A0A3B', '#0A0A1B']} style={styles.container}>
+    <LinearGradient colors={['#090400', '#1A0B00', '#090400']} style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={true}
@@ -93,10 +97,10 @@ export default function UndercoverSetupScreen({ navigation }) {
           </TouchableOpacity>
 
           <View style={styles.agentBadge}>
-            <Text style={styles.agentBadgeEmoji}>🕵️</Text>
+            <Text style={styles.agentBadgeEmoji}>🔍</Text>
             <View>
-              <Text style={styles.agentBadgeName}>Agent Ombre</Text>
-              <Text style={styles.agentBadgeQuote}>"Préparez-vous à mentir..."</Text>
+              <Text style={styles.agentBadgeName}>Sherlock Holmes</Text>
+              <Text style={styles.agentBadgeQuote}>"Élémentaire, mon cher Watson !"</Text>
             </View>
           </View>
 
@@ -161,8 +165,8 @@ export default function UndercoverSetupScreen({ navigation }) {
             <Switch
               value={hasMrWhite}
               onValueChange={setHasMrWhite}
-              trackColor={{ false: colors.border, true: `${colors.primary}80` }}
-              thumbColor={hasMrWhite ? colors.primary : colors.textMuted}
+              trackColor={{ false: colors.border, true: `${AMB}80` }}
+              thumbColor={hasMrWhite ? AMB : colors.textMuted}
             />
           </View>
 
@@ -216,7 +220,7 @@ export default function UndercoverSetupScreen({ navigation }) {
         <Animated.View style={{ opacity: fadeIn, paddingHorizontal: spacing.xl, paddingBottom: 48 }}>
           <TouchableOpacity onPress={handleStart} style={styles.launchBtn} activeOpacity={0.88}>
             <LinearGradient
-              colors={[colors.primary, colors.primaryDark]}
+              colors={[AMB, AMB_DARK]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
@@ -256,17 +260,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backBtn: { alignSelf: 'flex-start', marginBottom: spacing.lg },
-  backBtnText: { color: colors.primaryLight, fontSize: 14, fontWeight: '600' },
+  backBtnText: { color: AMB_LIGHT, fontSize: 14, fontWeight: '600' },
   agentBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: `${colors.primary}20`,
+    backgroundColor: `${AMB}20`,
     borderRadius: radius.full,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     marginBottom: spacing.lg,
     borderWidth: 1,
-    borderColor: `${colors.primary}40`,
+    borderColor: `${AMB}40`,
     gap: spacing.sm,
   },
   agentBadgeEmoji: { fontSize: 26 },
@@ -280,7 +284,7 @@ const styles = StyleSheet.create({
   },
   pageSubtitle: {
     fontSize: 12,
-    color: colors.primaryLight,
+    color: AMB_LIGHT,
     letterSpacing: 2,
     marginTop: spacing.xs,
   },
@@ -312,7 +316,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: colors.primary,
+    backgroundColor: AMB,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -347,12 +351,12 @@ const styles = StyleSheet.create({
     minWidth: 72,
   },
   themeBtnSelected: {
-    borderColor: colors.primary,
-    backgroundColor: `${colors.primary}22`,
+    borderColor: AMB,
+    backgroundColor: `${AMB}22`,
   },
   themeEmoji: { fontSize: 22, marginBottom: 4 },
   themeLabel: { fontSize: 11, fontWeight: '600', color: colors.textSecondary },
-  themeLabelSelected: { color: colors.primaryLight },
+  themeLabelSelected: { color: AMB_LIGHT },
   themeDesc: {
     fontSize: 9,
     color: colors.textMuted,
@@ -361,11 +365,11 @@ const styles = StyleSheet.create({
   },
 
   summaryCard: {
-    backgroundColor: `${colors.primary}15`,
+    backgroundColor: `${AMB}15`,
     borderRadius: radius.lg,
     padding: spacing.lg,
     borderWidth: 1,
-    borderColor: `${colors.primary}30`,
+    borderColor: `${AMB}30`,
   },
   summaryTitle: {
     fontSize: 14,
@@ -378,7 +382,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     overflow: 'hidden',
     marginTop: spacing.lg,
-    shadowColor: colors.primary,
+    shadowColor: AMB,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.55,
     shadowRadius: 18,

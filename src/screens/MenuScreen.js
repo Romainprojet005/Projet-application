@@ -201,6 +201,10 @@ export default function MenuScreen({ navigation }) {
       navigation.navigate('UndercoverSetup');
     } else if (character.game === 'quiz') {
       navigation.navigate('QuizSetup');
+    } else if (character.game === 'amitie') {
+      navigation.navigate('AmitieSetup');
+    } else if (character.game === 'personality') {
+      navigation.navigate('PersonalitySetup');
     }
   };
 
@@ -216,7 +220,7 @@ export default function MenuScreen({ navigation }) {
           { opacity: headerOpacity },
         ]}
       >
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => navigation.navigate('Welcome')} style={styles.backBtn}>
           <Text style={styles.backBtnText}>← Retour</Text>
         </TouchableOpacity>
         <View style={styles.headerCenter}>
@@ -227,7 +231,7 @@ export default function MenuScreen({ navigation }) {
       </Animated.View>
 
       <Animated.Text style={[styles.countLine, { opacity: headerOpacity }]}>
-        {availableCount} jeu disponible · {soonCount} en développement
+        {availableCount} jeu{availableCount > 1 ? 'x' : ''} disponible{availableCount > 1 ? 's' : ''} · {soonCount} en développement
       </Animated.Text>
 
       {/* Horizontal card scroll */}

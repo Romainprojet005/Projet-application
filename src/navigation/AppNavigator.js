@@ -8,6 +8,10 @@ import UndercoverSetupScreen from '../screens/undercover/UndercoverSetupScreen';
 import UndercoverDistributeScreen from '../screens/undercover/UndercoverDistributeScreen';
 import QuizSetupScreen from '../screens/quiz/QuizSetupScreen';
 import QuizGameScreen from '../screens/quiz/QuizGameScreen';
+import AmitieSetupScreen from '../screens/amitie/AmitieSetupScreen';
+import AmitieGameScreen from '../screens/amitie/AmitieGameScreen';
+import PersonalitySetupScreen from '../screens/personality/PersonalitySetupScreen';
+import PersonalityGameScreen from '../screens/personality/PersonalityGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -27,6 +31,10 @@ export default function AppNavigator() {
         <Stack.Screen name="UndercoverDistribute" component={UndercoverDistributeScreen} />
         <Stack.Screen name="QuizSetup" component={QuizSetupScreen} />
         <Stack.Screen name="QuizGame" component={QuizGameScreen} />
+        <Stack.Screen name="AmitieSetup" component={AmitieSetupScreen} />
+        <Stack.Screen name="AmitieGame" component={AmitieGameScreen} />
+        <Stack.Screen name="PersonalitySetup" component={PersonalitySetupScreen} />
+        <Stack.Screen name="PersonalityGame" component={PersonalityGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
