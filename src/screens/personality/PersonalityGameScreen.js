@@ -2,12 +2,22 @@ import React, { useRef, useEffect, useState } from 'react';
 import personalityImages from '../../data/personalityImages';
 import {
   View, Text, StyleSheet, TouchableOpacity, Animated,
-  Platform, ScrollView, Image, Dimensions,
+  Platform, ScrollView, Image, Dimensions, TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 
 const IMG_HEIGHT = Math.min(Dimensions.get('window').height * 0.42, 340);
+
+// Normalise pour comparaison (minuscules, sans accents ni ponctuation)
+function normalize(s) {
+  return s.toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
 
 const ORANGE = '#F97316';
 const ORANGE_DARK = '#C2410C';
@@ -76,7 +86,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
   const [selectedId, setSelectedId] = useState(null);
   const [scores, setScores] = useState(Object.fromEntries(players.map((_, i) => [i, 0])));
   const [imgError, setImgError] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [inputText, setInputText] = useState('');
 
   const mode = currentIdx % 2 === 0 ? 'blur' : 'tiles';
   const currentRound = rounds[currentIdx];
@@ -102,7 +112,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
     Animated.spring(feedbackScale, { toValue: 1, tension: 80, friction: 6, useNativeDriver: true }).start();
   };
 
-  useEffect(() => { animateCardIn(); setDropdownOpen(false); }, [currentIdx, step]);
+  useEffect(() => { animateCardIn(); setInputText(''); }, [currentIdx, step]);
 
   const goToNext = () => {
     if (currentIdx + 1 >= rounds.length) {
@@ -115,6 +125,16 @@ export default function PersonalityGameScreen({ navigation, route }) {
       setSelectedId(null);
       setImgError(false);
     }
+  };
+
+  const handleTextSubmit = () => {
+    if (phase !== 'playing' || !inputText.trim()) return;
+    const inputNorm = normalize(inputText);
+    const correctNorm = normalize(currentPersonality.name);
+    // Accepte le nom complet ou le dernier mot du nom (nom de famille) si >= 4 chars
+    const lastWord = normalize(currentPersonality.name.split(' ').pop());
+    const correct = inputNorm === correctNorm || (lastWord.length >= 4 && inputNorm === lastWord);
+    handleChoice({ id: correct ? currentPersonality.id : '__wrong__' });
   };
 
   const handleChoice = (choice) => {
@@ -308,40 +328,37 @@ export default function PersonalityGameScreen({ navigation, route }) {
           )}
         </Animated.View>
 
-        {/* Choices dropdown */}
+        {/* Text input */}
         {phase === 'playing' && (
-          <View style={styles.dropdownContainer}>
+          <View style={styles.inputContainer}>
+            <View style={styles.inputRow}>
+              <TextInput
+                style={styles.textInput}
+                placeholder="Tapez le nom..."
+                placeholderTextColor={ORANGE + '66'}
+                value={inputText}
+                onChangeText={setInputText}
+                onSubmitEditing={handleTextSubmit}
+                returnKeyType="done"
+                autoCorrect={false}
+                autoCapitalize="words"
+              />
+              <TouchableOpacity
+                style={[styles.validateBtn, !inputText.trim() && styles.validateBtnDisabled]}
+                onPress={handleTextSubmit}
+                activeOpacity={0.8}
+                disabled={!inputText.trim()}
+              >
+                <Text style={styles.validateBtnText}>✓</Text>
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity
-              style={[styles.dropdownTrigger, dropdownOpen && styles.dropdownTriggerOpen]}
-              onPress={() => setDropdownOpen(o => !o)}
-              activeOpacity={0.8}
+              style={styles.dontKnowBtn}
+              onPress={handleDontKnow}
+              activeOpacity={0.7}
             >
-              <Text style={styles.dropdownPlaceholder}>🎯 Choisir une célébrité...</Text>
-              <Text style={styles.dropdownArrow}>{dropdownOpen ? '▲' : '▼'}</Text>
+              <Text style={styles.dontKnowText}>🤷 Je ne sais pas</Text>
             </TouchableOpacity>
-            {dropdownOpen && (
-              <View style={styles.dropdownList}>
-                {currentRound.choices.map((choice) => (
-                  <TouchableOpacity
-                    key={choice.id}
-                    style={styles.dropdownItem}
-                    onPress={() => { setDropdownOpen(false); handleChoice(choice); }}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.dropdownItemFlag}>{choice.flag}</Text>
-                    <Text style={styles.dropdownItemName}>{choice.name}</Text>
-                  </TouchableOpacity>
-                ))}
-                <TouchableOpacity
-                  style={[styles.dropdownItem, styles.dropdownItemDontKnow]}
-                  onPress={() => { setDropdownOpen(false); handleDontKnow(); }}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.dropdownItemFlag}>🤷</Text>
-                  <Text style={styles.dropdownItemDontKnowText}>Je ne sais pas</Text>
-                </TouchableOpacity>
-              </View>
-            )}
           </View>
         )}
 
@@ -593,48 +610,33 @@ const styles = StyleSheet.create({
   feedbackEmoji: { fontSize: 30 },
   feedbackText: { fontSize: 22, fontWeight: '900', color: colors.text },
 
-  // Choices dropdown
-  dropdownContainer: { marginBottom: spacing.sm, zIndex: 100 },
-  dropdownTrigger: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  // Text input
+  inputContainer: { marginBottom: spacing.sm },
+  inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
+  textInput: {
+    flex: 1,
     backgroundColor: colors.card,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: ORANGE + '66',
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
   },
-  dropdownTriggerOpen: {
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    borderColor: ORANGE,
-  },
-  dropdownPlaceholder: { fontSize: 14, fontWeight: '700', color: ORANGE_LIGHT },
-  dropdownArrow: { fontSize: 12, color: ORANGE_LIGHT },
-  dropdownList: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderTopWidth: 0,
-    borderColor: ORANGE,
-    borderBottomLeftRadius: radius.md,
-    borderBottomRightRadius: radius.md,
-    overflow: 'hidden',
-  },
-  dropdownItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
+  validateBtn: {
+    backgroundColor: ORANGE,
+    borderRadius: radius.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  dropdownItemFlag: { fontSize: 22 },
-  dropdownItemName: { fontSize: 15, fontWeight: '700', color: colors.text },
-  dropdownItemDontKnow: { borderBottomWidth: 0, borderTopWidth: 1, borderTopColor: colors.border },
-  dropdownItemDontKnowText: { fontSize: 14, fontWeight: '600', color: colors.textMuted, fontStyle: 'italic' },
+  validateBtnDisabled: { backgroundColor: ORANGE + '44' },
+  validateBtnText: { fontSize: 20, fontWeight: '900', color: colors.text },
+  dontKnowBtn: { alignItems: 'center', paddingVertical: spacing.xs },
+  dontKnowText: { fontSize: 13, color: colors.textMuted, fontStyle: 'italic' },
 
   // Skip
   skipBtn: { alignItems: 'center', paddingVertical: spacing.sm },
