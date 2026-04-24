@@ -15,9 +15,32 @@ import PersonalityGameScreen from '../screens/personality/PersonalityGameScreen'
 
 const Stack = createStackNavigator();
 
+const linking = {
+  prefixes: [
+    'https://romainprojet005.github.io/Projet-application',
+    'https://soireedeslegendes.com',
+    'http://localhost:3000',
+    'http://localhost',
+  ],
+  config: {
+    screens: {
+      Welcome: '',
+      Menu: 'menu',
+      UndercoverSetup: 'undercover',
+      UndercoverDistribute: 'undercover/distribute',
+      QuizSetup: 'quiz',
+      QuizGame: 'quiz/game',
+      AmitieSetup: 'amitie',
+      AmitieGame: 'amitie/game',
+      PersonalitySetup: 'personality',
+      PersonalityGame: 'personality/game',
+    },
+  },
+};
+
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
