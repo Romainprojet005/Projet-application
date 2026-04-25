@@ -288,6 +288,7 @@ function ResultsScreen({ players, scores, rounds, mode, navigation, route }) {
       <ScrollView
         contentContainerStyle={styles.resultsScroll}
         showsVerticalScrollIndicator={false}
+        style={Platform.OS === 'web' && { height: '100vh' }}
       >
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
           {/* Compatibility score */}

@@ -4,12 +4,12 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   Animated,
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import PageScroll from '../../components/PageScroll';
 import { quizCategories, buildQuestions } from '../../data/quizQuestions';
 
 const ZAPCOLOR = '#6366F1';
@@ -31,23 +31,6 @@ export default function QuizSetupScreen({ navigation }) {
       Animated.timing(fadeIn, { toValue: 1, duration: 500, useNativeDriver: true }),
       Animated.spring(slideUp, { toValue: 0, tension: 55, friction: 10, useNativeDriver: true }),
     ]).start();
-    if (Platform.OS !== 'web') return;
-    const el = document.getElementById('quiz-setup-scroll');
-    if (!el) return;
-    const findScrollable = (node) => {
-      if (!node) return null;
-      const s = window.getComputedStyle(node);
-      if (s.overflowY === 'scroll' || s.overflowY === 'auto') return node;
-      for (const child of node.children) {
-        const found = findScrollable(child);
-        if (found) return found;
-      }
-      return null;
-    };
-    const inner = findScrollable(el) || el;
-    const onWheel = (e) => { e.preventDefault(); inner.scrollTop += e.deltaY; };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
   const adjustPlayers = (delta) => {
@@ -81,7 +64,7 @@ export default function QuizSetupScreen({ navigation }) {
 
   return (
     <LinearGradient colors={['#05050E', '#0C0A2C', '#05050E']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
-      <ScrollView nativeID="quiz-setup-scroll" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+      <PageScroll contentContainerStyle={styles.scroll}>
 
         {/* Header */}
         <Animated.View style={[styles.header, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
@@ -226,7 +209,7 @@ export default function QuizSetupScreen({ navigation }) {
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
-      </ScrollView>
+      </PageScroll>
     </LinearGradient>
   );
 }

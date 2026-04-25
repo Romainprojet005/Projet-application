@@ -7,7 +7,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "preview": "node server.js"
+    "preview": "node server.js",
+    "build": "expo export -p web --clear && node scripts/copy-personalities.js && node scripts/patch-html.js",
+    "deploy": "npm run build && netlify deploy --prod --dir dist"
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",

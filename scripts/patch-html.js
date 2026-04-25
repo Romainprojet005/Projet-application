@@ -13,7 +13,7 @@ html = html.replace(
 // Also inject touch-action CSS to block double-tap zoom
 html = html.replace(
   '</style>',
-  '      * { touch-action: manipulation; }\n    </style>'
+  '      * { touch-action: manipulation; }\n      #root { overflow: hidden; }\n      #root > div { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }\n    </style>'
 );
 
 // Inject SPA redirect handler: restores path encoded by 404.html

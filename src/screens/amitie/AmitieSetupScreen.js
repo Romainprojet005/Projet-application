@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   Animated,
   Platform,
@@ -12,6 +11,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import PageScroll from '../../components/PageScroll';
 import { getQuestions } from '../../data/amitieQuestions';
 
 const ROSE = '#F43F5E';
@@ -33,23 +33,6 @@ export default function AmitieSetupScreen({ navigation }) {
       Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
       Animated.spring(slideAnim, { toValue: 0, tension: 55, friction: 10, useNativeDriver: true }),
     ]).start();
-    if (Platform.OS !== 'web') return;
-    const el = document.getElementById('amitie-setup-scroll');
-    if (!el) return;
-    const findScrollable = (node) => {
-      if (!node) return null;
-      const s = window.getComputedStyle(node);
-      if (s.overflowY === 'scroll' || s.overflowY === 'auto') return node;
-      for (const child of node.children) {
-        const found = findScrollable(child);
-        if (found) return found;
-      }
-      return null;
-    };
-    const inner = findScrollable(el) || el;
-    const onWheel = (e) => { e.preventDefault(); inner.scrollTop += e.deltaY; };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
   const addPlayer = () => {
@@ -90,12 +73,9 @@ export default function AmitieSetupScreen({ navigation }) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
       >
-        <ScrollView
-          nativeID="amitie-setup-scroll"
-          showsVerticalScrollIndicator={false}
+        <PageScroll
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
-          style={{ flex: 1 }}
         >
           {/* Header */}
           <Animated.View
@@ -240,7 +220,7 @@ export default function AmitieSetupScreen({ navigation }) {
               </LinearGradient>
             </TouchableOpacity>
           </Animated.View>
-        </ScrollView>
+        </PageScroll>
       </KeyboardAvoidingView>
     </LinearGradient>
   );

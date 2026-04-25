@@ -162,7 +162,7 @@ function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
 
   return (
     <LinearGradient colors={['#0A0A1B', '#001A2E']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
-      <ScrollView contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={true} style={Platform.OS === 'web' && { flex: 1, overflowY: 'scroll' }}>
+      <ScrollView contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={true} style={Platform.OS === 'web' && { flex: 1, height: '100vh' }}>
         <Animated.View style={{ opacity: podiumAnim, transform: [{ scale: podiumAnim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }] }}>
           <Text style={styles.finalEmoji}>✨</Text>
           <Text style={styles.finalTitle}>QUIZ TERMINÉ !</Text>
@@ -429,7 +429,7 @@ export default function QuizGameScreen({ navigation, route }) {
         onExpire={handleTimeout}
       />
 
-      <ScrollView contentContainerStyle={styles.gameScroll} showsVerticalScrollIndicator={true} style={Platform.OS === 'web' && { flex: 1, overflowY: 'scroll' }}>
+      <ScrollView contentContainerStyle={styles.gameScroll} showsVerticalScrollIndicator={true} style={Platform.OS === 'web' && { flex: 1, height: '100vh' }}>
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 
           {/* Category badge */}

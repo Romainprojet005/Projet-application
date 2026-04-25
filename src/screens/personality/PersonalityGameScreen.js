@@ -149,7 +149,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
       setScores(s => ({ ...s, [playerIdx]: (s[playerIdx] || 0) + pts }));
       setPhase('feedback');
       animateFeedback();
-      setTimeout(goToNext, 1200);
+      setTimeout(() => setPhase('reveal'), 900);
     } else {
       setPhase('feedback');
       animateFeedback();
@@ -213,7 +213,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
       </View>
 
       <ScrollView
-        style={styles.innerScroll}
+        style={[styles.innerScroll, Platform.OS === 'web' && { height: '100vh' }]}
         contentContainerStyle={styles.inner}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -417,6 +417,7 @@ function ResultsScreen({ players, scores, rounds, navigation }) {
       <ScrollView
         contentContainerStyle={styles.resultsScroll}
         showsVerticalScrollIndicator={false}
+        style={Platform.OS === 'web' && { height: '100vh' }}
       >
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
           {/* Global score */}

@@ -4,13 +4,13 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   Switch,
   Animated,
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import PageScroll from '../../components/PageScroll';
 import { wordThemes, generateRandomPair } from '../../data/wordLists';
 
 const AMB       = '#D97706';
@@ -37,23 +37,6 @@ export default function UndercoverSetupScreen({ navigation }) {
       Animated.timing(fadeIn, { toValue: 1, duration: 500, useNativeDriver: true }),
       Animated.spring(slideUp, { toValue: 0, tension: 55, friction: 10, useNativeDriver: true }),
     ]).start();
-    if (Platform.OS !== 'web') return;
-    const el = document.getElementById('undercover-setup-scroll');
-    if (!el) return;
-    const findScrollable = (node) => {
-      if (!node) return null;
-      const s = window.getComputedStyle(node);
-      if (s.overflowY === 'scroll' || s.overflowY === 'auto') return node;
-      for (const child of node.children) {
-        const found = findScrollable(child);
-        if (found) return found;
-      }
-      return null;
-    };
-    const inner = findScrollable(el) || el;
-    const onWheel = (e) => { e.preventDefault(); inner.scrollTop += e.deltaY; };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
   const maxUndercover = Math.max(1, Math.floor(playerCount / 3));
@@ -101,12 +84,7 @@ export default function UndercoverSetupScreen({ navigation }) {
 
   return (
     <LinearGradient colors={['#090400', '#1A0B00', '#090400']} style={styles.container}>
-      <ScrollView
-        nativeID="undercover-setup-scroll"
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
-      >
+      <PageScroll contentContainerStyle={styles.scroll}>
         {/* Header */}
         <Animated.View
           style={[styles.header, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}
@@ -248,7 +226,7 @@ export default function UndercoverSetupScreen({ navigation }) {
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
-      </ScrollView>
+      </PageScroll>
     </LinearGradient>
   );
 }

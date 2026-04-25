@@ -1,8 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity,
+  View, Text, StyleSheet, TouchableOpacity,
   Animated, Platform, TextInput, KeyboardAvoidingView,
 } from 'react-native';
+import PageScroll from '../../components/PageScroll';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { getPersonalities, buildChoices } from '../../data/personalityData';
@@ -35,23 +36,6 @@ export default function PersonalitySetupScreen({ navigation }) {
       Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
       Animated.spring(slideAnim, { toValue: 0, tension: 55, friction: 10, useNativeDriver: true }),
     ]).start();
-    if (Platform.OS !== 'web') return;
-    const el = document.getElementById('personality-setup-scroll');
-    if (!el) return;
-    const findScrollable = (node) => {
-      if (!node) return null;
-      const s = window.getComputedStyle(node);
-      if (s.overflowY === 'scroll' || s.overflowY === 'auto') return node;
-      for (const child of node.children) {
-        const found = findScrollable(child);
-        if (found) return found;
-      }
-      return null;
-    };
-    const inner = findScrollable(el) || el;
-    const onWheel = (e) => { e.preventDefault(); inner.scrollTop += e.deltaY; };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
   const addPlayer = () => { if (players.length < 8) setPlayers([...players, '']); };
@@ -98,12 +82,9 @@ export default function PersonalitySetupScreen({ navigation }) {
   return (
     <LinearGradient colors={BG} style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScrollView
-          nativeID="personality-setup-scroll"
-          showsVerticalScrollIndicator={false}
+        <PageScroll
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
-          style={{ flex: 1 }}
         >
           <Animated.View
             style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
@@ -241,7 +222,7 @@ export default function PersonalitySetupScreen({ navigation }) {
               </LinearGradient>
             </TouchableOpacity>
           </Animated.View>
-        </ScrollView>
+        </PageScroll>
       </KeyboardAvoidingView>
     </LinearGradient>
   );

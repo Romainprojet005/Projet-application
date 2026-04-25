@@ -1,5 +1,5 @@
 [build]
-  command = "expo export -p web && node scripts/copy-personalities.js && node scripts/patch-html.js"
+  command = "npm run build"
   publish = "dist"
 
 [[redirects]]
