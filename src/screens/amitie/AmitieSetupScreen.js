@@ -36,9 +36,19 @@ export default function AmitieSetupScreen({ navigation }) {
     if (Platform.OS !== 'web') return;
     const el = document.getElementById('amitie-setup-scroll');
     if (!el) return;
-    const inner = el.firstElementChild || el;
-    const onWheel = (e) => { inner.scrollTop += e.deltaY; };
-    el.addEventListener('wheel', onWheel);
+    const findScrollable = (node) => {
+      if (!node) return null;
+      const s = window.getComputedStyle(node);
+      if (s.overflowY === 'scroll' || s.overflowY === 'auto') return node;
+      for (const child of node.children) {
+        const found = findScrollable(child);
+        if (found) return found;
+      }
+      return null;
+    };
+    const inner = findScrollable(el) || el;
+    const onWheel = (e) => { e.preventDefault(); inner.scrollTop += e.deltaY; };
+    el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
 

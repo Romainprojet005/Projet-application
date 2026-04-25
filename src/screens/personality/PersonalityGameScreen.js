@@ -256,7 +256,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
                 <Image
                   source={personalityImages[currentPersonality.id]}
                   style={styles.faceImage}
-                  resizeMode="cover"
+                  resizeMode={isReveal ? 'contain' : 'cover'}
                   onError={() => setImgError(true)}
                 />
               ) : (
