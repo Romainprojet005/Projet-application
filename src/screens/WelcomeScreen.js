@@ -51,6 +51,7 @@ export default function WelcomeScreen({ navigation }) {
   const logoOpacity = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const hoverScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     Animated.sequence([
@@ -70,6 +71,13 @@ export default function WelcomeScreen({ navigation }) {
       ).start();
     });
   }, []);
+
+  const onBtnHoverIn = () => {
+    Animated.spring(hoverScale, { toValue: 1.06, useNativeDriver: true }).start();
+  };
+  const onBtnHoverOut = () => {
+    Animated.spring(hoverScale, { toValue: 1, useNativeDriver: true }).start();
+  };
 
   return (
     <LinearGradient colors={['#0A0A1B', '#170A35', '#0A1228']} style={styles.container}>
@@ -91,10 +99,13 @@ export default function WelcomeScreen({ navigation }) {
         </Animated.View>
 
         <Animated.View
-          style={{ width: '100%', transform: [{ scale: Animated.multiply(buttonScale, pulseAnim) }] }}
+          style={{ width: '100%', alignItems: 'center', transform: [{ scale: Animated.multiply(buttonScale, pulseAnim) }] }}
         >
+          <Animated.View style={[styles.buttonWrapper, { transform: [{ scale: hoverScale }] }]}>
           <TouchableOpacity
             onPress={() => navigation.replace('Menu')}
+            onMouseEnter={onBtnHoverIn}
+            onMouseLeave={onBtnHoverOut}
             activeOpacity={0.88}
             style={styles.button}
           >
@@ -107,6 +118,7 @@ export default function WelcomeScreen({ navigation }) {
               <Text style={styles.buttonText}>🎮  COMMENCER LA SOIRÉE</Text>
             </LinearGradient>
           </TouchableOpacity>
+          </Animated.View>
         </Animated.View>
 
         <Animated.Text style={[styles.version, { opacity: logoOpacity }]}>
@@ -135,6 +147,10 @@ const styles = StyleSheet.create({
   logoSubtitle: { fontSize: 17, fontWeight: '600', color: colors.primaryLight, letterSpacing: 6, marginTop: -4 },
   divider: { width: 80, height: 2, backgroundColor: colors.primary, borderRadius: radius.full, marginTop: spacing.md },
 
+  buttonWrapper: {
+    width: '100%',
+    ...Platform.select({ web: { maxWidth: 340 } }),
+  },
   button: {
     width: '100%',
     borderRadius: radius.full,

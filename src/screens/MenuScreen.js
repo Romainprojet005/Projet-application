@@ -71,6 +71,8 @@ function GameCard({ character, index, onPress }) {
   const cardY = useRef(new Animated.Value(100)).current;
   const cardOpacity = useRef(new Animated.Value(0)).current;
   const pressScale = useRef(new Animated.Value(1)).current;
+  const hoverScale = useRef(new Animated.Value(1)).current;
+  const glowOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -97,18 +99,34 @@ function GameCard({ character, index, onPress }) {
   const onPressOut = () => {
     Animated.spring(pressScale, { toValue: 1, useNativeDriver: true }).start();
   };
+  const onHoverIn = () => {
+    if (!character.available) return;
+    Animated.parallel([
+      Animated.spring(hoverScale, { toValue: 1.03, useNativeDriver: true }),
+      Animated.timing(glowOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
+    ]).start();
+  };
+  const onHoverOut = () => {
+    Animated.parallel([
+      Animated.spring(hoverScale, { toValue: 1, useNativeDriver: true }),
+      Animated.timing(glowOpacity, { toValue: 0, duration: 200, useNativeDriver: true }),
+    ]).start();
+  };
 
   return (
     <Animated.View
       style={[
         { width: CARD_WIDTH, marginBottom: spacing.lg },
-        { opacity: cardOpacity, transform: [{ translateY: cardY }, { scale: pressScale }] },
+        { opacity: cardOpacity, transform: [{ translateY: cardY }, { scale: Animated.multiply(pressScale, hoverScale) }] },
       ]}
     >
+      <Animated.View style={{ opacity: glowOpacity, position: 'absolute', top: -4, left: -4, right: -4, bottom: -4, borderRadius: radius.xl + 4, backgroundColor: character.color + '20', zIndex: -1 }} />
       <TouchableOpacity
         onPress={() => character.available && onPress(character)}
         onPressIn={onPressIn}
         onPressOut={onPressOut}
+        onMouseEnter={onHoverIn}
+        onMouseLeave={onHoverOut}
         activeOpacity={character.available ? 0.9 : 1}
         disabled={!character.available}
       >
