@@ -251,6 +251,7 @@ export default function MenuScreen({ navigation }) {
       {/* Vertical card scroll */}
       <ScrollView
         ref={scrollRef}
+        style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         decelerationRate="fast"
@@ -301,6 +302,10 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textMuted,
     marginBottom: spacing.lg,
+  },
+  scrollView: {
+    flex: 1,
+    ...Platform.select({ web: { overflowY: 'auto' } }),
   },
   scrollContent: {
     paddingHorizontal: spacing.xl,
