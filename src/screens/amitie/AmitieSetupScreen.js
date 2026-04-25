@@ -33,6 +33,13 @@ export default function AmitieSetupScreen({ navigation }) {
       Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
       Animated.spring(slideAnim, { toValue: 0, tension: 55, friction: 10, useNativeDriver: true }),
     ]).start();
+    if (Platform.OS !== 'web') return;
+    const el = document.getElementById('amitie-setup-scroll');
+    if (!el) return;
+    const inner = el.firstElementChild || el;
+    const onWheel = (e) => { inner.scrollTop += e.deltaY; };
+    el.addEventListener('wheel', onWheel);
+    return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
   const addPlayer = () => {
@@ -74,9 +81,11 @@ export default function AmitieSetupScreen({ navigation }) {
         style={{ flex: 1 }}
       >
         <ScrollView
+          nativeID="amitie-setup-scroll"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          style={{ flex: 1 }}
         >
           {/* Header */}
           <Animated.View

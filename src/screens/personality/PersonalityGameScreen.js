@@ -352,21 +352,20 @@ export default function PersonalityGameScreen({ navigation, route }) {
                 <Text style={styles.validateBtnText}>✓</Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              style={styles.dontKnowBtn}
-              onPress={handleDontKnow}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.dontKnowText}>🤷 Je ne sais pas</Text>
-            </TouchableOpacity>
           </View>
         )}
 
         {phase === 'playing' && (
-          <TouchableOpacity onPress={handleSkip} style={styles.skipBtn}>
-            <Text style={styles.skipText}>
-              {step < 4 ? `⏭ Indice suivant (étape ${step + 1}/4)` : '⏭ Passer'}
-            </Text>
+          <TouchableOpacity onPress={handleDontKnow} activeOpacity={0.8} style={styles.skipBtn}>
+            <LinearGradient
+              colors={['#1A1A3B', '#2D2D5E']}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+              style={styles.skipBtnInner}
+            >
+              <Text style={styles.skipBtnText}>
+                {step < 4 ? `⏭  INDICE SUIVANT  (${step + 1}/4)` : '⏭  PASSER'}
+              </Text>
+            </LinearGradient>
           </TouchableOpacity>
         )}
 
@@ -635,12 +634,16 @@ const styles = StyleSheet.create({
   },
   validateBtnDisabled: { backgroundColor: ORANGE + '44' },
   validateBtnText: { fontSize: 20, fontWeight: '900', color: colors.text },
-  dontKnowBtn: { alignItems: 'center', paddingVertical: spacing.xs },
-  dontKnowText: { fontSize: 13, color: colors.textMuted, fontStyle: 'italic' },
-
-  // Skip
-  skipBtn: { alignItems: 'center', paddingVertical: spacing.sm },
-  skipText: { fontSize: 13, color: colors.textMuted, fontStyle: 'italic' },
+  skipBtn: { marginTop: spacing.sm, borderRadius: radius.full, overflow: 'hidden' },
+  skipBtnInner: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    alignItems: 'center',
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: '#7C3AED55',
+  },
+  skipBtnText: { fontSize: 14, fontWeight: '800', color: colors.primaryLight, letterSpacing: 1.5 },
 
   // Next
   nextBtn: {

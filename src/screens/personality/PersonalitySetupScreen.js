@@ -35,6 +35,13 @@ export default function PersonalitySetupScreen({ navigation }) {
       Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
       Animated.spring(slideAnim, { toValue: 0, tension: 55, friction: 10, useNativeDriver: true }),
     ]).start();
+    if (Platform.OS !== 'web') return;
+    const el = document.getElementById('personality-setup-scroll');
+    if (!el) return;
+    const inner = el.firstElementChild || el;
+    const onWheel = (e) => { inner.scrollTop += e.deltaY; };
+    el.addEventListener('wheel', onWheel);
+    return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
   const addPlayer = () => { if (players.length < 8) setPlayers([...players, '']); };
@@ -82,9 +89,11 @@ export default function PersonalitySetupScreen({ navigation }) {
     <LinearGradient colors={BG} style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView
+          nativeID="personality-setup-scroll"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          style={{ flex: 1 }}
         >
           <Animated.View
             style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}

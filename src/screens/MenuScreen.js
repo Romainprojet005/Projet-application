@@ -318,7 +318,7 @@ export default function MenuScreen({ navigation }) {
       {/* Card list */}
       <View style={{ flex: 1 }} onLayout={(e) => setListHeight(e.nativeEvent.layout.height)}>
         {listHeight > 0 && Platform.OS === 'web' ? (
-          <div style={{ height: listHeight, overflowY: 'scroll', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: `${spacing.sm}px ${spacing.xl}px ${spacing.lg}px`, boxSizing: 'border-box' }}>
+          <div style={{ height: listHeight, overflowY: 'scroll', overflowX: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: `${spacing.sm}px ${spacing.xl}px ${spacing.lg}px`, boxSizing: 'border-box' }}>
             {characters.map((character, index) => (
               <GameCard key={character.id} character={character} index={index} onPress={handleSelectGame} />
             ))}

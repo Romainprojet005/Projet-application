@@ -37,6 +37,13 @@ export default function UndercoverSetupScreen({ navigation }) {
       Animated.timing(fadeIn, { toValue: 1, duration: 500, useNativeDriver: true }),
       Animated.spring(slideUp, { toValue: 0, tension: 55, friction: 10, useNativeDriver: true }),
     ]).start();
+    if (Platform.OS !== 'web') return;
+    const el = document.getElementById('undercover-setup-scroll');
+    if (!el) return;
+    const inner = el.firstElementChild || el;
+    const onWheel = (e) => { inner.scrollTop += e.deltaY; };
+    el.addEventListener('wheel', onWheel);
+    return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
   const maxUndercover = Math.max(1, Math.floor(playerCount / 3));
@@ -85,8 +92,10 @@ export default function UndercoverSetupScreen({ navigation }) {
   return (
     <LinearGradient colors={['#090400', '#1A0B00', '#090400']} style={styles.container}>
       <ScrollView
+        nativeID="undercover-setup-scroll"
         contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={true}
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
       >
         {/* Header */}
         <Animated.View
