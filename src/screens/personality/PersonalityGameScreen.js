@@ -29,9 +29,9 @@ const BG = ['#1A0A00', '#2D1500', '#1A0A00'];
 // Blur (css filter) applied to a wrapper View on web — 3 levels + clear at step 4
 const blurStyle = (step) => {
   if (Platform.OS !== 'web') return {};
-  if (step === 1) return { filter: 'blur(24px)', transform: [{ scale: 1.3 }] };
-  if (step === 2) return { filter: 'blur(14px)', transform: [{ scale: 1.18 }] };
-  if (step === 3) return { filter: 'blur(6px)', transform: [{ scale: 1.07 }] };
+  if (step === 1) return { filter: 'blur(24px)' };
+  if (step === 2) return { filter: 'blur(14px)' };
+  if (step === 3) return { filter: 'blur(6px)' };
   return {};
 };
 
