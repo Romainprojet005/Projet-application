@@ -16,6 +16,21 @@ import { characters } from '../data/characters';
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = Math.min(width * 0.88, 500);
 
+// ─── Space background ─────────────────────────────────────────────
+const MENU_STARS = Array.from({ length: 40 }, (_, i) => ({
+  id: i,
+  top: Math.random() * 100,
+  left: Math.random() * 100,
+  size: Math.random() * 2 + 0.5,
+  opacity: Math.random() * 0.4 + 0.1,
+}));
+
+const MENU_NEBULAE = [
+  { top: '0%',  left: '-15%', size: 320, color: '#7C3AED', opacity: 0.10 },
+  { top: '45%', left: '70%',  size: 260, color: '#EC4899', opacity: 0.07 },
+  { top: '80%', left: '-5%',  size: 200, color: '#0EA5E9', opacity: 0.07 },
+];
+
 // Animated stat bar
 function StatBar({ label, value, color }) {
   const barWidth = useRef(new Animated.Value(0)).current;
@@ -124,38 +139,49 @@ function GameCard({ character, index, onPress }) {
   };
 
   return (
-    <Animated.View
-      style={[
-        { width: CARD_WIDTH, marginBottom: spacing.lg },
-        { opacity: cardOpacity, transform: [{ translateY: cardY }, { scale: Animated.multiply(pressScale, hoverScale) }] },
-      ]}
-    >
-      <Animated.View style={{ opacity: glowOpacity, position: 'absolute', top: -4, left: -4, right: -4, bottom: -4, borderRadius: radius.xl + 4, backgroundColor: character.color + '20', zIndex: -1 }} />
+    <Animated.View style={[
+      { width: CARD_WIDTH, marginBottom: spacing.lg },
+      { opacity: cardOpacity, transform: [{ translateY: cardY }, { scale: Animated.multiply(pressScale, hoverScale) }] },
+    ]}>
+      {/* Outer glow on hover */}
+      <Animated.View style={{
+        opacity: glowOpacity, position: 'absolute', top: -6, left: -6, right: -6, bottom: -6,
+        borderRadius: radius.xl + 6, backgroundColor: character.color + '18', zIndex: -1,
+      }} />
+      {/* Colored shadow ring */}
+      <View style={{
+        position: 'absolute', top: 4, left: 4, right: 4, bottom: -4,
+        borderRadius: radius.xl, backgroundColor: character.color + '25', zIndex: -2,
+      }} />
+
       <TouchableOpacity
         onPress={() => character.available && onPress(character)}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        onMouseEnter={onHoverIn}
-        onMouseLeave={onHoverOut}
+        onPressIn={onPressIn} onPressOut={onPressOut}
+        onMouseEnter={onHoverIn} onMouseLeave={onHoverOut}
         activeOpacity={character.available ? 0.9 : 1}
         disabled={!character.available}
       >
         <LinearGradient
           colors={character.gradientColors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[
-            styles.card,
-            { borderColor: character.available ? character.color + '50' : colors.border },
-            !character.available && styles.cardLocked,
-          ]}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={[styles.card, { borderColor: character.available ? character.color + '60' : colors.border }, !character.available && styles.cardLocked]}
         >
-          {/* Status badge top right */}
+          {/* Inner highlight at top */}
+          <LinearGradient
+            colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0)']}
+            start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}
+            style={styles.cardShine}
+            pointerEvents="none"
+          />
+
+          {/* Top row: number + status */}
           <View style={styles.cardTopRow}>
-            <View />
+            <View style={[styles.cardNumber, { borderColor: character.color + '50' }]}>
+              <Text style={[styles.cardNumberText, { color: character.color }]}>0{index + 1}</Text>
+            </View>
             {character.available ? (
-              <View style={[styles.badge, { backgroundColor: colors.success }]}>
-                <Text style={styles.badgeText}>● DISPO</Text>
+              <View style={[styles.badge, { backgroundColor: colors.success + 'CC' }]}>
+                <Text style={styles.badgeText}>✦ DISPONIBLE</Text>
               </View>
             ) : (
               <View style={[styles.badge, { backgroundColor: colors.surface }]}>
@@ -164,25 +190,37 @@ function GameCard({ character, index, onPress }) {
             )}
           </View>
 
-          {/* Avatar + Game name */}
+          {/* Avatar with rings + Game name */}
           <View style={styles.avatarRow}>
-            <View style={[styles.avatar, { borderColor: character.color + '70', backgroundColor: character.color + '20' }]}>
-              <Text style={styles.avatarEmoji}>{character.emoji}</Text>
+            <View style={styles.avatarWrapper}>
+              {/* Outer ring */}
+              <View style={[styles.avatarRingOuter, { borderColor: character.color + '25' }]} />
+              {/* Mid ring */}
+              <View style={[styles.avatarRingMid, { borderColor: character.color + '45' }]} />
+              {/* Avatar */}
+              <View style={[styles.avatar, { borderColor: character.color + '80', backgroundColor: character.color + '20' }]}>
+                <Text style={styles.avatarEmoji}>{character.emoji}</Text>
+              </View>
             </View>
             {character.gameName ? (
-              <Text style={[styles.gameNameLarge, { color: character.color }]}>{character.gameName}</Text>
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <Text style={[styles.gameNameLarge, { color: character.color }]}>{character.gameName}</Text>
+                <Text style={[styles.gameNameSub, { color: character.color + '80' }]}>✦ ✦ ✦</Text>
+              </View>
             ) : null}
           </View>
 
           {/* Identity */}
           <Text style={styles.cardName}>{character.name}</Text>
-          <Text style={[styles.cardTitle, { color: character.color }]}>
-            {character.title.toUpperCase()}
-          </Text>
+          <Text style={[styles.cardTitle, { color: character.color }]}>{character.title.toUpperCase()}</Text>
           <Text style={styles.cardDesc}>{character.description}</Text>
 
-          {/* Divider */}
-          <View style={[styles.separator, { backgroundColor: character.color + '35' }]} />
+          {/* Gradient separator */}
+          <LinearGradient
+            colors={[character.color + '00', character.color + '70', character.color + '00']}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+            style={styles.separator}
+          />
 
           {/* Stats */}
           <View style={styles.stats}>
@@ -197,20 +235,17 @@ function GameCard({ character, index, onPress }) {
           {/* Play button */}
           {character.available ? (
             <Animated.View style={{ transform: [{ scale: btnPulse }] }}>
-            <LinearGradient
-              colors={[character.color, character.color + 'CC']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.playBtn}
-            >
-              <Text style={styles.playBtnText}>JOUER →</Text>
-            </LinearGradient>
+              <LinearGradient
+                colors={[character.color, character.color + 'BB', character.color + '88']}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                style={styles.playBtn}
+              >
+                <Text style={styles.playBtnText}>⚡  JOUER MAINTENANT  ⚡</Text>
+              </LinearGradient>
             </Animated.View>
           ) : (
-            <View style={[styles.playBtn, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.playBtnText, { color: colors.textMuted }]}>
-                En développement
-              </Text>
+            <View style={[styles.playBtn, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }]}>
+              <Text style={[styles.playBtnText, { color: colors.textMuted }]}>🚧  En développement</Text>
             </View>
           )}
         </LinearGradient>
@@ -243,7 +278,22 @@ export default function MenuScreen({ navigation }) {
   const soonCount = characters.filter((c) => !c.available).length;
 
   return (
-    <LinearGradient colors={['#0A0A1B', '#0D0D22', '#0A0A1B']} style={styles.container}>
+    <LinearGradient colors={['#06040F', '#0D0720', '#060410']} style={styles.container}>
+      {/* Space background */}
+      {MENU_NEBULAE.map((n, i) => (
+        <View key={i} pointerEvents="none" style={{
+          position: 'absolute', top: n.top, left: n.left,
+          width: n.size, height: n.size, borderRadius: n.size / 2,
+          backgroundColor: n.color, opacity: n.opacity,
+        }} />
+      ))}
+      {MENU_STARS.map((s, i) => (
+        <View key={i} pointerEvents="none" style={{
+          position: 'absolute', top: `${s.top}%`, left: `${s.left}%`,
+          width: s.size, height: s.size, borderRadius: s.size / 2,
+          backgroundColor: '#FFFFFF', opacity: s.opacity,
+        }} />
+      ))}
       {/* Header */}
       <Animated.View
         style={[
@@ -337,93 +387,68 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radius.xl,
     padding: spacing.xl,
-    borderWidth: 1,
+    borderWidth: 1.5,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 14,
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.5,
+    shadowRadius: 24,
+    elevation: 16,
   },
-  cardLocked: { opacity: 0.75 },
+  cardShine: {
+    position: 'absolute', top: 0, left: 0, right: 0, height: 120,
+    borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl,
+  },
+  cardLocked: { opacity: 0.7 },
   cardTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
+    flexDirection: 'row', justifyContent: 'space-between',
+    alignItems: 'center', marginBottom: spacing.md,
   },
+  cardNumber: {
+    width: 32, height: 32, borderRadius: 16,
+    borderWidth: 1, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  cardNumberText: { fontSize: 11, fontWeight: '900', letterSpacing: 1 },
   avatarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    gap: spacing.md,
+    flexDirection: 'row', alignItems: 'center',
+    marginBottom: spacing.lg, gap: spacing.md,
   },
-  gameNameLarge: {
-    flex: 1,
-    fontSize: 26,
-    fontWeight: '900',
-    letterSpacing: 2,
-    textAlign: 'center',
+  avatarWrapper: { width: 96, height: 96, alignItems: 'center', justifyContent: 'center' },
+  avatarRingOuter: {
+    position: 'absolute', width: 96, height: 96, borderRadius: 48, borderWidth: 1,
   },
-  badge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    borderRadius: radius.full,
-  },
-  badgeText: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: colors.text,
-    letterSpacing: 1,
+  avatarRingMid: {
+    position: 'absolute', width: 86, height: 86, borderRadius: 43, borderWidth: 1.5,
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.md,
+    width: 76, height: 76, borderRadius: 38,
+    borderWidth: 2, alignItems: 'center', justifyContent: 'center',
   },
-  avatarEmoji: { fontSize: 50 },
-  cardName: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: colors.text,
-    marginBottom: spacing.xs,
+  avatarEmoji: { fontSize: 44 },
+  gameNameLarge: { fontSize: 26, fontWeight: '900', letterSpacing: 2, textAlign: 'center' },
+  gameNameSub: { fontSize: 10, marginTop: 4, letterSpacing: 4 },
+  badge: {
+    paddingHorizontal: spacing.sm, paddingVertical: 4,
+    borderRadius: radius.full,
   },
-  cardTitle: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 2,
-    marginBottom: spacing.sm,
-  },
-  cardDesc: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: spacing.md,
-  },
-  separator: { height: 1, marginBottom: spacing.md },
+  badgeText: { fontSize: 9, fontWeight: '800', color: colors.text, letterSpacing: 1 },
+  cardName: { fontSize: 22, fontWeight: '900', color: colors.text, marginBottom: spacing.xs },
+  cardTitle: { fontSize: 11, fontWeight: '700', letterSpacing: 2, marginBottom: spacing.sm },
+  cardDesc: { fontSize: 13, color: colors.textSecondary, lineHeight: 20, marginBottom: spacing.md },
+  separator: { height: 1.5, marginBottom: spacing.md, borderRadius: 1 },
   stats: { marginBottom: spacing.md },
   catchphrase: {
-    fontSize: 12,
-    color: colors.textMuted,
-    fontStyle: 'italic',
-    textAlign: 'center',
-    lineHeight: 18,
-    marginBottom: spacing.lg,
+    fontSize: 12, color: colors.textMuted, fontStyle: 'italic',
+    textAlign: 'center', lineHeight: 18, marginBottom: spacing.lg,
   },
   playBtn: {
-    paddingVertical: spacing.sm + 4,
-    borderRadius: radius.full,
+    paddingVertical: spacing.md, borderRadius: radius.full,
     alignItems: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
   },
-  playBtnText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: colors.text,
-    letterSpacing: 2,
-  },
+  playBtnText: { fontSize: 13, fontWeight: '900', color: colors.text, letterSpacing: 1.5 },
   swipeHint: {
     textAlign: 'center',
     fontSize: 11,
