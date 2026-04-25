@@ -7,7 +7,9 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 
-const IMG_HEIGHT = Math.min(Dimensions.get('window').height * 0.42, 340);
+const IMG_HEIGHT = Platform.OS === 'web'
+  ? Math.min(Dimensions.get('window').height * 0.55, 500)
+  : Math.min(Dimensions.get('window').height * 0.42, 340);
 
 // Normalise pour comparaison (minuscules, sans accents ni ponctuation)
 function normalize(s) {
@@ -256,7 +258,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
                 <Image
                   source={personalityImages[currentPersonality.id]}
                   style={styles.faceImage}
-                  resizeMode={isReveal ? 'contain' : 'cover'}
+                  resizeMode={isReveal || Platform.OS === 'web' ? 'contain' : 'cover'}
                   onError={() => setImgError(true)}
                 />
               ) : (
