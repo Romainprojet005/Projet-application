@@ -7,7 +7,6 @@ import {
   ScrollView,
   Animated,
   Platform,
-  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
@@ -39,24 +38,6 @@ export default function QuizSetupScreen({ navigation }) {
   };
 
   const toggleCategory = (key) => {
-    const cat = quizCategories[key];
-    if (cat?.adult && !selectedCategories.includes(key)) {
-      if (Platform.OS === 'web') {
-        if (window.confirm('🔞 Contenu adulte\n\nCette catégorie contient des questions réservées aux adultes (+18). Confirmer ?')) {
-          setSelectedCategories((prev) => [...prev, key]);
-        }
-      } else {
-        Alert.alert(
-          '🔞 Contenu adulte',
-          'Cette catégorie contient des questions réservées aux adultes (+18). Confirmer ?',
-          [
-            { text: 'Annuler', style: 'cancel' },
-            { text: 'Confirmer', onPress: () => setSelectedCategories((prev) => [...prev, key]) },
-          ]
-        );
-      }
-      return;
-    }
     setSelectedCategories((prev) => {
       if (prev.includes(key)) {
         if (prev.length === 1) return prev;

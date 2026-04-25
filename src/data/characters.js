@@ -10,6 +10,7 @@ export const characters = [
     color: '#7C3AED',
     gradientColors: ['#1A0A3B', '#2D1069'],
     game: 'undercover',
+    gameName: 'UNDERCOVER',
     available: true,
     stats: {
       Déduction: 99,
@@ -28,6 +29,7 @@ export const characters = [
     color: '#0EA5E9',
     gradientColors: ['#0A1A3B', '#0A2B4A'],
     game: 'quiz',
+    gameName: 'QUIZ',
     available: true,
     stats: {
       Savoir: 99,
@@ -46,6 +48,7 @@ export const characters = [
     color: '#F43F5E',
     gradientColors: ['#2D0010', '#4A001A'],
     game: 'amitie',
+    gameName: 'TEST RELATION',
     available: true,
     stats: {
       Loyauté: 98,
@@ -64,6 +67,7 @@ export const characters = [
     color: '#F97316',
     gradientColors: ['#2D0F00', '#4A1A00'],
     game: 'personality',
+    gameName: 'DEVINE LA PERSONNALITÉ',
     available: true,
     stats: {
       Observation: 12,

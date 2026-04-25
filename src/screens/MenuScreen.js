@@ -150,16 +150,23 @@ function GameCard({ character, index, onPress }) {
             !character.available && styles.cardLocked,
           ]}
         >
-          {/* Status badge */}
-          {character.available ? (
-            <View style={[styles.badge, { backgroundColor: colors.success }]}>
-              <Text style={styles.badgeText}>● DISPONIBLE</Text>
-            </View>
-          ) : (
-            <View style={[styles.badge, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.badgeText, { color: colors.textMuted }]}>🔒 BIENTÔT</Text>
-            </View>
-          )}
+          {/* Game name + status badge */}
+          <View style={styles.cardTopRow}>
+            {character.gameName ? (
+              <View style={[styles.gameNameBadge, { backgroundColor: character.color + '25', borderColor: character.color + '60' }]}>
+                <Text style={[styles.gameNameText, { color: character.color }]}>{character.gameName}</Text>
+              </View>
+            ) : <View />}
+            {character.available ? (
+              <View style={[styles.badge, { backgroundColor: colors.success }]}>
+                <Text style={styles.badgeText}>● DISPO</Text>
+              </View>
+            ) : (
+              <View style={[styles.badge, { backgroundColor: colors.surface }]}>
+                <Text style={[styles.badgeText, { color: colors.textMuted }]}>🔒 BIENTÔT</Text>
+              </View>
+            )}
+          </View>
 
           {/* Avatar */}
           <View
@@ -342,12 +349,27 @@ const styles = StyleSheet.create({
     elevation: 14,
   },
   cardLocked: { opacity: 0.75 },
+  cardTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  gameNameBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+  },
+  gameNameText: {
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1.5,
+  },
   badge: {
-    alignSelf: 'flex-end',
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
     borderRadius: radius.full,
-    marginBottom: spacing.md,
   },
   badgeText: {
     fontSize: 9,
