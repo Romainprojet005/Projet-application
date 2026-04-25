@@ -21,7 +21,7 @@ const ROLE_CONFIG = {
     emoji: '🏘️',
     color: AMB_LIGHT,
     gradient: ['#1C1207', '#2A1800'],
-    message: 'Décris ton mot sans jamais le prononcer.\nTrouve l\'espion parmi vous !',
+    message: 'Bonne chance !',
   },
   undercover: {
     label: 'ESPION',
