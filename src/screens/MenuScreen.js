@@ -14,7 +14,7 @@ import { colors, spacing, radius } from '../theme';
 import { characters } from '../data/characters';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = Math.min(width * 0.78, 310);
+const CARD_WIDTH = Math.min(width * 0.88, 500);
 
 // Animated stat bar
 function StatBar({ label, value, color }) {
@@ -101,7 +101,7 @@ function GameCard({ character, index, onPress }) {
   return (
     <Animated.View
       style={[
-        { width: CARD_WIDTH, marginRight: spacing.md },
+        { width: CARD_WIDTH, marginBottom: spacing.lg },
         { opacity: cardOpacity, transform: [{ translateY: cardY }, { scale: pressScale }] },
       ]}
     >
@@ -191,9 +191,23 @@ function GameCard({ character, index, onPress }) {
 
 export default function MenuScreen({ navigation }) {
   const headerOpacity = useRef(new Animated.Value(0)).current;
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     Animated.timing(headerOpacity, { toValue: 1, duration: 600, useNativeDriver: true }).start();
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const node = el.getScrollableNode ? el.getScrollableNode() : el;
+    const handleWheel = (e) => {
+      e.preventDefault();
+      node.scrollTop += e.deltaY;
+    };
+    node.addEventListener('wheel', handleWheel, { passive: false });
+    return () => node.removeEventListener('wheel', handleWheel);
   }, []);
 
   const handleSelectGame = (character) => {
@@ -234,12 +248,11 @@ export default function MenuScreen({ navigation }) {
         {availableCount} jeu{availableCount > 1 ? 'x' : ''} disponible{availableCount > 1 ? 's' : ''} · {soonCount} en développement
       </Animated.Text>
 
-      {/* Horizontal card scroll */}
+      {/* Vertical card scroll */}
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
+        ref={scrollRef}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
-        snapToInterval={CARD_WIDTH + spacing.md}
         decelerationRate="fast"
       >
         {characters.map((character, index) => (
@@ -253,7 +266,7 @@ export default function MenuScreen({ navigation }) {
       </ScrollView>
 
       <Animated.Text style={[styles.swipeHint, { opacity: headerOpacity }]}>
-        ← Faites glisser pour découvrir tous les personnages →
+        ↕ Faites défiler pour découvrir tous les jeux
       </Animated.Text>
     </LinearGradient>
   );
@@ -293,6 +306,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.lg,
     alignItems: 'center',
+    paddingTop: spacing.sm,
   },
   card: {
     borderRadius: radius.xl,
