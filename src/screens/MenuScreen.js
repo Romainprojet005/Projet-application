@@ -150,13 +150,9 @@ function GameCard({ character, index, onPress }) {
             !character.available && styles.cardLocked,
           ]}
         >
-          {/* Game name + status badge */}
+          {/* Status badge top right */}
           <View style={styles.cardTopRow}>
-            {character.gameName ? (
-              <View style={[styles.gameNameBadge, { backgroundColor: character.color + '25', borderColor: character.color + '60' }]}>
-                <Text style={[styles.gameNameText, { color: character.color }]}>{character.gameName}</Text>
-              </View>
-            ) : <View />}
+            <View />
             {character.available ? (
               <View style={[styles.badge, { backgroundColor: colors.success }]}>
                 <Text style={styles.badgeText}>● DISPO</Text>
@@ -168,17 +164,14 @@ function GameCard({ character, index, onPress }) {
             )}
           </View>
 
-          {/* Avatar */}
-          <View
-            style={[
-              styles.avatar,
-              {
-                borderColor: character.color + '70',
-                backgroundColor: character.color + '20',
-              },
-            ]}
-          >
-            <Text style={styles.avatarEmoji}>{character.emoji}</Text>
+          {/* Avatar + Game name */}
+          <View style={styles.avatarRow}>
+            <View style={[styles.avatar, { borderColor: character.color + '70', backgroundColor: character.color + '20' }]}>
+              <Text style={styles.avatarEmoji}>{character.emoji}</Text>
+            </View>
+            {character.gameName ? (
+              <Text style={[styles.gameNameLarge, { color: character.color }]}>{character.gameName}</Text>
+            ) : null}
           </View>
 
           {/* Identity */}
@@ -353,18 +346,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  avatarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: spacing.md,
+    gap: spacing.md,
   },
-  gameNameBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-  },
-  gameNameText: {
-    fontSize: 11,
+  gameNameLarge: {
+    flex: 1,
+    fontSize: 26,
     fontWeight: '900',
-    letterSpacing: 1.5,
+    letterSpacing: 2,
+    textAlign: 'center',
   },
   badge: {
     paddingHorizontal: spacing.sm,
@@ -378,9 +373,9 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
