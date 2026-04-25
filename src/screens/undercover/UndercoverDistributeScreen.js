@@ -224,6 +224,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
           {/* Back (revealed) */}
           <Animated.View
             style={[styles.card, styles.cardAbsolute, { opacity: cardRevealOpacity }]}
+            pointerEvents="none"
           >
             <LinearGradient colors={cfg.gradient} style={styles.cardGrad}>
               {/* Role badge */}
