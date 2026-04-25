@@ -265,24 +265,11 @@ export default function MenuScreen({ navigation }) {
       </Animated.Text>
 
       {/* Card list */}
-      {Platform.OS === 'web' ? (
-        <View style={styles.scrollContent}>
-          {characters.map((character, index) => (
-            <GameCard key={character.id} character={character} index={index} onPress={handleSelectGame} />
-          ))}
-        </View>
-      ) : (
-        <ScrollView
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          decelerationRate="fast"
-        >
-          {characters.map((character, index) => (
-            <GameCard key={character.id} character={character} index={index} onPress={handleSelectGame} />
-          ))}
-        </ScrollView>
-      )}
+      <View style={styles.scrollContent}>
+        {characters.map((character, index) => (
+          <GameCard key={character.id} character={character} index={index} onPress={handleSelectGame} />
+        ))}
+      </View>
 
       <Animated.Text style={[styles.swipeHint, { opacity: headerOpacity }]}>
         ↕ Faites défiler pour découvrir tous les jeux
