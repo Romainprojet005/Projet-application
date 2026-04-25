@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -221,6 +221,7 @@ function GameCard({ character, index, onPress }) {
 
 export default function MenuScreen({ navigation }) {
   const headerOpacity = useRef(new Animated.Value(0)).current;
+  const [listHeight, setListHeight] = useState(0);
 
   useEffect(() => {
     Animated.timing(headerOpacity, { toValue: 1, duration: 600, useNativeDriver: true }).start();
@@ -265,10 +266,19 @@ export default function MenuScreen({ navigation }) {
       </Animated.Text>
 
       {/* Card list */}
-      <View style={styles.scrollContent}>
-        {characters.map((character, index) => (
-          <GameCard key={character.id} character={character} index={index} onPress={handleSelectGame} />
-        ))}
+      <View style={{ flex: 1 }} onLayout={(e) => setListHeight(e.nativeEvent.layout.height)}>
+        {listHeight > 0 && (
+          <ScrollView
+            style={{ height: listHeight }}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            decelerationRate="fast"
+          >
+            {characters.map((character, index) => (
+              <GameCard key={character.id} character={character} index={index} onPress={handleSelectGame} />
+            ))}
+          </ScrollView>
+        )}
       </View>
 
       <Animated.Text style={[styles.swipeHint, { opacity: headerOpacity }]}>
@@ -279,7 +289,7 @@ export default function MenuScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { minHeight: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
