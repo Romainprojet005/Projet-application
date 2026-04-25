@@ -73,6 +73,7 @@ function GameCard({ character, index, onPress }) {
   const pressScale = useRef(new Animated.Value(1)).current;
   const hoverScale = useRef(new Animated.Value(1)).current;
   const glowOpacity = useRef(new Animated.Value(0)).current;
+  const btnPulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -90,6 +91,15 @@ function GameCard({ character, index, onPress }) {
         useNativeDriver: true,
       }),
     ]).start();
+
+    if (character.available) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(btnPulse, { toValue: 1.04, duration: 800, useNativeDriver: true }),
+          Animated.timing(btnPulse, { toValue: 1, duration: 800, useNativeDriver: true }),
+        ])
+      ).start();
+    }
   }, []);
 
   const onPressIn = () => {
@@ -186,6 +196,7 @@ function GameCard({ character, index, onPress }) {
 
           {/* Play button */}
           {character.available ? (
+            <Animated.View style={{ transform: [{ scale: btnPulse }] }}>
             <LinearGradient
               colors={[character.color, character.color + 'CC']}
               start={{ x: 0, y: 0 }}
@@ -194,6 +205,7 @@ function GameCard({ character, index, onPress }) {
             >
               <Text style={styles.playBtnText}>JOUER →</Text>
             </LinearGradient>
+            </Animated.View>
           ) : (
             <View style={[styles.playBtn, { backgroundColor: colors.surface }]}>
               <Text style={[styles.playBtnText, { color: colors.textMuted }]}>
@@ -209,23 +221,9 @@ function GameCard({ character, index, onPress }) {
 
 export default function MenuScreen({ navigation }) {
   const headerOpacity = useRef(new Animated.Value(0)).current;
-  const scrollRef = useRef(null);
 
   useEffect(() => {
     Animated.timing(headerOpacity, { toValue: 1, duration: 600, useNativeDriver: true }).start();
-  }, []);
-
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    const el = scrollRef.current;
-    if (!el) return;
-    const node = el.getScrollableNode ? el.getScrollableNode() : el;
-    const handleWheel = (e) => {
-      e.preventDefault();
-      node.scrollTop += e.deltaY;
-    };
-    node.addEventListener('wheel', handleWheel, { passive: false });
-    return () => node.removeEventListener('wheel', handleWheel);
   }, []);
 
   const handleSelectGame = (character) => {
@@ -267,22 +265,24 @@ export default function MenuScreen({ navigation }) {
       </Animated.Text>
 
       {/* Vertical card scroll */}
-      <ScrollView
-        ref={scrollRef}
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-        decelerationRate="fast"
-      >
-        {characters.map((character, index) => (
-          <GameCard
-            key={character.id}
-            character={character}
-            index={index}
-            onPress={handleSelectGame}
-          />
-        ))}
-      </ScrollView>
+      {Platform.OS === 'web' ? (
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8px 32px 24px', minHeight: 0 }}>
+          {characters.map((character, index) => (
+            <GameCard key={character.id} character={character} index={index} onPress={handleSelectGame} />
+          ))}
+        </div>
+      ) : (
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          decelerationRate="fast"
+        >
+          {characters.map((character, index) => (
+            <GameCard key={character.id} character={character} index={index} onPress={handleSelectGame} />
+          ))}
+        </ScrollView>
+      )}
 
       <Animated.Text style={[styles.swipeHint, { opacity: headerOpacity }]}>
         ↕ Faites défiler pour découvrir tous les jeux
