@@ -271,13 +271,13 @@ export default function MenuScreen({ navigation }) {
         {availableCount} jeu{availableCount > 1 ? 'x' : ''} disponible{availableCount > 1 ? 's' : ''} · {soonCount} en développement
       </Animated.Text>
 
-      {/* Vertical card scroll */}
+      {/* Card list */}
       {Platform.OS === 'web' ? (
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8px 32px 24px', minHeight: 0 }}>
+        <View style={styles.scrollContent}>
           {characters.map((character, index) => (
             <GameCard key={character.id} character={character} index={index} onPress={handleSelectGame} />
           ))}
-        </div>
+        </View>
       ) : (
         <ScrollView
           style={styles.scrollView}
@@ -299,7 +299,7 @@ export default function MenuScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { minHeight: '100vh' } }) },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
