@@ -8,7 +8,7 @@ import {
   Animated,
   Platform,
   ScrollView,
-  Modal,
+  TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
@@ -18,10 +18,25 @@ const CIN       = '#DC2626';
 const CIN_DARK  = '#991B1B';
 const CIN_LIGHT = '#FCA5A5';
 
-const HINT_LABELS = ['Indice 1 / 3', 'Indice 2 / 3', 'Indice 3 / 3'];
+// Normalise pour comparaison : minuscules, sans accents ni ponctuation
+function normalize(s) {
+  return s.toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
 
-// Image component: essaie d'abord la photo locale /cineflash/[slug]_[n].jpg,
-// puis se rabat sur l'URL Wikipedia si elle n'existe pas.
+// Accepte le titre complet OU toute sous-chaîne significative (>= 4 caractères)
+function isCorrectGuess(input, title) {
+  const inp = normalize(input);
+  const tit = normalize(title);
+  if (!inp || inp.length < 2) return false;
+  return tit === inp || (inp.length >= 4 && tit.includes(inp));
+}
+
+// ── Image avec fallback local → Wikipedia → placeholder ──────────────────────
 function CineImage({ slug, imgIndex, fallbackUri, style }) {
   const localUri = Platform.OS === 'web'
     ? `/cineflash/${slug}_${imgIndex + 1}.jpg`
@@ -41,11 +56,8 @@ function CineImage({ slug, imgIndex, fallbackUri, style }) {
   const uri = (!triedLocal && localUri) ? localUri : fallbackUri;
 
   const handleError = () => {
-    if (!triedLocal && localUri) {
-      setTriedLocal(true);
-    } else {
-      setError(true);
-    }
+    if (!triedLocal && localUri) { setTriedLocal(true); }
+    else { setError(true); }
   };
 
   if (error || !uri) {
@@ -69,137 +81,203 @@ function CineImage({ slug, imgIndex, fallbackUri, style }) {
   );
 }
 
-// Dot indicators for image progress
+// ── Dots de progression des indices ──────────────────────────────────────────
 function DotRow({ total, active }) {
   return (
     <View style={styles.dotRow}>
       {Array.from({ length: total }).map((_, i) => (
-        <View key={i} style={[styles.dot, i <= active && styles.dotActive, i < active && styles.dotPast]} />
+        <View key={i} style={[
+          styles.dot,
+          i < active  && styles.dotPast,
+          i === active && styles.dotActive,
+        ]} />
       ))}
     </View>
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
 export default function CineFlashGameScreen({ navigation, route }) {
   const { playerNames = [], roundCount = 10 } = route.params || {};
+  const hasPlayers = playerNames.length > 0;
 
-  const [films] = useState(() => selectFilms(roundCount));
-  const [filmIdx, setFilmIdx] = useState(0);
-  const [imgIdx, setImgIdx] = useState(0);
-  const [phase, setPhase] = useState('playing'); // 'playing' | 'answer' | 'final'
-  const [foundAtIdx, setFoundAtIdx] = useState(null); // image index where film was found
-  const [scores, setScores] = useState(() =>
-    Object.fromEntries(playerNames.map((n) => [n, 0]))
+  const [films]        = useState(() => selectFilms(roundCount));
+  const [filmIdx,  setFilmIdx]  = useState(0);
+  const [imgIdx,   setImgIdx]   = useState(0);
+  const [phase,    setPhase]    = useState('playing'); // 'playing'|'feedback'|'answer'|'final'
+  const [wasCorrect, setWasCorrect] = useState(null);
+  const [foundAtIdx,  setFoundAtIdx]  = useState(null);
+  const [scores,   setScores]   = useState(() =>
+    Object.fromEntries(playerNames.map(n => [n, 0]))
   );
-  const [results, setResults] = useState([]); // {title, year, finder, points}
-  const [showPlayerModal, setShowPlayerModal] = useState(false);
-  const [pendingPoints, setPendingPoints] = useState(0);
+  const [results,  setResults]  = useState([]);
+  const [inputText, setInputText] = useState('');
 
-  const answerSlide = useRef(new Animated.Value(300)).current;
+  const feedbackScale = useRef(new Animated.Value(0)).current;
+  const answerSlide   = useRef(new Animated.Value(300)).current;
   const answerOpacity = useRef(new Animated.Value(0)).current;
 
-  const hasPlayers = playerNames.length > 0;
-  const film = films[filmIdx] || films[0];
-  const isLastImage = imgIdx === 2;
-  const currentPoints = 3 - imgIdx;
+  const film         = films[filmIdx] || films[0];
+  const currentPts   = 3 - imgIdx;             // 3, 2 ou 1
+  const currentPlayer = hasPlayers ? playerNames[filmIdx % playerNames.length] : null;
 
-  const showAnswer = (finder, points, atIdx) => {
-    setFoundAtIdx(atIdx);
-    setPhase('answer');
-    setResults((prev) => [...prev, { title: film.title, year: film.year, finder, points }]);
+  // Reset input quand l'indice ou le film change
+  useEffect(() => { setInputText(''); }, [filmIdx, imgIdx]);
+
+  const animateFeedback = () => {
+    feedbackScale.setValue(0);
+    Animated.spring(feedbackScale, { toValue: 1, tension: 80, friction: 6, useNativeDriver: true }).start();
+  };
+
+  const openAnswerCard = () => {
     Animated.parallel([
       Animated.spring(answerSlide, { toValue: 0, tension: 60, friction: 12, useNativeDriver: true }),
       Animated.timing(answerOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
     ]).start();
   };
 
-  const handleFound = () => {
-    if (hasPlayers) {
-      setPendingPoints(currentPoints);
-      setShowPlayerModal(true);
+  // ── Soumission du guess ────────────────────────────────────────────────────
+  const handleTextSubmit = () => {
+    if (phase !== 'playing' || !inputText.trim()) return;
+
+    if (isCorrectGuess(inputText, film.title)) {
+      // ✅ Bonne réponse
+      const pts = currentPts;
+      if (hasPlayers && currentPlayer) {
+        setScores(prev => ({ ...prev, [currentPlayer]: (prev[currentPlayer] || 0) + pts }));
+      }
+      setResults(prev => [...prev, { title: film.title, year: film.year, finder: currentPlayer, points: pts }]);
+      setFoundAtIdx(imgIdx);
+      setWasCorrect(true);
+      setPhase('feedback');
+      animateFeedback();
+      setTimeout(() => { setPhase('answer'); openAnswerCard(); }, 900);
+
     } else {
-      showAnswer(null, currentPoints, imgIdx);
+      // ❌ Mauvaise réponse
+      setWasCorrect(false);
+      setPhase('feedback');
+      animateFeedback();
+      setTimeout(() => {
+        if (imgIdx < 2) {
+          setImgIdx(i => i + 1);
+          setPhase('playing');
+          setWasCorrect(null);
+        } else {
+          // Plus d'indices : révèle la réponse
+          setResults(prev => [...prev, { title: film.title, year: film.year, finder: null, points: 0 }]);
+          setPhase('answer');
+          openAnswerCard();
+        }
+      }, 900);
     }
   };
 
-  const handlePlayerSelect = (name) => {
-    setScores((prev) => ({ ...prev, [name]: (prev[name] || 0) + pendingPoints }));
-    setShowPlayerModal(false);
-    showAnswer(name, pendingPoints, imgIdx);
-  };
-
-  const handleNextImage = () => {
-    if (!isLastImage) {
-      setImgIdx((prev) => prev + 1);
+  // ── Passer à l'indice suivant sans deviner ─────────────────────────────────
+  const handleSkip = () => {
+    if (phase !== 'playing') return;
+    if (imgIdx < 2) {
+      setImgIdx(i => i + 1);
     } else {
-      showAnswer(null, 0, null);
+      setResults(prev => [...prev, { title: film.title, year: film.year, finder: null, points: 0 }]);
+      setPhase('answer');
+      openAnswerCard();
     }
   };
 
+  // ── Film suivant ───────────────────────────────────────────────────────────
   const handleNextFilm = () => {
     answerSlide.setValue(300);
     answerOpacity.setValue(0);
+    setFoundAtIdx(null);
+    setWasCorrect(null);
+    setInputText('');
     if (filmIdx < films.length - 1) {
-      setFilmIdx((prev) => prev + 1);
+      setFilmIdx(i => i + 1);
       setImgIdx(0);
-      setFoundAtIdx(null);
       setPhase('playing');
     } else {
       setPhase('final');
     }
   };
 
-  // ── Final screen ──────────────────────────────────────────────────────────
+  // ── Écran final ────────────────────────────────────────────────────────────
   if (phase === 'final') {
-    const sortedScores = Object.entries(scores).sort(([, a], [, b]) => b - a);
-    const foundCount = results.filter((r) => r.points > 0).length;
+    const sortedScores = hasPlayers
+      ? Object.entries(scores).sort(([, a], [, b]) => b - a)
+      : [];
+    const foundCount = results.filter(r => r.points > 0).length;
+    const totalPts   = results.reduce((s, r) => s + r.points, 0);
+    const maxPts     = films.length * 3;
+    const pct        = Math.round((totalPts / Math.max(maxPts, 1)) * 100);
 
     return (
       <LinearGradient colors={['#0D0000', '#1A0500', '#0D0000']} style={styles.container}>
-        <ScrollView contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={false}>
-          <Text style={styles.finalEmoji}>🏆</Text>
-          <Text style={styles.finalTitle}>Fin de la partie !</Text>
-          <Text style={styles.finalSub}>
-            {foundCount}/{films.length} films trouvés
-          </Text>
+        <ScrollView
+          contentContainerStyle={styles.finalScroll}
+          showsVerticalScrollIndicator={false}
+          style={Platform.OS === 'web' && { height: '100vh' }}
+        >
+          {/* Score global */}
+          <View style={styles.compatCard}>
+            <LinearGradient colors={['#2D0000', '#4A0000']} style={styles.compatInner}>
+              <Text style={styles.compatEmoji}>
+                {pct >= 70 ? '🏆' : pct >= 40 ? '🎬' : '😵'}
+              </Text>
+              <Text style={styles.compatPct}>{pct}%</Text>
+              <Text style={styles.compatTitle}>de films trouvés</Text>
+              <View style={styles.compatDivider} />
+              <Text style={styles.compatLabel}>
+                {pct >= 70
+                  ? 'Impressionnant ! Vous connaissez vos classiques !'
+                  : pct >= 40
+                    ? 'Pas mal ! Quelques films bien vus...'
+                    : 'Les films vous ont bien résisté !'}
+              </Text>
+            </LinearGradient>
+          </View>
 
+          {/* Classement */}
           {hasPlayers && (
-            <View style={styles.leaderboard}>
-              <Text style={styles.leaderboardTitle}>Classement</Text>
+            <View style={styles.card}>
+              <Text style={styles.cardLabel}>🏆 CLASSEMENT</Text>
               {sortedScores.map(([name, pts], i) => (
-                <View key={name} style={[styles.leaderboardRow, i === 0 && styles.leaderboardFirst]}>
-                  <Text style={styles.leaderboardRank}>
+                <View key={name} style={styles.scoreRow}>
+                  <Text style={styles.scoreRank}>
                     {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}
                   </Text>
-                  <Text style={styles.leaderboardName}>{name}</Text>
-                  <Text style={styles.leaderboardPts}>{pts} pts</Text>
+                  <Text style={styles.scoreName}>{name}</Text>
+                  <View style={styles.scoreBarWrap}>
+                    <View style={styles.scoreTrack}>
+                      <View style={[styles.scoreFill, {
+                        width: `${(pts / Math.max(sortedScores[0][1], 1)) * 100}%`,
+                      }]} />
+                    </View>
+                  </View>
+                  <Text style={styles.scoreVal}>{pts} pts</Text>
                 </View>
               ))}
             </View>
           )}
 
-          <View style={styles.recap}>
-            <Text style={styles.recapTitle}>Récapitulatif</Text>
+          {/* Récapitulatif */}
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>📽️ RÉCAPITULATIF — {foundCount}/{films.length} trouvés</Text>
             {results.map((r, i) => (
               <View key={i} style={styles.recapRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.recapFilm}>{r.title}</Text>
-                  <Text style={styles.recapFinder}>
-                    {r.points > 0
-                      ? r.finder
-                        ? `✅ ${r.finder} — ${r.points} pt${r.points > 1 ? 's' : ''}`
-                        : `✅ Trouvé — ${r.points} pt${r.points > 1 ? 's' : ''}`
-                      : '❌ Non trouvé'}
-                  </Text>
-                </View>
+                <Text style={styles.recapFilm}>{r.title} <Text style={styles.recapYear}>({r.year})</Text></Text>
+                <Text style={styles.recapFinder}>
+                  {r.points > 0
+                    ? r.finder
+                      ? `✅ ${r.finder} — ${r.points} pt${r.points > 1 ? 's' : ''}`
+                      : `✅ Trouvé — ${r.points} pt${r.points > 1 ? 's' : ''}`
+                    : '❌ Non trouvé'}
+                </Text>
               </View>
             ))}
           </View>
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate('CineFlashSetup')}
-            style={styles.replayBtn}
-          >
+          <TouchableOpacity onPress={() => navigation.navigate('CineFlashSetup')} style={styles.replayBtn}>
             <LinearGradient colors={[CIN, CIN_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.replayGradient}>
               <Text style={styles.replayText}>🎬  Nouvelle partie</Text>
             </LinearGradient>
@@ -212,74 +290,142 @@ export default function CineFlashGameScreen({ navigation, route }) {
     );
   }
 
-  // ── Game screen ───────────────────────────────────────────────────────────
+  // ── Écran de jeu ───────────────────────────────────────────────────────────
   return (
     <LinearGradient colors={['#0D0000', '#1A0500', '#0D0000']} style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.backBtn}>
-          <Text style={styles.backBtnText}>✕</Text>
-        </TouchableOpacity>
-        <View style={styles.headerCenter}>
-          <Text style={styles.filmCounter}>
-            🎬 Film {filmIdx + 1} / {films.length}
-          </Text>
+      {/* Barre de progression */}
+      <View style={styles.progressTrack}>
+        <View style={[styles.progressFill, { width: `${(filmIdx / films.length) * 100}%` }]} />
+      </View>
+
+      <ScrollView
+        style={[styles.innerScroll, Platform.OS === 'web' && { height: '100vh' }]}
+        contentContainerStyle={styles.inner}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Header */}
+        <View style={styles.topRow}>
+          <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.quitBtn}>
+            <Text style={styles.quitText}>✕ Quitter</Text>
+          </TouchableOpacity>
+          <Text style={styles.roundCounter}>🎬 {filmIdx + 1} / {films.length}</Text>
         </View>
-        {hasPlayers ? (
-          <View style={styles.topScores}>
-            {Object.entries(scores)
-              .sort(([, a], [, b]) => b - a)
-              .slice(0, 2)
-              .map(([name, pts]) => (
-                <Text key={name} style={styles.topScoreText}>
-                  {name.slice(0, 6)} {pts}
-                </Text>
-              ))}
+
+        {/* Joueur actuel + points en jeu */}
+        <View style={styles.infoRow}>
+          {currentPlayer ? (
+            <View style={[styles.playerChip, { backgroundColor: CIN + '33', borderColor: CIN + '66' }]}>
+              <Text style={styles.playerChipRole}>🎯 À toi</Text>
+              <Text style={[styles.playerChipName, { color: CIN_LIGHT }]}>{currentPlayer}</Text>
+            </View>
+          ) : (
+            <View />
+          )}
+          <View style={styles.ptsChip}>
+            <Text style={styles.ptsChipNum}>{currentPts}</Text>
+            <Text style={styles.ptsChipLabel}>pt{currentPts > 1 ? 's' : ''}</Text>
           </View>
-        ) : (
-          <View style={{ width: 60 }} />
+        </View>
+
+        {/* Image */}
+        <View style={styles.imageContainer}>
+          <CineImage
+            slug={film.slug}
+            imgIndex={imgIdx}
+            fallbackUri={film.images[imgIdx]}
+            style={StyleSheet.absoluteFillObject}
+          />
+
+          {/* Dots sur l'image */}
+          {phase !== 'answer' && (
+            <View style={styles.dotsOnImage}>
+              <DotRow total={3} active={imgIdx} />
+            </View>
+          )}
+
+          {/* Feedback overlay */}
+          {phase === 'feedback' && (
+            <Animated.View
+              style={[styles.feedbackOverlay, { transform: [{ scale: feedbackScale }] }]}
+              pointerEvents="none"
+            >
+              <LinearGradient
+                colors={wasCorrect
+                  ? [colors.success + 'EE', colors.success + 'BB']
+                  : [colors.danger + 'EE', colors.danger + 'BB']}
+                style={styles.feedbackInner}
+              >
+                <Text style={styles.feedbackEmoji}>
+                  {wasCorrect ? '🎉' : imgIdx < 2 ? '💡' : '😅'}
+                </Text>
+                <Text style={styles.feedbackText}>
+                  {wasCorrect
+                    ? `+${currentPts} pt${currentPts > 1 ? 's' : ''} !`
+                    : imgIdx < 2 ? 'Indice suivant...' : 'Raté !'}
+                </Text>
+              </LinearGradient>
+            </Animated.View>
+          )}
+        </View>
+
+        <Text style={styles.hintLabel}>
+          Indice {imgIdx + 1} / 3
+        </Text>
+
+        {/* Champ texte de guess */}
+        {(phase === 'playing' || phase === 'feedback') && (
+          <View style={styles.inputContainer}>
+            <View style={styles.inputRow}>
+              <TextInput
+                style={styles.textInput}
+                placeholder="Tapez le titre du film..."
+                placeholderTextColor={CIN + '66'}
+                value={inputText}
+                onChangeText={setInputText}
+                onSubmitEditing={handleTextSubmit}
+                returnKeyType="done"
+                autoCorrect={false}
+                autoCapitalize="words"
+                editable={phase === 'playing'}
+              />
+              <TouchableOpacity
+                style={[styles.validateBtn, (!inputText.trim() || phase !== 'playing') && styles.validateBtnDisabled]}
+                onPress={handleTextSubmit}
+                activeOpacity={0.8}
+                disabled={!inputText.trim() || phase !== 'playing'}
+              >
+                <Text style={styles.validateBtnText}>✓</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              onPress={handleSkip}
+              activeOpacity={0.8}
+              style={styles.skipBtn}
+              disabled={phase !== 'playing'}
+            >
+              <LinearGradient
+                colors={['#1A0000', '#2D0000']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.skipBtnInner}
+              >
+                <Text style={styles.skipBtnText}>
+                  {imgIdx < 2
+                    ? `⏭  INDICE SUIVANT  (${imgIdx + 2}/3)`
+                    : '⏭  PASSER — révéler la réponse'}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
         )}
-      </View>
+      </ScrollView>
 
-      {/* Points badge */}
-      <View style={styles.pointsBadge}>
-        <Text style={styles.pointsBadgeText}>{currentPoints}</Text>
-        <Text style={styles.pointsBadgeLabel}>pt{currentPoints > 1 ? 's' : ''}</Text>
-      </View>
-
-      {/* Image */}
-      <View style={styles.imageContainer}>
-        <CineImage slug={film.slug} imgIndex={imgIdx} fallbackUri={film.images[imgIdx]} style={styles.image} />
-      </View>
-
-      {/* Dot indicator */}
-      <DotRow total={3} active={imgIdx} />
-
-      {/* Hint label */}
-      <Text style={styles.hintLabel}>{HINT_LABELS[imgIdx]}</Text>
-
-      {/* Buttons */}
-      <View style={styles.btns}>
-        <TouchableOpacity onPress={handleFound} style={styles.foundBtn} activeOpacity={0.85}>
-          <LinearGradient colors={['#16A34A', '#15803D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.foundGradient}>
-            <Text style={styles.foundText}>✓  TROUVÉ !</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleNextImage} style={styles.nextBtn} activeOpacity={0.85}>
-          <Text style={styles.nextBtnText}>
-            {isLastImage ? '✗  Pas trouvé' : `→  Indice ${imgIdx + 2}`}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Answer overlay */}
+      {/* Carte réponse (slide du bas) */}
       {phase === 'answer' && (
         <Animated.View
-          style={[
-            styles.answerOverlay,
-            { opacity: answerOpacity, transform: [{ translateY: answerSlide }] },
-          ]}
+          style={[styles.answerOverlay, { opacity: answerOpacity, transform: [{ translateY: answerSlide }] }]}
         >
           <LinearGradient colors={['#1A0000', '#0D0000']} style={styles.answerCard}>
             {foundAtIdx !== null ? (
@@ -291,7 +437,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
                 )}
               </>
             ) : (
-              <Text style={styles.answerResult}>😅 Pas de chance !</Text>
+              <Text style={styles.answerResult}>😅 Personne n'a trouvé !</Text>
             )}
 
             <View style={styles.answerDivider} />
@@ -300,7 +446,6 @@ export default function CineFlashGameScreen({ navigation, route }) {
             <Text style={styles.answerTitle}>{film.title}</Text>
             <Text style={styles.answerYear}>{film.year}</Text>
 
-            {/* Show poster */}
             <View style={styles.answerPoster}>
               <CineImage slug={film.slug} imgIndex={2} fallbackUri={film.images[2]} style={StyleSheet.absoluteFillObject} />
             </View>
@@ -315,150 +460,148 @@ export default function CineFlashGameScreen({ navigation, route }) {
           </LinearGradient>
         </Animated.View>
       )}
-
-      {/* Player selection modal */}
-      <Modal visible={showPlayerModal} transparent animationType="fade">
-        <View style={styles.modalBg}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Qui a trouvé ?</Text>
-            <Text style={styles.modalSub}>{currentPoints} point{currentPoints > 1 ? 's' : ''} à attribuer</Text>
-            {playerNames.map((name) => (
-              <TouchableOpacity
-                key={name}
-                onPress={() => handlePlayerSelect(name)}
-                style={styles.modalPlayer}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.modalPlayerName}>{name || `Joueur`}</Text>
-                <Text style={styles.modalPlayerPts}>{scores[name] || 0} pts</Text>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity onPress={() => setShowPlayerModal(false)} style={styles.modalCancel}>
-              <Text style={styles.modalCancelText}>Annuler</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </LinearGradient>
   );
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const IMG_SIZE = Platform.select({ web: 300, default: undefined });
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
 
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: Platform.OS === 'ios' ? 55 : 36,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm,
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backBtnText: { color: colors.textSecondary, fontSize: 16, fontWeight: '700' },
-  headerCenter: { flex: 1, alignItems: 'center' },
-  filmCounter: { fontSize: 14, fontWeight: '700', color: colors.text },
-  topScores: { width: 60, alignItems: 'flex-end' },
-  topScoreText: { fontSize: 10, color: colors.textMuted, lineHeight: 14 },
+  progressTrack: { height: 3, backgroundColor: colors.border, width: '100%' },
+  progressFill:  { height: '100%', backgroundColor: CIN, borderRadius: 2 },
 
-  pointsBadge: {
-    alignSelf: 'center',
+  innerScroll: { flex: 1 },
+  inner: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: Platform.OS === 'ios' ? 50 : 30,
+    paddingBottom: 32,
+  },
+
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
+  quitBtn: { paddingVertical: 4 },
+  quitText: { color: colors.textMuted, fontSize: 13 },
+  roundCounter: { fontSize: 14, fontWeight: '700', color: colors.textSecondary, letterSpacing: 1 },
+
+  infoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.md },
+  playerChip: {
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.full,
+    borderWidth: 1,
+  },
+  playerChipRole: { fontSize: 10, color: colors.textMuted },
+  playerChipName: { fontSize: 15, fontWeight: '800' },
+  ptsChip: {
     flexDirection: 'row',
     alignItems: 'baseline',
     backgroundColor: `${CIN}25`,
     borderRadius: radius.full,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderWidth: 1,
     borderColor: `${CIN}50`,
-    marginVertical: spacing.sm,
     gap: 4,
   },
-  pointsBadgeText: { fontSize: 28, fontWeight: '900', color: CIN_LIGHT },
-  pointsBadgeLabel: { fontSize: 14, fontWeight: '700', color: `${CIN_LIGHT}AA` },
+  ptsChipNum:   { fontSize: 22, fontWeight: '900', color: CIN_LIGHT },
+  ptsChipLabel: { fontSize: 12, fontWeight: '700', color: `${CIN_LIGHT}AA` },
 
   imageContainer: {
     alignSelf: 'center',
-    width: IMG_SIZE || '90%',
+    width: IMG_SIZE || '100%',
     height: IMG_SIZE || 240,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     overflow: 'hidden',
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: `${CIN}40`,
     backgroundColor: '#1A0000',
+    marginBottom: spacing.sm,
+    position: 'relative',
   },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  imgPlaceholder: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#1A0000',
-    gap: spacing.sm,
-  },
+  imgPlaceholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#1A0000', gap: spacing.sm },
   imgPlaceholderEmoji: { fontSize: 48 },
-  imgPlaceholderText: { fontSize: 13, color: colors.textMuted },
+  imgPlaceholderText:  { fontSize: 13, color: colors.textMuted },
 
-  dotRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 8,
-    marginTop: spacing.md,
+  dotsOnImage: {
+    position: 'absolute',
+    bottom: spacing.sm,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.border,
-  },
-  dotActive: { backgroundColor: CIN, width: 20 },
-  dotPast: { backgroundColor: `${CIN}60`, width: 8 },
+  dotRow: { flexDirection: 'row', gap: 8 },
+  dot:      { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border },
+  dotActive:{ backgroundColor: CIN, width: 20, borderRadius: 4 },
+  dotPast:  { backgroundColor: `${CIN}60`, width: 8, borderRadius: 4 },
 
   hintLabel: {
     textAlign: 'center',
     fontSize: 12,
     color: colors.textMuted,
     letterSpacing: 1,
-    marginTop: spacing.sm,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
 
-  btns: {
-    paddingHorizontal: spacing.xl,
-    gap: spacing.md,
-  },
-  foundBtn: {
-    borderRadius: radius.full,
+  feedbackOverlay: {
+    position: 'absolute',
+    top: '30%',
+    left: '10%',
+    right: '10%',
+    borderRadius: radius.lg,
     overflow: 'hidden',
-    shadowColor: '#16A34A',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
   },
-  foundGradient: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  foundText: { fontSize: 17, fontWeight: '900', color: '#fff', letterSpacing: 2 },
-
-  nextBtn: {
-    paddingVertical: spacing.md,
-    borderRadius: radius.full,
+  feedbackInner: {
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
+    justifyContent: 'center',
+    paddingVertical: spacing.md,
+    gap: spacing.sm,
   },
-  nextBtnText: { fontSize: 15, fontWeight: '700', color: colors.textSecondary },
+  feedbackEmoji: { fontSize: 30 },
+  feedbackText:  { fontSize: 22, fontWeight: '900', color: colors.text },
 
-  // Answer overlay
+  // Input
+  inputContainer: { gap: spacing.sm },
+  inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  textInput: {
+    flex: 1,
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: CIN + '66',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    ...Platform.select({ web: { outlineStyle: 'none' } }),
+  },
+  validateBtn: {
+    backgroundColor: CIN,
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  validateBtnDisabled: { backgroundColor: CIN + '44' },
+  validateBtnText: { fontSize: 20, fontWeight: '900', color: colors.text },
+
+  skipBtn: { borderRadius: radius.full, overflow: 'hidden' },
+  skipBtnInner: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    alignItems: 'center',
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: `${CIN}33`,
+  },
+  skipBtnText: { fontSize: 13, fontWeight: '800', color: CIN_LIGHT + 'BB', letterSpacing: 1 },
+
+  // Answer card
   answerOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
@@ -472,13 +615,13 @@ const styles = StyleSheet.create({
     borderColor: `${CIN}40`,
     alignItems: 'center',
   },
-  answerResult: { fontSize: 28, fontWeight: '900', color: colors.text, textAlign: 'center' },
-  answerPts: { fontSize: 22, fontWeight: '800', color: CIN_LIGHT, marginTop: 4 },
-  answerFinder: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
-  answerDivider: { height: 1, backgroundColor: `${CIN}30`, width: '80%', marginVertical: spacing.md },
-  answerLabel: { fontSize: 12, color: colors.textMuted, letterSpacing: 1, marginBottom: 4 },
-  answerTitle: { fontSize: 22, fontWeight: '900', color: colors.text, textAlign: 'center' },
-  answerYear: { fontSize: 13, color: CIN_LIGHT, marginBottom: spacing.md },
+  answerResult: { fontSize: 26, fontWeight: '900', color: colors.text, textAlign: 'center' },
+  answerPts:    { fontSize: 20, fontWeight: '800', color: CIN_LIGHT, marginTop: 4 },
+  answerFinder: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
+  answerDivider:{ height: 1, backgroundColor: `${CIN}30`, width: '80%', marginVertical: spacing.md },
+  answerLabel:  { fontSize: 12, color: colors.textMuted, letterSpacing: 1, marginBottom: 4 },
+  answerTitle:  { fontSize: 20, fontWeight: '900', color: colors.text, textAlign: 'center' },
+  answerYear:   { fontSize: 13, color: CIN_LIGHT, marginBottom: spacing.md },
   answerPoster: {
     width: Platform.select({ web: 160, default: 130 }),
     height: Platform.select({ web: 160, default: 130 }),
@@ -500,106 +643,61 @@ const styles = StyleSheet.create({
   nextFilmGradient: { paddingVertical: spacing.md + 4, alignItems: 'center' },
   nextFilmText: { fontSize: 16, fontWeight: '800', color: '#fff', letterSpacing: 1.5 },
 
-  // Player modal
-  modalBg: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-  },
-  modalCard: {
-    backgroundColor: '#1A0A0A',
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-    width: '100%',
-    maxWidth: 360,
-    borderWidth: 1,
-    borderColor: `${CIN}40`,
-  },
-  modalTitle: { fontSize: 20, fontWeight: '900', color: colors.text, textAlign: 'center', marginBottom: 4 },
-  modalSub: { fontSize: 13, color: CIN_LIGHT, textAlign: 'center', marginBottom: spacing.lg },
-  modalPlayer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.md,
-    backgroundColor: `${CIN}18`,
-    borderRadius: radius.md,
-    marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: `${CIN}35`,
-  },
-  modalPlayerName: { fontSize: 16, fontWeight: '700', color: colors.text },
-  modalPlayerPts: { fontSize: 14, color: CIN_LIGHT, fontWeight: '600' },
-  modalCancel: { marginTop: spacing.sm, alignItems: 'center', paddingVertical: spacing.sm },
-  modalCancelText: { color: colors.textMuted, fontSize: 14 },
-
-  // Final screen
+  // Final
   finalScroll: {
-    paddingTop: Platform.OS === 'ios' ? 70 : 50,
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: 60,
-    alignItems: 'center',
   },
-  finalEmoji: { fontSize: 64, marginBottom: spacing.sm },
-  finalTitle: { fontSize: 30, fontWeight: '900', color: colors.text, textAlign: 'center' },
-  finalSub: { fontSize: 14, color: CIN_LIGHT, marginTop: 4, marginBottom: spacing.xl },
-
-  leaderboard: {
-    width: '100%',
-    backgroundColor: `${CIN}15`,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
+  compatCard: {
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+    marginBottom: spacing.md,
+    shadowColor: CIN,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  compatInner: {
+    alignItems: 'center',
+    padding: spacing.xl,
     borderWidth: 1,
-    borderColor: `${CIN}30`,
-    marginBottom: spacing.lg,
+    borderColor: CIN + '55',
+    borderRadius: radius.xl,
   },
-  leaderboardTitle: { fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: spacing.md },
-  leaderboardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: `${CIN}15`,
-  },
-  leaderboardFirst: { backgroundColor: `${CIN}10`, borderRadius: radius.sm, padding: spacing.sm },
-  leaderboardRank: { fontSize: 18, width: 32 },
-  leaderboardName: { flex: 1, fontSize: 15, fontWeight: '700', color: colors.text },
-  leaderboardPts: { fontSize: 15, fontWeight: '800', color: CIN_LIGHT },
+  compatEmoji:   { fontSize: 56, marginBottom: spacing.sm },
+  compatPct:     { fontSize: 64, fontWeight: '900', color: CIN_LIGHT, lineHeight: 72 },
+  compatTitle:   { fontSize: 14, color: colors.textSecondary, letterSpacing: 2, marginBottom: spacing.md },
+  compatDivider: { height: 1, width: '60%', backgroundColor: CIN + '44', marginBottom: spacing.md },
+  compatLabel:   { fontSize: 16, fontWeight: '600', color: colors.text, textAlign: 'center', lineHeight: 24 },
 
-  recap: {
-    width: '100%',
+  card: {
     backgroundColor: colors.card,
     borderRadius: radius.lg,
-    padding: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    marginBottom: spacing.xl,
-  },
-  recapTitle: { fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: spacing.md },
-  recapRow: {
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  recapFilm: { fontSize: 13, fontWeight: '700', color: colors.text },
-  recapFinder: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
-
-  replayBtn: {
-    borderRadius: radius.full,
-    overflow: 'hidden',
-    width: '100%',
-    shadowColor: CIN,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
+    padding: spacing.lg,
     marginBottom: spacing.md,
   },
+  cardLabel: { fontSize: 11, fontWeight: '800', color: CIN_LIGHT, letterSpacing: 2, marginBottom: spacing.md },
+
+  scoreRow:     { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
+  scoreRank:    { fontSize: 20, width: 32, textAlign: 'center' },
+  scoreName:    { width: 80, fontSize: 14, fontWeight: '700', color: colors.text },
+  scoreBarWrap: { flex: 1 },
+  scoreTrack:   { height: 6, backgroundColor: colors.border, borderRadius: 3, overflow: 'hidden' },
+  scoreFill:    { height: '100%', backgroundColor: CIN, borderRadius: 3 },
+  scoreVal:     { width: 48, fontSize: 12, color: colors.textSecondary, textAlign: 'right', fontWeight: '700' },
+
+  recapRow:   { paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.border },
+  recapFilm:  { fontSize: 13, fontWeight: '700', color: colors.text },
+  recapYear:  { fontWeight: '400', color: colors.textMuted },
+  recapFinder:{ fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+
+  replayBtn: { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.md },
   replayGradient: { paddingVertical: spacing.md + 4, alignItems: 'center' },
   replayText: { fontSize: 16, fontWeight: '800', color: '#fff', letterSpacing: 1.5 },
-  menuBtn: { paddingVertical: spacing.md, alignItems: 'center' },
-  menuBtnText: { color: colors.textSecondary, fontSize: 14, fontWeight: '600' },
+  menuBtn:    { alignItems: 'center', paddingVertical: spacing.md },
+  menuBtnText:{ fontSize: 14, color: CIN_LIGHT, fontWeight: '600' },
 });
