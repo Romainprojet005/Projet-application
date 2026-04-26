@@ -28,6 +28,7 @@ const PERSONALITIES = [
   { id: 'ryan_reynolds',      name: 'Ryan Reynolds' },
   { id: 'chris_evans',        name: 'Chris Evans',        wiki: 'Chris_Evans_(actor)' },
   // MUSIQUE INTERNATIONALE
+  { id: 'michael_jackson',    name: 'Michael Jackson' },
   { id: 'taylor_swift',       name: 'Taylor Swift' },
   { id: 'beyonce',            name: 'Beyoncé' },
   { id: 'drake',              name: 'Drake',              wiki: 'Drake_(musician)' },
@@ -44,6 +45,10 @@ const PERSONALITIES = [
   { id: 'bruno_mars',         name: 'Bruno Mars' },
   { id: 'shakira',            name: 'Shakira' },
   // SPORT INTERNATIONAL
+  { id: 'pele',               name: 'Pelé' },
+  { id: 'ronaldinho',         name: 'Ronaldinho' },
+  { id: 'zlatan_ibrahimovic', name: 'Zlatan Ibrahimović',  wiki: 'Zlatan_Ibrahimović' },
+  { id: 'erling_haaland',     name: 'Erling Haaland' },
   { id: 'cristiano_ronaldo',  name: 'Cristiano Ronaldo' },
   { id: 'lionel_messi',       name: 'Lionel Messi' },
   { id: 'lebron_james',       name: 'LeBron James' },
@@ -90,7 +95,21 @@ const PERSONALITIES = [
   { id: 'daft_punk',          name: 'Daft Punk' },
   { id: 'mc_solaar',          name: 'MC Solaar' },
   { id: 'dj_snake',           name: 'DJ Snake' },
+  // YOUTUBEURS INTERNATIONAUX
+  { id: 'mrbeast',            name: 'MrBeast' },
+  { id: 'pewdiepie',          name: 'PewDiePie' },
+  { id: 'khaby_lame',         name: 'Khaby Lame' },
+  // YOUTUBEURS FRANÇAIS
+  { id: 'squeezie',           name: 'Squeezie' },
+  { id: 'mcfly_carlito',      name: 'Mcfly et Carlito',     wiki: 'Mcfly_et_Carlito' },
+  { id: 'cyprien',            name: 'Cyprien Iov',            wiki: 'Cyprien_Iov' },
+  { id: 'tibo_inshape',       name: 'Tibo InShape',          wiki: 'Tibo_InShape' },
+  { id: 'lena_situations',    name: 'Léna Situations',       wiki: 'Léna_Situations' },
+  { id: 'norman',             name: 'Norman',                wiki: 'Norman_Thavaud' },
+  { id: 'amixem',             name: 'Amixem' },
   // SPORT FRANÇAIS
+  { id: 'thierry_henry',      name: 'Thierry Henry' },
+  { id: 'karim_benzema',      name: 'Karim Benzema' },
   { id: 'kylian_mbappe',      name: 'Kylian Mbappé' },
   { id: 'zinedine_zidane',    name: 'Zinedine Zidane' },
   { id: 'antoine_griezmann',  name: 'Antoine Griezmann' },

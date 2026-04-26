@@ -88,6 +88,11 @@ export const ALL_PERSONALITIES = [
 
   // ── MUSIQUE INTERNATIONALE ─────────────────────────────────
   {
+    id: 'michael_jackson', name: 'Michael Jackson', category: 'musique', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Michael_Jackson_in_1988.jpg/400px-Michael_Jackson_in_1988.jpg',
+    hint: 'Chanteur américain — King of Pop, Thriller, Billie Jean, Moonwalk',
+  },
+  {
     id: 'taylor_swift', name: 'Taylor Swift', category: 'musique', flag: '🌍',
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/191125_Taylor_Swift_at_the_2019_American_Music_Awards_%28cropped%29.png/400px-191125_Taylor_Swift_at_the_2019_American_Music_Awards_%28cropped%29.png',
     hint: 'Chanteuse américaine — Shake It Off, Anti-Hero, Eras Tour',
@@ -164,6 +169,26 @@ export const ALL_PERSONALITIES = [
   },
 
   // ── SPORT INTERNATIONAL ────────────────────────────────────
+  {
+    id: 'pele', name: 'Pelé', category: 'sport', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pele_chasing_ball_1970.jpg/400px-Pele_chasing_ball_1970.jpg',
+    hint: 'Footballeur brésilien — O Rei, 3 Coupes du monde, Santos FC, New York Cosmos',
+  },
+  {
+    id: 'ronaldinho', name: 'Ronaldinho', category: 'sport', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Ronaldinho_2010.jpg/400px-Ronaldinho_2010.jpg',
+    hint: 'Footballeur brésilien — Gaúcho, 2 Ballons d\'Or, FC Barcelone, Brasil',
+  },
+  {
+    id: 'zlatan_ibrahimovic', name: 'Zlatan Ibrahimovic', category: 'sport', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Zlatan_Ibrahimovic_2013.jpg/400px-Zlatan_Ibrahimovic_2013.jpg',
+    hint: 'Footballeur suédois — PSG, AC Milan, Manchester United, "Je suis Zlatan"',
+  },
+  {
+    id: 'erling_haaland', name: 'Erling Haaland', category: 'sport', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Haaland%2C_Erling_Braut_%28cropped%29.jpg/400px-Haaland%2C_Erling_Braut_%28cropped%29.jpg',
+    hint: 'Footballeur norvégien — Manchester City, machine à buts en Premier League',
+  },
   {
     id: 'cristiano_ronaldo', name: 'Cristiano Ronaldo', category: 'sport', flag: '🌍',
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Cristiano_Ronaldo_2018.jpg/400px-Cristiano_Ronaldo_2018.jpg',
@@ -383,7 +408,71 @@ export const ALL_PERSONALITIES = [
     hint: 'DJ français — Lean On, Taki Taki, Un Poco Loco',
   },
 
+  // ── YOUTUBEURS / INFLUENCEURS INTERNATIONAUX ───────────────
+  {
+    id: 'mrbeast', name: 'MrBeast', category: 'youtubeur', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Jimmy_Donaldson_%28MrBeast%29_%28cropped%29.jpg/400px-Jimmy_Donaldson_%28MrBeast%29_%28cropped%29.jpg',
+    hint: 'YouTubeur américain — Jimmy Donaldson, défis extrêmes, plus de 300M d\'abonnés',
+  },
+  {
+    id: 'pewdiepie', name: 'PewDiePie', category: 'youtubeur', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/PewDiePie%2C_Felix_Kjellberg.jpg/400px-PewDiePie%2C_Felix_Kjellberg.jpg',
+    hint: 'YouTubeur suédois — Felix Kjellberg, gaming, humour, longtemps n°1 YouTube',
+  },
+  {
+    id: 'khaby_lame', name: 'Khaby Lame', category: 'youtubeur', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Khaby_Lame_2022.jpg/400px-Khaby_Lame_2022.jpg',
+    hint: 'Influenceur sénégalo-italien — TikTok, gestes muets pour ridiculiser les "life hacks"',
+  },
+
+  // ── YOUTUBEURS / INFLUENCEURS FRANÇAIS ─────────────────────
+  {
+    id: 'squeezie', name: 'Squeezie', category: 'fr_youtubeur', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Lucas_Hauchard.jpg/400px-Lucas_Hauchard.jpg',
+    hint: 'YouTubeur français — Lucas Hauchard, gaming, vlogs, plus de 18M d\'abonnés',
+  },
+  {
+    id: 'mcfly_carlito', name: 'Mcfly et Carlito', category: 'fr_youtubeur', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Mcfly_et_Carlito.jpg/400px-Mcfly_et_Carlito.jpg',
+    hint: 'Duo de YouTubeurs français — défis, humour, ont chanté avec Emmanuel Macron',
+  },
+  {
+    id: 'cyprien', name: 'Cyprien', category: 'fr_youtubeur', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Cyprien_Iov.jpg/400px-Cyprien_Iov.jpg',
+    hint: 'YouTubeur français — Cyprien Iov, sketchs comiques, pionnier YouTube FR',
+  },
+  {
+    id: 'tibo_inshape', name: 'Tibo InShape', category: 'fr_youtubeur', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Tibo_InShape.jpg/400px-Tibo_InShape.jpg',
+    hint: 'YouTubeur français — Thibault Delesalle, fitness, sport, défis physiques',
+  },
+  {
+    id: 'lena_situations', name: 'Léna Situations', category: 'fr_youtubeur', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/L%C3%A9na_Mahfouf.jpg/400px-L%C3%A9na_Mahfouf.jpg',
+    hint: 'YouTubeuse et influenceuse française — mode, lifestyle, Léna Mahfouf',
+  },
+  {
+    id: 'norman', name: 'Norman', category: 'fr_youtubeur', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Norman_Thavaud.jpg/400px-Norman_Thavaud.jpg',
+    hint: 'YouTubeur français — Norman Thavaud, sketchs d\'humour, pionnier YouTube FR',
+  },
+  {
+    id: 'amixem', name: 'Amixem', category: 'fr_youtubeur', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Amixem.jpg/400px-Amixem.jpg',
+    hint: 'YouTubeur français — Alexis Chabrol, défis, humour décalé',
+  },
+
   // ── SPORT FRANÇAIS ─────────────────────────────────────────
+  {
+    id: 'thierry_henry', name: 'Thierry Henry', category: 'fr_sport', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Thierry_Henry_2019.jpg/400px-Thierry_Henry_2019.jpg',
+    hint: 'Footballeur français — Arsenal, FC Barcelone, champion du monde 1998 et d\'Europe 2000',
+  },
+  {
+    id: 'karim_benzema', name: 'Karim Benzema', category: 'fr_sport', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Karim_Benzema_2016.jpg/400px-Karim_Benzema_2016.jpg',
+    hint: 'Footballeur français — Ballon d\'Or 2022, Real Madrid, record de buts en Ligue des Champions',
+  },
   {
     id: 'kylian_mbappe', name: 'Kylian Mbappé', category: 'fr_sport', flag: '🇫🇷',
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/2019-07-17_SG_Dynamo_Dresden_v_Paris_Saint-Germain_F.C._by_Sandro_Halank%E2%80%93014_%28cropped%29.jpg/400px-2019-07-17_SG_Dynamo_Dresden_v_Paris_Saint-Germain_F.C._by_Sandro_Halank%E2%80%93014_%28cropped%29.jpg',
@@ -449,15 +538,17 @@ export const ALL_PERSONALITIES = [
 ];
 
 export const CATEGORY_LABELS = {
-  cinema:       { label: 'Cinéma',            emoji: '🎬', group: '🌍 International' },
-  musique:      { label: 'Musique',            emoji: '🎵', group: '🌍 International' },
-  sport:        { label: 'Sport',              emoji: '⚽', group: '🌍 International' },
-  politique:    { label: 'Politique',          emoji: '🌐', group: '🌍 International' },
-  science:      { label: 'Science & Tech',     emoji: '🔬', group: '🌍 International' },
-  fr_cinema:    { label: 'Cinéma',             emoji: '🎬', group: '🇫🇷 Français' },
-  fr_musique:   { label: 'Musique',            emoji: '🎵', group: '🇫🇷 Français' },
-  fr_sport:     { label: 'Sport',              emoji: '⚽', group: '🇫🇷 Français' },
-  fr_politique: { label: 'Politique',          emoji: '🏛️', group: '🇫🇷 Français' },
+  cinema:        { label: 'Cinéma',              emoji: '🎬', group: '🌍 International' },
+  musique:       { label: 'Musique',             emoji: '🎵', group: '🌍 International' },
+  sport:         { label: 'Sport',               emoji: '⚽', group: '🌍 International' },
+  politique:     { label: 'Politique',           emoji: '🌐', group: '🌍 International' },
+  science:       { label: 'Science & Tech',      emoji: '🔬', group: '🌍 International' },
+  youtubeur:     { label: 'YouTubeurs',          emoji: '📱', group: '🌍 International' },
+  fr_cinema:     { label: 'Cinéma',              emoji: '🎬', group: '🇫🇷 Français' },
+  fr_musique:    { label: 'Musique',             emoji: '🎵', group: '🇫🇷 Français' },
+  fr_sport:      { label: 'Sport',               emoji: '⚽', group: '🇫🇷 Français' },
+  fr_politique:  { label: 'Politique',           emoji: '🏛️', group: '🇫🇷 Français' },
+  fr_youtubeur:  { label: 'YouTubeurs',          emoji: '📱', group: '🇫🇷 Français' },
 };
 
 export function getPersonalities(count, filter = 'all') {

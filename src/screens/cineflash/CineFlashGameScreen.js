@@ -463,7 +463,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
-const IMG_SIZE = Platform.select({ web: 300, default: undefined });
+const IMG_SIZE = Platform.select({ web: 440, default: undefined });
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     alignSelf: 'center',
     width: IMG_SIZE || '100%',
-    height: IMG_SIZE || 240,
+    height: IMG_SIZE || 320,
     borderRadius: radius.xl,
     overflow: 'hidden',
     borderWidth: 1,
