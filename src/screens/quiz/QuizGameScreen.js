@@ -732,10 +732,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: 'rgba(232,121,249,0.3)',
+    ...Platform.select({ web: { width: 280, alignSelf: 'center' } }),
   },
   questionImage: {
     width: '100%',
     height: 200,
+    ...Platform.select({ web: { width: 280, height: 280 } }),
   },
 
   // Final screen

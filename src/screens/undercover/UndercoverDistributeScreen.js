@@ -483,10 +483,12 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     marginBottom: spacing.sm,
     overflow: 'hidden',
+    ...Platform.select({ web: { width: 200, height: 200, alignSelf: 'center' } }),
   },
   charImageModal: {
     height: 150,
     marginBottom: spacing.md,
+    ...Platform.select({ web: { width: 220, height: 220, alignSelf: 'center' } }),
   },
 
   // Revealed state (distribution)
