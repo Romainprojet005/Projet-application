@@ -36,27 +36,27 @@ function isCorrectGuess(input, title) {
   return tit === inp || (inp.length >= 4 && tit.includes(inp));
 }
 
-// ── Image avec fallback local → Wikipedia → placeholder ──────────────────────
-function CineImage({ slug, imgIndex, fallbackUri, style }) {
-  const localUri = Platform.OS === 'web'
-    ? `/cineflash/${slug}_${imgIndex + 1}.jpg`
-    : null;
+// ── Image : /cineflash/[Titre]/1.jpg → .jpeg → .png → .webp → placeholder ───
+const EXTS = ['jpg', 'jpeg', 'png', 'webp'];
 
-  const [triedLocal, setTriedLocal] = useState(false);
+function CineImage({ title, imgIndex, style }) {
+  const [extIdx, setExtIdx] = useState(0);
   const [error, setError] = useState(false);
   const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     opacity.setValue(0);
-    setTriedLocal(false);
+    setExtIdx(0);
     setError(false);
     Animated.timing(opacity, { toValue: 1, duration: 350, useNativeDriver: true }).start();
-  }, [slug, imgIndex]);
+  }, [title, imgIndex]);
 
-  const uri = (!triedLocal && localUri) ? localUri : fallbackUri;
+  const uri = Platform.OS === 'web'
+    ? `/cineflash/${encodeURIComponent(title)}/${imgIndex + 1}.${EXTS[extIdx]}`
+    : null;
 
   const handleError = () => {
-    if (!triedLocal && localUri) { setTriedLocal(true); }
+    if (extIdx < EXTS.length - 1) { setExtIdx(e => e + 1); }
     else { setError(true); }
   };
 
@@ -146,7 +146,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
       if (hasPlayers && currentPlayer) {
         setScores(prev => ({ ...prev, [currentPlayer]: (prev[currentPlayer] || 0) + pts }));
       }
-      setResults(prev => [...prev, { title: film.title, year: film.year, finder: currentPlayer, points: pts }]);
+      setResults(prev => [...prev, { title: film.title, finder: currentPlayer, points: pts }]);
       setFoundAtIdx(imgIdx);
       setWasCorrect(true);
       setPhase('feedback');
@@ -165,7 +165,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
           setWasCorrect(null);
         } else {
           // Plus d'indices : révèle la réponse
-          setResults(prev => [...prev, { title: film.title, year: film.year, finder: null, points: 0 }]);
+          setResults(prev => [...prev, { title: film.title, finder: null, points: 0 }]);
           setPhase('answer');
           openAnswerCard();
         }
@@ -179,7 +179,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
     if (imgIdx < 2) {
       setImgIdx(i => i + 1);
     } else {
-      setResults(prev => [...prev, { title: film.title, year: film.year, finder: null, points: 0 }]);
+      setResults(prev => [...prev, { title: film.title, finder: null, points: 0 }]);
       setPhase('answer');
       openAnswerCard();
     }
@@ -265,7 +265,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
             <Text style={styles.cardLabel}>📽️ RÉCAPITULATIF — {foundCount}/{films.length} trouvés</Text>
             {results.map((r, i) => (
               <View key={i} style={styles.recapRow}>
-                <Text style={styles.recapFilm}>{r.title} <Text style={styles.recapYear}>({r.year})</Text></Text>
+                <Text style={styles.recapFilm}>{r.title}</Text>
                 <Text style={styles.recapFinder}>
                   {r.points > 0
                     ? r.finder
@@ -331,9 +331,8 @@ export default function CineFlashGameScreen({ navigation, route }) {
         {/* Image */}
         <View style={styles.imageContainer}>
           <CineImage
-            slug={film.slug}
+            title={film.title}
             imgIndex={imgIdx}
-            fallbackUri={film.images[imgIdx]}
             style={StyleSheet.absoluteFillObject}
           />
 
@@ -444,10 +443,9 @@ export default function CineFlashGameScreen({ navigation, route }) {
 
             <Text style={styles.answerLabel}>La réponse était :</Text>
             <Text style={styles.answerTitle}>{film.title}</Text>
-            <Text style={styles.answerYear}>{film.year}</Text>
 
             <View style={styles.answerPoster}>
-              <CineImage slug={film.slug} imgIndex={2} fallbackUri={film.images[2]} style={StyleSheet.absoluteFillObject} />
+              <CineImage title={film.title} imgIndex={2} style={StyleSheet.absoluteFillObject} />
             </View>
 
             <TouchableOpacity onPress={handleNextFilm} style={styles.nextFilmBtn} activeOpacity={0.85}>
