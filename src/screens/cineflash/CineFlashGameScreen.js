@@ -20,18 +20,35 @@ const CIN_LIGHT = '#FCA5A5';
 
 const HINT_LABELS = ['Indice 1 / 3', 'Indice 2 / 3', 'Indice 3 / 3'];
 
-// Image component with fade-in and graceful fallback
-function CineImage({ uri, style }) {
+// Image component: essaie d'abord la photo locale /cineflash/[slug]_[n].jpg,
+// puis se rabat sur l'URL Wikipedia si elle n'existe pas.
+function CineImage({ slug, imgIndex, fallbackUri, style }) {
+  const localUri = Platform.OS === 'web'
+    ? `/cineflash/${slug}_${imgIndex + 1}.jpg`
+    : null;
+
+  const [triedLocal, setTriedLocal] = useState(false);
   const [error, setError] = useState(false);
   const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     opacity.setValue(0);
+    setTriedLocal(false);
     setError(false);
     Animated.timing(opacity, { toValue: 1, duration: 350, useNativeDriver: true }).start();
-  }, [uri]);
+  }, [slug, imgIndex]);
 
-  if (!uri || error) {
+  const uri = (!triedLocal && localUri) ? localUri : fallbackUri;
+
+  const handleError = () => {
+    if (!triedLocal && localUri) {
+      setTriedLocal(true);
+    } else {
+      setError(true);
+    }
+  };
+
+  if (error || !uri) {
     return (
       <Animated.View style={[style, styles.imgPlaceholder, { opacity }]}>
         <Text style={styles.imgPlaceholderEmoji}>🎬</Text>
@@ -46,7 +63,7 @@ function CineImage({ uri, style }) {
         source={{ uri }}
         style={StyleSheet.absoluteFillObject}
         resizeMode="cover"
-        onError={() => setError(true)}
+        onError={handleError}
       />
     </Animated.View>
   );
@@ -232,7 +249,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
 
       {/* Image */}
       <View style={styles.imageContainer}>
-        <CineImage uri={film.images[imgIdx]} style={styles.image} />
+        <CineImage slug={film.slug} imgIndex={imgIdx} fallbackUri={film.images[imgIdx]} style={styles.image} />
       </View>
 
       {/* Dot indicator */}
@@ -285,7 +302,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
 
             {/* Show poster */}
             <View style={styles.answerPoster}>
-              <CineImage uri={film.images[2]} style={StyleSheet.absoluteFillObject} />
+              <CineImage slug={film.slug} imgIndex={2} fallbackUri={film.images[2]} style={StyleSheet.absoluteFillObject} />
             </View>
 
             <TouchableOpacity onPress={handleNextFilm} style={styles.nextFilmBtn} activeOpacity={0.85}>
