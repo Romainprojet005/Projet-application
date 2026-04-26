@@ -145,21 +145,55 @@ export const wordThemes = {
     emoji: '⛩️',
     description: 'Personnages similaires',
     pairs: [
+      // Shonen classiques
       { civilian: 'Naruto', undercover: 'Goku' },
       { civilian: 'Sasuke', undercover: 'Vegeta' },
-      { civilian: 'Luffy', undercover: 'Gon' },
-      { civilian: 'Light Yagami', undercover: 'Lelouch' },
-      { civilian: 'L', undercover: 'Conan Edogawa' },
-      { civilian: 'Erza Scarlet', undercover: 'Mikasa Ackerman' },
+      { civilian: 'Luffy', undercover: 'Gon Freecss' },
       { civilian: 'Ichigo Kurosaki', undercover: 'Tanjiro Kamado' },
       { civilian: 'Izuku Midoriya', undercover: 'Rock Lee' },
-      { civilian: 'Todoroki', undercover: 'Killua' },
-      { civilian: 'Shanks', undercover: 'Gildarts' },
-      { civilian: 'Piccolo', undercover: 'Aizen' },
-      { civilian: 'Zenitsu', undercover: 'Usopp' },
+      { civilian: 'Natsu Dragneel', undercover: 'Meliodas' },
+      { civilian: 'Asta', undercover: 'Simon Jäger' },
+      { civilian: 'Zoro', undercover: 'Inosuke Hashibira' },
+      // Génie & manipulation
+      { civilian: 'Light Yagami', undercover: 'Lelouch' },
+      { civilian: 'L', undercover: 'Conan Edogawa' },
+      { civilian: 'Senku Ishigami', undercover: 'Shikamaru Nara' },
+      // Maîtres & légendes
       { civilian: 'Kakashi', undercover: 'Gintoki' },
-      { civilian: 'Hinata Hyuga', undercover: 'Tohru Honda' },
+      { civilian: 'Shanks', undercover: 'Gildarts' },
+      { civilian: 'All Might', undercover: 'Barbe Blanche' },
+      { civilian: 'Itachi Uchiha', undercover: 'Gojo Satoru' },
+      // Froids & redoutables
+      { civilian: 'Todoroki', undercover: 'Killua' },
+      { civilian: 'Levi Ackerman', undercover: 'Hei' },
+      { civilian: 'Giyu Tomioka', undercover: 'Kurapika' },
+      { civilian: 'Erwin Smith', undercover: 'Roy Mustang' },
+      // Combattantes féminines
+      { civilian: 'Erza Scarlet', undercover: 'Mikasa Ackerman' },
+      { civilian: 'Maka Albarn', undercover: 'Rukia Kuchiki' },
+      { civilian: 'Bulma', undercover: 'Nami' },
+      // Isekai & OP
+      { civilian: 'Saitama', undercover: 'Mob Kageyama' },
+      { civilian: 'Rimuru Tempest', undercover: 'Ainz Ooal Gown' },
+      { civilian: 'Kirito', undercover: 'Subaru Natsuki' },
+      // Personnages sombres
+      { civilian: 'Ken Kaneki', undercover: 'Yuu Otosaka' },
+      { civilian: 'Piccolo', undercover: 'Aizen' },
+      { civilian: 'Dio Brando', undercover: 'Griffith' },
       { civilian: 'Frieza', undercover: 'Madara Uchiha' },
+      { civilian: 'Jotaro Kujo', undercover: 'Alucard' },
+      // Nobles perfectionnistes
+      { civilian: 'Death the Kid', undercover: 'Byakuya Kuchiki' },
+      // Personnages doux / maladroits
+      { civilian: 'Hinata Hyuga', undercover: 'Tohru Honda' },
+      { civilian: 'Zenitsu', undercover: 'Usopp' },
+      { civilian: 'Edward Elric', undercover: 'Yusuke Urameshi' },
+      // Autres univers
+      { civilian: 'Rem', undercover: 'Nezuko Kamado' },
+      { civilian: 'Guts', undercover: 'Zabuza Momochi' },
+      { civilian: 'Toga Himiko', undercover: 'Yuno Gasai' },
+      { civilian: 'Seiya', undercover: 'Kenshin Himura' },
+      { civilian: 'Ash Ketchum', undercover: 'Taichi Kamiya' },
     ],
   },
   animation: {
@@ -167,21 +201,54 @@ export const wordThemes = {
     emoji: '🎨',
     description: 'Personnages similaires',
     pairs: [
+      // Mascottes & icônes
       { civilian: 'Mickey Mouse', undercover: 'Bugs Bunny' },
+      { civilian: 'Donald Duck', undercover: 'Daffy Duck' },
+      { civilian: 'Scooby-Doo', undercover: 'Dingo' },
+      // Princesses classiques
+      { civilian: 'Cendrillon', undercover: 'Blanche-Neige' },
       { civilian: 'Elsa', undercover: 'Raiponce' },
-      { civilian: 'Aladdin', undercover: 'Flynn Rider' },
+      { civilian: 'Ariel', undercover: 'Vaiana' },
       { civilian: 'Mulan', undercover: 'Pocahontas' },
+      { civilian: 'Esmeralda', undercover: 'Jasmine' },
+      // Princesses modernes
+      { civilian: 'Merida', undercover: 'Raya' },
+      { civilian: 'Anna', undercover: 'Mirabel' },
+      // Héros masculins classiques
+      { civilian: 'Aladdin', undercover: 'Flynn Rider' },
+      { civilian: 'Tarzan', undercover: 'Mowgli' },
+      { civilian: 'Robin des Bois', undercover: 'Peter Pan' },
+      { civilian: 'Maui', undercover: 'Hercule' },
+      // Animaux héros
       { civilian: 'Simba', undercover: 'Bambi' },
       { civilian: 'Stitch', undercover: 'Krokmou' },
-      { civilian: 'Donald Duck', undercover: 'Daffy Duck' },
-      { civilian: 'Maui', undercover: 'Hercule' },
-      { civilian: 'Jack Skellington', undercover: 'le Grinch' },
-      { civilian: 'Cendrillon', undercover: 'Blanche-Neige' },
-      { civilian: 'Scooby-Doo', undercover: 'Dingo' },
-      { civilian: 'Lotso', undercover: 'Ursula' },
+      { civilian: 'Dumbo', undercover: 'Pinocchio' },
+      { civilian: 'Pumbaa', undercover: 'Baloo' },
+      // Grands gaillards au coeur d'or
       { civilian: 'Bob Parr', undercover: 'Shrek' },
-      { civilian: 'Ariel', undercover: 'Vaiana' },
+      { civilian: 'Wreck-It Ralph', undercover: 'Sulley' },
+      { civilian: 'Quasimodo', undercover: 'la Bête' },
+      // Rêveurs & idéalistes
+      { civilian: 'Po', undercover: 'Miguel' },
+      { civilian: 'WALL-E', undercover: 'Baymax' },
+      // Duos comiques
       { civilian: 'Timon', undercover: 'Abu' },
+      { civilian: 'Dory', undercover: 'Olaf' },
+      // Vilains mémorables
+      { civilian: 'Hades', undercover: 'Jafar' },
+      { civilian: 'Maleficent', undercover: 'la Reine Sorcière' },
+      { civilian: 'Lotso', undercover: 'Ursula' },
+      { civilian: 'Gaston', undercover: 'Clayton' },
+      { civilian: 'Tai Lung', undercover: 'Scar' },
+      // Compagnes intellectuelles
+      { civilian: 'Jane', undercover: 'Belle' },
+      // Petites filles excentriques
+      { civilian: 'Vanellope', undercover: 'Lilo' },
+      // Personnages saisonniers & macabres
+      { civilian: 'Jack Skellington', undercover: 'le Grinch' },
+      // Héros d'aventure (Cartoon)
+      { civilian: 'Finn', undercover: 'Aang' },
+      { civilian: 'Astérix', undercover: 'Lucky Luke' },
     ],
   },
   aleatoire: {
