@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Animated,
+  ScrollView,
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -54,53 +55,125 @@ function distributeRoles(playerCount, wordPair, undercoverCount, hasMrWhite) {
   return roles;
 }
 
-// --- Done screen ---
-function DoneScreen({ playerCount, undercoverCount, hasMrWhite, onBackToMenu }) {
-  const scaleAnim = useRef(new Animated.Value(0.6)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
+// --- Game board screen ---
+function GameBoardScreen({ roles, onBackToMenu }) {
+  const [eliminated, setEliminated] = useState(new Set());
+  const [modalIdx, setModalIdx] = useState(null);
+  const modalAnim = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    Animated.parallel([
-      Animated.spring(scaleAnim, { toValue: 1, tension: 50, friction: 7, useNativeDriver: true }),
-      Animated.timing(opacityAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-    ]).start();
-  }, []);
+  const openModal = (idx) => {
+    setModalIdx(idx);
+    Animated.spring(modalAnim, { toValue: 1, tension: 60, friction: 10, useNativeDriver: true }).start();
+  };
 
-  const civCount = playerCount - undercoverCount - (hasMrWhite ? 1 : 0);
+  const closeModal = () => {
+    Animated.timing(modalAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => {
+      setModalIdx(null);
+    });
+  };
+
+  const handleEliminate = () => {
+    const idx = modalIdx;
+    closeModal();
+    setTimeout(() => {
+      setEliminated(prev => {
+        const next = new Set(prev);
+        next.add(idx);
+        return next;
+      });
+    }, 190);
+  };
+
+  const modalRole = modalIdx !== null ? roles[modalIdx] : null;
+  const modalCfg = modalRole ? ROLE_CONFIG[modalRole.type] : null;
 
   return (
-    <LinearGradient colors={['#0A0600', '#1C0C00']} style={styles.container}>
-      <Animated.View
-        style={[styles.doneBox, { opacity: opacityAnim, transform: [{ scale: scaleAnim }] }]}
+    <LinearGradient colors={['#0A0600', '#1C0C00', '#0A0600']} style={styles.container}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.gbContent}
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.doneEmoji}>⚔️</Text>
-        <Text style={styles.doneTitle}>MISSION LANCÉE</Text>
-        <Text style={styles.doneSub}>Tous les rôles ont été distribués</Text>
-        <Text style={styles.doneBody}>
-          {'La partie peut commencer.\nQue le meilleur menteur gagne !'}
-        </Text>
-
-        <View style={styles.doneStats}>
-          <View style={styles.doneStat}>
-            <Text style={[styles.doneStatNum, { color: colors.success }]}>{civCount}</Text>
-            <Text style={styles.doneStatLabel}>Villageois</Text>
-          </View>
-          <View style={styles.doneStat}>
-            <Text style={[styles.doneStatNum, { color: colors.danger }]}>{undercoverCount}</Text>
-            <Text style={styles.doneStatLabel}>{undercoverCount > 1 ? 'Espions' : 'Espion'}</Text>
-          </View>
-          {hasMrWhite && (
-            <View style={styles.doneStat}>
-              <Text style={[styles.doneStatNum, { color: colors.accent }]}>1</Text>
-              <Text style={styles.doneStatLabel}>M. Blanc</Text>
-            </View>
-          )}
+        <View style={styles.gbHeader}>
+          <Text style={styles.gbTitle}>⚔️  PARTIE EN COURS</Text>
+          <Text style={styles.gbSub}>Appuyez sur un joueur pour révéler sa carte et l'éliminer</Text>
         </View>
 
-        <TouchableOpacity onPress={onBackToMenu} style={styles.doneBackBtn}>
-          <Text style={styles.doneBackBtnText}>Retour au menu</Text>
+        <View style={styles.gbGrid}>
+          {roles.map((r, idx) => {
+            const isElim = eliminated.has(idx);
+            const roleCfg = ROLE_CONFIG[r.type];
+            return (
+              <TouchableOpacity
+                key={idx}
+                onPress={() => { if (!isElim) openModal(idx); }}
+                style={[styles.gbCard, isElim ? styles.gbCardElim : styles.gbCardAlive]}
+                activeOpacity={isElim ? 1 : 0.78}
+              >
+                <Text style={styles.gbPlayerNum}>JOUEUR {idx + 1}</Text>
+                {isElim ? (
+                  <>
+                    <Text style={styles.gbEmoji}>{roleCfg.emoji}</Text>
+                    <Text style={[styles.gbRole, { color: roleCfg.color }]}>{roleCfg.label}</Text>
+                    <Text style={styles.gbWord} numberOfLines={2}>{r.word || '???'}</Text>
+                    <View style={styles.gbElimTag}>
+                      <Text style={styles.gbElimTagText}>💀 ÉLIMINÉ</Text>
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.gbEmoji}>🎭</Text>
+                    <Text style={styles.gbAliveStatus}>En vie</Text>
+                    <View style={styles.gbElimBtn}>
+                      <Text style={styles.gbElimBtnText}>Éliminer</Text>
+                    </View>
+                  </>
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <TouchableOpacity onPress={onBackToMenu} style={styles.gbBackBtn}>
+          <Text style={styles.gbBackBtnText}>Retour au menu</Text>
         </TouchableOpacity>
-      </Animated.View>
+      </ScrollView>
+
+      {/* Reveal modal */}
+      {modalIdx !== null && modalRole && modalCfg && (
+        <View style={styles.gbOverlay}>
+          <Animated.View
+            style={[
+              styles.gbModalBox,
+              {
+                opacity: modalAnim,
+                transform: [{ scale: modalAnim.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }],
+              },
+            ]}
+          >
+            <LinearGradient colors={modalCfg.gradient} style={styles.gbModalGrad}>
+              <Text style={styles.gbModalPlayerLabel}>JOUEUR {modalIdx + 1}</Text>
+
+              <View style={[styles.roleBadge, { borderColor: modalCfg.color + '60' }]}>
+                <Text style={styles.roleBadgeEmoji}>{modalCfg.emoji}</Text>
+                <Text style={[styles.roleBadgeLabel, { color: modalCfg.color }]}>{modalCfg.label}</Text>
+              </View>
+
+              <View style={styles.wordBox}>
+                <Text style={styles.wordLabel}>SON MOT</Text>
+                <Text style={styles.wordText}>{modalRole.word || '???'}</Text>
+              </View>
+
+              <TouchableOpacity onPress={handleEliminate} style={styles.gbConfirmBtn} activeOpacity={0.85}>
+                <Text style={styles.gbConfirmBtnText}>💀  Confirmer l'élimination</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={closeModal} style={styles.gbCancelBtn}>
+                <Text style={styles.gbCancelBtnText}>Annuler</Text>
+              </TouchableOpacity>
+            </LinearGradient>
+          </Animated.View>
+        </View>
+      )}
     </LinearGradient>
   );
 }
@@ -113,7 +186,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
     distributeRoles(playerCount, wordPair, undercoverCount, hasMrWhite)
   );
   const [currentPlayer, setCurrentPlayer] = useState(0);
-  const [phase, setPhase] = useState('waiting'); // 'waiting' | 'revealed' | 'done'
+  const [phase, setPhase] = useState('waiting'); // 'waiting' | 'revealed' | 'gameboard'
 
   const screenFade = useRef(new Animated.Value(1)).current;
   const cardRevealOpacity = useRef(new Animated.Value(0)).current;
@@ -132,7 +205,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
 
   const handleNext = () => {
     if (currentPlayer >= playerCount - 1) {
-      setPhase('done');
+      setPhase('gameboard');
       return;
     }
     Animated.timing(screenFade, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
@@ -145,12 +218,10 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
     });
   };
 
-  if (phase === 'done') {
+  if (phase === 'gameboard') {
     return (
-      <DoneScreen
-        playerCount={playerCount}
-        undercoverCount={undercoverCount}
-        hasMrWhite={hasMrWhite}
+      <GameBoardScreen
+        roles={roles}
         onBackToMenu={() => navigation.navigate('Menu')}
       />
     );
@@ -380,7 +451,7 @@ const styles = StyleSheet.create({
   },
   patternItem: { fontSize: 14, margin: 2 },
 
-  // Revealed state
+  // Revealed state (distribution)
   roleBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -440,51 +511,160 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 
-  // Done screen
-  doneBox: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.xl,
+  // ─── Game board ───────────────────────────────────────────────────────────
+  gbContent: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: 48,
   },
-  doneEmoji: { fontSize: 70, marginBottom: spacing.lg },
-  doneTitle: {
-    fontSize: 28,
+  gbHeader: {
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: spacing.lg,
+    alignItems: 'center',
+  },
+  gbTitle: {
+    fontSize: 22,
     fontWeight: '900',
     color: colors.text,
-    letterSpacing: 4,
+    letterSpacing: 3,
     textAlign: 'center',
   },
-  doneSub: {
-    fontSize: 13,
-    color: AMB_LIGHT,
-    letterSpacing: 2,
-    marginTop: spacing.xs,
-    marginBottom: spacing.xl,
-    textAlign: 'center',
-  },
-  doneBody: {
-    fontSize: 15,
+  gbSub: {
+    fontSize: 12,
     color: colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 24,
+    marginTop: spacing.xs,
+    lineHeight: 18,
+  },
+  gbGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
     marginBottom: spacing.xl,
   },
-  doneStats: {
-    flexDirection: 'row',
-    gap: spacing.xl,
-    marginBottom: spacing.xxl,
+  gbCard: {
+    width: '47%',
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    minHeight: 148,
+    justifyContent: 'center',
   },
-  doneStat: { alignItems: 'center' },
-  doneStatNum: { fontSize: 40, fontWeight: '900' },
-  doneStatLabel: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
-  doneBackBtn: {
+  gbCardAlive: {
+    backgroundColor: colors.card,
+    borderColor: colors.success + '50',
+  },
+  gbCardElim: {
+    backgroundColor: '#160808',
+    borderColor: colors.danger + '40',
+    opacity: 0.85,
+  },
+  gbPlayerNum: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.textMuted,
+    letterSpacing: 2,
+    marginBottom: spacing.xs,
+  },
+  gbEmoji: { fontSize: 26, marginBottom: 4 },
+  gbAliveStatus: {
+    fontSize: 12,
+    color: colors.success,
+    fontWeight: '600',
+    marginBottom: spacing.sm,
+  },
+  gbElimBtn: {
+    backgroundColor: colors.danger + '28',
+    borderRadius: radius.full,
+    paddingVertical: 5,
+    paddingHorizontal: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.danger + '55',
+  },
+  gbElimBtnText: { fontSize: 11, color: colors.danger, fontWeight: '700' },
+  gbRole: {
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 2,
+    marginBottom: 4,
+  },
+  gbWord: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.text,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  gbElimTag: {
+    backgroundColor: colors.danger + '22',
+    borderRadius: radius.full,
+    paddingVertical: 2,
+    paddingHorizontal: spacing.sm,
+  },
+  gbElimTagText: {
+    fontSize: 9,
+    color: colors.danger,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
+  gbBackBtn: {
     backgroundColor: colors.surface,
     paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
+    alignItems: 'center',
     borderRadius: radius.full,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  doneBackBtnText: { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
+  gbBackBtnText: { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
+
+  // Game board overlay + modal
+  gbOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.82)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
+    zIndex: 100,
+  },
+  gbModalBox: {
+    width: '100%',
+    maxWidth: 380,
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.7,
+    shadowRadius: 32,
+    elevation: 20,
+  },
+  gbModalGrad: {
+    padding: spacing.xl,
+    alignItems: 'center',
+  },
+  gbModalPlayerLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.4)',
+    letterSpacing: 4,
+    marginBottom: spacing.md,
+  },
+  gbConfirmBtn: {
+    backgroundColor: colors.danger,
+    borderRadius: radius.full,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    marginTop: spacing.md,
+    width: '100%',
+    alignItems: 'center',
+    shadowColor: colors.danger,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  gbConfirmBtnText: { fontSize: 14, fontWeight: '800', color: colors.text },
+  gbCancelBtn: { marginTop: spacing.md, paddingVertical: spacing.sm },
+  gbCancelBtnText: { fontSize: 13, color: colors.textMuted },
 });
