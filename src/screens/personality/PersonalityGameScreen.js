@@ -10,6 +10,8 @@ import { colors, spacing, radius } from '../../theme';
 const IMG_HEIGHT = Platform.OS === 'web'
   ? Math.min(Dimensions.get('window').height * 0.55, 500)
   : Math.min(Dimensions.get('window').height * 0.42, 340);
+const SCREEN_W = Dimensions.get('window').width;
+const IMG_SQUARE = Math.min(IMG_HEIGHT, SCREEN_W - 48);
 
 // Normalise pour comparaison (minuscules, sans accents ni ponctuation)
 function normalize(s) {
@@ -248,6 +250,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
         <Animated.View
           style={[
             styles.imageContainer,
+            mode === 'tiles' && !isReveal && styles.imageContainerSquare,
             { opacity: cardOpacity, transform: [{ translateY: cardSlide }] },
           ]}
         >
@@ -529,6 +532,10 @@ const styles = StyleSheet.create({
   featureLabel: { fontSize: 11, color: ORANGE + 'CC', marginTop: 2 },
 
   // Image area
+  imageContainerSquare: {
+    width: IMG_SQUARE,
+    alignSelf: 'center',
+  },
   imageContainer: {
     height: IMG_HEIGHT,
     borderRadius: radius.xl,

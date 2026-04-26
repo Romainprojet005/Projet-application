@@ -22,6 +22,7 @@ export default function QuizSetupScreen({ navigation }) {
   const [playerCount, setPlayerCount] = useState(3);
   const [selectedCategories, setSelectedCategories] = useState(['culture', 'cinema']);
   const [questionCount, setQuestionCount] = useState(10);
+  const [difficulty, setDifficulty] = useState('normal');
 
   const fadeIn = useRef(new Animated.Value(0)).current;
   const slideUp = useRef(new Animated.Value(40)).current;
@@ -55,7 +56,7 @@ export default function QuizSetupScreen({ navigation }) {
   const questionsPerPlayer = Math.floor(effectiveCount / playerCount);
 
   const handleStart = () => {
-    const questions = buildQuestions(selectedCategories, questionCount);
+    const questions = buildQuestions(selectedCategories, questionCount, difficulty);
     const players = Array.from({ length: playerCount }, (_, i) => `Joueur ${i + 1}`);
     navigation.navigate('QuizGame', { players, questions });
   };
@@ -174,6 +175,32 @@ export default function QuizSetupScreen({ navigation }) {
             </View>
           </View>
 
+          {/* Difficulté */}
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>🎯  Difficulté</Text>
+            <View style={styles.qCountRow}>
+              {[
+                { key: 'facile',    label: 'Facile',    emoji: '😊' },
+                { key: 'normal',    label: 'Normal',    emoji: '🧠' },
+                { key: 'difficile', label: 'Difficile', emoji: '🔥' },
+              ].map(({ key, label, emoji }) => {
+                const sel = difficulty === key;
+                const diffColor = key === 'facile' ? '#10B981' : key === 'difficile' ? '#EF4444' : ZAPCOLOR;
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    onPress={() => setDifficulty(key)}
+                    style={[styles.qCountBtn, sel && { borderColor: diffColor, backgroundColor: diffColor + '22' }]}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.qCountNum, { fontSize: 20 }, sel && { color: diffColor }]}>{emoji}</Text>
+                    <Text style={[styles.qCountLabel, { fontSize: 11, fontWeight: sel ? '800' : '400' }, sel && { color: diffColor }]}>{label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
           {/* Résumé */}
           <View style={styles.summaryCard}>
             <Text style={styles.summaryTitle}>📋  Résumé de la partie</Text>
@@ -184,6 +211,11 @@ export default function QuizSetupScreen({ navigation }) {
               value={questionsPerPlayer > 0 ? `~${questionsPerPlayer}` : '—'}
             />
             <SummaryRow label="Temps / question" value="15 sec" />
+            <SummaryRow
+              label="Difficulté"
+              value={difficulty === 'facile' ? '😊 Facile' : difficulty === 'difficile' ? '🔥 Difficile' : '🧠 Normal'}
+              valueColor={difficulty === 'facile' ? '#10B981' : difficulty === 'difficile' ? '#EF4444' : ZAPCOLOR}
+            />
             <SummaryRow
               label="Catégories"
               value={selectedCategories.map((k) => quizCategories[k]?.emoji).join(' ')}

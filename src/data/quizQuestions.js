@@ -273,22 +273,42 @@ export const quizCategories = {
   },
 };
 
-export function buildQuestions(selectedCategories, count) {
+// Indices (0-based) des questions difficiles par catégorie
+const HARD_INDICES = {
+  culture: [5, 7, 12, 14, 15, 16, 17, 19],
+  cinema:  [7, 15, 16, 17],
+  musique: [9, 10, 15, 17],
+  sport:   [5, 6, 8, 16],
+  geo:     [0, 3, 6, 14, 15, 16, 18],
+  science: [4, 5, 6, 9, 12, 13, 14, 17],
+  histoire:[5, 6, 9, 10, 11, 13, 16],
+  disney:  [8, 15, 18, 20, 21, 23],
+  cuisine: [3, 6, 10, 12, 13, 17],
+  hot:     [3, 4, 9, 13],
+};
+
+// difficulty: 'facile' | 'normal' | 'difficile'
+export function buildQuestions(selectedCategories, count, difficulty = 'normal') {
   const pool = [];
   selectedCategories.forEach((key) => {
     const cat = quizCategories[key];
     if (!cat) return;
+    const hardSet = new Set(HARD_INDICES[key] || []);
     if (!_usedIndices[key]) _usedIndices[key] = new Set();
+    const diffFilter = (q) => {
+      if (difficulty === 'facile')    return !hardSet.has(q._i);
+      if (difficulty === 'difficile') return  hardSet.has(q._i);
+      return true;
+    };
     let avail = cat.questions
       .map((q, i) => ({ ...q, cat: key, _i: i }))
-      .filter((q) => !_usedIndices[key].has(q._i));
+      .filter((q) => !_usedIndices[key].has(q._i) && diffFilter(q));
     if (!avail.length) {
       _usedIndices[key].clear();
-      avail = cat.questions.map((q, i) => ({ ...q, cat: key, _i: i }));
+      avail = cat.questions.map((q, i) => ({ ...q, cat: key, _i: i })).filter(diffFilter);
     }
     pool.push(...avail);
   });
-  // Shuffle
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
