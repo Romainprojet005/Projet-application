@@ -1,6 +1,6 @@
 /**
  * Serveur local — La Soirée des Légendes
- * Lance avec : node server.js
+ * Lance avec : node server.js  (ou npm run preview)
  * Puis ouvre l'URL affichée sur ton téléphone (même Wi-Fi)
  */
 
@@ -9,10 +9,25 @@ const fs   = require('fs');
 const path = require('path');
 const os   = require('os');
 
-const PORT = 3000;
-const FILE = path.join(__dirname, 'preview.html');
+const PORT    = 3000;
+const DIST    = path.join(__dirname, 'dist');
 
-/* ── Récupère l'IP locale ─────────────────────────────── */
+const MIME = {
+  '.html': 'text/html; charset=utf-8',
+  '.js':   'application/javascript',
+  '.css':  'text/css',
+  '.json': 'application/json',
+  '.png':  'image/png',
+  '.jpg':  'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif':  'image/gif',
+  '.svg':  'image/svg+xml',
+  '.ico':  'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2':'font/woff2',
+  '.ttf':  'font/ttf',
+};
+
 function getLocalIP() {
   const nets = os.networkInterfaces();
   for (const name of Object.keys(nets)) {
@@ -23,17 +38,27 @@ function getLocalIP() {
   return 'localhost';
 }
 
-/* ── Serveur ──────────────────────────────────────────── */
 const server = http.createServer((req, res) => {
-  fs.readFile(FILE, (err, data) => {
+  let urlPath = req.url.split('?')[0];
+  let filePath = path.join(DIST, urlPath);
+
+  // SPA fallback : toute URL inconnue → index.html
+  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+    filePath = path.join(DIST, 'index.html');
+  }
+
+  const ext  = path.extname(filePath).toLowerCase();
+  const mime = MIME[ext] || 'application/octet-stream';
+
+  fs.readFile(filePath, (err, data) => {
     if (err) {
-      res.writeHead(500, { 'Content-Type': 'text/plain' });
-      res.end('Erreur : preview.html introuvable');
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('404 Not Found');
       return;
     }
     res.writeHead(200, {
-      'Content-Type': 'text/html; charset=utf-8',
-      'Cache-Control': 'no-cache',
+      'Content-Type': mime,
+      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=31536000',
     });
     res.end(data);
   });
@@ -44,20 +69,15 @@ server.listen(PORT, '0.0.0.0', () => {
   const mobileUrl = `http://${ip}:${PORT}`;
 
   console.log('\n');
-  console.log('  🎭  La Soirée des Légendes — Aperçu');
+  console.log('  🎭  La Soirée des Légendes');
   console.log('  ─────────────────────────────────────');
   console.log(`  💻  Local  :  http://localhost:${PORT}`);
   console.log(`  📱  Mobile :  ${mobileUrl}`);
   console.log('  ─────────────────────────────────────');
-  console.log('  Ouvre cette URL sur ton téléphone');
-  console.log('  (assure-toi d\'être sur le même Wi-Fi)');
-  console.log('\n  Ctrl+C pour arrêter\n');
+  console.log('  Ctrl+C pour arrêter\n');
 
-  /* QR code ASCII simple */
   try {
     const QR = require('qrcode-terminal');
     QR.generate(mobileUrl, { small: true });
-  } catch (e) {
-    /* qrcode-terminal pas installé, on affiche juste l'URL */
-  }
+  } catch (e) {}
 });
