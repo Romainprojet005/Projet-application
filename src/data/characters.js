@@ -76,6 +76,25 @@ export const characters = [
     },
   },
   {
+    id: 'cine_flash',
+    name: 'Indiana Jones',
+    emoji: '🎬',
+    title: 'Chasseur de Films',
+    description:
+      'Le célèbre archéologue-aventurier troque son fouet contre une bobine de film ! 3 indices photos pour identifier un film. Moins vous en avez besoin, plus vous marquez de points.',
+    catchphrase: '"Je déteste les serpents… mais j\'adore le cinéma !"',
+    color: '#DC2626',
+    gradientColors: ['#1A0000', '#2D0000'],
+    game: 'cineflash',
+    gameName: 'CINÉ-FLASH',
+    available: true,
+    stats: {
+      Culture: 95,
+      Mémoire: 88,
+      Réflexes: 91,
+    },
+  },
+  {
     id: 'lola_fiesta',
     name: 'Génie',
     emoji: '🧞',

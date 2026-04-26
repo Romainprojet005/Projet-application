@@ -271,6 +271,8 @@ export default function MenuScreen({ navigation }) {
       navigation.navigate('AmitieSetup');
     } else if (character.game === 'personality') {
       navigation.navigate('PersonalitySetup');
+    } else if (character.game === 'cineflash') {
+      navigation.navigate('CineFlashSetup');
     }
   };
 

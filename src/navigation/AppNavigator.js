@@ -12,6 +12,8 @@ import AmitieSetupScreen from '../screens/amitie/AmitieSetupScreen';
 import AmitieGameScreen from '../screens/amitie/AmitieGameScreen';
 import PersonalitySetupScreen from '../screens/personality/PersonalitySetupScreen';
 import PersonalityGameScreen from '../screens/personality/PersonalityGameScreen';
+import CineFlashSetupScreen from '../screens/cineflash/CineFlashSetupScreen';
+import CineFlashGameScreen from '../screens/cineflash/CineFlashGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -34,6 +36,8 @@ const linking = {
       AmitieGame: 'amitie/game',
       PersonalitySetup: 'personality',
       PersonalityGame: 'personality/game',
+      CineFlashSetup: 'cineflash',
+      CineFlashGame: 'cineflash/game',
     },
   },
 };
@@ -58,6 +62,8 @@ export default function AppNavigator() {
         <Stack.Screen name="AmitieGame" component={AmitieGameScreen} />
         <Stack.Screen name="PersonalitySetup" component={PersonalitySetupScreen} />
         <Stack.Screen name="PersonalityGame" component={PersonalityGameScreen} />
+        <Stack.Screen name="CineFlashSetup" component={CineFlashSetupScreen} />
+        <Stack.Screen name="CineFlashGame" component={CineFlashGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
