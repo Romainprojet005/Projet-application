@@ -6,10 +6,27 @@ import {
   TouchableOpacity,
   Animated,
   ScrollView,
+  Image,
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import characterImages from '../../data/characterImages';
+
+// Small helper: shows a character image, or nothing if URL is missing / fails to load
+function CharacterImage({ name, style }) {
+  const [error, setError] = useState(false);
+  const uri = name ? characterImages[name] : null;
+  if (!uri || error) return null;
+  return (
+    <Image
+      source={{ uri }}
+      style={[styles.charImage, style]}
+      resizeMode="cover"
+      onError={() => setError(true)}
+    />
+  );
+}
 
 const AMB       = '#D97706';
 const AMB_DARK  = '#92400E';
@@ -159,6 +176,9 @@ function GameBoardScreen({ roles, onBackToMenu }) {
                 <Text style={[styles.roleBadgeLabel, { color: modalCfg.color }]}>{modalCfg.label}</Text>
               </View>
 
+              {/* Character image in modal */}
+              <CharacterImage name={modalRole.word} style={styles.charImageModal} />
+
               <View style={styles.wordBox}>
                 <Text style={styles.wordLabel}>SON MOT</Text>
                 <Text style={styles.wordText}>{modalRole.word || '???'}</Text>
@@ -304,6 +324,11 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
                 <Text style={[styles.roleBadgeLabel, { color: cfg.color }]}>{cfg.label}</Text>
               </View>
 
+              {/* Character image */}
+              {role.type !== 'mrwhite' && (
+                <CharacterImage name={role.word} />
+              )}
+
               {/* Word */}
               <View style={styles.wordBox}>
                 <Text style={styles.wordLabel}>TON MOT</Text>
@@ -398,7 +423,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: spacing.xl,
     position: 'relative',
-    maxHeight: 300,
+    maxHeight: 400,
   },
   card: {
     flex: 1,
@@ -450,6 +475,19 @@ const styles = StyleSheet.create({
     opacity: 0.07,
   },
   patternItem: { fontSize: 14, margin: 2 },
+
+  // Character image (distribution card + modal)
+  charImage: {
+    width: '100%',
+    height: 110,
+    borderRadius: radius.md,
+    marginBottom: spacing.sm,
+    overflow: 'hidden',
+  },
+  charImageModal: {
+    height: 150,
+    marginBottom: spacing.md,
+  },
 
   // Revealed state (distribution)
   roleBadge: {

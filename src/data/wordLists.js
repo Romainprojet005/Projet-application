@@ -152,7 +152,7 @@ export const wordThemes = {
       { civilian: 'Ichigo Kurosaki', undercover: 'Tanjiro Kamado' },
       { civilian: 'Izuku Midoriya', undercover: 'Rock Lee' },
       { civilian: 'Natsu Dragneel', undercover: 'Meliodas' },
-      { civilian: 'Asta', undercover: 'Simon Jäger' },
+      { civilian: 'Asta', undercover: 'Simon' },
       { civilian: 'Zoro', undercover: 'Inosuke Hashibira' },
       // Génie & manipulation
       { civilian: 'Light Yagami', undercover: 'Lelouch' },
