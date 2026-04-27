@@ -69,10 +69,12 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
   const ring1      = useRef(new Animated.Value(0)).current;
   const ring2      = useRef(new Animated.Value(0)).current;
 
-  // Scale/opacity driven by scroll position of THIS card in the looped array
-  const inputRange  = [(loopIdx - 1) * ITEM_SIZE, loopIdx * ITEM_SIZE, (loopIdx + 1) * ITEM_SIZE];
-  const cardScale   = scrollX.interpolate({ inputRange, outputRange: [0.86, 1, 0.86], extrapolate: 'clamp' });
-  const cardOpacity = scrollX.interpolate({ inputRange, outputRange: [0.48, 1, 0.48], extrapolate: 'clamp' });
+  // Scale/opacity/rotation driven by scroll position of THIS card in the looped array
+  const inputRange    = [(loopIdx - 1) * ITEM_SIZE, loopIdx * ITEM_SIZE, (loopIdx + 1) * ITEM_SIZE];
+  const cardScale     = scrollX.interpolate({ inputRange, outputRange: [0.86, 1, 0.86], extrapolate: 'clamp' });
+  const cardOpacity   = scrollX.interpolate({ inputRange, outputRange: [0.48, 1, 0.48], extrapolate: 'clamp' });
+  const cardRotateY   = scrollX.interpolate({ inputRange, outputRange: ['18deg', '0deg', '-18deg'], extrapolate: 'clamp' });
+  const cardTranslateY = scrollX.interpolate({ inputRange, outputRange: [28, 0, 28], extrapolate: 'clamp' });
 
   useEffect(() => {
     if (character.available) {
@@ -91,7 +93,7 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
   const r2 = ring2.interpolate({ inputRange: [0, 1], outputRange: ['360deg', '0deg']   });
 
   return (
-    <Animated.View style={{ width: CARD_W, marginRight: CARD_GAP, transform: [{ scale: cardScale }], opacity: cardOpacity }}>
+    <Animated.View style={{ width: CARD_W, marginRight: CARD_GAP, transform: [{ perspective: 1200 }, { scale: cardScale }, { rotateY: cardRotateY }, { translateY: cardTranslateY }], opacity: cardOpacity }}>
       <Animated.View style={{ transform: [{ scale: pressScale }] }}>
 
         {character.available && (

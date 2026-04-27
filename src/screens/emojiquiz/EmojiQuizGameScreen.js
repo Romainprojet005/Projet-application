@@ -1,15 +1,25 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   Animated, ScrollView, Platform, TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { EMOJI_QUIZ_ITEMS } from '../../data/emojiQuizData';
 
 const AMB       = '#F59E0B';
 const AMB_DARK  = '#B45309';
 const AMB_LIGHT = '#FDE68A';
 const BG = ['#1A0F00', '#2D1A00', '#1A0F00'];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 function normalize(s) {
   return s.toLowerCase()
@@ -91,12 +101,13 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
   const { players, rounds } = route.params;
   const totalQ = rounds.length;
 
-  const [qIndex,    setQIndex]    = useState(0);
-  const [phase,     setPhase]     = useState('intro');
-  const [step,      setStep]      = useState(1);
-  const [scores,    setScores]    = useState(Array(players.length).fill(0));
-  const [inputText, setInputText] = useState('');
-  const [wasCorrect, setWasCorrect] = useState(null);
+  const [qIndex,         setQIndex]        = useState(0);
+  const [phase,          setPhase]         = useState('intro');
+  const [step,           setStep]          = useState(1);
+  const [scores,         setScores]        = useState(Array(players.length).fill(0));
+  const [inputText,      setInputText]     = useState('');
+  const [wasCorrect,     setWasCorrect]    = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
 
   const currentPlayer = qIndex % players.length;
   const round = rounds[qIndex];
@@ -121,12 +132,20 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
     Animated.spring(feedbackScale, { toValue: 1, tension: 80, friction: 6, useNativeDriver: true }).start();
   };
 
-  useEffect(() => { animateIn(); setInputText(''); }, [qIndex, step]);
+  const propositions = useMemo(() => {
+    const correct = round.answer;
+    const pool = EMOJI_QUIZ_ITEMS.filter(item => item.category === round.category && item.answer !== correct);
+    const distractors = shuffle([...pool]).slice(0, 3).map(item => item.answer);
+    return shuffle([correct, ...distractors]);
+  }, [qIndex]);
+
+  useEffect(() => { animateIn(); setInputText(''); setSelectedAnswer(null); }, [qIndex, step]);
 
   const handleStartQuestion = () => {
     setPhase('question');
     setStep(1);
     setWasCorrect(null);
+    setSelectedAnswer(null);
     setInputText('');
   };
 
@@ -139,6 +158,7 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
         setStep(1);
         setPhase('intro');
         setWasCorrect(null);
+        setSelectedAnswer(null);
       });
     }
   };
@@ -154,7 +174,7 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
     animateFeedback();
 
     if (correct) {
-      const pts = 4 - step; // step1→3pts, step2→2pts, step3→1pt
+      const pts = 5 - step; // step1→4pts, step2→3pts, step3→2pts
       setScores(prev => { const next = [...prev]; next[currentPlayer] += pts; return next; });
       setTimeout(() => setPhase('reveal'), 900);
     } else {
@@ -164,13 +184,32 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
           setWasCorrect(null);
           setPhase('question');
         } else {
-          setPhase('reveal');
+          // Step 3 raté → propositions MCQ
+          setStep(4);
+          setWasCorrect(null);
+          setPhase('mcq');
         }
       }, 900);
     }
   };
 
+  const handleMcqChoice = (answer) => {
+    if (phase !== 'mcq' || selectedAnswer !== null) return;
+    const correct = answer === round.answer;
+    setSelectedAnswer(answer);
+    setWasCorrect(correct);
+    animateFeedback();
+    if (correct) {
+      setScores(prev => { const next = [...prev]; next[currentPlayer] += 1; return next; });
+    }
+    setTimeout(() => setPhase('reveal'), 1000);
+  };
+
   const handleSkip = () => {
+    if (phase === 'mcq') {
+      setPhase('reveal');
+      return;
+    }
     animateFeedback();
     setWasCorrect(false);
     setTimeout(() => {
@@ -179,7 +218,9 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
         setWasCorrect(null);
         setPhase('question');
       } else {
-        setPhase('reveal');
+        setStep(4);
+        setWasCorrect(null);
+        setPhase('mcq');
       }
     }, 700);
   };
@@ -242,8 +283,9 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
     );
   }
 
-  // ── QUESTION + REVEAL ────────────────────────────────────────────
-  const isReveal  = phase === 'reveal';
+  // ── QUESTION + MCQ + REVEAL ─────────────────────────────────────
+  const isReveal = phase === 'reveal';
+  const isMcq    = phase === 'mcq';
 
   return (
     <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
@@ -280,7 +322,7 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
 
             {!isReveal && (
               <View style={styles.stepDots}>
-                {[1, 2, 3].map(s => (
+                {[1, 2, 3, 4].map(s => (
                   <View
                     key={s}
                     style={[
@@ -294,10 +336,13 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
               </View>
             )}
 
-            {!isReveal && (
+            {!isReveal && !isMcq && (
               <Text style={styles.emojiHint}>
-                {isReveal ? '' : `Indice ${step}/3 — Que représentent ces emojis ?`}
+                {`Indice ${step}/3 — Que représentent ces emojis ?`}
               </Text>
+            )}
+            {isMcq && (
+              <Text style={styles.emojiHint}>Tous les indices révélés — choisissez !</Text>
             )}
           </View>
 
@@ -309,12 +354,14 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
               pointerEvents="none"
             >
               <Text style={styles.feedbackText}>
-                {wasCorrect ? `🎉 +${4 - step} pts !` : step < 3 ? '💡 Indice suivant...' : '😅 Raté !'}
+                {wasCorrect
+                  ? `🎉 +${isMcq ? 1 : 5 - step} pts !`
+                  : isMcq ? '😅 Raté !' : step < 3 ? '💡 Indice suivant...' : '🎯 Propositions...'}
               </Text>
             </Animated.View>
           )}
 
-          {/* Text input */}
+          {/* Text input (steps 1-3) */}
           {phase === 'question' && (
             <View style={styles.inputContainer}>
               <View style={styles.inputRow}>
@@ -346,10 +393,46 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
                   style={styles.skipBtnInner}
                 >
                   <Text style={styles.skipBtnText}>
-                    {step < 3 ? `⏭  INDICE SUIVANT  (${step + 1}/3)` : '⏭  PASSER'}
+                    {step < 3 ? `⏭  INDICE SUIVANT  (${step + 1}/3)` : '🎯  VOIR LES PROPOSITIONS'}
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
+            </View>
+          )}
+
+          {/* MCQ propositions (step 4) */}
+          {isMcq && (
+            <View style={styles.mcqContainer}>
+              <Text style={styles.mcqTitle}>💡 Choisissez la bonne réponse</Text>
+              <View style={styles.mcqGrid}>
+                {propositions.map((answer, i) => (
+                  <TouchableOpacity
+                    key={i}
+                    onPress={() => handleMcqChoice(answer)}
+                    disabled={selectedAnswer !== null}
+                    activeOpacity={0.8}
+                    style={[
+                      styles.mcqBtn,
+                      selectedAnswer !== null && answer === round.answer && styles.mcqBtnCorrect,
+                      selectedAnswer === answer && answer !== round.answer && styles.mcqBtnWrong,
+                      selectedAnswer !== null && answer !== round.answer && answer !== selectedAnswer && styles.mcqBtnDimmed,
+                    ]}
+                  >
+                    <Text style={styles.mcqBtnText}>{answer}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {selectedAnswer === null && (
+                <TouchableOpacity onPress={handleSkip} style={styles.skipBtn} activeOpacity={0.8}>
+                  <LinearGradient
+                    colors={['#1A1A3B', '#2D2D5E']}
+                    start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                    style={styles.skipBtnInner}
+                  >
+                    <Text style={styles.skipBtnText}>⏭  PASSER</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              )}
             </View>
           )}
 
@@ -506,6 +589,23 @@ const styles = StyleSheet.create({
     borderColor: '#7C3AED55',
   },
   skipBtnText: { fontSize: 14, fontWeight: '800', color: colors.primaryLight, letterSpacing: 1.5 },
+
+  // MCQ
+  mcqContainer: { marginBottom: spacing.sm },
+  mcqTitle: { fontSize: 13, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.md, letterSpacing: 0.5 },
+  mcqGrid: { gap: spacing.sm, marginBottom: spacing.sm },
+  mcqBtn: {
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1.5,
+    borderColor: AMB + '55',
+    backgroundColor: AMB + '10',
+    alignItems: 'center',
+  },
+  mcqBtnCorrect: { borderColor: '#10B981', backgroundColor: '#065F46' },
+  mcqBtnWrong:   { borderColor: '#EF4444', backgroundColor: '#450A0A' },
+  mcqBtnDimmed:  { opacity: 0.35 },
+  mcqBtnText: { fontSize: 14, fontWeight: '700', color: colors.text },
 
   // Reveal
   revealBox: { gap: spacing.md },
