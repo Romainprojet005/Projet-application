@@ -19,7 +19,7 @@ const MAX_PLAYERS = 8;
 export default function EmojiQuizSetupScreen({ navigation }) {
   const [players, setPlayers] = useState(['', '']);
   const [questionCount, setQuestionCount] = useState(10);
-  const [selectedCats, setSelectedCats] = useState(['film', 'musique', 'serie', 'personnalite']);
+  const [selectedCats, setSelectedCats] = useState(['film', 'musique', 'serie', 'personnalite', 'jeu_video']);
   const [inputFocus, setInputFocus] = useState(null);
   const [error, setError] = useState('');
 
@@ -85,9 +85,9 @@ export default function EmojiQuizSetupScreen({ navigation }) {
           {/* Règles */}
           <View style={styles.rulesCard}>
             <Text style={styles.rulesTitle}>🎯  Comment jouer</Text>
-            <Text style={styles.rulesLine}>🤩  3 emojis représentent un film, une chanson, une série ou une célébrité</Text>
-            <Text style={styles.rulesLine}>⚡  Choisissez la bonne réponse parmi 4 propositions</Text>
-            <Text style={styles.rulesLine}>🏆  Le premier à trouver marque le point</Text>
+            <Text style={styles.rulesLine}>🤩  Des emojis représentent un film, une chanson, une série, une célébrité ou un jeu vidéo</Text>
+            <Text style={styles.rulesLine}>⚡  Un emoji d'abord, puis deux, puis trois — tapez la réponse !</Text>
+            <Text style={styles.rulesLine}>🏆  3 pts dès le 1er indice · 2 pts au 2e · 1 pt au 3e</Text>
           </View>
 
           {/* Catégories */}

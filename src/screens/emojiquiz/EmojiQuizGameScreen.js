@@ -1,80 +1,23 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  Animated, ScrollView, Platform,
+  Animated, ScrollView, Platform, TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 
-const AMB      = '#F59E0B';
-const AMB_DARK = '#B45309';
+const AMB       = '#F59E0B';
+const AMB_DARK  = '#B45309';
 const AMB_LIGHT = '#FDE68A';
 const BG = ['#1A0F00', '#2D1A00', '#1A0F00'];
-const TIME_LIMIT = 20;
 
-// ── Timer bar ──────────────────────────────────────────────────────
-function TimerBar({ running, onExpire }) {
-  const widthAnim = useRef(new Animated.Value(1)).current;
-  const colorAnim = useRef(new Animated.Value(0)).current;
-  const animRef   = useRef(null);
-
-  useEffect(() => {
-    widthAnim.setValue(1);
-    colorAnim.setValue(0);
-    if (!running) return;
-    animRef.current = Animated.parallel([
-      Animated.timing(widthAnim, { toValue: 0, duration: TIME_LIMIT * 1000, useNativeDriver: false }),
-      Animated.timing(colorAnim, { toValue: 1, duration: TIME_LIMIT * 1000, useNativeDriver: false }),
-    ]);
-    animRef.current.start(({ finished }) => { if (finished) onExpire(); });
-    return () => animRef.current?.stop();
-  }, [running]);
-
-  const bgColor = colorAnim.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [AMB, '#F97316', '#EF4444'],
-  });
-
-  return (
-    <View style={timerStyles.track}>
-      <Animated.View style={[timerStyles.fill, {
-        width: widthAnim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
-        backgroundColor: bgColor,
-      }]} />
-    </View>
-  );
-}
-
-const timerStyles = StyleSheet.create({
-  track: { height: 6, backgroundColor: colors.border, borderRadius: 3, overflow: 'hidden', marginHorizontal: spacing.xl, marginBottom: spacing.md },
-  fill: { height: '100%', borderRadius: 3 },
-});
-
-// ── Choice button ──────────────────────────────────────────────────
-function ChoiceButton({ label, state, onPress, disabled }) {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-
-  const onPressIn  = () => { if (!disabled) Animated.spring(scaleAnim, { toValue: 0.97, useNativeDriver: true }).start(); };
-  const onPressOut = () => { Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }).start(); };
-
-  let bg = colors.card, border = colors.border, txtColor = colors.text;
-  if (state === 'correct') { bg = '#1C2E0A'; border = '#4ADE80'; txtColor = '#86EFAC'; }
-  if (state === 'wrong')   { bg = '#450A0A'; border = '#EF4444'; txtColor = '#FCA5A5'; }
-  if (state === 'neutral') { bg = colors.surface; border = colors.border; txtColor = colors.textMuted; }
-
-  return (
-    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-      <TouchableOpacity
-        onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}
-        disabled={disabled} activeOpacity={0.85}
-        style={[styles.choice, { backgroundColor: bg, borderColor: border }]}
-      >
-        <Text style={[styles.choiceText, { color: txtColor }]} numberOfLines={2}>{label}</Text>
-        {state === 'correct' && <Text style={styles.choiceIcon}>✓</Text>}
-        {state === 'wrong'   && <Text style={styles.choiceIcon}>✗</Text>}
-      </TouchableOpacity>
-    </Animated.View>
-  );
+function normalize(s) {
+  return s.toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ');
 }
 
 // ── Final leaderboard ──────────────────────────────────────────────
@@ -134,35 +77,35 @@ function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
   );
 }
 
-// ── Main game ──────────────────────────────────────────────────────
+// ── Category info ──────────────────────────────────────────────────
 const CAT_INFO = {
-  film:         { label: 'Film',       emoji: '🎬' },
-  musique:      { label: 'Musique',    emoji: '🎵' },
-  serie:        { label: 'Série',      emoji: '📺' },
-  personnalite: { label: 'Célébrité',  emoji: '⭐' },
+  film:         { label: 'Film',        emoji: '🎬' },
+  musique:      { label: 'Musique',     emoji: '🎵' },
+  serie:        { label: 'Série',       emoji: '📺' },
+  personnalite: { label: 'Célébrité',   emoji: '⭐' },
+  jeu_video:    { label: 'Jeux Vidéo',  emoji: '🎮' },
 };
 
+// ── Main game ──────────────────────────────────────────────────────
 export default function EmojiQuizGameScreen({ navigation, route }) {
   const { players, rounds } = route.params;
   const totalQ = rounds.length;
 
-  const [qIndex,       setQIndex]       = useState(0);
-  const [phase,        setPhase]        = useState('intro');
-  const [selected,     setSelected]     = useState(null);
-  const [timerKey,     setTimerKey]     = useState(0);
-  const [scores,       setScores]       = useState(Array(players.length).fill(0));
-  const [pointsGained, setPointsGained] = useState(0);
+  const [qIndex,    setQIndex]    = useState(0);
+  const [phase,     setPhase]     = useState('intro');
+  const [step,      setStep]      = useState(1);
+  const [scores,    setScores]    = useState(Array(players.length).fill(0));
+  const [inputText, setInputText] = useState('');
+  const [wasCorrect, setWasCorrect] = useState(null);
 
-  const questionStartTime = useRef(null);
   const currentPlayer = qIndex % players.length;
   const round = rounds[qIndex];
-  const correctIndex = round.choices.findIndex(c => c.id === round.id);
-  const cat = CAT_INFO[round.category] || {};
+  const cat   = CAT_INFO[round.category] || {};
+  const emojis = Array.isArray(round.emojis) ? round.emojis : [round.emojis];
 
-  const fadeAnim      = useRef(new Animated.Value(0)).current;
-  const slideAnim     = useRef(new Animated.Value(30)).current;
-  const pointsAnim    = useRef(new Animated.Value(0)).current;
-  const pointsOpacity = useRef(new Animated.Value(0)).current;
+  const fadeAnim     = useRef(new Animated.Value(0)).current;
+  const slideAnim    = useRef(new Animated.Value(30)).current;
+  const feedbackScale = useRef(new Animated.Value(0)).current;
 
   const animateIn = useCallback(() => {
     fadeAnim.setValue(0);
@@ -173,46 +116,18 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
     ]).start();
   }, []);
 
-  useEffect(() => { animateIn(); }, [qIndex, phase]);
+  const animateFeedback = () => {
+    feedbackScale.setValue(0);
+    Animated.spring(feedbackScale, { toValue: 1, tension: 80, friction: 6, useNativeDriver: true }).start();
+  };
+
+  useEffect(() => { animateIn(); setInputText(''); }, [qIndex, step]);
 
   const handleStartQuestion = () => {
-    questionStartTime.current = Date.now();
     setPhase('question');
-    setTimerKey(k => k + 1);
-    setSelected(null);
-    setPointsGained(0);
-  };
-
-  const handleAnswer = (choiceIndex) => {
-    if (phase !== 'question') return;
-    const elapsed = (Date.now() - questionStartTime.current) / 1000;
-    setSelected(choiceIndex);
-    setPhase('reveal');
-
-    let pts = 0;
-    if (choiceIndex === correctIndex) {
-      const speedBonus = elapsed < 5 ? 50 : elapsed < 10 ? 25 : 0;
-      pts = 100 + speedBonus;
-      setScores(prev => { const next = [...prev]; next[currentPlayer] = (next[currentPlayer] || 0) + pts; return next; });
-    }
-    setPointsGained(pts);
-
-    pointsAnim.setValue(0);
-    pointsOpacity.setValue(1);
-    Animated.parallel([
-      Animated.spring(pointsAnim, { toValue: -30, tension: 60, friction: 8, useNativeDriver: true }),
-      Animated.sequence([
-        Animated.delay(800),
-        Animated.timing(pointsOpacity, { toValue: 0, duration: 400, useNativeDriver: true }),
-      ]),
-    ]).start();
-  };
-
-  const handleTimeout = () => {
-    if (phase !== 'question') return;
-    setSelected(-1);
-    setPhase('reveal');
-    setPointsGained(0);
+    setStep(1);
+    setWasCorrect(null);
+    setInputText('');
   };
 
   const handleNext = () => {
@@ -221,16 +136,52 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
     } else {
       Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
         setQIndex(i => i + 1);
+        setStep(1);
         setPhase('intro');
+        setWasCorrect(null);
       });
     }
   };
 
-  const getChoiceState = (index) => {
-    if (phase !== 'reveal') return null;
-    if (index === correctIndex) return 'correct';
-    if (index === selected)     return 'wrong';
-    return 'neutral';
+  const handleSubmit = () => {
+    if (phase !== 'question' || !inputText.trim()) return;
+    const inputNorm = normalize(inputText);
+    const correctNorm = normalize(round.answer);
+    const lastWord = normalize(round.answer.split(' ').pop());
+    const correct = inputNorm === correctNorm || (lastWord.length >= 3 && inputNorm === lastWord);
+
+    setWasCorrect(correct);
+    animateFeedback();
+
+    if (correct) {
+      const pts = 4 - step; // step1→3pts, step2→2pts, step3→1pt
+      setScores(prev => { const next = [...prev]; next[currentPlayer] += pts; return next; });
+      setTimeout(() => setPhase('reveal'), 900);
+    } else {
+      setTimeout(() => {
+        if (step < 3) {
+          setStep(s => s + 1);
+          setWasCorrect(null);
+          setPhase('question');
+        } else {
+          setPhase('reveal');
+        }
+      }, 900);
+    }
+  };
+
+  const handleSkip = () => {
+    animateFeedback();
+    setWasCorrect(false);
+    setTimeout(() => {
+      if (step < 3) {
+        setStep(s => s + 1);
+        setWasCorrect(null);
+        setPhase('question');
+      } else {
+        setPhase('reveal');
+      }
+    }, 700);
   };
 
   if (phase === 'final') {
@@ -267,7 +218,8 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
             <Text style={styles.introPlayerLabel}>C'est le tour de</Text>
             <Text style={[styles.introPlayerName, { color: AMB }]}>{players[currentPlayer]}</Text>
             <Text style={styles.introInstruction}>
-              Prends le téléphone et prépare-toi !{'\n'}Tu as {TIME_LIMIT} secondes pour répondre.
+              Un emoji à la fois pour trouver la réponse !{'\n'}
+              Plus vite tu trouves, plus tu gagnes de points 🏆
             </Text>
           </LinearGradient>
 
@@ -291,9 +243,7 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
   }
 
   // ── QUESTION + REVEAL ────────────────────────────────────────────
-  const isRevealed = phase === 'reveal';
-  const wasCorrect = selected === correctIndex;
-  const wasTimeout = selected === -1;
+  const isReveal  = phase === 'reveal';
 
   return (
     <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
@@ -302,69 +252,123 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
         <Text style={styles.topBarCount}>{qIndex + 1}/{totalQ}</Text>
       </View>
 
-      <TimerBar key={timerKey} running={phase === 'question'} onExpire={handleTimeout} />
-
       <ScrollView contentContainerStyle={styles.gameScroll} showsVerticalScrollIndicator={false}
-        style={Platform.OS === 'web' && { flex: 1 }}>
+        style={Platform.OS === 'web' && { flex: 1 }} keyboardShouldPersistTaps="handled">
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 
           <View style={[styles.catBadge, { borderColor: AMB + '50', backgroundColor: AMB + '15' }]}>
             <Text style={styles.catBadgeText}>{cat.emoji}  {cat.label}</Text>
           </View>
 
-          {/* Emoji display */}
-          <View style={styles.emojiBox}>
-            <Text style={styles.emojiText}>{round.emojis}</Text>
-            <Text style={styles.emojiHint}>Que représentent ces emojis ?</Text>
+          {/* Emoji progressive reveal */}
+          <View style={styles.emojiCard}>
+            <View style={styles.emojiRow}>
+              {emojis.map((emoji, i) => (
+                <View
+                  key={i}
+                  style={[
+                    styles.emojiSlot,
+                    i < step ? styles.emojiSlotVisible : styles.emojiSlotHidden,
+                  ]}
+                >
+                  <Text style={i < step ? styles.emojiText : styles.emojiHiddenText}>
+                    {i < step ? emoji : '?'}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            {!isReveal && (
+              <View style={styles.stepDots}>
+                {[1, 2, 3].map(s => (
+                  <View
+                    key={s}
+                    style={[
+                      styles.stepDot,
+                      s < step  && { backgroundColor: colors.textMuted },
+                      s === step && { backgroundColor: AMB, transform: [{ scale: 1.4 }] },
+                      s > step  && { backgroundColor: colors.border },
+                    ]}
+                  />
+                ))}
+              </View>
+            )}
+
+            {!isReveal && (
+              <Text style={styles.emojiHint}>
+                {isReveal ? '' : `Indice ${step}/3 — Que représentent ces emojis ?`}
+              </Text>
+            )}
           </View>
 
-          {/* Points popup */}
-          {isRevealed && (
-            <Animated.View style={[styles.pointsPopup, {
-              opacity: pointsOpacity,
-              transform: [{ translateY: pointsAnim }],
-              backgroundColor: pointsGained > 0 ? '#10B981' : '#EF4444',
-            }]}>
-              <Text style={styles.pointsPopupText}>
-                {pointsGained > 0 ? `+${pointsGained} pts` : wasTimeout ? 'Temps écoulé !' : 'Raté !'}
+          {/* Feedback overlay */}
+          {wasCorrect !== null && phase !== 'reveal' && (
+            <Animated.View
+              style={[styles.feedbackBubble, { transform: [{ scale: feedbackScale }],
+                backgroundColor: wasCorrect ? '#065F46' : '#7F1D1D' }]}
+              pointerEvents="none"
+            >
+              <Text style={styles.feedbackText}>
+                {wasCorrect ? `🎉 +${4 - step} pts !` : step < 3 ? '💡 Indice suivant...' : '😅 Raté !'}
               </Text>
             </Animated.View>
           )}
 
-          {/* Choices */}
-          <View style={styles.choices}>
-            {round.choices.map((choice, i) => (
-              <ChoiceButton
-                key={i}
-                label={choice.answer}
-                state={getChoiceState(i)}
-                onPress={() => handleAnswer(i)}
-                disabled={isRevealed}
-              />
-            ))}
-          </View>
+          {/* Text input */}
+          {phase === 'question' && (
+            <View style={styles.inputContainer}>
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="Tapez la réponse..."
+                  placeholderTextColor={AMB + '55'}
+                  value={inputText}
+                  onChangeText={setInputText}
+                  onSubmitEditing={handleSubmit}
+                  returnKeyType="done"
+                  autoCorrect={false}
+                  autoCapitalize="words"
+                />
+                <TouchableOpacity
+                  style={[styles.validateBtn, !inputText.trim() && styles.validateBtnDisabled]}
+                  onPress={handleSubmit}
+                  disabled={!inputText.trim()}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.validateBtnText}>✓</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity onPress={handleSkip} style={styles.skipBtn} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={['#1A1A3B', '#2D2D5E']}
+                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                  style={styles.skipBtnInner}
+                >
+                  <Text style={styles.skipBtnText}>
+                    {step < 3 ? `⏭  INDICE SUIVANT  (${step + 1}/3)` : '⏭  PASSER'}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          )}
 
           {/* Reveal */}
-          {isRevealed && (
+          {isReveal && (
             <Animated.View style={[styles.revealBox, { opacity: fadeAnim }]}>
               <LinearGradient
                 colors={wasCorrect ? ['#064E3B', '#065F46'] : ['#450A0A', '#7F1D1D']}
                 style={styles.revealBanner}
               >
                 <Text style={styles.revealBannerEmoji}>
-                  {wasTimeout ? '⏰' : wasCorrect ? '✅' : '❌'}
+                  {wasCorrect ? '✅' : '❌'}
                 </Text>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.revealBannerText}>
-                    {wasTimeout
-                      ? 'Temps écoulé !'
-                      : wasCorrect
+                    {wasCorrect
                       ? `Bravo ${players[currentPlayer]} !`
                       : `C'était : ${round.answer}`}
                   </Text>
-                  {pointsGained > 100 && (
-                    <Text style={styles.revealSpeedBonus}>⚡ Bonus rapidité !</Text>
-                  )}
                 </View>
               </LinearGradient>
 
@@ -384,6 +388,7 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
               </TouchableOpacity>
             </Animated.View>
           )}
+
         </Animated.View>
       </ScrollView>
     </LinearGradient>
@@ -398,7 +403,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 56 : 36, paddingHorizontal: spacing.xl, paddingBottom: spacing.sm,
   },
   topBarPlayer: { fontSize: 13, fontWeight: '700' },
-  topBarCount: { fontSize: 13, color: colors.textMuted, fontWeight: '600' },
+  topBarCount:  { fontSize: 13, color: colors.textMuted, fontWeight: '600' },
 
   gameScroll: { paddingHorizontal: spacing.xl, paddingBottom: 48 },
 
@@ -409,41 +414,114 @@ const styles = StyleSheet.create({
   },
   catBadgeText: { fontSize: 12, fontWeight: '600', color: colors.textSecondary },
 
-  emojiBox: { alignItems: 'center', marginVertical: spacing.lg },
-  emojiText: { fontSize: 72, textAlign: 'center', lineHeight: 90 },
-  emojiHint: { fontSize: 12, color: colors.textMuted, marginTop: spacing.sm, letterSpacing: 1 },
-
-  pointsPopup: {
-    position: 'absolute', top: -20, alignSelf: 'center',
-    paddingHorizontal: spacing.md, paddingVertical: 6,
-    borderRadius: radius.full, zIndex: 10,
+  // Emoji card
+  emojiCard: {
+    backgroundColor: '#0D0800',
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: AMB + '33',
+    alignItems: 'center',
+    paddingVertical: spacing.xl * 1.5,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
   },
-  pointsPopupText: { fontSize: 14, fontWeight: '900', color: '#fff' },
-
-  choices: { gap: spacing.sm, marginBottom: spacing.lg },
-  choice: {
-    flexDirection: 'row', alignItems: 'center',
-    borderRadius: radius.lg, borderWidth: 1,
-    padding: spacing.md, gap: spacing.md, minHeight: 54,
+  emojiRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    justifyContent: 'center',
+    marginBottom: spacing.lg,
   },
-  choiceText: { flex: 1, fontSize: 15, fontWeight: '600', lineHeight: 22 },
-  choiceIcon: { fontSize: 18 },
+  emojiSlot: {
+    width: 80, height: 80,
+    borderRadius: radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emojiSlotVisible: {
+    backgroundColor: AMB + '22',
+    borderWidth: 2,
+    borderColor: AMB + '88',
+  },
+  emojiSlotHidden: {
+    backgroundColor: '#1A1A1A',
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  emojiText:       { fontSize: 46 },
+  emojiHiddenText: { fontSize: 28, color: colors.textMuted },
 
+  stepDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  stepDot: { width: 8, height: 8, borderRadius: 4 },
+
+  emojiHint: { fontSize: 12, color: colors.textMuted, letterSpacing: 0.5, textAlign: 'center' },
+
+  // Feedback bubble
+  feedbackBubble: {
+    alignSelf: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.full,
+    marginBottom: spacing.md,
+  },
+  feedbackText: { fontSize: 16, fontWeight: '800', color: '#fff' },
+
+  // Input
+  inputContainer: { marginBottom: spacing.sm },
+  inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
+  textInput: {
+    flex: 1,
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: AMB + '66',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  validateBtn: {
+    backgroundColor: AMB,
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  validateBtnDisabled: { backgroundColor: AMB + '44' },
+  validateBtnText: { fontSize: 20, fontWeight: '900', color: '#000' },
+
+  skipBtn: { borderRadius: radius.full, overflow: 'hidden' },
+  skipBtnInner: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    alignItems: 'center',
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: '#7C3AED55',
+  },
+  skipBtnText: { fontSize: 14, fontWeight: '800', color: colors.primaryLight, letterSpacing: 1.5 },
+
+  // Reveal
   revealBox: { gap: spacing.md },
   revealBanner: {
     borderRadius: radius.lg, padding: spacing.lg,
     flexDirection: 'row', alignItems: 'center', gap: spacing.md,
   },
   revealBannerEmoji: { fontSize: 28 },
-  revealBannerText: { fontSize: 15, fontWeight: '800', color: colors.text },
-  revealSpeedBonus: { fontSize: 11, color: '#FCD34D', fontWeight: '700', marginTop: 2 },
+  revealBannerText:  { fontSize: 15, fontWeight: '800', color: colors.text },
 
   hintBox: {
     backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing.lg,
     borderWidth: 1, borderColor: AMB + '30',
   },
   hintLabel: { fontSize: 12, fontWeight: '700', color: AMB, marginBottom: spacing.xs },
-  hintText: { fontSize: 13, color: colors.textSecondary, lineHeight: 20 },
+  hintText:  { fontSize: 13, color: colors.textSecondary, lineHeight: 20 },
 
   nextBtn: {
     borderRadius: radius.full, overflow: 'hidden',
@@ -458,39 +536,39 @@ const styles = StyleSheet.create({
   cancelTop: { alignSelf: 'flex-start', marginBottom: spacing.md },
   cancelTopText: { fontSize: 13, color: colors.danger, fontWeight: '600' },
   progressRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 5, marginBottom: spacing.sm },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border },
-  dotDone: { backgroundColor: '#10B981' },
+  dot:       { width: 8,  height: 8,  borderRadius: 4, backgroundColor: colors.border },
+  dotDone:   { backgroundColor: '#10B981' },
   dotActive: { backgroundColor: AMB, width: 12, height: 12, borderRadius: 6 },
   questionCountLabel: { fontSize: 12, color: colors.textMuted, fontWeight: '600', marginBottom: spacing.xl, letterSpacing: 1 },
   introCard: { width: '100%', borderRadius: radius.xl, padding: spacing.xl, alignItems: 'center', borderWidth: 1, marginBottom: spacing.xl },
   introAvatar: { width: 72, height: 72, borderRadius: 36, borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md },
   introAvatarEmoji: { fontSize: 38 },
   introPlayerLabel: { fontSize: 13, color: colors.textSecondary, marginBottom: spacing.xs },
-  introPlayerName: { fontSize: 32, fontWeight: '900', marginBottom: spacing.md },
+  introPlayerName:  { fontSize: 32, fontWeight: '900', marginBottom: spacing.md },
   introInstruction: { fontSize: 13, color: colors.textSecondary, textAlign: 'center', lineHeight: 20 },
   scoreRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center', marginBottom: spacing.xl },
   scoreChip: { backgroundColor: colors.card, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: 6, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  scoreChipName: { fontSize: 10, color: colors.textMuted, fontWeight: '600' },
+  scoreChipName:  { fontSize: 10, color: colors.textMuted, fontWeight: '600' },
   scoreChipScore: { fontSize: 16, fontWeight: '900', color: colors.text },
   startBtn: { width: '100%', borderRadius: radius.full, overflow: 'hidden', shadowColor: AMB, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12 },
   startBtnGrad: { paddingVertical: spacing.md + 6, alignItems: 'center' },
   startBtnText: { fontSize: 16, fontWeight: '800', color: '#000', letterSpacing: 2 },
 
   // Final
-  finalScroll: { paddingTop: Platform.OS === 'ios' ? 70 : 50, paddingHorizontal: spacing.xl, paddingBottom: 60, alignItems: 'center' },
-  finalHeader: { alignItems: 'center', marginBottom: spacing.xl },
-  finalEmoji: { fontSize: 72, textAlign: 'center', marginBottom: spacing.md },
-  finalTitle: { fontSize: 26, fontWeight: '900', color: colors.text, letterSpacing: 3, textAlign: 'center' },
-  finalSub: { fontSize: 13, color: AMB_LIGHT, letterSpacing: 2, marginTop: spacing.xs, textAlign: 'center' },
-  rankList: { width: '100%', gap: spacing.sm, marginBottom: spacing.xl },
-  rankRow: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, gap: spacing.md },
+  finalScroll:  { paddingTop: Platform.OS === 'ios' ? 70 : 50, paddingHorizontal: spacing.xl, paddingBottom: 60, alignItems: 'center' },
+  finalHeader:  { alignItems: 'center', marginBottom: spacing.xl },
+  finalEmoji:   { fontSize: 72, textAlign: 'center', marginBottom: spacing.md },
+  finalTitle:   { fontSize: 26, fontWeight: '900', color: colors.text, letterSpacing: 3, textAlign: 'center' },
+  finalSub:     { fontSize: 13, color: AMB_LIGHT, letterSpacing: 2, marginTop: spacing.xs, textAlign: 'center' },
+  rankList:     { width: '100%', gap: spacing.sm, marginBottom: spacing.xl },
+  rankRow:      { flexDirection: 'row', alignItems: 'center', borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, gap: spacing.md },
   rankRowFirst: { borderColor: AMB + '50' },
-  rankMedal: { fontSize: 26 },
-  rankName: { flex: 1, fontSize: 16, fontWeight: '700', color: colors.text },
+  rankMedal:    { fontSize: 26 },
+  rankName:     { flex: 1, fontSize: 16, fontWeight: '700', color: colors.text },
   rankScoreWrap: { alignItems: 'flex-end' },
-  rankScore: { fontSize: 26, fontWeight: '900', color: colors.text },
+  rankScore:    { fontSize: 26, fontWeight: '900', color: colors.text },
   rankScorePts: { fontSize: 11, color: colors.textMuted },
-  finalBtns: { width: '100%', gap: spacing.md },
+  finalBtns:    { width: '100%', gap: spacing.md },
   finalBtnPrimary: { borderRadius: radius.full, overflow: 'hidden', shadowColor: AMB, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12 },
   finalBtnGrad: { paddingVertical: spacing.md + 6, alignItems: 'center' },
   finalBtnText: { fontSize: 16, fontWeight: '800', color: '#000', letterSpacing: 2 },
