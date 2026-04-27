@@ -14,6 +14,10 @@ import PersonalitySetupScreen from '../screens/personality/PersonalitySetupScree
 import PersonalityGameScreen from '../screens/personality/PersonalityGameScreen';
 import CineFlashSetupScreen from '../screens/cineflash/CineFlashSetupScreen';
 import CineFlashGameScreen from '../screens/cineflash/CineFlashGameScreen';
+import EmojiQuizSetupScreen from '../screens/emojiquiz/EmojiQuizSetupScreen';
+import EmojiQuizGameScreen from '../screens/emojiquiz/EmojiQuizGameScreen';
+import MotDePasseSetupScreen from '../screens/motdepasse/MotDePasseSetupScreen';
+import MotDePasseGameScreen from '../screens/motdepasse/MotDePasseGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -38,6 +42,10 @@ const linking = {
       PersonalityGame: 'personality/game',
       CineFlashSetup: 'cineflash',
       CineFlashGame: 'cineflash/game',
+      EmojiQuizSetup: 'emojiquiz',
+      EmojiQuizGame: 'emojiquiz/game',
+      MotDePasseSetup: 'motdepasse',
+      MotDePasseGame: 'motdepasse/game',
     },
   },
 };
@@ -64,6 +72,10 @@ export default function AppNavigator() {
         <Stack.Screen name="PersonalityGame" component={PersonalityGameScreen} />
         <Stack.Screen name="CineFlashSetup" component={CineFlashSetupScreen} />
         <Stack.Screen name="CineFlashGame" component={CineFlashGameScreen} />
+        <Stack.Screen name="EmojiQuizSetup" component={EmojiQuizSetupScreen} />
+        <Stack.Screen name="EmojiQuizGame" component={EmojiQuizGameScreen} />
+        <Stack.Screen name="MotDePasseSetup" component={MotDePasseSetupScreen} />
+        <Stack.Screen name="MotDePasseGame" component={MotDePasseGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -273,6 +273,10 @@ export default function MenuScreen({ navigation }) {
       navigation.navigate('PersonalitySetup');
     } else if (character.game === 'cineflash') {
       navigation.navigate('CineFlashSetup');
+    } else if (character.game === 'emojiquiz') {
+      navigation.navigate('EmojiQuizSetup');
+    } else if (character.game === 'motdepasse') {
+      navigation.navigate('MotDePasseSetup');
     }
   };
 
