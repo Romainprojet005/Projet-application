@@ -14,11 +14,16 @@ import { colors, spacing, radius } from '../theme';
 import { characters } from '../data/characters';
 
 const { width: SW, height: SH } = Dimensions.get('window');
-const CARD_W = Math.min(SW * 0.80, 400);
-const CARD_H = Math.min(SH * 0.74, 580);
-const CARD_GAP = 20;
-const ITEM_SIZE = CARD_W + CARD_GAP;
+const CARD_W     = Math.min(SW * 0.80, 400);
+const CARD_H     = Math.min(SH * 0.74, 580);
+const CARD_GAP   = 20;
+const ITEM_SIZE  = CARD_W + CARD_GAP;
 const SIDE_INSET = (SW - CARD_W) / 2;
+
+// Infinite loop : 3 copies of the array, start at the middle copy
+const N          = characters.length;
+const LOOP_ITEMS = [...characters, ...characters, ...characters];
+const INIT_OFF   = N * ITEM_SIZE;
 
 const STARS = Array.from({ length: 60 }, (_, i) => ({
   id: i,
@@ -50,23 +55,24 @@ function StatBar({ label, value, color }) {
   );
 }
 const st = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  row:   { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
   label: { width: 80, fontSize: 10, color: colors.textSecondary, letterSpacing: 0.3 },
   track: { flex: 1, height: 4, backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 2, overflow: 'hidden', marginHorizontal: 8 },
-  fill: { height: '100%', borderRadius: 2 },
-  val: { width: 26, fontSize: 10, color: colors.textMuted, textAlign: 'right' },
+  fill:  { height: '100%', borderRadius: 2 },
+  val:   { width: 26, fontSize: 10, color: colors.textMuted, textAlign: 'right' },
 });
 
 // ─── GameCard ──────────────────────────────────────────────────────────
-function GameCard({ character, index, scrollX, onPress }) {
+function GameCard({ character, loopIdx, scrollX, onPress }) {
   const pressScale = useRef(new Animated.Value(1)).current;
-  const btnPulse  = useRef(new Animated.Value(1)).current;
-  const ring1     = useRef(new Animated.Value(0)).current;
-  const ring2     = useRef(new Animated.Value(0)).current;
+  const btnPulse   = useRef(new Animated.Value(1)).current;
+  const ring1      = useRef(new Animated.Value(0)).current;
+  const ring2      = useRef(new Animated.Value(0)).current;
 
-  const inputRange = [(index - 1) * ITEM_SIZE, index * ITEM_SIZE, (index + 1) * ITEM_SIZE];
+  // Scale/opacity driven by scroll position of THIS card in the looped array
+  const inputRange  = [(loopIdx - 1) * ITEM_SIZE, loopIdx * ITEM_SIZE, (loopIdx + 1) * ITEM_SIZE];
   const cardScale   = scrollX.interpolate({ inputRange, outputRange: [0.86, 1, 0.86], extrapolate: 'clamp' });
-  const cardOpacity = scrollX.interpolate({ inputRange, outputRange: [0.50, 1, 0.50], extrapolate: 'clamp' });
+  const cardOpacity = scrollX.interpolate({ inputRange, outputRange: [0.48, 1, 0.48], extrapolate: 'clamp' });
 
   useEffect(() => {
     if (character.available) {
@@ -78,7 +84,7 @@ function GameCard({ character, index, scrollX, onPress }) {
       ).start();
     }
     Animated.loop(Animated.timing(ring1, { toValue: 1, duration: 11000, useNativeDriver: true })).start();
-    Animated.loop(Animated.timing(ring2, { toValue: 1, duration: 7500,  useNativeDriver: true })).start();
+    Animated.loop(Animated.timing(ring2, { toValue: 1, duration:  7500, useNativeDriver: true })).start();
   }, []);
 
   const r1 = ring1.interpolate({ inputRange: [0, 1], outputRange: ['0deg',   '360deg'] });
@@ -88,12 +94,8 @@ function GameCard({ character, index, scrollX, onPress }) {
     <Animated.View style={{ width: CARD_W, marginRight: CARD_GAP, transform: [{ scale: cardScale }], opacity: cardOpacity }}>
       <Animated.View style={{ transform: [{ scale: pressScale }] }}>
 
-        {/* Colored drop shadow */}
         {character.available && (
-          <View style={[cd.shadow, {
-            shadowColor: character.color,
-            backgroundColor: character.color + '18',
-          }]} />
+          <View style={[cd.shadow, { shadowColor: character.color, backgroundColor: character.color + '18' }]} />
         )}
 
         <TouchableOpacity
@@ -105,15 +107,13 @@ function GameCard({ character, index, scrollX, onPress }) {
         >
           <LinearGradient
             colors={['#0C0C22', character.color + '2A', character.color + '14', '#07050E']}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
+            start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}
             style={[cd.card, {
               height: CARD_H,
               borderColor: character.available ? character.color + '55' : 'rgba(255,255,255,0.06)',
               opacity: character.available ? 1 : 0.6,
             }]}
           >
-            {/* Top-left shine */}
             <LinearGradient
               colors={['rgba(255,255,255,0.09)', 'rgba(255,255,255,0)']}
               start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 0.4 }}
@@ -125,15 +125,11 @@ function GameCard({ character, index, scrollX, onPress }) {
             <View style={cd.topRow}>
               <View style={[cd.numBadge, { borderColor: character.color + '50' }]}>
                 <Text style={[cd.numText, { color: character.color }]}>
-                  {String(index + 1).padStart(2, '0')}
+                  {String((loopIdx % N) + 1).padStart(2, '0')}
                 </Text>
               </View>
               {character.available ? (
-                <LinearGradient
-                  colors={['#10B981EE', '#059669BB']}
-                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-                  style={cd.statusBadge}
-                >
+                <LinearGradient colors={['#10B981EE', '#059669BB']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={cd.statusBadge}>
                   <Text style={cd.statusText}>✦ DISPONIBLE</Text>
                 </LinearGradient>
               ) : (
@@ -145,19 +141,9 @@ function GameCard({ character, index, scrollX, onPress }) {
 
             {/* Emoji hero */}
             <View style={cd.emojiWrap}>
-              {/* Outer halo glow */}
               <View style={[cd.halo, { backgroundColor: character.color + '0F' }]} />
-              {/* Rotating dashed ring */}
-              <Animated.View style={[cd.ringOuter, {
-                borderColor: character.color + '38',
-                transform: [{ rotate: r1 }],
-              }]} />
-              {/* Counter-rotating solid ring */}
-              <Animated.View style={[cd.ringInner, {
-                borderColor: character.color + '60',
-                transform: [{ rotate: r2 }],
-              }]} />
-              {/* Avatar circle */}
+              <Animated.View style={[cd.ringOuter, { borderColor: character.color + '38', transform: [{ rotate: r1 }] }]} />
+              <Animated.View style={[cd.ringInner, { borderColor: character.color + '60', transform: [{ rotate: r2 }] }]} />
               <LinearGradient
                 colors={[character.color + '38', character.color + '18']}
                 style={[cd.avatar, { borderColor: character.color + '75' }]}
@@ -167,16 +153,12 @@ function GameCard({ character, index, scrollX, onPress }) {
             </View>
 
             {/* Game name */}
-            <Text style={[cd.gameName, { color: character.color }]} numberOfLines={1}>
-              {character.gameName}
-            </Text>
+            <Text style={[cd.gameName, { color: character.color }]} numberOfLines={1}>{character.gameName}</Text>
             <View style={[cd.nameBar, { backgroundColor: character.color + 'AA' }]} />
 
             {/* Character */}
             <Text style={cd.charName}>{character.name}</Text>
-            <Text style={[cd.charTitle, { color: character.color + 'AA' }]}>
-              {character.title.toUpperCase()}
-            </Text>
+            <Text style={[cd.charTitle, { color: character.color + 'AA' }]}>{character.title.toUpperCase()}</Text>
             <Text style={cd.charDesc} numberOfLines={2}>{character.description}</Text>
 
             {/* Separator */}
@@ -219,8 +201,7 @@ function GameCard({ character, index, scrollX, onPress }) {
 const cd = StyleSheet.create({
   shadow: {
     position: 'absolute', top: 10, left: 10, right: 10, bottom: -12,
-    borderRadius: 28,
-    shadowOffset: { width: 0, height: 20 },
+    borderRadius: 28, shadowOffset: { width: 0, height: 20 },
     shadowOpacity: 0.75, shadowRadius: 36, elevation: 24,
   },
   card: {
@@ -228,69 +209,43 @@ const cd = StyleSheet.create({
     paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xl,
     overflow: 'hidden',
   },
-  topRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', marginBottom: spacing.md,
-  },
-  numBadge: {
-    width: 34, height: 34, borderRadius: 17, borderWidth: 1,
-    alignItems: 'center', justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)',
-  },
-  numText: { fontSize: 12, fontWeight: '900', letterSpacing: 0.5 },
+  topRow:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
+  numBadge:    { width: 34, height: 34, borderRadius: 17, borderWidth: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.04)' },
+  numText:     { fontSize: 12, fontWeight: '900', letterSpacing: 0.5 },
   statusBadge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.full },
-  statusText: { fontSize: 9, fontWeight: '800', color: '#fff', letterSpacing: 1 },
-
-  emojiWrap: {
-    alignItems: 'center', justifyContent: 'center',
-    height: 162, marginBottom: spacing.md,
-  },
-  halo: {
-    position: 'absolute', width: 162, height: 162, borderRadius: 81,
-  },
-  ringOuter: {
-    position: 'absolute', width: 148, height: 148, borderRadius: 74,
-    borderWidth: 1,
-    ...Platform.select({ web: { borderStyle: 'dashed' } }),
-  },
-  ringInner: {
-    position: 'absolute', width: 120, height: 120, borderRadius: 60, borderWidth: 1.5,
-  },
-  avatar: {
-    width: 100, height: 100, borderRadius: 50, borderWidth: 2,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  emoji: { fontSize: 54 },
-
-  gameName: {
-    fontSize: 26, fontWeight: '900', letterSpacing: 2,
-    textAlign: 'center', marginBottom: 6,
-  },
-  nameBar: { height: 2, width: 44, borderRadius: 1, alignSelf: 'center', marginBottom: spacing.md },
-
-  charName:  { fontSize: 17, fontWeight: '800', color: colors.text,          textAlign: 'center', marginBottom: 3 },
-  charTitle: { fontSize: 10, fontWeight: '700', letterSpacing: 2,             textAlign: 'center', marginBottom: spacing.sm },
-  charDesc:  { fontSize: 12, color: colors.textSecondary, lineHeight: 18,     textAlign: 'center', marginBottom: spacing.md },
-
-  sep: { height: 1.5, marginBottom: spacing.md },
-  stats: { marginBottom: spacing.md },
-
-  playBtn: {
-    paddingVertical: 14, borderRadius: radius.full, alignItems: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
-  },
+  statusText:  { fontSize: 9, fontWeight: '800', color: '#fff', letterSpacing: 1 },
+  emojiWrap:   { alignItems: 'center', justifyContent: 'center', height: 162, marginBottom: spacing.md },
+  halo:        { position: 'absolute', width: 162, height: 162, borderRadius: 81 },
+  ringOuter:   { position: 'absolute', width: 148, height: 148, borderRadius: 74, borderWidth: 1 },
+  ringInner:   { position: 'absolute', width: 120, height: 120, borderRadius: 60, borderWidth: 1.5 },
+  avatar:      { width: 100, height: 100, borderRadius: 50, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  emoji:       { fontSize: 54 },
+  gameName:    { fontSize: 26, fontWeight: '900', letterSpacing: 2, textAlign: 'center', marginBottom: 6 },
+  nameBar:     { height: 2, width: 44, borderRadius: 1, alignSelf: 'center', marginBottom: spacing.md },
+  charName:    { fontSize: 17, fontWeight: '800', color: colors.text, textAlign: 'center', marginBottom: 3 },
+  charTitle:   { fontSize: 10, fontWeight: '700', letterSpacing: 2, textAlign: 'center', marginBottom: spacing.sm },
+  charDesc:    { fontSize: 12, color: colors.textSecondary, lineHeight: 18, textAlign: 'center', marginBottom: spacing.md },
+  sep:         { height: 1.5, marginBottom: spacing.md },
+  stats:       { marginBottom: spacing.md },
+  playBtn:     { paddingVertical: 14, borderRadius: radius.full, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
   playBtnText: { fontSize: 13, fontWeight: '900', color: '#fff', letterSpacing: 1.5 },
 });
 
 // ─── MenuScreen ────────────────────────────────────────────────────────
 export default function MenuScreen({ navigation }) {
-  const scrollX      = useRef(new Animated.Value(0)).current;
-  const headerAnim   = useRef(new Animated.Value(0)).current;
+  const scrollRef  = useRef(null);
+  // scrollX starts at INIT_OFF so the first render's interpolations are correct
+  const scrollX    = useRef(new Animated.Value(INIT_OFF)).current;
+  const headerAnim = useRef(new Animated.Value(0)).current;
   const [activeIdx, setActiveIdx] = useState(0);
 
   useEffect(() => {
     Animated.timing(headerAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
+    // Jump to the middle copy without animation on mount
+    const t = setTimeout(() => {
+      scrollRef.current?.scrollTo({ x: INIT_OFF, animated: false });
+    }, 16); // one frame
+    return () => clearTimeout(t);
   }, []);
 
   const handleSelectGame = (character) => {
@@ -307,17 +262,21 @@ export default function MenuScreen({ navigation }) {
   };
 
   const onScrollEnd = (e) => {
-    const idx = Math.round(e.nativeEvent.contentOffset.x / ITEM_SIZE);
-    setActiveIdx(Math.max(0, Math.min(idx, characters.length - 1)));
-  };
+    const offset = e.nativeEvent.contentOffset.x;
+    const idx    = Math.round(offset / ITEM_SIZE);
+    setActiveIdx(((idx % N) + N) % N);
 
-  const available = characters.filter(c => c.available).length;
-  const soon      = characters.filter(c => !c.available).length;
+    // Teleport silently to the middle copy when reaching an edge copy
+    if (idx < N) {
+      scrollRef.current?.scrollTo({ x: (idx + N) * ITEM_SIZE, animated: false });
+    } else if (idx >= 2 * N) {
+      scrollRef.current?.scrollTo({ x: (idx - N) * ITEM_SIZE, animated: false });
+    }
+  };
 
   return (
     <LinearGradient colors={['#06040F', '#0D0720', '#060410']} style={s.container}>
-      {/* Background stars */}
-      {STARS.map((star) => (
+      {STARS.map(star => (
         <View key={star.id} pointerEvents="none" style={{
           position: 'absolute', top: star.top, left: star.left,
           width: star.size, height: star.size, borderRadius: star.size / 2,
@@ -337,14 +296,13 @@ export default function MenuScreen({ navigation }) {
         <View style={{ width: 70 }} />
       </Animated.View>
 
-      {/* Count line */}
       <Animated.Text style={[s.countLine, { opacity: headerAnim }]}>
-        {available} jeu{available > 1 ? 'x' : ''} disponible{available > 1 ? 's' : ''}
-        {soon > 0 ? ` · ${soon} en développement` : ''}
+        {characters.filter(c => c.available).length} jeux disponibles
       </Animated.Text>
 
-      {/* Carousel */}
-      <Animated.ScrollView
+      {/* Infinite carousel */}
+      <ScrollView
+        ref={scrollRef}
         horizontal
         snapToInterval={ITEM_SIZE}
         snapToAlignment="start"
@@ -360,16 +318,16 @@ export default function MenuScreen({ navigation }) {
         onScrollEndDrag={onScrollEnd}
         style={{ flex: 1 }}
       >
-        {characters.map((char, i) => (
+        {LOOP_ITEMS.map((char, i) => (
           <GameCard
-            key={char.id}
+            key={`${char.id}-${i}`}
             character={char}
-            index={i}
+            loopIdx={i}
             scrollX={scrollX}
             onPress={handleSelectGame}
           />
         ))}
-      </Animated.ScrollView>
+      </ScrollView>
 
       {/* Pagination dots */}
       <Animated.View style={[s.dots, { opacity: headerAnim }]}>
@@ -380,13 +338,12 @@ export default function MenuScreen({ navigation }) {
               s.dot,
               i === activeIdx
                 ? { width: 22, backgroundColor: characters[activeIdx]?.color ?? colors.primary }
-                : { width: 6, backgroundColor: 'rgba(255,255,255,0.20)' },
+                : { width: 6,  backgroundColor: 'rgba(255,255,255,0.20)' },
             ]}
           />
         ))}
       </Animated.View>
 
-      {/* Swipe hint */}
       <Animated.Text style={[s.hint, { opacity: headerAnim }]}>
         ← Glissez pour découvrir tous les jeux →
       </Animated.Text>
@@ -395,28 +352,15 @@ export default function MenuScreen({ navigation }) {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
-  header: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingHorizontal: spacing.lg, paddingBottom: spacing.sm,
-  },
-  backBtn: { width: 70 },
+  container:   { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  header:      { flexDirection: 'row', alignItems: 'center', paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },
+  backBtn:     { width: 70 },
   backBtnText: { color: colors.primaryLight, fontSize: 14, fontWeight: '600' },
-  headerCenter: { flex: 1, alignItems: 'center' },
-  title:    { fontSize: 22, fontWeight: '900', color: colors.text, letterSpacing: 4 },
-  subtitle: { fontSize: 12, color: colors.primaryLight, letterSpacing: 2, marginTop: -2 },
-  countLine: { textAlign: 'center', fontSize: 11, color: colors.textMuted, marginBottom: spacing.xs },
-  dots: {
-    flexDirection: 'row', justifyContent: 'center', alignItems: 'center',
-    gap: 7, paddingVertical: 12,
-  },
-  dot: {
-    height: 6, borderRadius: 3,
-    ...Platform.select({ web: { transition: 'width 0.3s ease, background-color 0.3s ease' } }),
-  },
-  hint: {
-    textAlign: 'center', fontSize: 11, color: colors.textMuted,
-    paddingBottom: Platform.OS === 'ios' ? 38 : 16,
-  },
+  headerCenter:{ flex: 1, alignItems: 'center' },
+  title:       { fontSize: 22, fontWeight: '900', color: colors.text, letterSpacing: 4 },
+  subtitle:    { fontSize: 12, color: colors.primaryLight, letterSpacing: 2, marginTop: -2 },
+  countLine:   { textAlign: 'center', fontSize: 11, color: colors.textMuted, marginBottom: spacing.xs },
+  dots:        { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 7, paddingVertical: 12 },
+  dot:         { height: 6, borderRadius: 3, ...Platform.select({ web: { transition: 'width 0.3s ease, background-color 0.3s ease' } }) },
+  hint:        { textAlign: 'center', fontSize: 11, color: colors.textMuted, paddingBottom: Platform.OS === 'ios' ? 38 : 16 },
 });
