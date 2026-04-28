@@ -141,10 +141,12 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
             <Text
               style={[cd.gameName, {
                 color: character.color,
-                fontSize: gameNameSize,
-                lineHeight: gameNameHeight,
+                fontSize: Platform.OS !== 'web' ? 38 : gameNameSize,
+                ...(Platform.OS === 'web' && { lineHeight: gameNameHeight }),
               }]}
               numberOfLines={2}
+              adjustsFontSizeToFit={Platform.OS !== 'web'}
+              minimumFontScale={Platform.OS !== 'web' ? 0.45 : undefined}
             >
               {character.gameName}
             </Text>
