@@ -72,7 +72,7 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
       <Animated.View style={{ transform: [{ scale: pressScale }] }}>
 
         {character.available && (
-          <View style={[cd.shadow, { shadowColor: character.color, backgroundColor: character.color + '18' }]} />
+          <View style={[cd.shadow, { shadowColor: character.color, backgroundColor: character.color + '22' }]} />
         )}
 
         <TouchableOpacity
@@ -83,76 +83,86 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
           disabled={!character.available}
         >
           <LinearGradient
-            colors={['#0C0C22', character.color + '2A', character.color + '14', '#07050E']}
+            colors={['#0C0C22', character.color + '40', character.color + '20', '#07050E']}
             start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}
             style={[cd.card, {
               height: CARD_H,
-              borderColor: character.available ? character.color + '55' : 'rgba(255,255,255,0.06)',
-              opacity: character.available ? 1 : 0.6,
+              borderColor: character.available ? character.color + '70' : 'rgba(255,255,255,0.08)',
+              opacity: character.available ? 1 : 0.55,
             }]}
           >
+            {/* Shimmer top */}
             <LinearGradient
-              colors={['rgba(255,255,255,0.09)', 'rgba(255,255,255,0)']}
-              start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 0.4 }}
+              colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0)']}
+              start={{ x: 0.15, y: 0 }} end={{ x: 0.85, y: 0.35 }}
               style={StyleSheet.absoluteFill}
               pointerEvents="none"
             />
 
-            {/* Top row */}
+            {/* Status badge centré */}
             <View style={cd.topRow}>
-              <View style={[cd.numBadge, { borderColor: character.color + '50' }]}>
-                <Text style={[cd.numText, { color: character.color }]}>
-                  {String((loopIdx % N) + 1).padStart(2, '0')}
-                </Text>
-              </View>
               {character.available ? (
-                <LinearGradient colors={['#10B981EE', '#059669BB']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={cd.statusBadge}>
-                  <Text style={cd.statusText}>✦ DISPONIBLE</Text>
+                <LinearGradient
+                  colors={['#10B981EE', '#059669BB']}
+                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                  style={cd.statusBadge}
+                >
+                  <Text style={cd.statusText}>✦  DISPONIBLE</Text>
                 </LinearGradient>
               ) : (
-                <View style={[cd.statusBadge, { backgroundColor: 'rgba(255,255,255,0.06)' }]}>
-                  <Text style={[cd.statusText, { color: colors.textMuted }]}>🔒 BIENTÔT</Text>
+                <View style={[cd.statusBadge, { backgroundColor: 'rgba(255,255,255,0.07)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' }]}>
+                  <Text style={[cd.statusText, { color: colors.textMuted }]}>🔒  BIENTÔT</Text>
                 </View>
               )}
             </View>
 
-            {/* Emoji hero */}
+            {/* ── Emoji hero ── */}
             <View style={cd.emojiWrap}>
-              <View style={[cd.halo, { backgroundColor: character.color + '0F' }]} />
-              <Animated.View style={[cd.ringOuter, { borderColor: character.color + '38', transform: [{ rotate: r1 }] }]} />
-              <Animated.View style={[cd.ringInner, { borderColor: character.color + '60', transform: [{ rotate: r2 }] }]} />
+              <View style={[cd.halo, { backgroundColor: character.color + '15' }]} />
+              <Animated.View style={[cd.ringOuter, { borderColor: character.color + '50', transform: [{ rotate: r1 }] }]} />
+              <Animated.View style={[cd.ringInner, { borderColor: character.color + '80', transform: [{ rotate: r2 }] }]} />
               <LinearGradient
-                colors={[character.color + '38', character.color + '18']}
-                style={[cd.avatar, { borderColor: character.color + '75' }]}
+                colors={[character.color + '55', character.color + '25']}
+                style={[cd.avatar, { borderColor: character.color + '90' }]}
               >
                 <Text style={cd.emoji}>{character.emoji}</Text>
               </LinearGradient>
             </View>
 
-            {/* Game name */}
-            <Text style={[cd.gameName, { color: character.color }]} numberOfLines={1}>{character.gameName}</Text>
-            <View style={[cd.nameBar, { backgroundColor: character.color + 'AA' }]} />
+            {/* ── Nom du jeu — pièce maîtresse ── */}
+            <View style={[cd.divider, { backgroundColor: character.color + '90' }]} />
+            <Text
+              style={[cd.gameName, { color: '#FFFFFF' }]}
+              adjustsFontSizeToFit
+              numberOfLines={2}
+              minimumFontScale={0.6}
+            >
+              {character.gameName}
+            </Text>
+            <View style={[cd.divider, { backgroundColor: character.color + '90' }]} />
 
-            {/* Character */}
-            <Text style={cd.charName}>{character.name}</Text>
-            <Text style={[cd.charTitle, { color: character.color + 'AA' }]}>{character.title.toUpperCase()}</Text>
-            <Text style={cd.charDesc} numberOfLines={3}>{character.description}</Text>
+            {/* ── Personnage ── */}
+            <Text style={[cd.charName, { color: character.color }]}>{character.name}</Text>
+            <Text style={cd.charTitle}>{character.title.toUpperCase()}</Text>
+
+            {/* ── Catchphrase ── */}
+            <Text style={cd.catchphrase} numberOfLines={2}>{character.catchphrase}</Text>
 
             <View style={{ flex: 1 }} />
 
-            {/* Play button */}
+            {/* ── Bouton jouer ── */}
             {character.available ? (
-              <Animated.View style={{ transform: [{ scale: btnPulse }] }}>
+              <Animated.View style={[cd.playBtnWrap, { transform: [{ scale: btnPulse }] }]}>
                 <LinearGradient
-                  colors={[character.color + 'FF', character.color + 'CC', character.color + '88']}
+                  colors={[character.color + 'FF', character.color + 'CC']}
                   start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
                   style={cd.playBtn}
                 >
-                  <Text style={cd.playBtnText}>⚡  JOUER MAINTENANT  ⚡</Text>
+                  <Text style={cd.playBtnText}>⚡  JOUER  ⚡</Text>
                 </LinearGradient>
               </Animated.View>
             ) : (
-              <View style={[cd.playBtn, { backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)' }]}>
+              <View style={[cd.playBtn, { backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' }]}>
                 <Text style={[cd.playBtnText, { color: colors.textMuted }]}>🚧  En développement</Text>
               </View>
             )}
@@ -165,33 +175,44 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
 
 const cd = StyleSheet.create({
   shadow: {
-    position: 'absolute', top: 10, left: 10, right: 10, bottom: -12,
-    borderRadius: 28, shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.75, shadowRadius: 36, elevation: 24,
+    position: 'absolute', top: 10, left: 10, right: 10, bottom: -16,
+    borderRadius: 28, shadowOffset: { width: 0, height: 24 },
+    shadowOpacity: 0.85, shadowRadius: 40, elevation: 28,
   },
   card: {
     borderRadius: 28, borderWidth: 1.5,
-    paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xl,
+    paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg,
     overflow: 'hidden', flexDirection: 'column',
   },
-  topRow:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  numBadge:    { width: 34, height: 34, borderRadius: 17, borderWidth: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.04)' },
-  numText:     { fontSize: 12, fontWeight: '900', letterSpacing: 0.5 },
-  statusBadge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.full },
-  statusText:  { fontSize: 9, fontWeight: '800', color: '#fff', letterSpacing: 1 },
-  emojiWrap:   { alignItems: 'center', justifyContent: 'center', height: 162, marginBottom: spacing.md },
-  halo:        { position: 'absolute', width: 162, height: 162, borderRadius: 81 },
-  ringOuter:   { position: 'absolute', width: 148, height: 148, borderRadius: 74, borderWidth: 1 },
-  ringInner:   { position: 'absolute', width: 120, height: 120, borderRadius: 60, borderWidth: 1.5 },
-  avatar:      { width: 100, height: 100, borderRadius: 50, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  emoji:       { fontSize: 54 },
-  gameName:    { fontSize: 30, fontWeight: '900', letterSpacing: 2, textAlign: 'center', marginBottom: 6 },
-  nameBar:     { height: 2, width: 44, borderRadius: 1, alignSelf: 'center', marginBottom: spacing.md },
-  charName:    { fontSize: 17, fontWeight: '800', color: colors.text, textAlign: 'center', marginBottom: 3 },
-  charTitle:   { fontSize: 10, fontWeight: '700', letterSpacing: 2, textAlign: 'center', marginBottom: spacing.sm },
-  charDesc:    { fontSize: 12, color: colors.textSecondary, lineHeight: 18, textAlign: 'center', marginBottom: spacing.md },
-  playBtn:     { paddingVertical: 14, borderRadius: radius.full, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
-  playBtnText: { fontSize: 13, fontWeight: '900', color: '#fff', letterSpacing: 1.5 },
+
+  // Status
+  topRow:      { alignItems: 'center', marginBottom: spacing.md },
+  statusBadge: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: radius.full },
+  statusText:  { fontSize: 10, fontWeight: '900', color: '#fff', letterSpacing: 1.5 },
+
+  // Emoji hero
+  emojiWrap:  { alignItems: 'center', justifyContent: 'center', height: 148, marginBottom: spacing.md },
+  halo:       { position: 'absolute', width: 148, height: 148, borderRadius: 74 },
+  ringOuter:  { position: 'absolute', width: 136, height: 136, borderRadius: 68, borderWidth: 1.5 },
+  ringInner:  { position: 'absolute', width: 110, height: 110, borderRadius: 55, borderWidth: 1 },
+  avatar:     { width: 92, height: 92, borderRadius: 46, borderWidth: 2.5, alignItems: 'center', justifyContent: 'center' },
+  emoji:      { fontSize: 48 },
+
+  // Nom du jeu
+  divider:    { height: 2, borderRadius: 1, marginVertical: 8 },
+  gameName:   { fontSize: 40, fontWeight: '900', letterSpacing: 1.5, textAlign: 'center', lineHeight: 44 },
+
+  // Personnage
+  charName:   { fontSize: 15, fontWeight: '800', textAlign: 'center', marginTop: spacing.sm, marginBottom: 2 },
+  charTitle:  { fontSize: 9, fontWeight: '700', letterSpacing: 2, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.sm },
+
+  // Catchphrase
+  catchphrase: { fontSize: 12, color: colors.textSecondary, textAlign: 'center', fontStyle: 'italic', lineHeight: 18, marginBottom: spacing.xs },
+
+  // Bouton
+  playBtnWrap: { shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.45, shadowRadius: 12, elevation: 10 },
+  playBtn:     { paddingVertical: 16, borderRadius: radius.full, alignItems: 'center' },
+  playBtnText: { fontSize: 14, fontWeight: '900', color: '#fff', letterSpacing: 2 },
 });
 
 // ─── MenuScreen ────────────────────────────────────────────────────────
