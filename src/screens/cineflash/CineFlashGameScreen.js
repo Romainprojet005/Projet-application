@@ -334,7 +334,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
         <View style={styles.imageContainer}>
           <CineImage
             title={film.title}
-            imgIndex={imgIdx}
+            imgIndex={film.order ? film.order[imgIdx] : imgIdx}
             style={StyleSheet.absoluteFillObject}
           />
 
@@ -432,7 +432,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
             {foundAtIdx !== null ? (
               <>
                 <Text style={styles.answerResult}>🎉 Trouvé !</Text>
-                <Text style={styles.answerPts}>+{3 - foundAtIdx} point{3 - foundAtIdx > 1 ? 's' : ''}</Text>
+                <Text style={styles.answerPts}>+{totalImgs - foundAtIdx} point{totalImgs - foundAtIdx > 1 ? 's' : ''}</Text>
                 {results[results.length - 1]?.finder && (
                   <Text style={styles.answerFinder}>par {results[results.length - 1].finder}</Text>
                 )}
@@ -447,7 +447,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
             <Text style={styles.answerTitle}>{film.title}</Text>
 
             <View style={styles.answerPoster}>
-              <CineImage title={film.title} imgIndex={maxImgIdx} style={StyleSheet.absoluteFillObject} />
+              <CineImage title={film.title} imgIndex={film.order ? film.order[maxImgIdx] : maxImgIdx} style={StyleSheet.absoluteFillObject} />
             </View>
 
             <TouchableOpacity onPress={handleNextFilm} style={styles.nextFilmBtn} activeOpacity={0.85}>
