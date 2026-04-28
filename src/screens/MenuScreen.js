@@ -16,9 +16,8 @@ import { characters } from '../data/characters';
 const { width: SW, height: SH } = Dimensions.get('window');
 // Sur web le navigateur lui-même prend de la place (barre d'adresse, onglets…)
 // On réduit les dimensions pour que les cartes ne débordent pas en bas
-const CARD_W     = Platform.OS === 'web' ? Math.min(SW * 0.72, 360) : Math.min(SW * 0.80, 400);
-const CARD_H     = Platform.OS === 'web' ? Math.min(SH * 0.65, 500) : Math.min(SH * 0.74, 580);
-const CARD_GAP   = 20;
+const CARD_W   = Platform.OS === 'web' ? Math.min(SW * 0.72, 360) : Math.min(SW * 0.80, 400);
+const CARD_GAP = 20;
 const ITEM_SIZE  = CARD_W + CARD_GAP;
 const SIDE_INSET = (SW - CARD_W) / 2;
 
@@ -75,7 +74,7 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
   const r2 = ring2.interpolate({ inputRange: [0, 1], outputRange: ['360deg', '0deg']   });
 
   return (
-    <Animated.View style={{ width: CARD_W, marginRight: CARD_GAP, transform: [{ perspective: 1200 }, { scale: cardScale }, { rotateY: cardRotateY }, { translateY: cardTranslateY }], opacity: cardOpacity }}>
+    <Animated.View style={{ width: CARD_W, marginRight: CARD_GAP, alignSelf: 'center', transform: [{ perspective: 1200 }, { scale: cardScale }, { rotateY: cardRotateY }, { translateY: cardTranslateY }], opacity: cardOpacity }}>
       <Animated.View style={{ transform: [{ scale: pressScale }] }}>
 
         {character.available && (
@@ -93,7 +92,6 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
             colors={['#0C0C22', character.color + '40', character.color + '20', '#07050E']}
             start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}
             style={[cd.card, {
-              height: CARD_H,
               borderColor: character.available ? character.color + '70' : 'rgba(255,255,255,0.08)',
               opacity: character.available ? 1 : 0.55,
             }]}
@@ -158,8 +156,6 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
 
             {/* ── Catchphrase ── */}
             <Text style={cd.catchphrase} numberOfLines={2}>{character.catchphrase}</Text>
-
-            <View style={{ flex: 1 }} />
 
             {/* ── Bouton jouer ── */}
             {character.available ? (
@@ -227,7 +223,7 @@ const cd = StyleSheet.create({
   catchphrase: { fontSize: 12, color: colors.textSecondary, textAlign: 'center', fontStyle: 'italic', lineHeight: 18, marginBottom: spacing.xs },
 
   // Bouton
-  playBtnWrap: { shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.45, shadowRadius: 12, elevation: 10 },
+  playBtnWrap: { marginTop: spacing.sm, shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.45, shadowRadius: 12, elevation: 10 },
   playBtn:     { paddingVertical: Platform.select({ web: 16, default: 13 }), borderRadius: radius.full, alignItems: 'center' },
   playBtnText: { fontSize: 14, fontWeight: '900', color: '#fff', letterSpacing: 2 },
 });
@@ -436,25 +432,21 @@ export default function MenuScreen({ navigation }) {
           />
         </View>
 
-        {/* Flèches de navigation — mobile uniquement */}
-        {Platform.OS !== 'web' && (
-          <>
-            <TouchableOpacity
-              style={[s.arrowBtn, { left: 6, borderColor: (characters[activeIdx]?.color ?? '#fff') + '50' }]}
-              onPress={() => navigateTo(-1)}
-              activeOpacity={0.6}
-            >
-              <Text style={[s.arrowText, { color: characters[activeIdx]?.color ?? '#fff' }]}>‹</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[s.arrowBtn, { right: 6, borderColor: (characters[activeIdx]?.color ?? '#fff') + '50' }]}
-              onPress={() => navigateTo(1)}
-              activeOpacity={0.6}
-            >
-              <Text style={[s.arrowText, { color: characters[activeIdx]?.color ?? '#fff' }]}>›</Text>
-            </TouchableOpacity>
-          </>
-        )}
+        {/* Flèches de navigation — toutes plateformes */}
+        <TouchableOpacity
+          style={[s.arrowBtn, { left: 6, borderColor: (characters[activeIdx]?.color ?? '#fff') + '50' }]}
+          onPress={() => navigateTo(-1)}
+          activeOpacity={0.6}
+        >
+          <Text style={[s.arrowText, { color: characters[activeIdx]?.color ?? '#fff' }]}>‹</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[s.arrowBtn, { right: 6, borderColor: (characters[activeIdx]?.color ?? '#fff') + '50' }]}
+          onPress={() => navigateTo(1)}
+          activeOpacity={0.6}
+        >
+          <Text style={[s.arrowText, { color: characters[activeIdx]?.color ?? '#fff' }]}>›</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Pagination dots */}
