@@ -114,6 +114,25 @@ export const characters = [
     },
   },
   {
+    id: 'marty_mcfly',
+    name: 'Marty McFly',
+    emoji: '🎸',
+    title: 'Guitariste du Futur',
+    description:
+      'Le lycéen de Hill Valley dégaine sa Gibson ES-345 ! Reconnaissez les tubes rock avant que le chronomètre n\'explose. Grande puissance de feu musicale.',
+    catchphrase: '"Cette chanson va faire danser vos grands-parents !"',
+    color: '#10B981',
+    gradientColors: ['#001A0F', '#002D1A'],
+    game: 'blindtest',
+    gameName: 'BLIND TEST',
+    available: true,
+    stats: {
+      Rythme: 97,
+      Culture: 93,
+      Rapidité: 88,
+    },
+  },
+  {
     id: 'cyrano',
     name: 'Cyrano de Bergerac',
     emoji: '🎭',

@@ -264,6 +264,7 @@ export default function MenuScreen({ navigation }) {
       cineflash:   'CineFlashSetup',
       emojiquiz:   'EmojiQuizSetup',
       motdepasse:  'MotDePasseSetup',
+      blindtest:   'BlindTestSetup',
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };

@@ -18,6 +18,8 @@ import EmojiQuizSetupScreen from '../screens/emojiquiz/EmojiQuizSetupScreen';
 import EmojiQuizGameScreen from '../screens/emojiquiz/EmojiQuizGameScreen';
 import MotDePasseSetupScreen from '../screens/motdepasse/MotDePasseSetupScreen';
 import MotDePasseGameScreen from '../screens/motdepasse/MotDePasseGameScreen';
+import BlindTestSetupScreen from '../screens/blindtest/BlindTestSetupScreen';
+import BlindTestGameScreen from '../screens/blindtest/BlindTestGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -46,6 +48,8 @@ const linking = {
       EmojiQuizGame: 'emojiquiz/game',
       MotDePasseSetup: 'motdepasse',
       MotDePasseGame: 'motdepasse/game',
+      BlindTestSetup: 'blindtest',
+      BlindTestGame: 'blindtest/game',
     },
   },
 };
@@ -76,6 +80,8 @@ export default function AppNavigator() {
         <Stack.Screen name="EmojiQuizGame" component={EmojiQuizGameScreen} />
         <Stack.Screen name="MotDePasseSetup" component={MotDePasseSetupScreen} />
         <Stack.Screen name="MotDePasseGame" component={MotDePasseGameScreen} />
+        <Stack.Screen name="BlindTestSetup" component={BlindTestSetupScreen} />
+        <Stack.Screen name="BlindTestGame" component={BlindTestGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
