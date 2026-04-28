@@ -279,6 +279,14 @@ export default function MenuScreen({ navigation }) {
     }
   }, []);
 
+  const navigateTo = useCallback((direction) => {
+    const currentIdx = Math.round(manualScrollOffset.current / ITEM_SIZE);
+    const targetOffset = (currentIdx + direction) * ITEM_SIZE;
+    manualScrollOffset.current = targetOffset;
+    scrollRef.current?.scrollToOffset({ offset: targetOffset, animated: true });
+    setTimeout(() => handleScrollEnd(targetOffset), 400);
+  }, [handleScrollEnd]);
+
   const onScrollEnd = useCallback((e) => {
     handleScrollEnd(e.nativeEvent.contentOffset.x);
   }, [handleScrollEnd]);
@@ -341,71 +349,93 @@ export default function MenuScreen({ navigation }) {
       </Animated.Text>
 
       {/* Infinite carousel */}
-      <View
-        ref={dragContainerRef}
-        onMouseDown={onMouseDown}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseUp}
-        onTouchStart={(e) => {
-          if (Platform.OS !== 'web') return;
-          const touch = e.nativeEvent.touches?.[0];
-          if (!touch) return;
-          isDragging.current = true;
-          dragStartX.current = touch.pageX;
-          dragStartScroll.current = manualScrollOffset.current;
-        }}
-        onTouchMove={(e) => {
-          if (!isDragging.current) return;
-          const touch = e.nativeEvent.touches?.[0];
-          if (!touch) return;
-          const newOffset = dragStartScroll.current + (dragStartX.current - touch.pageX);
-          manualScrollOffset.current = newOffset;
-          scrollRef.current?.scrollToOffset({ offset: newOffset, animated: false });
-        }}
-        onTouchEnd={() => {
-          if (!isDragging.current) return;
-          isDragging.current = false;
-          const offset = manualScrollOffset.current;
-          const snapped = Math.round(offset / ITEM_SIZE) * ITEM_SIZE;
-          manualScrollOffset.current = snapped;
-          scrollRef.current?.scrollToOffset({ offset: snapped, animated: true });
-          setTimeout(() => handleScrollEnd(snapped), 350);
-        }}
-        style={[{ flex: 1 }, Platform.OS === 'web' && { cursor: 'grab', userSelect: 'none' }]}
-      >
-        <FlatList
-          ref={scrollRef}
-          data={LOOP_ITEMS}
-          horizontal
-          keyExtractor={(_, i) => String(i)}
-          renderItem={({ item, index }) => (
-            <GameCard character={item} loopIdx={index} scrollX={scrollX} onPress={handleSelectGame} />
-          )}
-          getItemLayout={(_, index) => ({ length: ITEM_SIZE, offset: index * ITEM_SIZE, index })}
-          initialScrollIndex={INIT_IDX}
-          snapToInterval={ITEM_SIZE}
-          snapToAlignment="start"
-          decelerationRate="fast"
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: SIDE_INSET, paddingVertical: 12 }}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-            {
-              useNativeDriver: true,
-              listener: (e) => { currentScrollX.current = e.nativeEvent.contentOffset.x; },
-            }
-          )}
-          scrollEventThrottle={16}
-          onScrollBeginDrag={() => { isMomentum.current = false; }}
-          onMomentumScrollBegin={() => { isMomentum.current = true; }}
-          onMomentumScrollEnd={onScrollEnd}
-          onScrollEndDrag={(e) => { if (!isMomentum.current) onScrollEnd(e); }}
-          initialNumToRender={Platform.OS === 'web' ? 15 : 7}
-          maxToRenderPerBatch={Platform.OS === 'web' ? 10 : 5}
-          windowSize={Platform.OS === 'web' ? 21 : 5}
-          style={{ flex: 1 }}
-        />
+      <View style={{ flex: 1 }}>
+        <View
+          ref={dragContainerRef}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
+          onTouchStart={(e) => {
+            if (Platform.OS !== 'web') return;
+            const touch = e.nativeEvent.touches?.[0];
+            if (!touch) return;
+            isDragging.current = true;
+            dragStartX.current = touch.pageX;
+            dragStartScroll.current = manualScrollOffset.current;
+          }}
+          onTouchMove={(e) => {
+            if (!isDragging.current) return;
+            const touch = e.nativeEvent.touches?.[0];
+            if (!touch) return;
+            const newOffset = dragStartScroll.current + (dragStartX.current - touch.pageX);
+            manualScrollOffset.current = newOffset;
+            scrollRef.current?.scrollToOffset({ offset: newOffset, animated: false });
+          }}
+          onTouchEnd={() => {
+            if (!isDragging.current) return;
+            isDragging.current = false;
+            const offset = manualScrollOffset.current;
+            const snapped = Math.round(offset / ITEM_SIZE) * ITEM_SIZE;
+            manualScrollOffset.current = snapped;
+            scrollRef.current?.scrollToOffset({ offset: snapped, animated: true });
+            setTimeout(() => handleScrollEnd(snapped), 350);
+          }}
+          style={[{ flex: 1 }, Platform.OS === 'web' && { cursor: 'grab', userSelect: 'none' }]}
+        >
+          <FlatList
+            ref={scrollRef}
+            data={LOOP_ITEMS}
+            horizontal
+            keyExtractor={(_, i) => String(i)}
+            renderItem={({ item, index }) => (
+              <GameCard character={item} loopIdx={index} scrollX={scrollX} onPress={handleSelectGame} />
+            )}
+            getItemLayout={(_, index) => ({ length: ITEM_SIZE, offset: index * ITEM_SIZE, index })}
+            initialScrollIndex={INIT_IDX}
+            snapToInterval={ITEM_SIZE}
+            snapToAlignment="start"
+            decelerationRate="fast"
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: SIDE_INSET, paddingVertical: 12 }}
+            onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+              {
+                useNativeDriver: true,
+                listener: (e) => { currentScrollX.current = e.nativeEvent.contentOffset.x; },
+              }
+            )}
+            scrollEventThrottle={16}
+            onScrollBeginDrag={() => { isMomentum.current = false; }}
+            onMomentumScrollBegin={() => { isMomentum.current = true; }}
+            onMomentumScrollEnd={onScrollEnd}
+            onScrollEndDrag={(e) => { if (!isMomentum.current) onScrollEnd(e); }}
+            initialNumToRender={Platform.OS === 'web' ? 15 : 7}
+            maxToRenderPerBatch={Platform.OS === 'web' ? 10 : 5}
+            windowSize={Platform.OS === 'web' ? 21 : 5}
+            style={{ flex: 1 }}
+          />
+        </View>
+
+        {/* Flèches de navigation — mobile uniquement */}
+        {Platform.OS !== 'web' && (
+          <>
+            <TouchableOpacity
+              style={[s.arrowBtn, { left: 6, borderColor: (characters[activeIdx]?.color ?? '#fff') + '50' }]}
+              onPress={() => navigateTo(-1)}
+              activeOpacity={0.6}
+            >
+              <Text style={[s.arrowText, { color: characters[activeIdx]?.color ?? '#fff' }]}>‹</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.arrowBtn, { right: 6, borderColor: (characters[activeIdx]?.color ?? '#fff') + '50' }]}
+              onPress={() => navigateTo(1)}
+              activeOpacity={0.6}
+            >
+              <Text style={[s.arrowText, { color: characters[activeIdx]?.color ?? '#fff' }]}>›</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
       {/* Pagination dots */}
@@ -442,4 +472,13 @@ const s = StyleSheet.create({
   dots:        { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 7, paddingVertical: 12 },
   dot:         { height: 6, borderRadius: 3, ...Platform.select({ web: { transition: 'width 0.3s ease, background-color 0.3s ease' } }) },
   hint:        { textAlign: 'center', fontSize: 11, color: colors.textMuted, paddingBottom: Platform.OS === 'ios' ? 38 : 16 },
+  arrowBtn: {
+    position: 'absolute', top: '38%',
+    width: 34, height: 56, borderRadius: 12,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderWidth: 1,
+    alignItems: 'center', justifyContent: 'center',
+    zIndex: 10,
+  },
+  arrowText: { fontSize: 32, fontWeight: '900', lineHeight: 36 },
 });
