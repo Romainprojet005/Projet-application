@@ -267,6 +267,7 @@ export default function MenuScreen({ navigation }) {
       emojiquiz:   'EmojiQuizSetup',
       motdepasse:  'MotDePasseSetup',
       blindtest:   'BlindTestSetup',
+      vote:        'VoteSetup',
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };

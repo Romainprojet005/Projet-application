@@ -20,6 +20,8 @@ import MotDePasseSetupScreen from '../screens/motdepasse/MotDePasseSetupScreen';
 import MotDePasseGameScreen from '../screens/motdepasse/MotDePasseGameScreen';
 import BlindTestSetupScreen from '../screens/blindtest/BlindTestSetupScreen';
 import BlindTestGameScreen from '../screens/blindtest/BlindTestGameScreen';
+import VoteSetupScreen from '../screens/vote/VoteSetupScreen';
+import VoteGameScreen from '../screens/vote/VoteGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -50,6 +52,8 @@ const linking = {
       MotDePasseGame: 'motdepasse/game',
       BlindTestSetup: 'blindtest',
       BlindTestGame: 'blindtest/game',
+      VoteSetup: 'vote',
+      VoteGame: 'vote/game',
     },
   },
 };
@@ -82,6 +86,8 @@ export default function AppNavigator() {
         <Stack.Screen name="MotDePasseGame" component={MotDePasseGameScreen} />
         <Stack.Screen name="BlindTestSetup" component={BlindTestSetupScreen} />
         <Stack.Screen name="BlindTestGame" component={BlindTestGameScreen} />
+        <Stack.Screen name="VoteSetup" component={VoteSetupScreen} />
+        <Stack.Screen name="VoteGame" component={VoteGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,0 +1,2494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#05050E">
+<title>La Soirée des Légendes</title>
+<style>
+/* ═══════════════════════════════════════════════════
+   DESIGN SYSTEM
+═══════════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:      #05050E;
+  --surface: #0D0D1C;
+  --card:    #111120;
+  --card2:   #16162A;
+  --border:  rgba(255,255,255,.07);
+  --border2: rgba(255,255,255,.13);
+  --text:    #EEF2FF;
+  --text2:   #94A3B8;
+  --text3:   #4B5563;
+  --green:   #10B981;
+  --red:     #EF4444;
+  --gold:    #F59E0B;
+  /* Sherlock / Undercover */
+  --amb:     #D97706;
+  --amb-l:   #FCD34D;
+  --amb-dim: rgba(217,119,6,.14);
+  /* Génie / Quiz */
+  --ind:     #6366F1;
+  --ind-l:   #A5B4FC;
+  --ind-dim: rgba(99,102,241,.14);
+}
+
+html, body {
+  width:100%; height:100%;
+  background:#030308;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  overflow:hidden; margin:0; padding:0;
+}
+.page-label { display:none; }
+
+/* ═══════════════════════════════════════════════════
+   PHONE
+═══════════════════════════════════════════════════ */
+.phone {
+  position:fixed; inset:0;
+  background:#030308;
+  overflow:hidden;
+}
+.notch { display:none; }
+
+/* ═══════════════════════════════════════════════════
+   SCREEN SYSTEM
+═══════════════════════════════════════════════════ */
+.screen { position:absolute; inset:0; overflow:hidden; opacity:0; pointer-events:none; transition:opacity .28s ease; }
+.screen.active { opacity:1; pointer-events:all; }
+
+.bg-welcome { background:linear-gradient(160deg,#05050E 0%,#0C0830 50%,#05050E 100%); }
+.bg-menu    { background:var(--bg); }
+.bg-sheriff { background:linear-gradient(160deg,#090400 0%,#1A0B00 55%,#090400 100%); }
+.bg-genie   { background:linear-gradient(160deg,#05050E 0%,#0C0A2C 55%,#05050E 100%); }
+.bg-quiz-g  { background:linear-gradient(180deg,#05050E,#090820); }
+
+/* ═══════════════════════════════════════════════════
+   COMPONENTS
+═══════════════════════════════════════════════════ */
+.btn-back {
+  background:none; border:none; color:var(--text2);
+  font-size:13px; font-weight:600; cursor:pointer; padding:0;
+  display:flex; align-items:center; gap:5px; transition:color .15s;
+}
+.btn-back:hover { color:var(--text); }
+
+.btn-primary {
+  width:100%; padding:15px; border-radius:99px; border:none;
+  font-size:14px; font-weight:800; letter-spacing:1.5px; color:var(--text);
+  cursor:pointer; transition:transform .12s, box-shadow .12s;
+}
+.btn-primary:hover  { transform:scale(1.02); }
+.btn-primary:active { transform:scale(.97); }
+.btn-amb { background:linear-gradient(90deg,var(--amb),#92400E); box-shadow:0 8px 24px rgba(217,119,6,.4); }
+.btn-ind { background:linear-gradient(90deg,var(--ind),#3730A3); box-shadow:0 8px 24px rgba(99,102,241,.4); }
+.btn-amb:hover { box-shadow:0 10px 30px rgba(217,119,6,.55); }
+.btn-ind:hover { box-shadow:0 10px 30px rgba(99,102,241,.55); }
+
+.card { background:var(--card); border-radius:16px; padding:16px; border:1px solid var(--border); }
+.card-label { font-size:14px; font-weight:700; color:var(--text); margin-bottom:3px; }
+.card-hint  { font-size:11px; color:var(--text3); margin-bottom:8px; }
+
+.counter { display:flex; align-items:center; justify-content:center; gap:18px; margin-top:8px; }
+.ctr-btn {
+  width:42px; height:42px; border-radius:50%;
+  background:var(--card2); border:1px solid var(--border2);
+  color:var(--text); font-size:22px; font-weight:300;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background .15s, transform .1s;
+}
+.ctr-btn:hover  { background:rgba(255,255,255,.1); transform:scale(1.08); }
+.ctr-btn:active { transform:scale(.92); }
+.ctr-btn:disabled { opacity:.3; cursor:default; transform:none; }
+.ctr-num { font-size:42px; font-weight:900; color:var(--text); min-width:62px; text-align:center; line-height:1; }
+
+.toggle {
+  position:relative; width:46px; height:25px; border-radius:13px;
+  background:var(--border2); border:none; cursor:pointer; flex-shrink:0;
+  transition:background .25s;
+}
+.toggle.on-amb { background:rgba(217,119,6,.65); }
+.toggle.on-ind { background:rgba(99,102,241,.65); }
+.toggle::after {
+  content:''; position:absolute; top:3px; left:3px;
+  width:19px; height:19px; border-radius:50%;
+  background:var(--text3); transition:transform .25s, background .25s;
+}
+.toggle.on-amb::after, .toggle.on-ind::after { transform:translateX(21px); background:var(--text); }
+
+.stat-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+.stat-lbl   { font-size:10px; color:var(--text2); width:76px; }
+.stat-track { flex:1; height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
+.stat-fill  { height:100%; border-radius:2px; transition:width 1.2s cubic-bezier(.2,1,.5,1); }
+.stat-val   { font-size:10px; color:var(--text3); width:22px; text-align:right; }
+
+.sum-card { border-radius:14px; padding:14px; border:1px solid var(--border); }
+.sum-row  { display:flex; justify-content:space-between; margin-bottom:6px; }
+.sum-row:last-child { margin-bottom:0; }
+.sum-key  { font-size:12px; color:var(--text2); }
+.sum-val  { font-size:12px; font-weight:700; color:var(--text); }
+
+/* ═══════════════════════════════════════════════════
+   WELCOME
+═══════════════════════════════════════════════════ */
+#s-welcome {
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; padding:55px 26px 36px; gap:0;
+}
+.stars { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.star  { position:absolute; border-radius:50%; animation:twinkle var(--d) ease-in-out infinite alternate; }
+@keyframes twinkle { from{opacity:var(--f)} to{opacity:var(--t)} }
+
+.w-logo { text-align:center; margin-bottom:26px; animation:logoIn .9s cubic-bezier(.2,1,.4,1) both; }
+@keyframes logoIn { from{opacity:0;transform:scale(.25) translateY(-40px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.w-crown { font-size:52px; display:block; margin-bottom:10px; filter:drop-shadow(0 0 18px rgba(245,158,11,.55)); }
+.w-line1 { font-size:11px; font-weight:700; color:var(--text3); letter-spacing:6px; text-transform:uppercase; }
+.w-line2 { font-size:38px; font-weight:900; color:var(--text); letter-spacing:5px; line-height:1.05; }
+.w-line3 { font-size:17px; font-weight:700; color:var(--ind-l); letter-spacing:9px; }
+.w-divider { width:44px; height:2px; background:linear-gradient(90deg,var(--ind),var(--amb)); border-radius:2px; margin:12px auto 0; }
+
+.w-chars { display:flex; gap:10px; margin-bottom:24px; animation:fadeUp .6s .55s both; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+.w-char {
+  flex:1; border-radius:16px; padding:13px 8px;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  border:1px solid var(--border); cursor:pointer; position:relative; overflow:hidden;
+  transition:transform .2s, border-color .2s;
+}
+.w-char:hover { transform:translateY(-3px); }
+.w-char.locked { opacity:.4; cursor:default; }
+.w-char.locked:hover { transform:none; }
+.w-char-glow { position:absolute; inset:0; border-radius:16px; opacity:.1; pointer-events:none; }
+.w-char.amb .w-char-glow { background:radial-gradient(circle at 50% 20%,#D97706,transparent); }
+.w-char.ind .w-char-glow { background:radial-gradient(circle at 50% 20%,#6366F1,transparent); }
+.w-char.amb { border-color:rgba(217,119,6,.3); }
+.w-char.ind { border-color:rgba(99,102,241,.3); }
+.w-char-emoji { font-size:30px; }
+.w-char-name  { font-size:9px; font-weight:800; color:var(--text); letter-spacing:1px; text-align:center; }
+.w-char-game  { font-size:8px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; }
+
+.w-cta {
+  width:100%; padding:17px; border-radius:99px; border:none;
+  background:linear-gradient(135deg,var(--ind),#3730A3);
+  color:var(--text); font-size:14px; font-weight:800; letter-spacing:2px;
+  cursor:pointer; box-shadow:0 10px 28px rgba(99,102,241,.5);
+  animation:fadeUp .6s .95s both, pulse 3.5s 2.5s ease-in-out infinite;
+  transition:transform .12s, box-shadow .12s;
+}
+.w-cta:hover  { transform:scale(1.02); box-shadow:0 12px 34px rgba(99,102,241,.65); }
+.w-cta:active { transform:scale(.97); }
+@keyframes pulse {
+  0%,100%{box-shadow:0 10px 28px rgba(99,102,241,.5)}
+  50%{box-shadow:0 12px 38px rgba(99,102,241,.7),0 0 0 5px rgba(99,102,241,.1)}
+}
+.w-ver { font-size:11px; color:var(--text3); margin-top:11px; animation:fadeUp .5s 1.2s both; }
+
+/* ═══════════════════════════════════════════════════
+   MENU
+═══════════════════════════════════════════════════ */
+#s-menu { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+.menu-hdr {
+  padding:54px 20px 12px; flex-shrink:0;
+  display:flex; align-items:center; gap:10px;
+}
+.menu-ttl-block { flex:1; text-align:center; }
+.menu-ttl { font-size:18px; font-weight:900; color:var(--text); letter-spacing:4px; }
+.menu-sub { font-size:10px; color:var(--text3); letter-spacing:2px; margin-top:1px; }
+
+.menu-scroll {
+  flex:1; min-height:0; overflow-y:auto; overflow-x:hidden;
+  padding:4px 18px 24px; display:flex; flex-direction:column; gap:12px;
+  scrollbar-width:none;
+}
+.menu-scroll::-webkit-scrollbar { display:none; }
+
+.m-card {
+  border-radius:20px; overflow:hidden; border:1px solid var(--border);
+  flex-shrink:0; cursor:pointer; transition:transform .2s, box-shadow .2s;
+  box-shadow:0 4px 18px rgba(0,0,0,.45);
+}
+.m-card:hover { transform:translateY(-2px) scale(1.005); box-shadow:0 10px 30px rgba(0,0,0,.55); }
+.m-card.locked { opacity:.55; cursor:default; }
+.m-card.locked:hover { transform:none; box-shadow:0 4px 18px rgba(0,0,0,.45); }
+
+.m-card-head { padding:18px 18px 14px; display:flex; align-items:flex-start; gap:14px; }
+.m-card-avi  {
+  width:62px; height:62px; border-radius:17px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:36px;
+  border:1px solid rgba(255,255,255,.1);
+}
+.m-card-info { flex:1; min-width:0; }
+.m-card-name  { font-size:18px; font-weight:900; color:var(--text); margin-bottom:2px; }
+.m-card-title { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:7px; }
+.m-card-desc  { font-size:11px; color:var(--text2); line-height:1.5; }
+
+.m-card-stats { padding:0 18px 10px; }
+.m-card-sep   { height:1px; background:var(--border); margin-bottom:10px; }
+
+.m-card-foot  { padding:0 18px 16px; display:flex; align-items:center; gap:10px; }
+.m-card-quote { flex:1; font-size:11px; color:var(--text3); font-style:italic; line-height:1.4; }
+.m-card-btn {
+  padding:8px 16px; border-radius:99px; border:none;
+  font-size:11px; font-weight:800; letter-spacing:1px; color:var(--text);
+  cursor:pointer; flex-shrink:0; transition:transform .12s, opacity .15s;
+}
+.m-card-btn:hover  { opacity:.85; transform:scale(1.05); }
+.m-card-btn:active { transform:scale(.95); }
+.m-card-btn.dim { background:var(--surface); color:var(--text3); cursor:default; }
+.m-card-btn.dim:hover { opacity:1; transform:none; }
+
+.badge-ok  { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:99px; font-size:9px; font-weight:700; letter-spacing:1px; background:rgba(16,185,129,.15); color:var(--green); border:1px solid rgba(16,185,129,.28); }
+.badge-no  { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:99px; font-size:9px; font-weight:700; letter-spacing:1px; background:var(--surface); color:var(--text3); border:1px solid var(--border); }
+
+/* ═══════════════════════════════════════════════════
+   UNDERCOVER SETUP
+═══════════════════════════════════════════════════ */
+#s-uc-setup { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+.uc-scroll { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; padding:0 18px 32px; }
+.uc-scroll::-webkit-scrollbar { display:none; }
+
+.uc-hero {
+  padding:52px 20px 20px;
+  display:flex; flex-direction:column; align-items:center;
+  background:linear-gradient(180deg,rgba(217,119,6,.06),transparent);
+  flex-shrink:0;
+}
+.uc-badge {
+  display:flex; align-items:center; gap:10px;
+  background:rgba(217,119,6,.1); border:1px solid rgba(217,119,6,.25);
+  border-radius:99px; padding:7px 14px; margin-bottom:14px;
+}
+.uc-badge-emoji { font-size:26px; }
+.uc-badge-name  { font-size:13px; font-weight:800; color:var(--text); }
+.uc-badge-quote { font-size:10px; color:var(--text2); font-style:italic; }
+.uc-title { font-size:30px; font-weight:900; color:var(--text); letter-spacing:3px; }
+.uc-sub   { font-size:11px; color:var(--amb-l); letter-spacing:2px; margin-top:3px; }
+
+.fstack { display:flex; flex-direction:column; gap:11px; }
+
+.theme-grid { display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
+.t-chip {
+  background:var(--surface); border-radius:10px; padding:7px 9px;
+  border:1px solid var(--border); cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; min-width:62px;
+  transition:border-color .15s, background .15s;
+}
+.t-chip.on { border-color:var(--amb); background:var(--amb-dim); }
+.t-chip-e { font-size:18px; margin-bottom:2px; }
+.t-chip-l { font-size:9px; font-weight:600; color:var(--text2); }
+.t-chip.on .t-chip-l { color:var(--amb-l); }
+
+.uc-footer { padding:10px 18px 32px; flex-shrink:0; }
+
+/* ═══════════════════════════════════════════════════
+   UNDERCOVER DISTRIBUTE
+═══════════════════════════════════════════════════ */
+#s-uc-distrib { display:flex; flex-direction:column; height:100%; }
+
+.d-top { padding:52px 18px 12px; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.cancel-btn { background:none; border:none; color:var(--red); font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; }
+.pdots { flex:1; display:flex; flex-wrap:wrap; justify-content:center; gap:5px; }
+.pdot { width:7px; height:7px; border-radius:50%; background:var(--border); transition:all .2s; }
+.pdot.done { background:var(--green); }
+.pdot.cur  { background:var(--amb); width:11px; height:11px; }
+
+.player-sec { display:flex; flex-direction:column; align-items:center; padding:2px 22px 14px; flex-shrink:0; }
+.p-lbl  { font-size:10px; font-weight:700; color:var(--text2); letter-spacing:4px; }
+.p-num  { font-size:68px; font-weight:900; color:var(--text); line-height:1; }
+.p-instr { font-size:12px; color:var(--text2); text-align:center; line-height:1.6; }
+
+.card-zone { flex:1; margin:0 18px; position:relative; min-height:0; }
+.flip-card { position:absolute; inset:0; border-radius:20px; overflow:hidden; transition:opacity .25s; }
+.fc-hidden  { opacity:1; cursor:pointer; }
+.fc-reveal  { opacity:0; pointer-events:none; }
+.fc-face { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:22px; text-align:center; }
+.fc-lock-e { font-size:40px; margin-bottom:10px; }
+.fc-lock-t { font-size:11px; font-weight:800; color:var(--text2); letter-spacing:2px; margin-bottom:6px; }
+.fc-lock-s { font-size:11px; color:var(--text3); line-height:1.5; }
+
+.role-badge { display:flex; align-items:center; gap:7px; border:1px solid rgba(255,255,255,.2); border-radius:99px; padding:4px 12px; margin-bottom:12px; }
+.rb-e { font-size:16px; }
+.rb-l { font-size:10px; font-weight:800; letter-spacing:2px; }
+.word-lbl  { font-size:9px; font-weight:700; color:rgba(255,255,255,.32); letter-spacing:4px; margin-bottom:5px; }
+.word-text { font-size:26px; font-weight:900; color:var(--text); margin-bottom:3px; }
+.word-theme { font-size:10px; color:rgba(255,255,255,.28); margin-bottom:11px; }
+.role-msg   { font-size:11px; color:rgba(255,255,255,.5); font-style:italic; line-height:1.5; }
+
+.next-wrap { padding:10px 18px 30px; flex-shrink:0; }
+.next-btn {
+  width:100%; padding:13px; border-radius:99px;
+  background:linear-gradient(90deg,var(--amb),#92400E); border:none;
+  color:var(--text); font-size:13px; font-weight:800; letter-spacing:1px;
+  cursor:pointer; box-shadow:0 6px 18px rgba(217,119,6,.4);
+  opacity:0; pointer-events:none; transition:opacity .3s, transform .12s;
+}
+.next-btn.vis { opacity:1; pointer-events:all; }
+.next-btn:hover  { transform:scale(1.02); }
+.next-btn:active { transform:scale(.97); }
+
+.done-sc {
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  position:absolute; inset:0; padding:38px 26px; text-align:center;
+  background:linear-gradient(160deg,#0A0600,#1C0C00);
+}
+.done-sc.show { display:flex; }
+.done-e   { font-size:58px; margin-bottom:13px; }
+.done-ttl { font-size:20px; font-weight:900; color:var(--text); letter-spacing:4px; margin-bottom:4px; }
+.done-sub { font-size:11px; color:var(--amb-l); letter-spacing:2px; margin-bottom:12px; }
+.done-body { font-size:13px; color:var(--text2); line-height:1.7; margin-bottom:20px; }
+.done-stats { display:flex; gap:26px; margin-bottom:26px; }
+.done-snum { font-size:34px; font-weight:900; display:block; }
+.done-slbl { font-size:11px; color:var(--text2); }
+.done-back {
+  background:rgba(255,255,255,.06); border:1px solid var(--border2);
+  border-radius:99px; padding:9px 24px;
+  color:var(--text2); font-size:13px; font-weight:600; cursor:pointer;
+}
+.done-back:hover { opacity:.7; }
+
+/* ═══════════════════════════════════════════════════
+   QUIZ SETUP
+═══════════════════════════════════════════════════ */
+#s-quiz-setup { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+.qsetup-scroll { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; padding:0 18px 32px; }
+.qsetup-scroll::-webkit-scrollbar { display:none; }
+
+.genie-hero {
+  padding:52px 20px 20px;
+  display:flex; flex-direction:column; align-items:center;
+  background:linear-gradient(180deg,rgba(99,102,241,.07),transparent);
+  flex-shrink:0;
+}
+.genie-badge {
+  display:flex; align-items:center; gap:10px;
+  background:rgba(99,102,241,.1); border:1px solid rgba(99,102,241,.25);
+  border-radius:99px; padding:7px 14px; margin-bottom:14px;
+}
+.genie-badge-e { font-size:26px; }
+.genie-badge-n { font-size:13px; font-weight:800; color:var(--text); }
+.genie-badge-q { font-size:10px; color:var(--text2); font-style:italic; }
+.genie-title   { font-size:28px; font-weight:900; color:var(--text); letter-spacing:3px; }
+.genie-sub     { font-size:11px; color:var(--ind-l); letter-spacing:2px; margin-top:3px; }
+
+.cat-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:9px; }
+.cat-chip {
+  border-radius:12px; padding:10px 11px;
+  border:1px solid var(--border); background:var(--surface);
+  cursor:pointer; display:flex; align-items:center; gap:8px;
+  transition:border-color .15s, background .15s;
+}
+.cat-chip.on { border-color:var(--ind); background:var(--ind-dim); }
+.cat-chip-e { font-size:17px; }
+.cat-chip-l { font-size:11px; font-weight:600; color:var(--text2); flex:1; }
+.cat-chip.on .cat-chip-l { color:var(--ind-l); }
+.cat-check {
+  width:15px; height:15px; border-radius:50%; background:var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; flex-shrink:0; transition:background .15s;
+}
+.cat-chip.on .cat-check { background:var(--ind); color:#fff; content:'✓'; }
+
+.dur-row { display:flex; gap:7px; margin-top:8px; }
+.dur-chip {
+  flex:1; padding:8px; border-radius:10px; text-align:center;
+  border:1px solid var(--border); background:var(--surface);
+  font-size:12px; font-weight:600; color:var(--text2); cursor:pointer;
+  transition:border-color .15s, background .15s;
+}
+.dur-chip.on { border-color:var(--ind); background:var(--ind-dim); color:var(--ind-l); }
+
+.qsetup-footer { padding:10px 18px 32px; flex-shrink:0; }
+
+/* ═══════════════════════════════════════════════════
+   QUIZ GAME
+═══════════════════════════════════════════════════ */
+#s-quiz-game { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+
+.qg-header {
+  padding:52px 18px 10px; flex-shrink:0;
+  display:flex; align-items:center; gap:10px;
+}
+.qg-prog-wrap { flex:1; text-align:center; }
+.qg-count   { font-size:11px; font-weight:700; color:var(--text3); letter-spacing:2px; }
+.qg-prog-bar { height:3px; background:var(--border); border-radius:2px; overflow:hidden; margin:4px 0; }
+.qg-prog-fill { height:100%; background:linear-gradient(90deg,var(--ind),var(--ind-l)); border-radius:2px; transition:width .35s ease; }
+
+.timer-bar { height:4px; flex-shrink:0; margin:0 18px 6px; background:var(--border); border-radius:2px; overflow:hidden; }
+.timer-fill { height:100%; border-radius:2px; transition:width 1s linear, background .3s; }
+.timer-fill.ok   { background:var(--green); }
+.timer-fill.warn { background:var(--gold); }
+.timer-fill.hot  { background:var(--red); }
+
+.player-tag {
+  margin:0 18px 10px; padding:6px 13px; border-radius:99px;
+  background:var(--surface); border:1px solid var(--border);
+  display:flex; align-items:center; gap:8px; flex-shrink:0;
+}
+.pt-lbl   { font-size:10px; color:var(--text3); }
+.pt-name  { font-size:12px; font-weight:700; color:var(--text); }
+.pt-score { margin-left:auto; font-size:12px; font-weight:800; color:var(--ind-l); }
+
+.q-zone { flex:1; min-height:0; margin:0 18px; display:flex; flex-direction:column; justify-content:center; }
+.q-cat  { display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+.q-img  { width:100%; max-height:140px; object-fit:cover; border-radius:12px; margin-bottom:11px; border:1px solid rgba(232,121,249,.3); display:none; }
+.q-img.vis { display:block; }
+.q-text { font-size:17px; font-weight:800; color:var(--text); line-height:1.4; margin-bottom:18px; }
+.q-choices { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+
+.choice {
+  border-radius:13px; padding:12px 9px;
+  border:1px solid var(--border); background:var(--card);
+  cursor:pointer; display:flex; align-items:flex-start; gap:7px;
+  transition:border-color .15s, background .15s, transform .1s;
+}
+.choice:hover:not(:disabled) { border-color:var(--ind); background:var(--ind-dim); transform:scale(1.02); }
+.choice:active:not(:disabled) { transform:scale(.97); }
+.choice:disabled { cursor:default; transform:none !important; }
+.choice-l {
+  width:21px; height:21px; border-radius:6px;
+  background:var(--surface); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:800; color:var(--text3);
+}
+.choice-t { font-size:11px; font-weight:600; color:var(--text); line-height:1.4; padding-top:2px; }
+.choice.correct { border-color:var(--green); background:rgba(16,185,129,.1); }
+.choice.correct .choice-l { background:var(--green); color:#fff; }
+.choice.wrong   { border-color:var(--red); background:rgba(239,68,68,.08); opacity:.65; }
+.choice.wrong   .choice-l { background:var(--red); color:#fff; }
+
+.q-anecdote {
+  margin:10px 18px 0; padding:10px 13px;
+  background:rgba(99,102,241,.07); border:1px solid rgba(99,102,241,.18);
+  border-radius:11px; display:none; flex-shrink:0;
+}
+.q-anecdote.show { display:block; }
+.q-anecdote-txt { font-size:11px; color:var(--text2); line-height:1.55; }
+
+.q-next-wrap { padding:8px 18px 26px; flex-shrink:0; }
+.q-next-btn {
+  width:100%; padding:13px; border-radius:99px;
+  background:linear-gradient(90deg,var(--ind),#3730A3); border:none;
+  color:var(--text); font-size:13px; font-weight:800; letter-spacing:1px;
+  cursor:pointer; box-shadow:0 6px 18px rgba(99,102,241,.4);
+  opacity:0; pointer-events:none; transition:opacity .3s, transform .12s;
+}
+.q-next-btn.vis { opacity:1; pointer-events:all; }
+.q-next-btn:hover  { transform:scale(1.02); }
+.q-next-btn:active { transform:scale(.97); }
+
+/* ═══════════════════════════════════════════════════
+   QUIZ RESULTS
+═══════════════════════════════════════════════════ */
+#s-quiz-res {
+  display:flex; flex-direction:column; align-items:center;
+  height:100%; overflow-y:auto; overflow-x:hidden;
+  padding:50px 18px 36px; scrollbar-width:none;
+  background:linear-gradient(160deg,#05050E,#0C0A2C);
+}
+#s-quiz-res::-webkit-scrollbar { display:none; }
+.res-genie  { font-size:50px; margin-bottom:7px; filter:drop-shadow(0 0 14px rgba(99,102,241,.6)); }
+.res-title  { font-size:20px; font-weight:900; color:var(--text); letter-spacing:4px; }
+.res-sub    { font-size:11px; color:var(--ind-l); letter-spacing:2px; margin-top:2px; margin-bottom:20px; }
+
+.podium { display:flex; align-items:flex-end; gap:7px; width:100%; margin-bottom:16px; }
+.pod {
+  flex:1; border-radius:13px; padding:10px 6px;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  border:1px solid var(--border);
+}
+.pod.p1 { background:linear-gradient(180deg,rgba(245,158,11,.14),rgba(245,158,11,.04)); border-color:rgba(245,158,11,.28); padding-bottom:14px; }
+.pod-medal { font-size:20px; }
+.pod.p1 .pod-medal { font-size:26px; }
+.pod-name  { font-size:10px; font-weight:700; color:var(--text); text-align:center; line-height:1.3; }
+.pod-score { font-size:18px; font-weight:900; color:var(--text2); }
+.pod.p1 .pod-score { font-size:24px; color:var(--gold); }
+.pod.p2 .pod-score { color:#94A3B8; }
+.pod.p3 .pod-score { font-size:16px; color:#A97140; }
+
+.res-list { width:100%; display:flex; flex-direction:column; gap:7px; margin-bottom:20px; }
+.res-row {
+  display:flex; align-items:center; gap:11px;
+  background:var(--card); border-radius:11px; padding:11px 13px;
+  border:1px solid var(--border);
+}
+.res-rank  { font-size:14px; font-weight:900; color:var(--text3); width:22px; }
+.res-name  { flex:1; font-size:13px; font-weight:700; color:var(--text); }
+.res-score { font-size:16px; font-weight:900; color:var(--ind-l); }
+.res-pct   { font-size:10px; color:var(--text3); }
+.res-acts  { width:100%; display:flex; flex-direction:column; gap:9px; }
+.btn-sec {
+  width:100%; padding:12px; border-radius:99px;
+  background:var(--surface); border:1px solid var(--border2);
+  color:var(--text2); font-size:13px; font-weight:700; cursor:pointer;
+  transition:background .15s;
+}
+.btn-sec:hover { background:var(--card2); color:var(--text); }
+
+/* ═══════════════════════════════════════════════════
+   EXTERNAL NAV
+═══════════════════════════════════════════════════ */
+.nav-tabs, .tab-btn { display:none; }
+
+/* ═══════════════════════════════════════════════════
+   BLIND TEST — DAFT PUNK
+═══════════════════════════════════════════════════ */
+.w-char.dp { border-color:rgba(6,182,212,.3); }
+.w-char.dp .w-char-glow { background:radial-gradient(circle at 50% 20%,#06B6D4,transparent); }
+.bg-dp { background:linear-gradient(160deg,#000D1A 0%,#00192A 55%,#000D1A 100%); }
+
+#s-bt-setup { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+.dp-hero { padding:52px 20px 20px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; }
+.dp-badge { display:flex; align-items:center; gap:10px; background:rgba(6,182,212,.12); border-radius:99px; padding:8px 16px; margin-bottom:12px; border:1px solid rgba(6,182,212,.25); }
+.dp-badge-e { font-size:26px; }
+.dp-badge-n { font-size:13px; font-weight:800; color:var(--text); }
+.dp-badge-q { font-size:10px; color:var(--text2); font-style:italic; }
+.dp-title { font-size:28px; font-weight:900; color:var(--text); letter-spacing:4px; }
+.dp-sub { font-size:11px; color:#67E8F9; letter-spacing:2px; margin-top:3px; }
+.btsetup-scroll { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; padding:0 18px 32px; }
+.btsetup-scroll::-webkit-scrollbar { display:none; }
+.btsetup-footer { padding:10px 18px 32px; flex-shrink:0; }
+.btn-dp { background:linear-gradient(90deg,#06B6D4,#0E7490); box-shadow:0 8px 24px rgba(6,182,212,.4); }
+.btn-dp:hover { box-shadow:0 10px 30px rgba(6,182,212,.55); }
+
+.bt-cat-grid { display:flex; flex-wrap:wrap; gap:7px; margin-top:8px; }
+.bt-cat-chip { background:var(--surface); border-radius:10px; padding:7px 11px; display:flex; align-items:center; gap:5px; border:1.5px solid var(--border); cursor:pointer; transition:border-color .15s,background .15s; }
+.bt-cat-chip.on { background:rgba(6,182,212,.08); }
+.bt-cat-chip-e { font-size:15px; }
+.bt-cat-chip-l { font-size:11px; font-weight:600; color:var(--text2); }
+.bt-cat-chip.on .bt-cat-chip-l { color:#67E8F9; }
+
+.sc-row { display:flex; gap:7px; margin-top:8px; }
+.sc-chip { flex:1; background:var(--surface); border-radius:10px; padding:10px 4px; border:1.5px solid var(--border); cursor:pointer; text-align:center; transition:border-color .15s,background .15s; }
+.sc-chip.on { border-color:#06B6D4; background:rgba(6,182,212,.1); }
+.sc-chip-n { font-size:20px; font-weight:900; color:var(--text); line-height:1; }
+.sc-chip-l { font-size:9px; color:var(--text3); margin-top:2px; }
+.sc-chip.on .sc-chip-n { color:#06B6D4; }
+
+#s-bt-game { display:flex; flex-direction:column; height:100%; overflow:hidden; background:linear-gradient(180deg,#000D1A,#001525); }
+.btg-header { padding:52px 14px 8px; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.btg-prog-wrap { flex:1; text-align:center; }
+.btg-count { font-size:11px; font-weight:700; color:var(--text3); letter-spacing:2px; }
+.btg-prog-bar { height:3px; background:var(--border); border-radius:2px; overflow:hidden; margin:4px 0; }
+.btg-prog-fill { height:100%; background:linear-gradient(90deg,#06B6D4,#67E8F9); border-radius:2px; transition:width .35s ease; }
+.btg-body { flex:1; min-height:0; overflow-y:auto; padding:8px 16px 20px; display:flex; flex-direction:column; gap:10px; scrollbar-width:none; }
+.btg-body::-webkit-scrollbar { display:none; }
+
+.bt-song-card { background:var(--card); border-radius:18px; border:1px solid var(--border); overflow:hidden; }
+.bt-song-cat { display:flex; align-items:center; gap:6px; padding:10px 14px 0; font-size:10px; font-weight:700; color:var(--text3); letter-spacing:1px; text-transform:uppercase; }
+.bt-song-hidden { padding:18px 14px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px; }
+.bt-song-q { font-size:40px; }
+.bt-song-hint { font-size:11px; color:var(--text3); }
+.bt-answer-reveal { padding:12px 14px 14px; display:none; }
+.bt-answer-reveal.vis { display:block; }
+.bt-answer-title { font-size:22px; font-weight:900; color:var(--text); }
+.bt-answer-artist { font-size:13px; color:#06B6D4; font-weight:700; margin-top:2px; }
+.bt-answer-year { font-size:11px; color:var(--text3); margin-top:1px; }
+.bt-anecdote { font-size:11px; color:var(--text2); line-height:1.55; margin-top:9px; padding-top:9px; border-top:1px solid var(--border); }
+
+.bt-clues { background:var(--card); border-radius:14px; border:1px solid var(--border); padding:12px; display:flex; flex-direction:column; gap:6px; }
+.bt-clues-title { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:1px; margin-bottom:2px; }
+.bt-clue { display:flex; gap:8px; align-items:flex-start; opacity:0; max-height:0; overflow:hidden; transition:opacity .3s,max-height .3s; }
+.bt-clue.vis { opacity:1; max-height:60px; }
+.bt-clue-num { font-size:9px; font-weight:800; color:#06B6D4; background:rgba(6,182,212,.15); border-radius:99px; padding:2px 7px; flex-shrink:0; margin-top:2px; }
+.bt-clue-txt { font-size:12px; color:var(--text2); line-height:1.4; }
+.bt-no-clues { font-size:11px; color:var(--text3); text-align:center; padding:4px 0; }
+
+.bt-reveal-btn { width:100%; padding:11px; border-radius:12px; border:1.5px dashed rgba(6,182,212,.35); background:rgba(6,182,212,.05); color:#06B6D4; font-size:12px; font-weight:700; cursor:pointer; transition:background .15s; }
+.bt-reveal-btn:hover { background:rgba(6,182,212,.12); }
+.bt-reveal-btn:disabled { opacity:.3; cursor:default; }
+.bt-ans-btn { width:100%; padding:13px; border-radius:12px; border:none; background:linear-gradient(90deg,#06B6D4,#0284C7); color:#fff; font-size:13px; font-weight:800; cursor:pointer; transition:opacity .15s; box-shadow:0 6px 18px rgba(6,182,212,.3); }
+.bt-ans-btn:hover { opacity:.85; }
+.bt-ans-btn:disabled { opacity:.3; cursor:default; }
+
+.bt-award { background:var(--card); border-radius:14px; border:1px solid rgba(6,182,212,.2); padding:12px; display:none; }
+.bt-award.vis { display:block; }
+.bt-award-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:8px; }
+.bt-award-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
+.bt-award-btn { padding:10px 8px; border-radius:10px; border:1.5px solid var(--border); background:var(--surface); color:var(--text); font-size:11px; font-weight:700; cursor:pointer; transition:background .15s,border-color .15s; text-align:center; }
+.bt-award-btn:hover { background:rgba(6,182,212,.1); border-color:#06B6D4; }
+.bt-award-none { grid-column:1/-1; color:var(--red); border-color:rgba(239,68,68,.2); }
+.bt-award-none:hover { background:rgba(239,68,68,.07); border-color:rgba(239,68,68,.4); }
+.bt-pts { font-size:9px; color:var(--text3); font-weight:600; display:block; margin-top:1px; }
+
+#s-bt-res {
+  display:flex; flex-direction:column; align-items:center;
+  height:100%; overflow-y:auto; overflow-x:hidden;
+  padding:50px 18px 36px; scrollbar-width:none;
+  background:linear-gradient(160deg,#000D1A,#001A2E);
+}
+#s-bt-res::-webkit-scrollbar { display:none; }
+.bt-res-dp { font-size:50px; margin-bottom:7px; filter:drop-shadow(0 0 14px rgba(6,182,212,.6)); }
+.bt-res-sub { font-size:11px; color:#67E8F9; letter-spacing:2px; margin-top:2px; margin-bottom:20px; }
+
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+/* ═══════════════════════════════════════════════════
+   TEST AMITIÉ / COUPLE — VÉRA LIEN
+═══════════════════════════════════════════════════ */
+:root {
+  --rose:     #F43F5E;
+  --rose-l:   #FDA4AF;
+  --rose-dim: rgba(244,63,94,.14);
+}
+.w-char.rose { border-color:rgba(244,63,94,.3); }
+.w-char.rose .w-char-glow { background:radial-gradient(circle at 50% 20%,#F43F5E,transparent); }
+.bg-rose { background:linear-gradient(160deg,#1A0008 0%,#2D000F 55%,#1A0008 100%); }
+.btn-rose { background:linear-gradient(90deg,var(--rose),#881337); box-shadow:0 8px 24px rgba(244,63,94,.4); }
+.btn-rose:hover { box-shadow:0 10px 30px rgba(244,63,94,.55); }
+
+#s-am-setup { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+.am-scroll { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; padding:0 18px 32px; }
+.am-scroll::-webkit-scrollbar { display:none; }
+.am-footer { padding:10px 18px 32px; flex-shrink:0; }
+
+.am-hero {
+  padding:52px 20px 20px; flex-shrink:0;
+  display:flex; flex-direction:column; align-items:center;
+  background:linear-gradient(180deg,rgba(244,63,94,.07),transparent);
+}
+.am-badge { display:flex; align-items:center; gap:10px; background:rgba(244,63,94,.1); border:1px solid rgba(244,63,94,.25); border-radius:99px; padding:7px 14px; margin-bottom:14px; }
+.am-badge-e { font-size:26px; }
+.am-badge-n { font-size:13px; font-weight:800; color:var(--text); }
+.am-badge-q { font-size:10px; color:var(--text2); font-style:italic; }
+.am-title { font-size:28px; font-weight:900; color:var(--text); letter-spacing:3px; }
+.am-sub   { font-size:11px; color:var(--rose-l); letter-spacing:2px; margin-top:3px; }
+
+.player-inputs { display:flex; flex-direction:column; gap:8px; margin-top:9px; }
+.player-input-row { display:flex; align-items:center; gap:8px; }
+.player-num-badge { width:28px; height:28px; border-radius:50%; background:var(--rose-dim); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.player-num-badge span { font-size:12px; font-weight:800; color:var(--rose-l); }
+.player-input { flex:1; background:var(--surface); border:1px solid var(--border2); border-radius:10px; padding:9px 12px; color:var(--text); font-size:14px; font-weight:600; font-family:inherit; outline:none; transition:border-color .15s; }
+.player-input::placeholder { color:var(--text3); }
+.player-input:focus { border-color:var(--rose); }
+.remove-player-btn { background:none; border:none; color:var(--text3); font-size:16px; cursor:pointer; padding:4px; line-height:1; }
+.remove-player-btn:hover { color:var(--red); }
+.add-player-btn { background:none; border:1.5px dashed rgba(244,63,94,.35); border-radius:10px; color:var(--rose-l); font-size:12px; font-weight:700; cursor:pointer; padding:8px; width:100%; margin-top:5px; transition:background .15s; }
+.add-player-btn:hover { background:var(--rose-dim); }
+
+.mode-row { display:flex; gap:8px; margin-top:9px; }
+.mode-btn { flex:1; background:var(--surface); border:1.5px solid var(--border); border-radius:13px; padding:12px 8px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; transition:border-color .15s, background .15s; }
+.mode-btn.on { border-color:var(--rose); background:var(--rose-dim); }
+.mode-btn-e { font-size:26px; }
+.mode-btn-n { font-size:13px; font-weight:800; color:var(--text); }
+.mode-btn.on .mode-btn-n { color:var(--rose-l); }
+.mode-btn-d { font-size:10px; color:var(--text3); }
+
+.count-row { display:flex; gap:8px; margin-top:9px; }
+.count-chip { flex:1; background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:10px 4px; text-align:center; cursor:pointer; transition:border-color .15s, background .15s; }
+.count-chip.on { border-color:var(--rose); background:var(--rose-dim); }
+.count-chip-n { font-size:24px; font-weight:900; color:var(--text); line-height:1; }
+.count-chip.on .count-chip-n { color:var(--rose-l); }
+.count-chip-l { font-size:9px; color:var(--text3); margin-top:2px; }
+
+.am-error { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.25); border-radius:10px; padding:10px 12px; display:none; }
+.am-error.show { display:block; }
+.am-error-txt { font-size:12px; color:var(--red); font-weight:600; text-align:center; }
+
+#s-am-game { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+.am-prog-bar { height:3px; flex-shrink:0; background:var(--border); }
+.am-prog-fill { height:100%; background:linear-gradient(90deg,var(--rose),var(--rose-l)); border-radius:2px; transition:width .35s ease; }
+.am-game-header { padding:48px 18px 10px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.am-quit-btn { background:none; border:none; color:var(--text3); font-size:12px; cursor:pointer; }
+.am-round-count { font-size:13px; font-weight:700; color:var(--text3); letter-spacing:1px; }
+
+.am-players-bar { display:flex; align-items:center; justify-content:center; gap:10px; padding:0 18px 10px; flex-shrink:0; }
+.am-player-chip { display:flex; flex-direction:column; align-items:center; padding:7px 14px; border-radius:12px; border:1px solid; min-width:100px; }
+.am-player-role { font-size:9px; color:var(--text3); margin-bottom:2px; }
+.am-player-name { font-size:15px; font-weight:800; }
+.am-arrow { font-size:18px; color:var(--text3); }
+
+.am-question-zone { flex:1; min-height:0; margin:0 18px; display:flex; flex-direction:column; justify-content:center; }
+.am-q-card { background:linear-gradient(135deg,#2D0015,#1A000A); border:1px solid rgba(244,63,94,.3); border-radius:20px; padding:28px 22px; text-align:center; box-shadow:0 8px 30px rgba(244,63,94,.15); display:flex; flex-direction:column; align-items:center; gap:14px; }
+.am-q-emoji { font-size:40px; }
+.am-q-text  { font-size:20px; font-weight:700; color:var(--text); line-height:1.45; }
+
+.am-action-area { padding:12px 18px 26px; flex-shrink:0; display:flex; flex-direction:column; gap:10px; }
+.am-instr { text-align:center; font-size:12px; color:var(--text3); font-style:italic; }
+.am-reveal-btn { width:100%; padding:14px; border-radius:99px; border:none; background:linear-gradient(90deg,var(--rose),#881337); color:var(--text); font-size:14px; font-weight:800; letter-spacing:1px; cursor:pointer; box-shadow:0 6px 18px rgba(244,63,94,.4); transition:transform .1s, box-shadow .1s; }
+.am-reveal-btn:hover { box-shadow:0 8px 24px rgba(244,63,94,.55); transform:scale(1.02); }
+.am-reveal-btn:active { transform:scale(.97); }
+
+.am-answer-btns { display:flex; gap:9px; }
+.am-ans-btn { flex:1; padding:14px; border-radius:13px; border:1.5px solid; cursor:pointer; font-size:22px; display:flex; flex-direction:column; align-items:center; gap:4px; transition:transform .1s, background .1s; }
+.am-ans-btn:active { transform:scale(.96); }
+.am-ans-btn-l { font-size:12px; font-weight:700; color:var(--text); }
+.am-ans-correct { background:rgba(16,185,129,.12); border-color:rgba(16,185,129,.5); }
+.am-ans-wrong   { background:rgba(239,68,68,.08);  border-color:rgba(239,68,68,.4);  }
+
+.am-feedback { width:100%; padding:14px; border-radius:13px; text-align:center; display:none; font-size:18px; font-weight:800; color:var(--text); }
+.am-feedback.show    { display:block; }
+.am-feedback.correct { background:rgba(16,185,129,.2); border:1px solid rgba(16,185,129,.4); }
+.am-feedback.wrong   { background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.3); }
+
+#s-am-res { display:flex; flex-direction:column; align-items:center; height:100%; overflow-y:auto; overflow-x:hidden; padding:50px 18px 36px; scrollbar-width:none; background:linear-gradient(160deg,#1A0008,#2D000F); }
+#s-am-res::-webkit-scrollbar { display:none; }
+.am-res-compat { background:linear-gradient(135deg,#2D0015,#4A001A); border:1px solid rgba(244,63,94,.35); border-radius:20px; padding:26px; text-align:center; width:100%; margin-bottom:14px; box-shadow:0 8px 30px rgba(244,63,94,.2); }
+.am-res-emoji  { font-size:52px; display:block; margin-bottom:8px; }
+.am-res-pct    { font-size:60px; font-weight:900; color:var(--rose-l); line-height:1; }
+.am-res-lbl    { font-size:12px; color:var(--text2); letter-spacing:2px; margin-top:4px; margin-bottom:10px; }
+.am-res-div    { height:1px; background:rgba(244,63,94,.2); margin:10px 0; }
+.am-res-msg    { font-size:15px; font-weight:600; color:var(--text); line-height:1.5; }
+.am-score-card { background:var(--card); border-radius:16px; border:1px solid var(--border); padding:16px; width:100%; margin-bottom:12px; }
+.am-score-title { font-size:11px; font-weight:800; color:var(--rose-l); letter-spacing:2px; margin-bottom:12px; }
+.am-score-row  { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.am-score-rank { font-size:16px; width:28px; text-align:center; }
+.am-score-name { width:72px; font-size:13px; font-weight:700; color:var(--text); }
+.am-score-bar-wrap { flex:1; }
+.am-score-track { height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
+.am-score-fill  { height:100%; border-radius:3px; background:var(--rose); transition:width .8s cubic-bezier(.2,1,.4,1); }
+.am-score-val   { width:34px; font-size:12px; font-weight:700; color:var(--text2); text-align:right; }
+.am-res-acts { width:100%; display:flex; flex-direction:column; gap:9px; }
+</style>
+</head>
+<body>
+
+<p class="page-label">🎭 La Soirée des Légendes — Aperçu v2</p>
+
+<div class="phone">
+  <div class="notch"><div class="notch-dot"></div></div>
+
+  <!-- ══════════ WELCOME ══════════ -->
+  <div id="s-welcome" class="screen bg-welcome active">
+    <div class="stars" id="stars"></div>
+    <div class="w-logo">
+      <span class="w-crown">👑</span>
+      <div class="w-line1">La Soirée</div>
+      <div class="w-line2">DES</div>
+      <div class="w-line3">LÉGENDES</div>
+      <div class="w-divider"></div>
+    </div>
+    <div class="w-chars">
+      <div class="w-char amb" onclick="goto('uc-setup')">
+        <div class="w-char-glow"></div>
+        <div class="w-char-emoji">🕵️</div>
+        <div class="w-char-name">SHERLOCK</div>
+        <div class="w-char-game">Undercover</div>
+      </div>
+      <div class="w-char ind" onclick="goto('quiz-setup')">
+        <div class="w-char-glow"></div>
+        <div class="w-char-emoji">🧞</div>
+        <div class="w-char-name">LE GÉNIE</div>
+        <div class="w-char-game">Quiz</div>
+      </div>
+      <div class="w-char dp" onclick="goto('bt-setup')">
+        <div class="w-char-glow"></div>
+        <div class="w-char-emoji">🤖</div>
+        <div class="w-char-name">DAFT PUNK</div>
+        <div class="w-char-game">Blind Test</div>
+      </div>
+      <div class="w-char rose" onclick="goto('am-setup')">
+        <div class="w-char-glow"></div>
+        <div class="w-char-emoji">💝</div>
+        <div class="w-char-name">VÉRA LIEN</div>
+        <div class="w-char-game">Test Lien</div>
+      </div>
+    </div>
+    <button class="w-cta" onclick="goto('menu')">🎮  COMMENCER LA SOIRÉE</button>
+    <div class="w-ver">v2.0 · Bêta</div>
+  </div>
+
+  <!-- ══════════ MENU ══════════ -->
+  <div id="s-menu" class="screen bg-menu">
+    <div class="menu-hdr">
+      <button class="btn-back" onclick="goto('welcome')">←</button>
+      <div class="menu-ttl-block">
+        <div class="menu-ttl">CHOISISSEZ</div>
+        <div class="menu-sub">votre aventure</div>
+      </div>
+      <div style="width:28px"></div>
+    </div>
+    <div class="menu-scroll" id="menu-scroll"></div>
+  </div>
+
+  <!-- ══════════ UNDERCOVER SETUP ══════════ -->
+  <div id="s-uc-setup" class="screen bg-sheriff">
+    <div class="uc-hero">
+      <button class="btn-back" style="align-self:flex-start;margin-bottom:12px" onclick="goto('menu')">← Retour</button>
+      <div class="uc-badge">
+        <span class="uc-badge-emoji">🕵️</span>
+        <div><div class="uc-badge-name">Sherlock Holmes</div><div class="uc-badge-quote">"Élémentaire, mon cher Watson."</div></div>
+      </div>
+      <div class="uc-title">UNDERCOVER</div>
+      <div class="uc-sub">Configuration de la mission</div>
+    </div>
+    <div class="uc-scroll">
+      <div class="fstack">
+        <div class="card">
+          <div class="card-label">👥 Nombre de joueurs</div>
+          <div class="counter">
+            <button class="ctr-btn" id="bplm" onclick="chPl(-1)">−</button>
+            <div class="ctr-num" id="pl-n">5</div>
+            <button class="ctr-btn" id="bplp" onclick="chPl(1)">+</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">🕵️ Nombre d'espions</div>
+          <div class="card-hint">1 espion recommandé pour 3 joueurs</div>
+          <div class="counter">
+            <button class="ctr-btn" id="bucm" onclick="chUC(-1)">−</button>
+            <div class="ctr-num" id="uc-n">1</div>
+            <button class="ctr-btn" id="bucp" onclick="chUC(1)">+</button>
+          </div>
+        </div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="flex:1">
+              <div class="card-label">👻 Monsieur Blanc</div>
+              <div class="card-hint" style="margin-bottom:0">Un joueur sans mot qui doit bluffer</div>
+            </div>
+            <button class="toggle" id="tog-mw" onclick="togMW()"></button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">🎲 Thème des mots</div>
+          <div class="theme-grid">
+            <button class="t-chip on" data-t="classique" onclick="selT(this)"><span class="t-chip-e">🎯</span><span class="t-chip-l">Classique</span></button>
+            <button class="t-chip" data-t="nature"    onclick="selT(this)"><span class="t-chip-e">🌿</span><span class="t-chip-l">Nature</span></button>
+            <button class="t-chip" data-t="cinema"    onclick="selT(this)"><span class="t-chip-e">🎬</span><span class="t-chip-l">Cinéma</span></button>
+            <button class="t-chip" data-t="hot"       onclick="selT(this)"><span class="t-chip-e">🔥</span><span class="t-chip-l">Hot 🔥</span></button>
+            <button class="t-chip" data-t="aleatoire" onclick="selT(this)"><span class="t-chip-e">✨</span><span class="t-chip-l">Aléatoire</span></button>
+          </div>
+        </div>
+        <div class="sum-card" style="background:rgba(217,119,6,.06);border-color:rgba(217,119,6,.18)">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:9px">📋 Résumé</div>
+          <div class="sum-row"><span class="sum-key">Joueurs</span><span class="sum-val" id="s-pl">5</span></div>
+          <div class="sum-row"><span class="sum-key">Villageois</span><span class="sum-val" id="s-civ" style="color:var(--green)">4</span></div>
+          <div class="sum-row"><span class="sum-key">Espions</span><span class="sum-val" id="s-uc" style="color:var(--red)">1</span></div>
+          <div class="sum-row" id="s-mwr" style="display:none"><span class="sum-key">M. Blanc</span><span class="sum-val" style="color:var(--gold)">1</span></div>
+          <div class="sum-row"><span class="sum-key">Thème</span><span class="sum-val" id="s-th">Classique</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="uc-footer"><button class="btn-primary btn-amb" onclick="startUC()">🚀  LANCER LA MISSION</button></div>
+  </div>
+
+  <!-- ══════════ UNDERCOVER DISTRIBUTE ══════════ -->
+  <div id="s-uc-distrib" class="screen bg-sheriff">
+    <div id="d-game" style="display:flex;flex-direction:column;height:100%">
+      <div class="d-top">
+        <button class="cancel-btn" onclick="goto('uc-setup')">✕ Annuler</button>
+        <div class="pdots" id="pdots"></div>
+      </div>
+      <div class="player-sec">
+        <div class="p-lbl">JOUEUR</div>
+        <div class="p-num" id="p-num">1</div>
+        <div class="p-instr" id="p-instr">Prends le téléphone seul et appuie pour révéler 👀</div>
+      </div>
+      <div class="card-zone">
+        <div class="flip-card fc-hidden" id="fc-front" onclick="revealRole()">
+          <div class="fc-face" style="background:linear-gradient(135deg,#1A1005,#2A1A00)">
+            <div class="fc-lock-e">🔒</div>
+            <div class="fc-lock-t">APPUYER POUR RÉVÉLER</div>
+            <div class="fc-lock-s">Assure-toi que personne<br>ne regarde ton écran !</div>
+          </div>
+        </div>
+        <div class="flip-card fc-reveal" id="fc-back">
+          <div class="fc-face" id="fc-back-face">
+            <div class="role-badge" id="rbadge"><span class="rb-e" id="remoji">👤</span><span class="rb-l" id="rlabel">VILLAGEOIS</span></div>
+            <div class="word-lbl">TON MOT</div>
+            <div class="word-text" id="rword">—</div>
+            <div class="word-theme" id="rtheme">Thème : Classique</div>
+            <div class="role-msg" id="rmsg">Décris ton mot sans jamais le prononcer.</div>
+          </div>
+        </div>
+      </div>
+      <div class="next-wrap"><button class="next-btn" id="next-btn" onclick="nextPlayer()">Joueur 2 →</button></div>
+    </div>
+    <div class="done-sc" id="done-sc">
+      <div class="done-e">⚔️</div>
+      <div class="done-ttl">MISSION LANCÉE</div>
+      <div class="done-sub">Tous les rôles distribués</div>
+      <div class="done-body">La partie peut commencer.<br>Que le meilleur menteur gagne !</div>
+      <div class="done-stats" id="done-stats"></div>
+      <button class="done-back" onclick="goto('menu')">Retour au menu</button>
+    </div>
+  </div>
+
+  <!-- ══════════ QUIZ SETUP ══════════ -->
+  <div id="s-quiz-setup" class="screen bg-genie">
+    <div class="genie-hero">
+      <button class="btn-back" style="align-self:flex-start;margin-bottom:12px" onclick="goto('menu')">← Retour</button>
+      <div class="genie-badge">
+        <span class="genie-badge-e">🧞</span>
+        <div><div class="genie-badge-n">Le Génie</div><div class="genie-badge-q">"Ton souhait est ma connaissance !"</div></div>
+      </div>
+      <div class="genie-title">QUIZ MASTER</div>
+      <div class="genie-sub">Préparez vos neurones</div>
+    </div>
+    <div class="qsetup-scroll">
+      <div class="fstack">
+        <div class="card">
+          <div class="card-label">👥 Nombre de joueurs</div>
+          <div class="counter">
+            <button class="ctr-btn" id="bqplm" onclick="chQPl(-1)">−</button>
+            <div class="ctr-num" id="qpl-n">3</div>
+            <button class="ctr-btn" id="bqplp" onclick="chQPl(1)">+</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">🏷️ Catégories</div>
+          <div class="card-hint">Sélectionne une ou plusieurs catégories</div>
+          <div class="cat-grid" id="cat-grid"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">❓ Nombre de questions</div>
+          <div class="dur-row">
+            <button class="dur-chip" data-q="5"  onclick="selQC(this)">5</button>
+            <button class="dur-chip on" data-q="10" onclick="selQC(this)">10</button>
+            <button class="dur-chip" data-q="15" onclick="selQC(this)">15</button>
+            <button class="dur-chip" data-q="20" onclick="selQC(this)">20</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">⏱️ Temps par question</div>
+          <div class="dur-row">
+            <button class="dur-chip" data-s="15"  onclick="selTim(this)">15s</button>
+            <button class="dur-chip on" data-s="30" onclick="selTim(this)">30s</button>
+            <button class="dur-chip" data-s="60" onclick="selTim(this)">60s</button>
+            <button class="dur-chip" data-s="0"  onclick="selTim(this)">∞</button>
+          </div>
+        </div>
+        <div class="sum-card" style="background:rgba(99,102,241,.06);border-color:rgba(99,102,241,.18)">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:9px">📋 Résumé</div>
+          <div class="sum-row"><span class="sum-key">Joueurs</span><span class="sum-val" id="qs-pl">3</span></div>
+          <div class="sum-row"><span class="sum-key">Questions</span><span class="sum-val" id="qs-q">10</span></div>
+          <div class="sum-row"><span class="sum-key">Timer</span><span class="sum-val" id="qs-t">30s</span></div>
+          <div class="sum-row"><span class="sum-key">Catégories</span><span class="sum-val" id="qs-cat">Toutes</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="qsetup-footer"><button class="btn-primary btn-ind" onclick="startQuiz()">🧞  EXAUCER LE VŒU</button></div>
+  </div>
+
+  <!-- ══════════ QUIZ GAME ══════════ -->
+  <div id="s-quiz-game" class="screen bg-quiz-g">
+    <div class="qg-header">
+      <button class="cancel-btn" style="color:var(--text3);font-size:11px" onclick="goto('quiz-setup')">✕</button>
+      <div class="qg-prog-wrap">
+        <div class="qg-count" id="qg-count">Q 1 / 10</div>
+        <div class="qg-prog-bar"><div class="qg-prog-fill" id="qg-prog" style="width:10%"></div></div>
+      </div>
+      <div style="font-size:18px">🧞</div>
+    </div>
+    <div class="timer-bar"><div class="timer-fill ok" id="timer-fill" style="width:100%"></div></div>
+    <div class="player-tag" id="player-tag">
+      <span class="pt-lbl">🎯 À toi :</span>
+      <span class="pt-name" id="pt-name">Joueur 1</span>
+      <span class="pt-score" id="pt-score">0 pts</span>
+    </div>
+    <div class="q-zone">
+      <div class="q-cat" id="q-cat">🧠 Culture G.</div>
+      <img class="q-img" id="q-img" src="" alt="" onerror="this.classList.remove('vis')" />
+      <div class="q-text" id="q-text">Question...</div>
+      <div class="q-choices" id="q-choices"></div>
+    </div>
+    <div class="q-anecdote" id="q-anecdote"><div class="q-anecdote-txt" id="q-anecdote-txt"></div></div>
+    <div class="q-next-wrap"><button class="q-next-btn" id="q-next-btn" onclick="nextQ()">Suivant →</button></div>
+  </div>
+
+  <!-- ══════════ QUIZ RESULTS ══════════ -->
+  <div id="s-quiz-res" class="screen">
+    <div class="res-genie">🧞</div>
+    <div class="res-title">RÉSULTATS</div>
+    <div class="res-sub" id="res-sub">Quiz terminé !</div>
+    <div class="podium" id="podium"></div>
+    <div class="res-list" id="res-list"></div>
+    <div class="res-acts">
+      <button class="btn-primary btn-ind" onclick="startQuiz()">🔄 Rejouer</button>
+      <button class="btn-sec" onclick="goto('menu')">← Menu principal</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════ BLIND TEST SETUP ══════════ -->
+  <div id="s-bt-setup" class="screen bg-dp">
+    <div class="dp-hero">
+      <button class="btn-back" style="align-self:flex-start;margin-bottom:12px" onclick="goto('menu')">← Retour</button>
+      <div class="dp-badge">
+        <span class="dp-badge-e">🤖</span>
+        <div><div class="dp-badge-n">Daft Punk</div><div class="dp-badge-q">"Around the world, around the world !"</div></div>
+      </div>
+      <div class="dp-title">BLIND TEST</div>
+      <div class="dp-sub">Connais-tu ta musique ?</div>
+    </div>
+    <div class="btsetup-scroll">
+      <div class="fstack">
+        <div class="card">
+          <div class="card-label">👥 Nombre de joueurs</div>
+          <div class="counter">
+            <button class="ctr-btn" id="bbtplm" onclick="chBTPl(-1)">−</button>
+            <div class="ctr-num" id="btpl-n">3</div>
+            <button class="ctr-btn" id="bbtplp" onclick="chBTPl(1)">+</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">🎵 Catégories</div>
+          <div class="card-hint">Sélectionne au moins une catégorie</div>
+          <div class="bt-cat-grid" id="bt-cat-grid"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">🎶 Nombre de chansons</div>
+          <div class="sc-row" id="sc-row"></div>
+        </div>
+        <div class="sum-card" style="background:rgba(6,182,212,.06);border-color:rgba(6,182,212,.18)">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:9px">📋 Résumé</div>
+          <div class="sum-row"><span class="sum-key">Joueurs</span><span class="sum-val" id="bts-pl">3</span></div>
+          <div class="sum-row"><span class="sum-key">Chansons</span><span class="sum-val" id="bts-sc" style="color:#06B6D4">10</span></div>
+          <div class="sum-row"><span class="sum-key">Catégories</span><span class="sum-val" id="bts-cat">Toutes</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="btsetup-footer"><button class="btn-primary btn-dp" onclick="startBT()">🤖  LANCER LE BLIND TEST</button></div>
+  </div>
+
+  <!-- ══════════ BLIND TEST GAME ══════════ -->
+  <div id="s-bt-game" class="screen">
+    <div class="btg-header">
+      <button class="cancel-btn" style="color:var(--text3);font-size:11px" onclick="goto('bt-setup')">✕</button>
+      <div class="btg-prog-wrap">
+        <div class="btg-count" id="btg-count">🎵 1 / 10</div>
+        <div class="btg-prog-bar"><div class="btg-prog-fill" id="btg-prog" style="width:10%"></div></div>
+      </div>
+      <div style="font-size:18px">🤖</div>
+    </div>
+    <div class="btg-body" id="btg-body">
+      <div class="bt-song-card">
+        <div class="bt-song-cat" id="btg-cat">🎵 Pop</div>
+        <div class="bt-song-hidden" id="btg-hidden">
+          <div class="bt-song-q">🎵</div>
+          <div class="bt-song-hint">Trouvez le titre et l'artiste !</div>
+        </div>
+        <div class="bt-answer-reveal" id="btg-answer">
+          <div class="bt-answer-title" id="btg-title">—</div>
+          <div class="bt-answer-artist" id="btg-artist">—</div>
+          <div class="bt-answer-year" id="btg-year">—</div>
+          <div class="bt-anecdote" id="btg-anecdote"></div>
+        </div>
+      </div>
+      <div class="bt-clues">
+        <div class="bt-clues-title">💡 INDICES</div>
+        <div class="bt-no-clues" id="btg-no-clues">Aucun indice révélé pour l'instant</div>
+        <div class="bt-clue" id="btg-c1"><span class="bt-clue-num">1</span><span class="bt-clue-txt" id="btg-c1t"></span></div>
+        <div class="bt-clue" id="btg-c2"><span class="bt-clue-num">2</span><span class="bt-clue-txt" id="btg-c2t"></span></div>
+        <div class="bt-clue" id="btg-c3"><span class="bt-clue-num">3</span><span class="bt-clue-txt" id="btg-c3t"></span></div>
+        <div class="bt-clue" id="btg-c4"><span class="bt-clue-num">4</span><span class="bt-clue-txt" id="btg-c4t"></span></div>
+      </div>
+      <button class="bt-reveal-btn" id="btg-clue-btn" onclick="btRevealClue()">💡 Révéler un indice (4 disponibles)</button>
+      <button class="bt-ans-btn" id="btg-ans-btn" onclick="btRevealAnswer()">🎵 Révéler la réponse</button>
+      <div class="bt-award" id="btg-award">
+        <div class="bt-award-title" id="btg-award-title">🏆 Qui a trouvé ?</div>
+        <div class="bt-award-grid" id="btg-award-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ BLIND TEST RESULTS ══════════ -->
+  <div id="s-bt-res" class="screen">
+    <div class="bt-res-dp">🤖</div>
+    <div class="res-title">RÉSULTATS</div>
+    <div class="bt-res-sub" id="bt-res-sub">Blind Test terminé !</div>
+    <div class="podium" id="bt-podium"></div>
+    <div class="res-list" id="bt-res-list"></div>
+    <div class="res-acts">
+      <button class="btn-primary btn-dp" onclick="startBT()">🔄 Rejouer</button>
+      <button class="btn-sec" onclick="goto('menu')">← Menu principal</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════ AMITIÉ / COUPLE SETUP ══════════ -->
+  <div id="s-am-setup" class="screen bg-rose">
+    <div class="am-hero">
+      <button class="btn-back" style="align-self:flex-start;margin-bottom:12px" onclick="goto('menu')">← Retour</button>
+      <div class="am-badge">
+        <span class="am-badge-e">💝</span>
+        <div><div class="am-badge-n">Véra Lien</div><div class="am-badge-q">"Vous pensez vous connaître... vraiment ?"</div></div>
+      </div>
+      <div class="am-title">TEST DU LIEN</div>
+      <div class="am-sub">Qui se connaît vraiment ?</div>
+    </div>
+    <div class="am-scroll">
+      <div class="fstack">
+        <div class="card">
+          <div class="card-label">👥 Joueurs</div>
+          <div class="card-hint">2 à 6 participants — entrez vos prénoms</div>
+          <div class="player-inputs" id="am-player-inputs"></div>
+          <button class="add-player-btn" id="am-add-player-btn" onclick="amAddPlayer()">+ Ajouter un joueur</button>
+        </div>
+        <div class="card">
+          <div class="card-label">🎯 Mode de jeu</div>
+          <div class="mode-row">
+            <button class="mode-btn on" id="am-mode-amitie" onclick="amSelectMode('amitie')">
+              <span class="mode-btn-e">🤝</span><span class="mode-btn-n">Amitié</span><span class="mode-btn-d">Entre amis</span>
+            </button>
+            <button class="mode-btn" id="am-mode-couple" onclick="amSelectMode('couple')">
+              <span class="mode-btn-e">💑</span><span class="mode-btn-n">Couple</span><span class="mode-btn-d">En amoureux</span>
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">❓ Nombre de questions</div>
+          <div class="count-row">
+            <button class="count-chip" data-n="5"  onclick="amSelectCount(5)"><div class="count-chip-n">5</div><div class="count-chip-l">Rapide</div></button>
+            <button class="count-chip on" data-n="10" onclick="amSelectCount(10)"><div class="count-chip-n">10</div><div class="count-chip-l">Standard</div></button>
+            <button class="count-chip" data-n="15" onclick="amSelectCount(15)"><div class="count-chip-n">15</div><div class="count-chip-l">Long</div></button>
+          </div>
+        </div>
+        <div class="am-error" id="am-error"><div class="am-error-txt"></div></div>
+      </div>
+    </div>
+    <div class="am-footer"><button class="btn-primary btn-rose" onclick="startAM()">💝  LANCER LE TEST</button></div>
+  </div>
+
+  <!-- ══════════ AMITIÉ / COUPLE GAME ══════════ -->
+  <div id="s-am-game" class="screen bg-rose">
+    <div class="am-prog-bar"><div class="am-prog-fill" id="am-prog" style="width:0%"></div></div>
+    <div class="am-game-header">
+      <button class="am-quit-btn" onclick="goto('menu')">✕ Quitter</button>
+      <div class="am-round-count" id="am-round-count">1 / 10</div>
+    </div>
+    <div class="am-players-bar">
+      <div class="am-player-chip" style="border-color:rgba(244,63,94,.5);background:rgba(244,63,94,.12)">
+        <span class="am-player-role">🔍 Devine</span>
+        <span class="am-player-name" id="am-chip-guesser-name" style="color:var(--rose-l)">Alice</span>
+      </div>
+      <span class="am-arrow">→</span>
+      <div class="am-player-chip" style="border-color:var(--border);background:var(--surface)">
+        <span class="am-player-role">🎯 Sujet</span>
+        <span class="am-player-name" id="am-chip-subject-name" style="color:var(--text)">Bob</span>
+      </div>
+    </div>
+    <div class="am-question-zone">
+      <div class="am-q-card">
+        <div class="am-q-emoji" id="am-q-emoji">🤝</div>
+        <div class="am-q-text" id="am-q-text">Chargement...</div>
+      </div>
+    </div>
+    <div class="am-action-area">
+      <div class="am-instr" id="am-instr-text"></div>
+      <div id="am-reveal-area" style="display:flex;flex-direction:column;gap:10px">
+        <button class="am-reveal-btn" id="am-reveal-btn" onclick="amReveal()">👁 Voir la réponse</button>
+      </div>
+      <div id="am-answer-area" style="display:none;flex-direction:column;gap:10px">
+        <div class="am-instr" id="am-reveal-instr">Révèle ta vraie réponse !</div>
+        <div class="am-answer-btns">
+          <button class="am-ans-btn am-ans-correct" onclick="amAnswer(true)">
+            <span>✓</span><span class="am-ans-btn-l">Bonne réponse !</span>
+          </button>
+          <button class="am-ans-btn am-ans-wrong" onclick="amAnswer(false)">
+            <span>✗</span><span class="am-ans-btn-l">Pas du tout...</span>
+          </button>
+        </div>
+      </div>
+      <div class="am-feedback" id="am-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ AMITIÉ / COUPLE RESULTS ══════════ -->
+  <div id="s-am-res" class="screen">
+    <div class="am-res-compat">
+      <span class="am-res-emoji" id="am-res-emoji">💝</span>
+      <div class="am-res-pct" id="am-res-pct">—</div>
+      <div class="am-res-lbl">de compatibilité</div>
+      <div class="am-res-div"></div>
+      <div class="am-res-msg" id="am-res-msg"></div>
+    </div>
+    <div class="am-score-card">
+      <div class="am-score-title">🏆 SCORES</div>
+      <div id="am-score-list"></div>
+    </div>
+    <div class="am-res-acts">
+      <button class="btn-primary btn-rose" onclick="replayAM()">🔄 Rejouer</button>
+      <button class="btn-sec" onclick="goto('menu')">← Menu principal</button>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<div class="nav-tabs">
+  <button class="tab-btn on" id="tab-welcome"    onclick="goto('welcome')">🎭 Accueil</button>
+  <button class="tab-btn"    id="tab-menu"       onclick="goto('menu')">🎮 Menu</button>
+  <button class="tab-btn"    id="tab-uc-setup"   onclick="goto('uc-setup')">🕵️ Undercover</button>
+  <button class="tab-btn"    id="tab-uc-distrib" onclick="goto('uc-distrib')">🃏 Distribution</button>
+  <button class="tab-btn"    id="tab-quiz-setup" onclick="goto('quiz-setup')">🧞 Quiz Setup</button>
+  <button class="tab-btn"    id="tab-quiz-game"  onclick="goto('quiz-game')">❓ Quiz</button>
+  <button class="tab-btn"    id="tab-quiz-res"   onclick="goto('quiz-res')">🏆 Résultats</button>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   STARS
+══════════════════════════════════════════════════════ */
+(function(){
+  const c=document.getElementById('stars');
+  const cols=['#6366F1','#D97706','#EC4899','#10B981','#A5B4FC'];
+  for(let i=0;i<32;i++){
+    const e=document.createElement('div'); e.className='star';
+    const s=Math.random()*3.5+1;
+    const f=(Math.random()*.3+.03).toFixed(2);
+    const t=(+f+Math.random()*.4+.08).toFixed(2);
+    e.style.cssText=`width:${s}px;height:${s}px;top:${Math.random()*100}%;left:${Math.random()*100}%;background:${cols[i%5]};--f:${f};--t:${t};--d:${(2.5+Math.random()*4).toFixed(1)}s`;
+    c.appendChild(e);
+  }
+})();
+
+/* ══════════════════════════════════════════════════════
+   CHARACTERS + MENU
+══════════════════════════════════════════════════════ */
+const CHARS=[
+  { name:'Sherlock Holmes', emoji:'🕵️', title:'Maître de la Déduction', game:'undercover',
+    desc:'Le plus grand détective de tous les temps. Chaque mot est un indice, chaque joueur un suspect.',
+    quote:'"Élémentaire, mon cher Watson."',
+    color:'#D97706', grad:['#1C0A00','#2D1500'],
+    stats:[['Déduction',98],['Bluff',95],['Sang-froid',87]], available:true },
+  { name:'Le Génie', emoji:'🧞', title:'Gardien de la Sagesse', game:'quiz',
+    desc:'Omniscient et facétieux, il exauce les souhaits des curieux et piège les ignorants.',
+    quote:'"Ton souhait est ma connaissance !"',
+    color:'#6366F1', grad:['#080820','#14143A'],
+    stats:[['Savoir',99],['Rapidité',91],['Pièges',88]], available:true },
+  { name:'Daft Punk', emoji:'🤖', title:'Maîtres des Rythmes', game:'blind-test',
+    desc:"Les robots français du son. Prouve que tu connais ta musique mieux que quiconque !",
+    quote:'"Around the world, around the world !"',
+    color:'#06B6D4', grad:['#00111A','#001E2E'],
+    stats:[['Rythme',99],['Culture',95],['Groove',97]], available:true },
+  { name:'Véra Lien', emoji:'💝', title:'Gardienne des Liens', game:'amitie',
+    desc:"Mystérieuse et intuitive, Véra Lien révèle si vos liens sont aussi forts que vous le pensez.",
+    quote:'"Vous pensez vous connaître... vraiment ?"',
+    color:'#F43F5E', grad:['#2D0010','#4A001A'],
+    stats:[['Connexion',97],['Empathie',93],['Intuition',89]], available:true },
+  { name:'Merlin', emoji:'🧙', title:"L'Enchanteur", game:'mystery',
+    desc:"Le plus grand sorcier orchestre des aventures épiques où chaque joueur incarne un héros.",
+    quote:'"La magie est partout… cherchez bien."',
+    color:'#10B981', grad:['#0A1F12','#0A2D18'],
+    stats:[['Magie',98],['Mystère',96],['Sagesse',93]], available:false },
+];
+
+(function buildMenu(){
+  const sc=document.getElementById('menu-scroll');
+  CHARS.forEach(ch=>{
+    const d=document.createElement('div');
+    d.className='m-card'+(ch.available?'':' locked');
+    d.style.background=`linear-gradient(145deg,${ch.grad[0]},${ch.grad[1]})`;
+    d.style.borderColor=ch.available?ch.color+'28':'rgba(255,255,255,.05)';
+    if(ch.available) d.addEventListener('click',()=>{
+      if(ch.game==='undercover') goto('uc-setup');
+      else if(ch.game==='blind-test') goto('bt-setup');
+      else if(ch.game==='amitie') goto('am-setup');
+      else goto('quiz-setup');
+    });
+    const stats=ch.stats.map(([k,v])=>`<div class="stat-row"><div class="stat-lbl">${k}</div><div class="stat-track"><div class="stat-fill" style="width:0%;background:${ch.color}" data-w="${v}"></div></div><div class="stat-val">${v}</div></div>`).join('');
+    const badge=ch.available?`<span class="badge-ok">● DISPONIBLE</span>`:`<span class="badge-no">🔒 BIENTÔT</span>`;
+    const btnC=ch.available?'':' dim';
+    const btnS=ch.available?`background:${ch.color};box-shadow:0 4px 12px ${ch.color}44`:'';
+    const btnT=ch.available?'JOUER →':'Bientôt';
+    d.innerHTML=`
+      <div class="m-card-head">
+        <div class="m-card-avi" style="background:${ch.color}18;border-color:${ch.color}28">${ch.emoji}</div>
+        <div class="m-card-info">
+          <div class="m-card-name">${ch.name}</div>
+          <div class="m-card-title" style="color:${ch.color}">${ch.title}</div>
+          ${badge}
+        </div>
+      </div>
+      <div style="padding:0 18px 6px"><div class="m-card-desc">${ch.desc}</div></div>
+      <div class="m-card-stats"><div class="m-card-sep"></div>${stats}</div>
+      <div class="m-card-foot">
+        <div class="m-card-quote">${ch.quote}</div>
+        <button class="m-card-btn${btnC}" style="${btnS}">${btnT}</button>
+      </div>`;
+    sc.appendChild(d);
+  });
+})();
+
+function animStats(){
+  document.querySelectorAll('.stat-fill[data-w]').forEach(el=>{
+    setTimeout(()=>{el.style.width=el.dataset.w+'%'},150);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════ */
+function goto(screen){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  const el=document.getElementById('s-'+screen);
+  if(el) el.classList.add('active');
+  const tab=document.getElementById('tab-'+screen);
+  if(tab) tab.classList.add('on');
+  if(screen==='menu') animStats();
+  if(screen==='uc-distrib') initDistrib();
+  if(screen==='am-setup') initAMSetup();
+  if(screen==='am-game') renderAMRound();
+}
+
+/* ══════════════════════════════════════════════════════
+   UNDERCOVER DATA
+══════════════════════════════════════════════════════ */
+const THEMES={
+  classique:{label:'Classique',pairs:[
+    {c:'Voiture',u:'Moto'},{c:'Plage',u:'Piscine'},{c:'Pizza',u:'Burger'},{c:'Chat',u:'Chien'},
+    {c:'Café',u:'Thé'},{c:'Football',u:'Rugby'},{c:'Film',u:'Série'},{c:'Montagne',u:'Colline'},
+    {c:'Soleil',u:'Lune'},{c:'Chocolat',u:'Caramel'},{c:'Livre',u:'Magazine'},{c:'Avion',u:'Hélicoptère'},
+    {c:'Pluie',u:'Neige'},{c:'Musique',u:'Chanson'},{c:'Téléphone',u:'Tablette'},
+  ]},
+  nature:{label:'Nature',pairs:[
+    {c:'Lion',u:'Tigre'},{c:'Forêt',u:'Jungle'},{c:'Rivière',u:'Lac'},{c:'Fleur',u:'Plante'},
+    {c:'Oiseau',u:'Papillon'},{c:'Rocher',u:'Pierre'},{c:'Nuage',u:'Brouillard'},{c:'Feuille',u:'Herbe'},
+    {c:'Mer',u:'Océan'},{c:'Volcan',u:'Montagne'},{c:'Fourmi',u:'Abeille'},{c:'Orage',u:'Tempête'},
+    {c:'Cascade',u:'Fontaine'},{c:'Désert',u:'Savane'},{c:'Hibou',u:'Chouette'},
+  ]},
+  cinema:{label:'Cinéma',pairs:[
+    {c:'Héros',u:'Super-héros'},{c:'Cinéma',u:'Théâtre'},{c:'Comédie',u:'Drame'},
+    {c:'Réalisateur',u:'Producteur'},{c:'Oscar',u:'César'},{c:'Popcorn',u:'Bonbons'},
+    {c:'Effets spéciaux',u:'Cascades'},{c:'Horreur',u:'Thriller'},{c:'Animation',u:'Dessin animé'},
+    {c:'Remake',u:'Suite'},{c:'Streaming',u:'DVD'},{c:'Acteur',u:'Figurant'},
+    {c:'Scénario',u:'Roman'},{c:'Avant-première',u:'Festival'},{c:'Bande-annonce',u:'Affiche'},
+  ]},
+  hot:{label:'Hot 🔥',pairs:[
+    {c:'Bondage',u:'Attaché'},{c:'Club échangisme',u:'Partouze'},{c:'Sextoy',u:'Jouet'},
+    {c:'Prostate',u:'Point G'},{c:'Fouet',u:'Matraque'},{c:'Lubrifiant',u:'Crème'},
+    {c:'Bidule',u:'Chose'},{c:'Sucer',u:'Lécher'},{c:'Strip-tease',u:'Pole dance'},
+    {c:'Capote',u:'Ballon'},{c:'Prendre',u:'Enfiler'},{c:'Jupe',u:'Tanga'},
+    {c:'Cowgirl',u:'Équitation'},{c:'Amuse-bouche',u:'Micro pénis'},{c:'Pamplemousse',u:'Orange'},
+  ]},
+  aleatoire:{label:'Aléatoire ✨',pairs:[]},
+};
+
+const CLUSTERS=[
+  ['Chien','Chat','Lapin','Hamster'],['Lion','Tigre','Panthère','Guépard'],
+  ['Aigle','Faucon','Vautour','Buse'],['Dauphin','Baleine','Orque','Marsouin'],
+  ['Fourmi','Abeille','Guêpe','Frelon'],['Pizza','Burger','Hot-dog','Kebab'],
+  ['Café','Thé','Chocolat chaud','Cappuccino'],['Glace','Sorbet','Granita','Crème glacée'],
+  ['Croissant','Pain au chocolat','Brioche','Chausson'],['Vélo','Trottinette','Scooter','Moto'],
+  ['Avion','Hélicoptère','Planeur','ULM'],['Train','Métro','Tram','RER'],
+  ['Football','Rugby','Handball','Basket'],['Tennis','Badminton','Squash','Ping-pong'],
+  ['Natation','Plongée','Surf','Kayak'],['Pluie','Averse','Orage','Tempête'],
+  ['Neige','Grêle','Givre','Verglas'],['Boulanger','Pâtissier','Chocolatier','Confiseur'],
+  ['Médecin','Chirurgien','Urgentiste','Anesthésiste'],['Guitare','Violon','Alto','Violoncelle'],
+  ['Flûte','Clarinette','Hautbois','Saxophone'],['Fraise','Framboise','Cerise','Groseille'],
+  ['Orange','Citron','Pamplemousse','Mandarine'],['Carotte','Navet','Radis','Betterave'],
+  ['Camembert','Brie','Coulommiers','Munster'],['Château','Palais','Manoir','Forteresse'],
+  ['Maison','Villa','Chalet','Pavillon'],['Valse','Tango','Salsa','Bachata'],
+  ['Spider-Man','Batman','Superman','Iron Man'],['Fée','Sorcière','Elfe','Gnome'],
+  ['Instagram','TikTok','Snapchat','Pinterest'],['PlayStation','Xbox','Nintendo Switch','Steam Deck'],
+  ['Mars','Jupiter','Saturne','Vénus'],['Tour Eiffel','Arc de Triomphe','Sacré-Cœur','Panthéon'],
+  ['Boxe','Judo','Karaté','Taekwondo'],["Collier","Bracelet","Bague","Boucles d'oreilles"],
+  ['Pantalon','Jean','Short','Bermuda'],['Baskets','Mocassins','Bottes','Sandales'],
+  ['Champagne','Prosecco','Cava','Crémant'],['Whisky','Rhum','Vodka','Gin'],
+  ['Riz','Pâtes','Semoule','Quinoa'],['Brocoli','Épinard','Courgette','Haricot vert'],
+  ['Piscine','Jacuzzi','Spa','Hammam'],['Roman','Nouvelle','Conte','Fable'],
+  ['Peinture','Dessin','Aquarelle','Gravure'],['Randonnée','Trekking','Alpinisme','Escalade'],
+  ['Anniversaire','Mariage','Baptême','Fiançailles'],['Hôtel','Auberge','Camping','Gîte'],
+  ['Bibliothèque','Médiathèque','Librairie','Bouquiniste'],['Pompier','Policier','Gendarme','Secouriste'],
+];
+
+function genPair(used){
+  let av=CLUSTERS.map((_,i)=>i).filter(i=>!used.has(i));
+  if(!av.length){used.clear();av=CLUSTERS.map((_,i)=>i);}
+  const ci=av[Math.floor(Math.random()*av.length)];
+  used.add(ci);
+  const w=[...CLUSTERS[ci]].sort(()=>Math.random()-.5);
+  return {c:w[0],u:w[1]};
+}
+
+/* ══════════════════════════════════════════════════════
+   UNDERCOVER STATE + LOGIC
+══════════════════════════════════════════════════════ */
+const uc={pl:5,spies:1,mw:false,theme:'classique',roles:[],cur:0,used:{}};
+
+function updUC(){
+  const max=Math.max(1,Math.floor(uc.pl/3));
+  if(uc.spies>max) uc.spies=max;
+  document.getElementById('pl-n').textContent=uc.pl;
+  document.getElementById('uc-n').textContent=uc.spies;
+  document.getElementById('bplm').disabled=uc.pl<=3;
+  document.getElementById('bplp').disabled=uc.pl>=12;
+  document.getElementById('bucm').disabled=uc.spies<=1;
+  document.getElementById('bucp').disabled=uc.spies>=max;
+  const civ=uc.pl-uc.spies-(uc.mw?1:0);
+  document.getElementById('s-pl').textContent=uc.pl;
+  document.getElementById('s-civ').textContent=civ;
+  document.getElementById('s-uc').textContent=uc.spies;
+  document.getElementById('s-mwr').style.display=uc.mw?'':'none';
+}
+function chPl(d){uc.pl=Math.min(12,Math.max(3,uc.pl+d));updUC();}
+function chUC(d){const m=Math.max(1,Math.floor(uc.pl/3));uc.spies=Math.min(m,Math.max(1,uc.spies+d));updUC();}
+function togMW(){
+  uc.mw=!uc.mw;
+  document.getElementById('tog-mw').classList.toggle('on-amb',uc.mw);
+  updUC();
+}
+function selT(btn){
+  document.querySelectorAll('.t-chip').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  uc.theme=btn.dataset.t;
+  const lbl={classique:'Classique',nature:'Nature',cinema:'Cinéma',hot:'Hot 🔥',aleatoire:'Aléatoire ✨'};
+  document.getElementById('s-th').textContent=lbl[uc.theme]||uc.theme;
+}
+updUC();
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function startUC(){
+  let pair;
+  const key=uc.theme;
+  if(!uc.used[key]) uc.used[key]=new Set();
+  if(key==='aleatoire'){
+    pair=genPair(uc.used[key]);
+  } else {
+    const t=THEMES[key];
+    let av=t.pairs.map((_,i)=>i).filter(i=>!uc.used[key].has(i));
+    if(!av.length){uc.used[key]=new Set();av=t.pairs.map((_,i)=>i);}
+    const idx=av[Math.floor(Math.random()*av.length)];
+    uc.used[key].add(idx);
+    pair=t.pairs[idx];
+  }
+  const civ=uc.pl-uc.spies-(uc.mw?1:0);
+  const roles=[];
+  for(let i=0;i<civ;i++) roles.push({type:'civ',word:pair.c});
+  for(let i=0;i<uc.spies;i++) roles.push({type:'spy',word:pair.u});
+  if(uc.mw) roles.push({type:'mw',word:null});
+  uc.roles=shuffle(roles); uc.cur=0;
+  goto('uc-distrib');
+}
+
+function initDistrib(){
+  uc.cur=0;
+  document.getElementById('d-game').style.display='flex';
+  document.getElementById('done-sc').classList.remove('show');
+  const ff=document.getElementById('fc-front');
+  const fb=document.getElementById('fc-back');
+  ff.style.opacity='1'; ff.style.pointerEvents='auto';
+  fb.style.opacity='0'; fb.style.pointerEvents='none';
+  document.getElementById('next-btn').classList.remove('vis');
+  document.getElementById('p-instr').textContent='Prends le téléphone seul et appuie pour révéler 👀';
+  updDistrib();
+}
+
+function updDistrib(){
+  const n=uc.cur, tot=uc.pl;
+  document.getElementById('p-num').textContent=n+1;
+  const dots=document.getElementById('pdots');
+  dots.innerHTML='';
+  for(let i=0;i<tot;i++){
+    const d=document.createElement('div');
+    d.className='pdot'+(i<n?' done':i===n?' cur':'');
+    dots.appendChild(d);
+  }
+  const isLast=n===tot-1;
+  document.getElementById('next-btn').textContent=isLast?'✅  TOUT LE MONDE A VU':`Joueur ${n+2}  →`;
+}
+
+function revealRole(){
+  const r=uc.roles[uc.cur];
+  const face=document.getElementById('fc-back-face');
+  const lbl={classique:'Classique',nature:'Nature',cinema:'Cinéma',hot:'Hot 🔥',aleatoire:'Aléatoire ✨'};
+
+  if(r.type==='civ'){
+    face.style.background='linear-gradient(135deg,#1C1207,#2A1800)';
+    document.getElementById('remoji').textContent='🏘️';
+    document.getElementById('rlabel').textContent='VILLAGEOIS';
+    document.getElementById('rmsg').textContent='Décris ton mot sans jamais le prononcer.';
+  } else if(r.type==='spy'){
+    face.style.background='linear-gradient(135deg,#1A0A00,#2D1200)';
+    document.getElementById('remoji').textContent='🕵️';
+    document.getElementById('rlabel').textContent='ESPION';
+    document.getElementById('rmsg').textContent='Tu as un mot proche. Bluff sans te faire repérer !';
+  } else {
+    face.style.background='linear-gradient(135deg,#0F0F1A,#1A1A2E)';
+    document.getElementById('remoji').textContent='👻';
+    document.getElementById('rlabel').textContent='M. BLANC';
+    document.getElementById('rmsg').textContent="Tu n'as aucun mot. Écoute et improvise !";
+  }
+  document.getElementById('rbadge').style.borderColor=r.type==='civ'?'rgba(217,119,6,.4)':r.type==='spy'?'rgba(239,68,68,.4)':'rgba(99,102,241,.4)';
+  document.getElementById('rword').textContent=r.word||'???';
+  document.getElementById('rtheme').textContent='Thème : '+(lbl[uc.theme]||uc.theme);
+
+  const ff=document.getElementById('fc-front');
+  const fb=document.getElementById('fc-back');
+  ff.style.opacity='0'; ff.style.pointerEvents='none';
+  setTimeout(()=>{
+    fb.style.opacity='1'; fb.style.pointerEvents='auto';
+    setTimeout(()=>{
+      document.getElementById('next-btn').classList.add('vis');
+      document.getElementById('p-instr').textContent='Mémorise bien, puis passe le téléphone !';
+    },300);
+  },200);
+}
+
+function nextPlayer(){
+  if(uc.cur>=uc.pl-1){ showDone(); return; }
+  uc.cur++;
+  const ff=document.getElementById('fc-front');
+  const fb=document.getElementById('fc-back');
+  ff.style.opacity='1'; ff.style.pointerEvents='auto';
+  fb.style.opacity='0'; fb.style.pointerEvents='none';
+  document.getElementById('next-btn').classList.remove('vis');
+  document.getElementById('p-instr').textContent='Prends le téléphone seul et appuie pour révéler 👀';
+  updDistrib();
+}
+
+function showDone(){
+  document.getElementById('d-game').style.display='none';
+  document.getElementById('done-sc').classList.add('show');
+  const civ=uc.pl-uc.spies-(uc.mw?1:0);
+  document.getElementById('done-stats').innerHTML=`
+    <div style="text-align:center"><span class="done-snum" style="color:var(--green)">${civ}</span><div class="done-slbl">Villageois</div></div>
+    <div style="text-align:center"><span class="done-snum" style="color:var(--red)">${uc.spies}</span><div class="done-slbl">${uc.spies>1?'Espions':'Espion'}</div></div>
+    ${uc.mw?`<div style="text-align:center"><span class="done-snum" style="color:var(--gold)">1</span><div class="done-slbl">M. Blanc</div></div>`:''}`;
+}
+
+/* ══════════════════════════════════════════════════════
+   QUIZ DATA
+══════════════════════════════════════════════════════ */
+const QUIZ_CATS={
+  culture:{label:'Culture G.',emoji:'🧠',color:'#8B5CF6',questions:[
+    {q:'Combien de côtés a un hexagone ?',c:['5','6','7','8'],a:1,f:"L'hexagone est aussi le surnom de la France métropolitaine, car sa forme y ressemble."},
+    {q:'Quel est le pays le plus peuplé du monde ?',c:['Chine','Inde','États-Unis','Indonésie'],a:1,f:"En 2023, l'Inde a dépassé la Chine avec plus de 1,4 milliard d'habitants."},
+    {q:'Quel animal est le plus rapide sur terre ?',c:['Guépard','Lion','Autruche','Antilope'],a:0,f:'Le guépard peut atteindre 112 km/h sur de courtes distances, mais se fatigue très vite.'},
+    {q:"Combien d'os compte le squelette d'un adulte ?",c:['196','206','216','226'],a:1,f:"Les bébés naissent avec ~270 os qui fusionnent progressivement pour arriver à 206."},
+    {q:'Quel est le plus grand océan du monde ?',c:['Atlantique','Indien','Pacifique','Arctique'],a:2,f:"L'océan Pacifique représente plus de 30% de la surface totale de la Terre."},
+    {q:'Quel est le métal le plus abondant dans la croûte terrestre ?',c:['Fer','Aluminium','Cuivre','Or'],a:1,f:"L'aluminium représente environ 8% de la croûte terrestre."},
+    {q:'Quelle planète est surnommée la planète rouge ?',c:['Vénus','Jupiter','Mars','Saturne'],a:2,f:'Mars doit sa couleur rouge à l\'oxyde de fer (rouille) qui recouvre sa surface.'},
+    {q:"Quelle langue est la plus parlée au monde (tous locuteurs confondus) ?",c:['Mandarin','Anglais','Espagnol','Hindi'],a:1,f:"L'anglais est 1er en comptant les locuteurs non-natifs. Le mandarin reste 1er en natifs."},
+    {q:"En quelle année a débuté la Première Guerre mondiale ?",c:['1912','1914','1916','1918'],a:1,f:"La guerre a débuté le 28 juillet 1914 après l'assassinat de l'archiduc François-Ferdinand."},
+    {q:"Quel pays a la plus grande superficie au monde ?",c:['Russie','Canada','États-Unis','Chine'],a:0,f:'La Russie couvre plus de 17 millions de km², soit presque deux fois le Canada.'},
+  ]},
+  cinema:{label:'Cinéma',emoji:'🎬',color:'#EC4899',questions:[
+    {q:"Qui a réalisé 'Inception' (2010) ?",c:['Christopher Nolan','James Cameron','Denis Villeneuve','David Fincher'],a:0,f:'Nolan a développé l\'idée d\'Inception pendant 10 ans avant de la réaliser.'},
+    {q:"Quel film Disney est le premier entièrement en CGI ?",c:["A Bug's Life",'Toy Story','Monsters Inc.','Finding Nemo'],a:1,f:'Toy Story (1995) est le premier long métrage entièrement réalisé en images de synthèse.'},
+    {q:"Qui joue le Joker dans 'The Dark Knight' (2008) ?",c:['Joaquin Phoenix','Heath Ledger','Jack Nicholson','Jared Leto'],a:1,f:'Heath Ledger a remporté l\'Oscar à titre posthume. Il s\'était enfermé seul dans une chambre.'},
+    {q:"Quel film a remporté l'Oscar du Meilleur Film en 2020 ?",c:['1917','Joker','Parasite','Once Upon a Time in Hollywood'],a:2,f:'Parasite est le premier film non-anglophone à remporter l\'Oscar du Meilleur Film.'},
+    {q:"Quel acteur joue Iron Man dans le MCU ?",c:['Robert Downey Jr.','Chris Evans','Chris Hemsworth','Mark Ruffalo'],a:0,f:'RDJ a failli ne pas obtenir le rôle. C\'est le réalisateur Jon Favreau qui a insisté.'},
+    {q:"Quel réalisateur a tourné 'Pulp Fiction' et 'Kill Bill' ?",c:['Martin Scorsese','David Fincher','Quentin Tarantino','Guy Ritchie'],a:2,f:'Tarantino est aussi acteur et apparaît dans presque tous ses propres films.'},
+    {q:"Dans quel film Tom Hanks survit avec un ballon de volley 'Wilson' ?",c:['The Blue Lagoon','Cast Away','Uncharted','The Beach'],a:1,f:'Tom Hanks a pris 25 kg pour le début du film puis les a perdus pour montrer l\'état du naufragé.'},
+    {q:"Qui a composé la musique de la saga Star Wars ?",c:['Hans Zimmer','John Williams','Ennio Morricone','Howard Shore'],a:1,f:"John Williams a remporté 5 Oscars. Il a aussi composé Jaws, Indiana Jones et Harry Potter."},
+    {q:"Quel est le film le plus rentable de tous les temps ?",c:['Avatar','Avengers: Endgame','Titanic','Star Wars VII'],a:0,f:'Avatar (2009) a rapporté 2,9 milliards de dollars. Sa suite en 2022, 2,3 milliards.'},
+    {q:"Dans 'Forrest Gump', avec quoi compare-t-il la vie ?",c:['Un long fleuve','Une boîte de chocolats','Une plume au vent','Un marathon'],a:1,f:"La phrase exacte : 'Life was like a box of chocolats, you never know what you're gonna get.'"},
+  ]},
+  musique:{label:'Musique',emoji:'🎵',color:'#F59E0B',questions:[
+    {q:"Quel groupe a chanté 'Bohemian Rhapsody' ?",c:['Led Zeppelin','The Beatles','Queen','Rolling Stones'],a:2,f:'Bohemian Rhapsody (1975) a été le 1er clip diffusé à la TV pour promouvoir un single.'},
+    {q:'En quelle année The Beatles se sont-ils séparés ?',c:['1968','1970','1972','1975'],a:1,f:'La séparation officielle fut annoncée par Paul McCartney en avril 1970.'},
+    {q:"De quel pays vient le groupe ABBA ?",c:['Danemark','Norvège','Suède','Finlande'],a:2,f:"ABBA = initiales des 4 membres : Agnetha, Björn, Benny, Anni-Frid."},
+    {q:"Quel instrument joue Jimi Hendrix ?",c:['Batterie','Basse','Guitare','Piano'],a:2,f:'Hendrix était gaucher et jouait sur une guitare droite retournée et re-cordée.'},
+    {q:"Quel chanteur français est surnommé 'Le Taulier' ?",c:['Stromae','Johnny Hallyday','Francis Cabrel','Charles Aznavour'],a:1,f:"Johnny Hallyday a vendu plus de 110 millions d'albums en 60 ans de carrière."},
+    {q:"Quelle chanson de Michael Jackson a le plus grand nombre de ventes ?",c:['Bad','Thriller','Billie Jean','Smooth Criminal'],a:1,f:"L'album Thriller est le plus vendu de l'histoire de la musique (~70M d'exemplaires)."},
+    {q:"Dans quelle ville se déroule le festival de Coachella ?",c:['Los Angeles','San Francisco','Indio','Las Vegas'],a:2,f:'Coachella se tient dans le désert de Californie, à Indio, depuis 1999.'},
+    {q:"Quel artiste détient le record du plus grand nombre de Grammys remportés en une seule soirée (32) ?",c:['Beyoncé','Taylor Swift','Adele','Lady Gaga'],a:0,f:'Beyoncé est la plus titrée de l\'histoire des Grammy Awards avec 32 récompenses.'},
+    {q:"Quel est le vrai nom de Lady Gaga ?",c:['Stephanie Bennett','Stefani Germanotta','Sandra Cortez','Sylvia Gaston'],a:1,f:'Stefani Joanne Angelina Germanotta de son vrai nom, née en 1986 à New York.'},
+    {q:"De quel pays vient le style musical 'bossa nova' ?",c:['Argentine','Cuba','Brésil','Colombie'],a:2,f:"La bossa nova est née à Rio de Janeiro à la fin des années 1950, fusion de samba et jazz."},
+  ]},
+  sport:{label:'Sport',emoji:'⚽',color:'#10B981',questions:[
+    {q:'Combien de joueurs y a-t-il dans une équipe de basketball sur le terrain ?',c:['4','5','6','7'],a:1,f:'5 joueurs par équipe sur le terrain. Les équipes ont généralement 12-15 joueurs au total.'},
+    {q:'Quel pays a remporté la Coupe du Monde 2018 en Russie ?',c:['Argentine','Brésil','France','Allemagne'],a:2,f:"La France a battu la Croatie 4-2 en finale. C'était son 2e titre mondial."},
+    {q:"Quel joueur a remporté le plus de titres du Grand Chelem en tennis ?",c:['Roger Federer','Rafael Nadal','Novak Djokovic','Pete Sampras'],a:2,f:'Djokovic détient 24 titres du Grand Chelem, record absolu.'},
+    {q:'Dans quel pays les Jeux Olympiques modernes ont-ils été créés en 1896 ?',c:['France','Grèce','États-Unis','Angleterre'],a:1,f:'Les 1ers JO modernes se sont tenus à Athènes en 1896, grâce à Pierre de Coubertin.'},
+    {q:"Quel club de football a remporté le plus de Ligues des Champions ?",c:['FC Barcelone','Bayern Munich','Real Madrid','Liverpool'],a:2,f:'Le Real Madrid a remporté 15 Ligues des Champions, un record absolu.'},
+    {q:'En quelle année Zinédine Zidane a-t-il donné son coup de tête en finale de Coupe du Monde ?',c:['2002','2004','2006','2008'],a:2,f:"La finale France-Italie de 2006 s'est terminée aux tirs au but. Zidane venait d'être Ballon d'Or."},
+    {q:"Combien d'étapes compte le Tour de France ?",c:['18','19','20','21'],a:3,f:'Le Tour de France compte 21 étapes chaque année depuis 1913.'},
+    {q:"Quel sport se joue avec un volant ?",c:['Tennis','Squash','Badminton','Pelote basque'],a:2,f:'Le badminton est l\'un des sports les plus rapides du monde, avec des volants à +300 km/h.'},
+    {q:"En combien de sets se joue un match de tennis (en Grand Chelem pour les hommes) ?",c:['3 sets','4 sets','5 sets','6 sets'],a:2,f:"Les hommes jouent en 5 sets maximum en Grand Chelem. Les femmes en 3 sets."},
+    {q:"Quel pays a remporté le plus de Coupes du Monde de football ?",c:['Allemagne','Argentine','Brésil','France'],a:2,f:'Le Brésil est 5 fois champion du monde (1958, 1962, 1970, 1994, 2002).'},
+  ]},
+  geo:{label:'Géographie',emoji:'🌍',color:'#0EA5E9',questions:[
+    {q:"Quelle est la capitale de l'Australie ?",c:['Sydney','Melbourne','Canberra','Brisbane'],a:2,f:'Canberra a été fondée en 1913 comme compromis entre Sydney et Melbourne.'},
+    {q:"Quel est le plus long fleuve du monde ?",c:['Amazone','Nil','Mississippi','Yangtsé'],a:1,f:"Le Nil mesure 6 650 km. L'Amazone a cependant le plus grand débit d'eau."},
+    {q:"Quelle est la plus grande île du monde ?",c:['Madagascar','Nouvelle-Guinée','Groenland','Bornéo'],a:2,f:'Le Groenland (2 166 000 km²) est 3 fois plus grand que la 2e plus grande île.'},
+    {q:"Quel pays possède le plus long littoral au monde ?",c:['Russie','Canada','Australie','Norvège'],a:1,f:"Le Canada possède 202 080 km de côtes, soit 15% du littoral mondial."},
+    {q:"Dans quel pays se trouve le Machu Picchu ?",c:['Bolivie','Chili','Pérou','Colombie'],a:2,f:"Le Machu Picchu (Pérou) est une ancienne cité inca construite vers 1450."},
+    {q:"Quel pays est surnommé 'La botte' ?",c:['Grèce','Portugal','Espagne','Italie'],a:3,f:"La forme de l'Italie ressemble effectivement à une botte sur les cartes."},
+    {q:"Combien y a-t-il de pays en Afrique ?",c:['44','48','54','60'],a:2,f:"L'Afrique compte 54 pays reconnus par l'ONU, dont le Soudan du Sud (2011)."},
+    {q:"Quelle est la ville la plus peuplée du monde ?",c:['Shanghai','Pékin','Tokyo','Mumbai'],a:2,f:"Tokyo (Greater Tokyo) est la plus grande zone urbaine avec ~37 millions d'habitants."},
+    {q:"Quel est le plus petit pays du monde ?",c:['Monaco','San Marin','Liechtenstein','Vatican'],a:3,f:'Le Vatican (0,44 km²) est le plus petit État souverain du monde.'},
+    {q:"Quel continent est le plus grand ?",c:['Amérique','Afrique','Asie','Europe'],a:2,f:"L'Asie couvre 44 millions de km², soit 30% des terres émergées de la planète."},
+  ]},
+  science:{label:'Science',emoji:'🔬',color:'#6366F1',questions:[
+    {q:"Quel est le symbole chimique de l'or ?",c:['Au','Ag','Fe','Or'],a:0,f:"Au vient du latin 'Aurum'. L'argent (Ag) vient d'Argentum."},
+    {q:"Combien de chromosomes possède une cellule humaine normale ?",c:['23','44','46','48'],a:2,f:"23 paires = 46 chromosomes. Le spermatozoïde et l'ovule n'en ont que 23 chacun."},
+    {q:"Quelle est la vitesse de la lumière dans le vide ?",c:['200 000 km/s','300 000 km/s','400 000 km/s','150 000 km/s'],a:1,f:"299 792 km/s exactement. Aucune information ne peut voyager plus vite."},
+    {q:"Quel scientifique a découvert la pénicilline ?",c:['Marie Curie','Louis Pasteur','Alexander Fleming','Albert Einstein'],a:2,f:"Alexander Fleming a découvert la pénicilline en 1928 par accident."},
+    {q:"Quelle planète tourne sur le côté (axe incliné à 98°) ?",c:['Saturne','Neptune','Uranus','Jupiter'],a:2,f:"Uranus tourne pratiquement sur son côté, probablement suite à une collision ancienne."},
+    {q:"Quel élément est le plus abondant dans l'univers ?",c:['Oxygène','Carbone','Hélium','Hydrogène'],a:3,f:"L'hydrogène représente environ 75% de la masse baryonique de l'univers observable."},
+    {q:"Combien de neurones contient le cerveau humain ?",c:['1 milliard','10 milliards','86 milliards','1 000 milliards'],a:2,f:"Le cerveau contient environ 86 milliards de neurones et autant de cellules gliales."},
+    {q:"Quelle est la formule chimique de l'eau ?",c:['HO','H2O','H2O2','H3O'],a:1,f:"H2O : 2 atomes d'hydrogène liés à 1 atome d'oxygène. Simple mais vital !"},
+    {q:"Quel os est le plus long du corps humain ?",c:['Radius','Humérus','Tibia','Fémur'],a:3,f:"Le fémur (os de la cuisse) peut mesurer jusqu'à 50 cm et est aussi le plus solide."},
+    {q:"En quelle année Einstein a-t-il publié sa théorie de la relativité restreinte ?",c:['1895','1900','1905','1915'],a:2,f:"En 1905, dite 'annus mirabilis', Einstein a publié 4 articles révolutionnaires."},
+  ]},
+  histoire:{label:'Histoire',emoji:'📜',color:'#DC2626',questions:[
+    {q:"En quelle année a débuté la Révolution française ?",c:['1787','1789','1791','1793'],a:1,f:"La prise de la Bastille le 14 juillet 1789 est le symbole de la Révolution."},
+    {q:"Qui était le premier président des États-Unis ?",c:['John Adams','Benjamin Franklin','George Washington','Thomas Jefferson'],a:2,f:"George Washington a été président de 1789 à 1797 et a refusé un 3e mandat."},
+    {q:"En quelle année le mur de Berlin est-il tombé ?",c:['1987','1989','1991','1993'],a:1,f:"Le 9 novembre 1989, des milliers de Berlinois ont commencé à démolir le mur."},
+    {q:"Qui a découvert l'Amérique en 1492 ?",c:['Amerigo Vespucci','Christophe Colomb','Vasco de Gama','Magellan'],a:1,f:"Colomb cherchait une route vers l'Asie et ne savait pas avoir découvert un nouveau continent."},
+    {q:"En quelle année la Première Guerre mondiale a-t-elle pris fin ?",c:['1916','1917','1918','1919'],a:2,f:"L'armistice a été signé le 11 novembre 1918 à 11h, d'où les commémorations du 11 novembre."},
+    {q:"Quel empire était le plus étendu de l'histoire ?",c:['Empire romain','Empire mongol','Empire britannique','Empire ottoman'],a:2,f:"L'Empire britannique couvrait 24% des terres émergées et 23% de la population mondiale."},
+    {q:"Qui a commandé les armées alliées lors du Débarquement en Normandie (1944) ?",c:['Patton','MacArthur','Eisenhower','Montgomery'],a:2,f:"Le général Eisenhower commandait les forces alliées (SHAEF). Il deviendra ensuite président des USA."},
+    {q:"Quelle civilisation a construit les pyramides de Gizeh ?",c:['Sumérienne','Mésopotamienne','Égyptienne','Grecque'],a:2,f:"La Grande Pyramide de Khéops, construite vers 2560 av. J.-C., est l'une des 7 merveilles du monde."},
+    {q:"En quelle année a eu lieu la Révolution russe bolchévique ?",c:['1905','1914','1917','1920'],a:2,f:"La Révolution d'octobre 1917 a porté Lénine au pouvoir et conduit à la création de l'URSS."},
+    {q:"Quel est le nom de la bombe atomique larguée sur Hiroshima ?",c:['Fat Man','Little Boy','Big Bang','Thin Man'],a:1,f:"Little Boy (bombe à uranium) sur Hiroshima le 6 août 1945. Fat Man (plutonium) sur Nagasaki le 9."},
+  ]},
+  disney:{label:'Disney',emoji:'🏰',color:'#E879F9',questions:[
+    {q:"Quel est le nom du père de Simba dans Le Roi Lion ?",img:'https://upload.wikimedia.org/wikipedia/en/3/3d/The_Lion_King_poster.jpg',c:['Scar','Mufasa','Rafiki','Timon'],a:1,f:"Mufasa signifie 'roi' en langue Manazoto. L'histoire est librement inspirée de Hamlet de Shakespeare."},
+    {q:"Comment s'appelle la reine aux pouvoirs de glace dans La Reine des Neiges ?",img:'https://upload.wikimedia.org/wikipedia/en/0/05/Frozen_%282013_film%29_poster.jpg',c:['Anna','Elsa','Kristoff','Olaf'],a:1,f:"Elsa est inspirée de la 'Reine des Neiges' de Hans Christian Andersen, mais totalement réinventée par Disney."},
+    {q:"Quel acteur a prêté sa voix au Génie dans Aladdin (1992, VO) ?",img:'https://upload.wikimedia.org/wikipedia/en/e/ea/Aladdin_%281992_Disney_film%29_poster.jpg',c:['Eddie Murphy','Robin Williams','Jim Carrey','Steve Martin'],a:1,f:"Robin Williams a improvisé la majorité de ses répliques. Le rôle du Génie a été écrit spécialement pour lui."},
+    {q:"Comment s'appelle la petite sirène dans le film Disney de 1989 ?",img:'https://upload.wikimedia.org/wikipedia/en/0/04/The_Little_Mermaid_%281989_film%29_poster.jpg',c:['Marina','Coral','Ariel','Melody'],a:2,f:"Ariel est la première princesse Disney à forte personnalité. Son histoire est inspirée d'Hans Christian Andersen."},
+    {q:"Quel objet enchanté symbolise la malédiction dans La Belle et la Bête ?",img:'https://upload.wikimedia.org/wikipedia/en/7/71/Beauty_and_the_Beast_Poster.jpg',c:['Un miroir magique','Un livre enchanté','Une rose enchantée','Une épée magique'],a:2,f:"La rose représente le temps qu'il reste à la Bête pour trouver l'amour avant que tous ses pétales tombent."},
+    {q:"Quel demi-dieu aide Vaiana dans ses aventures en mer ?",img:'https://upload.wikimedia.org/wikipedia/en/4/4a/Moana_%282016_film%29_poster.jpg',c:['Tamatoa','Te Kā','Hei Hei','Maui'],a:3,f:"Maui est doublé en VO par Dwayne 'The Rock' Johnson. Il est basé sur le dieu polynésien du même nom."},
+    {q:"Quel est le pouvoir des cheveux de Raiponce ?",img:'https://upload.wikimedia.org/wikipedia/en/9/91/Tangled_poster.jpg',c:["Donnent la force","Guérissent et rajeunissent","Permettent de voler","Produisent de la lumière"],a:1,f:"Quand ses cheveux sont coupés, ils perdent leur pouvoir et deviennent bruns. La chanson 'Je veux y croire' est culte."},
+    {q:"Quel est le nom du dragon rouge de Mulan ?",img:'https://upload.wikimedia.org/wikipedia/en/1/11/Mulan-1998-movie-poster.jpg',c:['Long','Cri-Kee','Shang','Mushu'],a:3,f:"Mushu est un petit dragon déchu qui veut se racheter. En VO, il est doublé par Eddie Murphy."},
+    {q:"Quel est le numéro d'expérience de Stitch ?",img:'https://upload.wikimedia.org/wikipedia/en/c/c3/Lilo_%26_Stitch_poster.jpg',c:['316','526','626','696'],a:2,f:"L'Expérience 626 a été créée par le Professeur Jumba Jookiba pour être indestructible et causer le chaos."},
+    {q:"Quel est le célèbre slogan de Buzz l'Éclair ?",img:'https://upload.wikimedia.org/wikipedia/en/1/13/Toy_Story.jpg',c:["Vers l'infini et au-delà !",'Je serai là pour toi !',"À l'aventure cowboy !",'On est partis !'],a:0,f:"'To Infinity and Beyond!' est l'une des phrases les plus célèbres du cinéma d'animation."},
+    {q:"Comment s'appelle le poisson amnésique ami de Nemo ?",img:'https://upload.wikimedia.org/wikipedia/en/2/29/Finding_Nemo.jpg',c:['Gill','Pearl','Gurgle','Dory'],a:3,f:"Dory souffre de perte de mémoire à court terme. Elle a eu son propre film en 2016 : 'Le Monde de Dory'."},
+    {q:"Quel est le nom de l'ours du Livre de la Jungle ?",img:'https://upload.wikimedia.org/wikipedia/en/b/bf/The_Jungle_Book_%281967_film%29.jpg',c:['Bagheera','Shere Khan','Kaa','Baloo'],a:3,f:"Baloo enseigne à Mowgli les nécessités de la vie. Sa chanson 'The Bare Necessities' est iconique."},
+    {q:"Combien de nains accompagnent Blanche-Neige ?",img:'https://upload.wikimedia.org/wikipedia/en/5/5e/Snow_White_1937_film_poster.jpg',c:['5','6','7','8'],a:2,f:"Les 7 nains : Simplet, Grincheux, Joyeux, Dormeur, Timide, Atchoum et Prof."},
+    {q:"À quelle heure la magie de Cendrillon prend-elle fin ?",img:'https://upload.wikimedia.org/wikipedia/en/5/58/Cinderella_%281950_film%29.jpg',c:['À 23h','À minuit','À 1h du matin','À l\'aube'],a:1,f:"Cendrillon (1950) a sauvé Disney de la faillite : coûtant 3M$, il a rapporté 85M$."},
+    {q:"Comment s'appelle la vilaine de La Belle au Bois Dormant ?",img:'https://upload.wikimedia.org/wikipedia/en/b/b9/Sleeping_Beauty_%281959_film%29.jpg',c:['Ursula','La Sorcière','Gothel','Maléfique'],a:3,f:"Maléfique est souvent citée comme la meilleure vilaine Disney. Son nom vient du latin 'maleficus'."},
+  ]},
+  hot:{label:'Hot',emoji:'🔞',color:'#EF4444',adult:true,questions:[
+    {q:"Quelle est la durée moyenne d'un rapport sexuel selon les études scientifiques ?",c:['1-2 min','5-7 min','15-20 min','30 min'],a:1,f:"Une étude du Journal of Sexual Medicine (2005) indique une durée moyenne de 5,4 min de pénétration — bien loin des films !"},
+    {q:"Dans quel film y a-t-il la célébre scène d'orgasme simulé au restaurant ?",c:['Pretty Woman','Basic Instinct','Quand Harry rencontre Sally','9 semaines et demie'],a:2,f:"'Je prendrai la même chose qu\'elle !' — tournée au Katz\'s Deli à New York qui a depuis installé une plaque commémorative."},
+    {q:"Quelle hormone est principalement responsable de la libido chez les deux sexes ?",c:['Ocytocine','Testostérone','Dopamine','Œstrogène'],a:1,f:"La testostérone (présente chez les deux sexes) est le principal moteur du désir. Les femmes en produisent 10x moins que les hommes."},
+    {q:"Dans le Kama Sutra, combien d'actes (angas) sont décrits ?",c:['16','36','64','108'],a:2,f:"Le Kama Sutra décrit 64 actes, mais est avant tout un traité philosophique sur l'amour et la vie en société — pas juste un guide de positions."},
+    {q:"Quel pays a été le premier à légaliser le mariage homosexuel ?",c:['Suède','Canada','Pays-Bas','Espagne'],a:2,f:"Les Pays-Bas ont légalisé le mariage homosexuel le 1er avril 2001, premiers au monde."},
+    {q:"Quel acteur s'est inspiré de sa propre expérience de strip-teaseur pour son rôle dans 'Magic Mike' ?",c:['Ryan Reynolds','Channing Tatum','Chris Evans','Zac Efron'],a:1,f:"Channing Tatum a été strip-teaseur à 18 ans à Tampa, Floride. Il a co-produit le film pour raconter cette période de sa vie."},
+    {q:"Quelle célébrité vend des sex-toys via sa marque de bien-être 'Goop' ?",c:['Kim Kardashian','Gwyneth Paltrow','Jennifer Lopez','Bella Hadid'],a:1,f:"Gwyneth Paltrow via Goop vend également des bougies à l'odeur 'de son vagin' à 75€ — sold-out en quelques heures."},
+    {q:"Quelle est la capitale mondiale de l'industrie du film adulte ?",c:['Hollywood','Las Vegas','San Fernando Valley','Miami'],a:2,f:"La San Fernando Valley (banlieue de L.A.) abrite la majorité des studios X américains depuis les années 80. On l'appelle 'Porn Valley'."},
+    {q:"Quel était le vrai métier de la femme qui a inspiré le personnage de Pretty Woman ?",c:['Strip-teaseuse','Escort','Barmaid','Serveuse'],a:1,f:"Le scénario original s'appelait '3000' (le prix de la nuit), était beaucoup plus sombre et ne finissait pas bien pour Vivian."},
+    {q:"Quelle est la zone érogène la plus méconnue selon une étude de 2016 ?",c:['Le cou','Le lobe de l\'oreille','La nuque','Le clitoris interne'],a:3,f:"L'anatomie complète du clitoris (10-12 cm sous la peau) n'a été modélisée en 3D qu'en 2016 par la chercheuse Helen O'Connell."},
+  ]},
+  cuisine:{label:'Cuisine',emoji:'🍕',color:'#F97316',questions:[
+    {q:"Dans quelle cuisine est né le sushi ?",c:['Thaïlandaise','Japonaise','Coréenne','Chinoise'],a:1,f:"Le sushi moderne sous sa forme actuelle est apparu à Tokyo au début du XIXe siècle."},
+    {q:"Quelle épice est la plus chère au monde au kilo ?",c:['Vanille','Truffe','Safran','Cardamome'],a:2,f:"Le safran peut coûter jusqu'à 30 000€/kg. Il faut 150 000 fleurs pour en produire 1 kg."},
+    {q:"De quel pays vient la paella ?",c:['Portugal','Mexique','Espagne','Italie'],a:2,f:"La paella est originaire de Valence, en Espagne. La recette traditionnelle contient du lapin."},
+    {q:"Quel fruit contient une enzyme qui empêche la gélatine de prendre ?",c:['Ananas','Mangue','Papaye','Kiwi'],a:0,f:"La broméline de l'ananas frais dégrade les protéines de la gélatine. Cuit, ce n'est plus un problème."},
+    {q:"De quel pays vient le fromage Gouda ?",c:['Belgique','France','Pays-Bas','Allemagne'],a:2,f:"Gouda est une ville des Pays-Bas. Le fromage y était commercialisé depuis le Moyen Âge."},
+    {q:"Quel est le temps de cuisson d'un œuf à la coque ?",c:['3 min','6 min','9 min','12 min'],a:0,f:"3 minutes dans l'eau bouillante : le blanc est cuit, le jaune encore coulant."},
+    {q:"Dans quelle ville est né le croissant ?",c:['Paris','Vienne','Budapest','Lyon'],a:1,f:"Le croissant est d'origine viennoise (Autriche), importé en France par Marie-Antoinette."},
+    {q:"Quelle est l'épice principale du curry ?",c:['Cumin','Cardamome','Curcuma','Coriandre'],a:2,f:"Le curcuma donne sa couleur jaune caractéristique au curry. Il est aussi réputé anti-inflammatoire."},
+    {q:"De quel pays vient le tiramisu ?",c:['Grèce','France','Espagne','Italie'],a:3,f:"Le tiramisu (qui signifie 'remonte-moi le moral') est originaire de Vénétie, en Italie."},
+    {q:"Quelle boisson alcoolisée est faite à base d'agave ?",c:['Rhum','Vodka','Tequila','Gin'],a:2,f:"La tequila est produite à partir de l'agave bleu, dans la région de Jalisco au Mexique."},
+  ]},
+};
+
+/* ══════════════════════════════════════════════════════
+   QUIZ SETUP
+══════════════════════════════════════════════════════ */
+const defaultCats=new Set(Object.keys(QUIZ_CATS).filter(k=>!QUIZ_CATS[k].adult));
+const qs={players:3,qCount:10,timer:30,cats:new Set(defaultCats)};
+
+(function buildCatGrid(){
+  const g=document.getElementById('cat-grid');
+  Object.entries(QUIZ_CATS).forEach(([k,cat])=>{
+    const btn=document.createElement('button');
+    const isOn=!cat.adult;
+    btn.className='cat-chip'+(isOn?' on':''); btn.dataset.k=k;
+    const extra=cat.adult?` style="border-color:rgba(239,68,68,.3);"`:'';
+    btn.innerHTML=`<span class="cat-chip-e">${cat.emoji}</span><span class="cat-chip-l" style="${cat.adult?'color:#FCA5A5':''}">${cat.label}${cat.adult?' <span style="font-size:9px;opacity:.7">18+</span>':''}</span><span class="cat-check">${isOn?'✓':''}</span>`;
+    if(extra) btn.setAttribute('style',btn.getAttribute('style')||'');
+    if(cat.adult) btn.style.cssText='border-color:rgba(239,68,68,.25)';
+    btn.addEventListener('click',()=>{
+      const nowOn=!btn.classList.contains('on');
+      if(cat.adult && nowOn){
+        if(!confirm('⚠️ Catégorie adulte (18+)\nConfirmes-tu l\'ajout des questions Hot ?')) return;
+      }
+      btn.classList.toggle('on');
+      btn.querySelector('.cat-check').textContent=btn.classList.contains('on')?'✓':'';
+      if(btn.classList.contains('on')) qs.cats.add(k); else qs.cats.delete(k);
+      if(cat.adult && btn.classList.contains('on')) btn.style.cssText='border-color:rgba(239,68,68,.6);background:rgba(239,68,68,.1)';
+      else if(cat.adult) btn.style.cssText='border-color:rgba(239,68,68,.25)';
+      updQSum();
+    });
+    g.appendChild(btn);
+  });
+})();
+
+function updQSum(){
+  document.getElementById('qpl-n').textContent=qs.players;
+  document.getElementById('qs-pl').textContent=qs.players;
+  document.getElementById('qs-q').textContent=qs.qCount;
+  document.getElementById('qs-t').textContent=qs.timer===0?'Illimité':qs.timer+'s';
+  document.getElementById('qs-cat').textContent=qs.cats.size===Object.keys(QUIZ_CATS).length?'Toutes':qs.cats.size+' cat.';
+}
+function chQPl(d){
+  qs.players=Math.min(8,Math.max(2,qs.players+d));
+  document.getElementById('bqplm').disabled=qs.players<=2;
+  document.getElementById('bqplp').disabled=qs.players>=8;
+  updQSum();
+}
+function selQC(btn){
+  document.querySelectorAll('[data-q]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); qs.qCount=+btn.dataset.q; updQSum();
+}
+function selTim(btn){
+  document.querySelectorAll('[data-s]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); qs.timer=+btn.dataset.s; updQSum();
+}
+updQSum();
+
+/* ══════════════════════════════════════════════════════
+   QUIZ GAME LOGIC
+══════════════════════════════════════════════════════ */
+let qGame={questions:[],cur:0,scores:[],timerIv:null,timeLeft:0,answered:false};
+const _usedQ={};
+
+function buildQuestions(){
+  const pool=[];
+  qs.cats.forEach(k=>{
+    const cat=QUIZ_CATS[k];
+    if(!cat) return;
+    if(!_usedQ[k]) _usedQ[k]=new Set();
+    let avail=cat.questions.map((q,i)=>({...q,cat:k,_i:i})).filter(q=>!_usedQ[k].has(q._i));
+    if(!avail.length){ _usedQ[k].clear(); avail=cat.questions.map((q,i)=>({...q,cat:k,_i:i})); }
+    pool.push(...avail);
+  });
+  shuffle(pool);
+  const chosen=pool.slice(0,qs.qCount);
+  chosen.forEach(q=>{ if(!_usedQ[q.cat]) _usedQ[q.cat]=new Set(); _usedQ[q.cat].add(q._i); });
+  return chosen;
+}
+
+function startQuiz(){
+  if(!qs.cats.size){ alert('Sélectionne au moins une catégorie !'); return; }
+  qGame.questions=buildQuestions();
+  if(!qGame.questions.length){ alert('Pas assez de questions !'); return; }
+  qGame.cur=0;
+  qGame.scores=Array.from({length:qs.players},(_,i)=>({name:`Joueur ${i+1}`,score:0,correct:0}));
+  goto('quiz-game');
+  loadQ(0);
+}
+
+function loadQ(idx){
+  if(qGame.timerIv){ clearInterval(qGame.timerIv); qGame.timerIv=null; }
+  qGame.answered=false;
+  const q=qGame.questions[idx];
+  const cat=QUIZ_CATS[q.cat];
+  const playerIdx=idx%qs.players;
+  const player=qGame.scores[playerIdx];
+
+  // Header
+  const total=qGame.questions.length;
+  document.getElementById('qg-count').textContent=`Q ${idx+1} / ${total}`;
+  document.getElementById('qg-prog').style.width=((idx+1)/total*100)+'%';
+
+  // Player tag
+  document.getElementById('pt-name').textContent=player.name;
+  document.getElementById('pt-score').textContent=player.score+' pts';
+
+  // Question
+  document.getElementById('q-cat').textContent=cat.emoji+' '+cat.label;
+  const qImg=document.getElementById('q-img');
+  if(q.img){ qImg.src=q.img; qImg.classList.add('vis'); } else { qImg.src=''; qImg.classList.remove('vis'); }
+  document.getElementById('q-text').textContent=q.q;
+
+  // Choices
+  const choicesEl=document.getElementById('q-choices');
+  choicesEl.innerHTML='';
+  const letters=['A','B','C','D'];
+  q.c.forEach((txt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='choice';
+    btn.innerHTML=`<span class="choice-l">${letters[i]}</span><span class="choice-t">${txt}</span>`;
+    btn.addEventListener('click',()=>answerQ(i));
+    choicesEl.appendChild(btn);
+  });
+
+  // Anecdote hidden
+  const anec=document.getElementById('q-anecdote');
+  anec.classList.remove('show');
+  document.getElementById('q-anecdote-txt').textContent='';
+
+  // Next btn hidden
+  document.getElementById('q-next-btn').classList.remove('vis');
+
+  // Timer
+  const tf=document.getElementById('timer-fill');
+  tf.style.transition='none'; tf.style.width='100%';
+  tf.className='timer-fill ok';
+  if(qs.timer>0){
+    qGame.timeLeft=qs.timer;
+    setTimeout(()=>{
+      tf.style.transition=`width ${qs.timer}s linear`;
+      tf.style.width='0%';
+    },50);
+    qGame.timerIv=setInterval(()=>{
+      qGame.timeLeft--;
+      const pct=qGame.timeLeft/qs.timer;
+      if(pct<0.2) tf.className='timer-fill hot';
+      else if(pct<0.45) tf.className='timer-fill warn';
+      if(qGame.timeLeft<=0){
+        clearInterval(qGame.timerIv);
+        if(!qGame.answered) revealQ(-1);
+      }
+    },1000);
+  } else {
+    tf.style.width='100%';
+  }
+}
+
+function answerQ(idx){
+  if(qGame.answered) return;
+  qGame.answered=true;
+  if(qGame.timerIv){ clearInterval(qGame.timerIv); qGame.timerIv=null; }
+  revealQ(idx);
+}
+
+function revealQ(chosen){
+  const q=qGame.questions[qGame.cur];
+  const playerIdx=qGame.cur%qs.players;
+  const btns=document.querySelectorAll('.choice');
+
+  btns.forEach((btn,i)=>{
+    btn.disabled=true;
+    if(i===q.a) btn.classList.add('correct');
+    else if(i===chosen) btn.classList.add('wrong');
+  });
+
+  if(chosen===q.a){
+    const pts=qs.timer>0?Math.max(10,Math.round(100*qGame.timeLeft/qs.timer)):100;
+    qGame.scores[playerIdx].score+=pts;
+    qGame.scores[playerIdx].correct++;
+  }
+  document.getElementById('pt-score').textContent=qGame.scores[playerIdx].score+' pts';
+
+  // Anecdote
+  if(q.f){
+    document.getElementById('q-anecdote-txt').textContent='💡 '+q.f;
+    document.getElementById('q-anecdote').classList.add('show');
+  }
+
+  // Timer bar stop
+  const tf=document.getElementById('timer-fill');
+  tf.style.transition='none';
+
+  // Next btn
+  const isLast=qGame.cur>=qGame.questions.length-1;
+  const nextBtn=document.getElementById('q-next-btn');
+  nextBtn.textContent=isLast?'🏆 Voir les résultats':'Suivant →';
+  setTimeout(()=>nextBtn.classList.add('vis'),400);
+}
+
+function nextQ(){
+  if(qGame.cur>=qGame.questions.length-1){ showResults(); return; }
+  qGame.cur++;
+  loadQ(qGame.cur);
+}
+
+/* ══════════════════════════════════════════════════════
+   BLIND TEST DATA
+══════════════════════════════════════════════════════ */
+const BT_CATS={
+  pop:{label:'Pop',emoji:'🎵',color:'#EC4899',songs:[
+    {title:'Shape of You',artist:'Ed Sheeran',year:2017,
+     clues:['Pop britannique • 2017','♪ "I\'m in love with the shape of..."','Ed S. • 3 mots dans le titre'],
+     anecdote:'Shape of You a été streamé plus de 3 milliards de fois sur Spotify — record mondial à sa sortie.'},
+    {title:'Rolling in the Deep',artist:'Adele',year:2010,
+     clues:['Soul/Pop britannique • 2010','♪ "We could have had it all..."','A. • 4 mots dans le titre'],
+     anecdote:"Rolling in the Deep a été le single le plus vendu dans le monde entier en 2011."},
+    {title:'Uptown Funk',artist:'Mark Ronson ft. Bruno Mars',year:2014,
+     clues:['Funk/Pop • 2014','♪ "Don\'t believe me, just watch!"','M.R. ft B.M. • 2 mots dans le titre'],
+     anecdote:"Uptown Funk est resté 14 semaines consécutives numéro 1 aux États-Unis."},
+    {title:'Bad Guy',artist:'Billie Eilish',year:2019,
+     clues:['Pop alternative • 2019','♪ "I\'m the bad guy... duh!"','B.E. • 2 mots dans le titre'],
+     anecdote:"Bad Guy a été composé par Billie et son frère Finneas dans la chambre de ce dernier."},
+    {title:'Blinding Lights',artist:'The Weeknd',year:2019,
+     clues:['Synthpop/R&B • 2019','♪ "I said, ooh, I\'m blinded by the lights..."','T.W. • 2 mots dans le titre'],
+     anecdote:"Blinding Lights a battu le record de semaines dans le Top 10 du Billboard Hot 100."},
+    {title:'Stay With Me',artist:'Sam Smith',year:2014,
+     clues:['Soul/Pop britannique • 2014','♪ "Oh, won\'t you stay with me..."','S.S. • 3 mots dans le titre'],
+     anecdote:"Sam Smith a remporté l'Oscar de la meilleure chanson originale pour Writing's On The Wall en 2016."},
+  ]},
+  rock:{label:'Rock',emoji:'🎸',color:'#EF4444',songs:[
+    {title:'Bohemian Rhapsody',artist:'Queen',year:1975,
+     clues:['Rock opératique • 1975','♪ "Is this the real life? Is this just fantasy?"','Q. • 2 mots dans le titre'],
+     anecdote:"Bohemian Rhapsody a failli ne pas sortir, jugé trop long (6 min) pour les radios de l'époque."},
+    {title:'Smells Like Teen Spirit',artist:'Nirvana',year:1991,
+     clues:['Grunge américain • 1991','♪ "Here we are now, entertain us!"','N. • 4 mots dans le titre'],
+     anecdote:"Kurt Cobain a déclaré avoir écrit ce titre comme une parodie de chanson pop... devenu hymne du grunge."},
+    {title:"Sweet Child O'Mine",artist:"Guns N'Roses",year:1987,
+     clues:['Hard rock américain • 1987','♪ "She\'s got a smile it seems to me..."','G.N.R. • 4 mots dans le titre'],
+     anecdote:"Le célèbre riff de guitare a été créé par Slash comme un simple exercice d'échauffement."},
+    {title:'Hotel California',artist:'Eagles',year:1977,
+     clues:['Rock américain • 1977','♪ "You can check out any time you like, but you can never leave..."','E. • 2 mots dans le titre'],
+     anecdote:"Hotel California parle de la décadence de l'American Dream, pas d'un vrai hôtel."},
+    {title:'Back in Black',artist:'AC/DC',year:1980,
+     clues:['Hard rock australien • 1980','♪ "I\'m back in black, I hit the sack..."','AC/DC • 3 mots dans le titre'],
+     anecdote:"Back in Black est l'album le plus vendu de l'histoire après Thriller, dédié au défunt chanteur Bon Scott."},
+    {title:"Don't Stop Me Now",artist:'Queen',year:1978,
+     clues:['Rock/Pop • 1978','♪ "Tonight I\'m gonna have myself a real good time..."','Q. • 4 mots dans le titre'],
+     anecdote:"Don't Stop Me Now a été classée chanson la plus euphorique de tous les temps par des scientifiques de l'Université de Manchester."},
+  ]},
+  annees80:{label:'80s · 90s',emoji:'🕺',color:'#A855F7',songs:[
+    {title:'Take On Me',artist:'A-ha',year:1985,
+     clues:['Synth-pop norvégien • 1985','♪ "Take on me, take me on..."','A-H. • 3 mots dans le titre'],
+     anecdote:"Le clip de Take On Me, mêlant animation au crayon et prises de vue réelles, a remporté 8 MTV Awards en 1986."},
+    {title:'Like a Prayer',artist:'Madonna',year:1989,
+     clues:['Pop/Dance • 1989','♪ "Life is a mystery, everyone must stand alone..."','M. • 3 mots dans le titre'],
+     anecdote:"Le clip de Like a Prayer a provoqué un scandale mondial et Pepsi a annulé son contrat avec Madonna."},
+    {title:'I Will Always Love You',artist:'Whitney Houston',year:1992,
+     clues:['R&B/Soul • 1992','♪ "And I... will always love you..."','W.H. • 5 mots dans le titre'],
+     anecdote:"La chanson originale est de Dolly Parton (1973). Whitney Houston en a fait la version la plus vendue de l'histoire."},
+    {title:'Thriller',artist:'Michael Jackson',year:1982,
+     clues:['Pop/Funk • 1982','♪ "\'Cause this is thriller, thriller night..."','M.J. • 1 mot dans le titre'],
+     anecdote:"Le clip de Thriller dure 14 minutes et coûta 500 000 $, un record absolu pour l'époque."},
+    {title:'...Baby One More Time',artist:'Britney Spears',year:1998,
+     clues:['Teen pop • 1998','♪ "Oh baby baby, how was I supposed to know..."','B.S. • 4 mots dans le titre'],
+     anecdote:"Les producteurs voulaient initialement un clip avec des dessins animés à la place du lycée iconique."},
+    {title:'Billie Jean',artist:'Michael Jackson',year:1982,
+     clues:['Pop/R&B • 1982','♪ "Billie Jean is not my lover..."','M.J. • 2 mots dans le titre'],
+     anecdote:"Billie Jean est le premier clip d'un artiste noir diffusé en rotation sur MTV, brisant une vraie barrière."},
+  ]},
+  french:{label:'Français',emoji:'🇫🇷',color:'#3B82F6',songs:[
+    {title:'Alors on danse',artist:'Stromae',year:2009,
+     clues:['Électro/Hip-hop belge • 2009','♪ "Qui dit études dit travail, qui dit taf te dit les thunes..."','S. • 3 mots dans le titre'],
+     anecdote:"Alors on danse a été numéro 1 dans plus de 10 pays européens, révélant Stromae au monde entier."},
+    {title:'La Bohème',artist:'Charles Aznavour',year:1965,
+     clues:['Chanson française • 1965','♪ "La Bohème, la Bohème, ça voulait dire on est heureux..."','C.A. • 2 mots dans le titre'],
+     anecdote:"Aznavour a composé La Bohème en hommage à ses années de jeunesse bohème à Montmartre."},
+    {title:'Voyage Voyage',artist:'Desireless',year:1986,
+     clues:['Synthpop français • 1986','♪ "Plus loin que la nuit et le jour..."','D. • 2 mots dans le titre'],
+     anecdote:"Voyage Voyage a été numéro 1 dans plus de 12 pays, y compris en Allemagne des années après sa sortie."},
+    {title:'Non, je ne regrette rien',artist:'Édith Piaf',year:1960,
+     clues:['Chanson française • 1960','♪ "Non, rien de rien, non je ne regrette rien..."','É.P. • 5 mots dans le titre'],
+     anecdote:"Cette chanson est utilisée dans le film Inception de Nolan comme signal de réveil dans les rêves."},
+    {title:'Alexandrie Alexandra',artist:'Claude François',year:1978,
+     clues:['Variété française • 1978','♪ "Alexandrie Alexandra, tout le monde dansait..."','C.F. • 2 mots dans le titre'],
+     anecdote:"L'un des derniers grands succès de Cloclo avant sa mort tragique la même année."},
+    {title:'Je veux',artist:'Zaz',year:2010,
+     clues:['Jazz/Pop française • 2010','♪ "Je veux de l\'amour, de la joie, de la bonne humeur..."','Z. • 2 mots dans le titre'],
+     anecdote:"Je veux a propulsé Zaz sur la scène internationale, notamment au Japon où elle est adulée."},
+  ]},
+  disney:{label:'Ciné & Disney',emoji:'🎬',color:'#E879F9',songs:[
+    {title:'Let It Go',artist:'La Reine des Neiges',year:2013,
+     clues:['Disney • 2013','♪ "Let it go, let it go, can\'t hold it back anymore..."','L.R.D.N. • 3 mots dans le titre'],
+     anecdote:"Let It Go a été chanté en 42 langues différentes pour les versions internationales du film."},
+    {title:'Circle of Life',artist:'Le Roi Lion',year:1994,
+     clues:['Disney/Afrique • 1994','♪ "Nants ingonyama bagithi baba..."','L.R.L. • 3 mots dans le titre'],
+     anecdote:"L'ouverture est chantée en zoulou. Elton John a composé la musique, Tim Rice les paroles."},
+    {title:'A Whole New World',artist:'Aladdin',year:1992,
+     clues:['Disney • 1992','♪ "A whole new world, a new fantastic point of view..."','A. • 4 mots dans le titre'],
+     anecdote:"A Whole New World a remporté l'Oscar de la meilleure chanson originale en 1993."},
+    {title:'My Heart Will Go On',artist:'Céline Dion',year:1997,
+     clues:['Pop/Cinéma • 1997 — film Titanic','♪ "Every night in my dreams I see you, I feel you..."','C.D. • 5 mots dans le titre'],
+     anecdote:"Céline Dion a enregistré ce titre en une seule prise. Elle ne voulait pas le chanter au départ !"},
+    {title:'Under the Sea',artist:'La Petite Sirène',year:1989,
+     clues:['Disney/Caraïbes • 1989','♪ "The seaweed is always greener in somebody else\'s lake..."','L.P.S. • 3 mots dans le titre'],
+     anecdote:"Under the Sea a remporté l'Oscar de la meilleure chanson originale en 1990."},
+    {title:'You\'ve Got a Friend in Me',artist:'Toy Story',year:1995,
+     clues:['Disney/Pixar • 1995','♪ "You\'ve got a friend in me, you\'ve got a friend in me..."','T.S. • 6 mots dans le titre'],
+     anecdote:"Randy Newman a composé et interprété cette chanson en moins d'une heure selon ses dires."},
+  ]},
+  electro:{label:'Électro',emoji:'🤖',color:'#06B6D4',songs:[
+    {title:'Get Lucky',artist:'Daft Punk ft. Pharrell',year:2013,
+     clues:['French House • 2013','♪ "We\'ve come too far to give up who we are..."','D.P. • 2 mots dans le titre'],
+     anecdote:"Nile Rodgers (Chic) joue la guitare. Enregistré sur des instruments vintage des années 70."},
+    {title:'One More Time',artist:'Daft Punk',year:2000,
+     clues:['French House • 2000','♪ "One more time, we\'re gonna celebrate..."','D.P. • 3 mots dans le titre'],
+     anecdote:"La voix est celle de Romanthony, transformée par vocoder. L'une des meilleures ventes de Daft Punk."},
+    {title:'Levels',artist:'Avicii',year:2011,
+     clues:['EDM suédois • 2011','♪ "Oh, sometimes I get a good feeling..."','A. • 1 mot dans le titre'],
+     anecdote:"Levels sample Something's Got a Hold on Me d'Etta James (1962). Avicii avait 21 ans."},
+    {title:'Sandstorm',artist:'Darude',year:1999,
+     clues:['Trance finlandaise • 1999','♪ ta-na-na-na-na... na-na-na-na...','D. • 1 mot dans le titre'],
+     anecdote:"Sandstorm est devenu le mème musical ultime d'Internet — réponse universelle à toute chanson inconnue."},
+    {title:'Blue (Da Ba Dee)',artist:'Eiffel 65',year:1998,
+     clues:['Eurodance italien • 1998','♪ "I\'m blue, da ba dee da ba daa..."','E.65 • entre parenthèses dans le titre'],
+     anecdote:"Blue (Da Ba Dee) s'est vendu à plus de 7 millions d'exemplaires dans le monde entier."},
+    {title:'Around the World',artist:'Daft Punk',year:1997,
+     clues:['French Techno • 1997','♪ "Around the world, around the world..." (répété 144 fois)','D.P. • 3 mots dans le titre'],
+     anecdote:'La phrase "Around the world" est répétée exactement 144 fois dans la chanson — un par personnage du clip.'},
+  ]},
+};
+
+/* ══════════════════════════════════════════════════════
+   BLIND TEST SETUP LOGIC
+══════════════════════════════════════════════════════ */
+const bts={players:3,sCount:10,cats:new Set(Object.keys(BT_CATS))};
+
+(function buildBTCatGrid(){
+  const g=document.getElementById('bt-cat-grid');
+  Object.entries(BT_CATS).forEach(([k,cat])=>{
+    const btn=document.createElement('button');
+    btn.className='bt-cat-chip on';
+    btn.dataset.k=k;
+    btn.style.borderColor=cat.color;
+    btn.innerHTML=`<span class="bt-cat-chip-e">${cat.emoji}</span><span class="bt-cat-chip-l">${cat.label}</span>`;
+    btn.addEventListener('click',()=>{
+      if(bts.cats.has(k)){
+        if(bts.cats.size===1) return;
+        bts.cats.delete(k);
+        btn.classList.remove('on');
+        btn.style.borderColor='';
+      } else {
+        bts.cats.add(k);
+        btn.classList.add('on');
+        btn.style.borderColor=cat.color;
+      }
+      updateBTSum();
+    });
+    g.appendChild(btn);
+  });
+})();
+
+(function buildSCRow(){
+  const r=document.getElementById('sc-row');
+  [5,10,15,20].forEach(n=>{
+    const btn=document.createElement('button');
+    btn.className='sc-chip'+(n===10?' on':'');
+    btn.innerHTML=`<div class="sc-chip-n">${n}</div><div class="sc-chip-l">chansons</div>`;
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.sc-chip').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+      bts.sCount=n;
+      updateBTSum();
+    });
+    r.appendChild(btn);
+  });
+})();
+
+function chBTPl(d){
+  bts.players=Math.min(10,Math.max(2,bts.players+d));
+  document.getElementById('btpl-n').textContent=bts.players;
+  document.getElementById('bbtplm').disabled=bts.players<=2;
+  document.getElementById('bbtplp').disabled=bts.players>=10;
+  updateBTSum();
+}
+function updateBTSum(){
+  document.getElementById('bts-pl').textContent=bts.players;
+  document.getElementById('bts-sc').textContent=bts.sCount;
+  const total=Object.keys(BT_CATS).length;
+  document.getElementById('bts-cat').textContent=bts.cats.size===total?'Toutes':bts.cats.size+' cat.';
+}
+
+/* ══════════════════════════════════════════════════════
+   BLIND TEST GAME LOGIC
+══════════════════════════════════════════════════════ */
+const _usedBT={};
+let btGame={songs:[],cur:0,scores:[],cluesShown:0,answered:false};
+
+function buildBTSongs(){
+  let pool=[];
+  bts.cats.forEach(k=>{
+    const cat=BT_CATS[k]; if(!cat) return;
+    if(!_usedBT[k]) _usedBT[k]=new Set();
+    let avail=cat.songs.map((s,i)=>({...s,cat:k,_i:i})).filter(s=>!_usedBT[k].has(s._i));
+    if(!avail.length){ _usedBT[k].clear(); avail=cat.songs.map((s,i)=>({...s,cat:k,_i:i})); }
+    pool.push(...avail);
+  });
+  shuffle(pool);
+  const chosen=pool.slice(0,bts.sCount);
+  chosen.forEach(s=>{ if(!_usedBT[s.cat]) _usedBT[s.cat]=new Set(); _usedBT[s.cat].add(s._i); });
+  return chosen;
+}
+
+function startBT(){
+  if(!bts.cats.size){ alert('Sélectionne au moins une catégorie !'); return; }
+  btGame.songs=buildBTSongs();
+  if(!btGame.songs.length){ alert('Pas assez de chansons !'); return; }
+  btGame.cur=0;
+  btGame.scores=Array.from({length:bts.players},(_,i)=>({name:'Joueur '+(i+1),score:0,found:0}));
+  goto('bt-game');
+  loadBTSong(0);
+}
+
+function loadBTSong(idx){
+  btGame.cluesShown=0; btGame.answered=false;
+  const s=btGame.songs[idx];
+  const cat=BT_CATS[s.cat];
+  const total=btGame.songs.length;
+
+  document.getElementById('btg-count').textContent='🎵 '+(idx+1)+' / '+total;
+  document.getElementById('btg-prog').style.width=((idx+1)/total*100)+'%';
+  document.getElementById('btg-cat').textContent=cat.emoji+' '+cat.label;
+
+  document.getElementById('btg-hidden').style.display='flex';
+  document.getElementById('btg-answer').classList.remove('vis');
+
+  document.getElementById('btg-no-clues').style.display='block';
+  ['btg-c1','btg-c2','btg-c3'].forEach(id=>document.getElementById(id).classList.remove('vis'));
+  document.getElementById('btg-c1t').textContent=s.clues[0]||'';
+  document.getElementById('btg-c2t').textContent=s.clues[1]||'';
+  document.getElementById('btg-c3t').textContent=s.clues[2]||'';
+
+  const clueBtn=document.getElementById('btg-clue-btn');
+  clueBtn.disabled=false; clueBtn.textContent='💡 Révéler un indice (3 disponibles)';
+  const ansBtn=document.getElementById('btg-ans-btn');
+  ansBtn.disabled=false; ansBtn.textContent='🎵 Révéler la réponse';
+
+  document.getElementById('btg-award').classList.remove('vis');
+  document.getElementById('btg-body').scrollTop=0;
+}
+
+function btRevealClue(){
+  if(btGame.cluesShown>=3) return;
+  btGame.cluesShown++;
+  const n=btGame.cluesShown;
+  document.getElementById('btg-no-clues').style.display='none';
+  document.getElementById('btg-c'+n).classList.add('vis');
+  const left=3-btGame.cluesShown;
+  const clueBtn=document.getElementById('btg-clue-btn');
+  if(left===0){ clueBtn.disabled=true; clueBtn.textContent='💡 Tous les indices révélés'; }
+  else { clueBtn.textContent='💡 Révéler un indice ('+left+' restant'+(left>1?'s':'')+')'; }
+}
+
+function btRevealAnswer(){
+  if(btGame.answered) return;
+  btGame.answered=true;
+  const s=btGame.songs[btGame.cur];
+
+  document.getElementById('btg-hidden').style.display='none';
+  document.getElementById('btg-title').textContent=s.title;
+  document.getElementById('btg-artist').textContent=s.artist;
+  document.getElementById('btg-year').textContent=s.year;
+  document.getElementById('btg-anecdote').textContent=s.anecdote||'';
+  document.getElementById('btg-answer').classList.add('vis');
+  document.getElementById('btg-clue-btn').disabled=true;
+  document.getElementById('btg-ans-btn').disabled=true;
+
+  const pts=btGame.cluesShown===0?3:btGame.cluesShown===1?2:1;
+  document.getElementById('btg-award-title').textContent='🏆 Qui a trouvé ? (+'+pts+' pts)';
+  const grid=document.getElementById('btg-award-grid');
+  grid.innerHTML='';
+  btGame.scores.forEach((pl,i)=>{
+    const btn=document.createElement('button');
+    btn.className='bt-award-btn';
+    btn.innerHTML=pl.name+'<span class="bt-pts">'+pl.score+' pts</span>';
+    btn.addEventListener('click',()=>btAward(i,pts));
+    grid.appendChild(btn);
+  });
+  const none=document.createElement('button');
+  none.className='bt-award-btn bt-award-none';
+  none.textContent='😅 Personne';
+  none.addEventListener('click',()=>btAward(-1,0));
+  grid.appendChild(none);
+  document.getElementById('btg-award').classList.add('vis');
+}
+
+function btAward(playerIdx,pts){
+  if(playerIdx>=0){ btGame.scores[playerIdx].score+=pts; btGame.scores[playerIdx].found++; }
+  if(btGame.cur>=btGame.songs.length-1){ btShowResults(); return; }
+  btGame.cur++;
+  loadBTSong(btGame.cur);
+}
+
+function btShowResults(){
+  const sorted=[...btGame.scores].sort((a,b)=>b.score-a.score);
+  const total=btGame.songs.length;
+  document.getElementById('bt-res-sub').textContent=total+' chansons · Gagnant : '+sorted[0].name+' 🏆';
+
+  const podEl=document.getElementById('bt-podium'); podEl.innerHTML='';
+  const order=sorted.length>=3?[sorted[1],sorted[0],sorted[2]]:[sorted[0]];
+  const medals=['🥈','🥇','🥉']; const cls=['p2','p1','p3'];
+  order.forEach((pl,i)=>{
+    const d=document.createElement('div'); d.className='pod '+cls[i];
+    d.innerHTML='<div class="pod-medal">'+medals[i]+'</div><div class="pod-name">'+pl.name+'</div><div class="pod-score">'+pl.score+'</div>';
+    podEl.appendChild(d);
+  });
+  if(sorted.length<2) podEl.innerHTML='';
+
+  const list=document.getElementById('bt-res-list'); list.innerHTML='';
+  sorted.forEach((pl,i)=>{
+    const pct=total>0?Math.round(pl.found/total*100):0;
+    const d=document.createElement('div'); d.className='res-row';
+    d.innerHTML='<div class="res-rank">'+(i+1)+'</div><div class="res-name">'+pl.name+'</div><div class="res-score" style="color:#67E8F9">'+pl.score+'<span class="res-pct">('+pct+'%)</span></div>';
+    list.appendChild(d);
+  });
+  goto('bt-res');
+}
+
+/* ══════════════════════════════════════════════════════
+   AMITIÉ / COUPLE — QUESTIONS
+══════════════════════════════════════════════════════ */
+const AM_QUESTIONS={
+  amitie:[
+    "Quelle est la couleur préférée de {nom} ?",
+    "Quel est le plat que {nom} pourrait manger tous les jours ?",
+    "Si {nom} pouvait vivre dans n'importe quelle ville du monde, laquelle ?",
+    "Quelle est la plus grande peur de {nom} ?",
+    "Si {nom} pouvait avoir un super-pouvoir, lequel choisirait-il/elle ?",
+    "Quel est le film ou la série préféré de {nom} ?",
+    "Si {nom} devait changer de prénom, lequel choisirait-il/elle ?",
+    "Quelle qualité {nom} apprécie-t-il/elle le plus chez les autres ?",
+    "Quel animal {nom} choisirait comme animal de compagnie idéal ?",
+    "Si {nom} pouvait dîner avec n'importe qui au monde, qui serait-ce ?",
+    "Quel est le plus grand défaut que {nom} reconnaît en lui/elle-même ?",
+    "Quelle activité {nom} pourrait faire toute une journée sans jamais se lasser ?",
+    "Si {nom} gagnait 1 million d'euros, quelle serait sa première dépense ?",
+    "De quoi {nom} est-il/elle le plus fier/fière dans sa vie ?",
+    "Si {nom} devait se décrire en un seul mot, lequel dirait-il/elle ?",
+    "Quel serait le pire travail pour {nom} ?",
+    "À quelle heure {nom} se lève-t-il/elle naturellement, sans réveil ?",
+    "Quel est le voyage de rêve de {nom} ?",
+    "Si {nom} avait une heure libre inattendue, qu'est-ce qu'il/elle ferait ?",
+    "Quelle chose {nom} achète-t-il/elle toujours en trop grande quantité ?",
+    "Quel serait le titre du film sur la vie de {nom} ?",
+    "Si {nom} devait recommencer ses études, que choisirait-il/elle ?",
+    "Quelle habitude secrète de {nom} très peu de gens connaissent ?",
+    "Si {nom} devait choisir entre la plage et la montagne, ce serait quoi ?",
+    "Quelle compétence {nom} regrette-t-il/elle de ne pas avoir apprise ?",
+    "Si {nom} pouvait revivre une journée de sa vie, laquelle ?",
+    "Quelle expression {nom} dit-il/elle le plus souvent ?",
+    "À quoi ressemble la soirée idéale de {nom} ?",
+    "Quelle chose met instantanément {nom} de bonne humeur ?",
+    "Si {nom} devait disparaître un an sans téléphone ni internet, où irait-il/elle ?",
+  ],
+  couple:[
+    "Quel est le premier mot que {nom} utiliserait pour décrire votre relation ?",
+    "Qu'est-ce qui ferait fondre {nom} comme cadeau surprise ?",
+    "Si {nom} pouvait partir en voyage romantique, où irait-il/elle ?",
+    "Quelle est la chose que {nom} trouve irrésistible chez l'autre ?",
+    "Si {nom} devait résumer votre couple en un film, lequel ce serait ?",
+    "Quelle petite habitude de l'autre {nom} trouve-t-il/elle attendrissante ?",
+    "À quel moment {nom} a-t-il/elle réalisé avoir des sentiments forts pour l'autre ?",
+    "Quelle chose {nom} aimerait changer dans votre quotidien à deux ?",
+    "Quel souvenir commun {nom} chérit-il/elle le plus ?",
+    "Si {nom} devait décrire l'autre en 3 mots, ce seraient lesquels ?",
+    "Quelle a été la dispute la plus ridicule selon {nom} ?",
+    "Qu'est-ce que {nom} adore faire quand il/elle est seul(e) ?",
+    "Quel est le rêve secret de {nom} qu'il/elle n'ose pas toujours avouer ?",
+    "Si {nom} pouvait changer une chose chez lui/elle, ce serait quoi ?",
+    "Comment {nom} préfère-t-il/elle passer un dimanche pluvieux ?",
+    "Si {nom} devait organiser une surprise romantique, ce serait quoi ?",
+    "Quelle chose {nom} ne supporterait jamais chez un partenaire ?",
+    "Si {nom} rejouait votre premier rendez-vous, que changerait-il/elle ?",
+    "Quel est le talent caché de {nom} que même lui/elle sous-estime ?",
+    "Si {nom} écrivait un vœu pour vous deux, quel serait-il ?",
+    "Comment {nom} se comporte-t-il/elle quand il/elle est de mauvaise humeur ?",
+    "Quelle chanson {nom} associe-t-il/elle à votre relation ?",
+    "Si {nom} pouvait vous offrir une expérience incroyable, laquelle ?",
+    "Quelle chose {nom} ne dit pas assez mais devrait dire plus souvent ?",
+    "En une phrase, comment {nom} vous présenterait à des inconnus ?",
+  ],
+};
+
+/* ══════════════════════════════════════════════════════
+   AMITIÉ SETUP LOGIC
+══════════════════════════════════════════════════════ */
+const amSetup={players:['',''],mode:'amitie',qCount:10};
+
+function initAMSetup(){
+  if(amSetup.players.length===0) amSetup.players=['',''];
+  renderAmPlayers();
+  document.getElementById('am-error').classList.remove('show');
+}
+
+function renderAmPlayers(){
+  const c=document.getElementById('am-player-inputs');
+  c.innerHTML='';
+  amSetup.players.forEach((name,idx)=>{
+    const row=document.createElement('div');
+    row.className='player-input-row';
+    const removeBtn=amSetup.players.length>2?`<button class="remove-player-btn" onclick="amRemovePlayer(${idx})">✕</button>`:'';
+    row.innerHTML=`<div class="player-num-badge"><span>${idx+1}</span></div>
+      <input class="player-input" type="text" placeholder="Joueur ${idx+1}" value="${name.replace(/"/g,'&quot;')}" maxlength="18" oninput="amSetup.players[${idx}]=this.value;amClearError()">
+      ${removeBtn}`;
+    c.appendChild(row);
+  });
+  document.getElementById('am-add-player-btn').style.display=amSetup.players.length<6?'block':'none';
+}
+
+function amAddPlayer(){
+  if(amSetup.players.length>=6) return;
+  amSetup.players.push('');
+  renderAmPlayers();
+  // focus new input
+  const inputs=document.querySelectorAll('#am-player-inputs .player-input');
+  if(inputs.length) inputs[inputs.length-1].focus();
+}
+
+function amRemovePlayer(idx){
+  if(amSetup.players.length<=2) return;
+  amSetup.players.splice(idx,1);
+  renderAmPlayers();
+}
+
+function amSelectMode(mode){
+  amSetup.mode=mode;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('am-mode-'+mode).classList.add('on');
+}
+
+function amSelectCount(n){
+  amSetup.qCount=n;
+  document.querySelectorAll('.count-chip').forEach(b=>b.classList.remove('on'));
+  document.querySelector('.count-chip[data-n="'+n+'"]').classList.add('on');
+}
+
+function amClearError(){
+  document.getElementById('am-error').classList.remove('show');
+}
+
+function startAM(){
+  // Read names fresh from DOM
+  const inputs=document.querySelectorAll('#am-player-inputs .player-input');
+  const names=[...inputs].map(i=>i.value.trim());
+  amSetup.players=names;
+
+  if(names.some(n=>!n)){
+    const err=document.getElementById('am-error');
+    err.querySelector('.am-error-txt').textContent='⚠️ Tous les joueurs doivent avoir un prénom !';
+    err.classList.add('show'); return;
+  }
+  const uniq=new Set(names.map(n=>n.toLowerCase()));
+  if(uniq.size!==names.length){
+    const err=document.getElementById('am-error');
+    err.querySelector('.am-error-txt').textContent='⚠️ Deux joueurs ne peuvent pas avoir le même prénom !';
+    err.classList.add('show'); return;
+  }
+
+  const pool=[...AM_QUESTIONS[amSetup.mode]].sort(()=>Math.random()-.5).slice(0,amSetup.qCount);
+
+  // Build pairs (all ordered pairs)
+  const pairs=[];
+  for(let i=0;i<names.length;i++)
+    for(let j=0;j<names.length;j++)
+      if(i!==j) pairs.push([i,j]);
+
+  amGame.players=names;
+  amGame.rounds=pool.map((q,i)=>({guesser:pairs[i%pairs.length][0],subject:pairs[i%pairs.length][1],q}));
+  amGame.cur=0;
+  amGame.scores=Object.fromEntries(names.map((_,i)=>[i,0]));
+
+  goto('am-game');
+}
+
+/* ══════════════════════════════════════════════════════
+   AMITIÉ GAME LOGIC
+══════════════════════════════════════════════════════ */
+const amGame={players:[],rounds:[],cur:0,scores:{}};
+
+function renderAMRound(){
+  if(!amGame.rounds.length) return;
+  const round=amGame.rounds[amGame.cur];
+  const guesser=amGame.players[round.guesser];
+  const subject=amGame.players[round.subject];
+  const total=amGame.rounds.length;
+
+  document.getElementById('am-prog').style.width=((amGame.cur+1)/total*100)+'%';
+  document.getElementById('am-round-count').textContent=(amGame.cur+1)+' / '+total;
+  document.getElementById('am-chip-guesser-name').textContent=guesser;
+  document.getElementById('am-chip-subject-name').textContent=subject;
+  document.getElementById('am-q-text').textContent=round.q.replace('{nom}',subject);
+  document.getElementById('am-q-emoji').textContent=amSetup.mode==='couple'?'💑':'🤝';
+  document.getElementById('am-instr-text').textContent=guesser+', donne ta réponse à voix haute...';
+  document.getElementById('am-reveal-btn').textContent='👁 Voir la réponse de '+subject;
+
+  // Reset phase
+  document.getElementById('am-reveal-area').style.display='flex';
+  document.getElementById('am-answer-area').style.display='none';
+  const fb=document.getElementById('am-feedback');
+  fb.classList.remove('show','correct','wrong');
+}
+
+function amReveal(){
+  const round=amGame.rounds[amGame.cur];
+  const subject=amGame.players[round.subject];
+  document.getElementById('am-reveal-area').style.display='none';
+  document.getElementById('am-answer-area').style.display='flex';
+  document.getElementById('am-reveal-instr').textContent=subject+', révèle ta vraie réponse !';
+}
+
+function amAnswer(correct){
+  const round=amGame.rounds[amGame.cur];
+  if(correct) amGame.scores[round.guesser]++;
+
+  const fb=document.getElementById('am-feedback');
+  fb.textContent=correct?'🎉 Bonne réponse !':'😅 Raté !';
+  fb.className='am-feedback show '+(correct?'correct':'wrong');
+  document.getElementById('am-answer-area').style.display='none';
+
+  setTimeout(()=>{
+    if(amGame.cur>=amGame.rounds.length-1){ showAMResults(); return; }
+    amGame.cur++;
+    renderAMRound();
+  },900);
+}
+
+function showAMResults(){
+  const players=amGame.players;
+  const rounds=amGame.rounds;
+  const scores=amGame.scores;
+  const totalCorrect=Object.values(scores).reduce((a,b)=>a+b,0);
+  const compat=Math.round(totalCorrect/rounds.length*100);
+
+  let emoji,msg;
+  if(compat>=80){emoji='💝';msg='Vous vous connaissez parfaitement !';}
+  else if(compat>=60){emoji='🤝';msg='Vous vous connaissez très bien !';}
+  else if(compat>=40){emoji='🌱';msg='Vous avez encore des surprises à vous faire...';}
+  else{emoji='💔';msg='Il y a des choses à (re)découvrir ensemble !';}
+
+  document.getElementById('am-res-emoji').textContent=emoji;
+  document.getElementById('am-res-pct').textContent=compat+'%';
+  document.getElementById('am-res-msg').textContent=msg;
+
+  const playerStats=players.map((name,i)=>{
+    const attempts=rounds.filter(r=>r.guesser===i).length;
+    const correct=scores[i]||0;
+    return{name,correct,attempts};
+  }).sort((a,b)=>b.correct-a.correct);
+
+  const medals=['🥇','🥈','🥉'];
+  const list=document.getElementById('am-score-list');
+  list.innerHTML='';
+  playerStats.forEach((ps,idx)=>{
+    const pct=ps.attempts>0?Math.round(ps.correct/ps.attempts*100):0;
+    const row=document.createElement('div');
+    row.className='am-score-row';
+    row.innerHTML=`<div class="am-score-rank">${medals[idx]||(idx+1)+'.'}</div>
+      <div class="am-score-name">${ps.name}</div>
+      <div class="am-score-bar-wrap"><div class="am-score-track"><div class="am-score-fill" style="width:0%" data-w="${pct}"></div></div></div>
+      <div class="am-score-val">${ps.correct}/${ps.attempts}</div>`;
+    list.appendChild(row);
+  });
+
+  goto('am-res');
+  setTimeout(()=>document.querySelectorAll('#am-score-list .am-score-fill').forEach(el=>el.style.width=el.dataset.w+'%'),200);
+}
+
+function replayAM(){
+  startAM();
+}
+
+// Init setup screen on first load
+initAMSetup();
+
+function showResults(){
+  if(qGame.timerIv){ clearInterval(qGame.timerIv); qGame.timerIv=null; }
+  const sorted=[...qGame.scores].sort((a,b)=>b.score-a.score);
+  const total=qGame.questions.length;
+
+  // Sub title
+  document.getElementById('res-sub').textContent=`${total} questions · Gagnant : ${sorted[0].name} 🏆`;
+
+  // Podium (top 3)
+  const podEl=document.getElementById('podium');
+  podEl.innerHTML='';
+  const order=sorted.length>=3?[sorted[1],sorted[0],sorted[2]]:[sorted[0]];
+  const medals=['🥈','🥇','🥉'];
+  const cls=['p2','p1','p3'];
+  order.forEach((pl,i)=>{
+    const d=document.createElement('div');
+    d.className='pod '+cls[i];
+    d.innerHTML=`<div class="pod-medal">${medals[i]}</div><div class="pod-name">${pl.name}</div><div class="pod-score">${pl.score}</div>`;
+    podEl.appendChild(d);
+  });
+  if(sorted.length<2) podEl.innerHTML='';
+
+  // Full list
+  const list=document.getElementById('res-list');
+  list.innerHTML='';
+  sorted.forEach((pl,i)=>{
+    const pct=total>0?Math.round(pl.correct/total*100):0;
+    const d=document.createElement('div'); d.className='res-row';
+    d.innerHTML=`<div class="res-rank">${i+1}</div><div class="res-name">${pl.name}</div><div class="res-score">${pl.score}<span class="res-pct" style="font-size:11px;color:var(--text3);margin-left:4px">(${pct}%)</span></div>`;
+    list.appendChild(d);
+  });
+
+  goto('quiz-res');
+}
+</script>
+</body>
+</html>

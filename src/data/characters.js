@@ -133,6 +133,25 @@ export const characters = [
     },
   },
   {
+    id: 'arbitre',
+    name: "L'Arbitre",
+    emoji: '⚖️',
+    title: 'Maître du Vote',
+    description:
+      "L'Arbitre impartial tranche chaque débat ! Votez en secret sur des questions, débats et dilemmes. Celui qui pense comme la majorité remporte les points !",
+    catchphrase: '"La majorité a toujours raison… ou presque !"',
+    color: '#6366F1',
+    gradientColors: ['#0A0818', '#12103A'],
+    game: 'vote',
+    gameName: 'VOTE MAJORITÉ',
+    available: true,
+    stats: {
+      Diplomatie: 95,
+      Intuition: 90,
+      Stratégie: 88,
+    },
+  },
+  {
     id: 'cyrano',
     name: 'Cyrano de Bergerac',
     emoji: '🎭',
