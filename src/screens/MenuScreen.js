@@ -390,8 +390,14 @@ export default function MenuScreen({ navigation }) {
           onTouchEnd={() => {
             if (!isDragging.current) return;
             isDragging.current = false;
-            const offset = manualScrollOffset.current;
-            const snapped = Math.round(offset / ITEM_SIZE) * ITEM_SIZE;
+            const delta = manualScrollOffset.current - dragStartScroll.current;
+            const baseIdx = Math.round(dragStartScroll.current / ITEM_SIZE);
+            let snapped;
+            if (Math.abs(delta) > ITEM_SIZE * 0.12) {
+              snapped = (baseIdx + (delta > 0 ? 1 : -1)) * ITEM_SIZE;
+            } else {
+              snapped = Math.round(manualScrollOffset.current / ITEM_SIZE) * ITEM_SIZE;
+            }
             manualScrollOffset.current = snapped;
             scrollRef.current?.scrollToOffset({ offset: snapped, animated: true });
             setTimeout(() => handleScrollEnd(snapped), 350);
@@ -411,7 +417,8 @@ export default function MenuScreen({ navigation }) {
             initialScrollIndex={INIT_IDX}
             snapToInterval={ITEM_SIZE}
             snapToAlignment="start"
-            decelerationRate={Platform.OS !== 'web' ? 'normal' : 'fast'}
+            decelerationRate="fast"
+            disableIntervalMomentum={Platform.OS !== 'web'}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: SIDE_INSET, paddingVertical: 12 }}
             onScroll={Animated.event(
