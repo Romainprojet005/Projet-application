@@ -95,6 +95,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const [timer,      setTimer]      = useState(TOTAL_TIME);
   const [iframeSrc,  setIframeSrc]  = useState(null);
   const [foundPts,   setFoundPts]   = useState(0);
+  const [wrongFlash, setWrongFlash] = useState(false);
 
   const timerRef  = useRef(null);
   const phaseRef  = useRef('idle');
@@ -167,9 +168,10 @@ export default function BlindTestGameScreen({ navigation, route }) {
   };
 
   // ── Guess ──────────────────────────────────────────────────────────────────
-  const handleGuess = () => {
-    if (phase !== 'playing' || !inputText.trim()) return;
-    if (isCorrectGuess(inputText, song.title)) {
+  const handleGuess = (currentText) => {
+    const text = typeof currentText === 'string' ? currentText : inputText;
+    if (phase !== 'playing' || !text.trim()) return;
+    if (isCorrectGuess(text, song.title)) {
       stopTimer();
       const pts = currentPts;
       setFoundPts(pts);
@@ -183,7 +185,9 @@ export default function BlindTestGameScreen({ navigation, route }) {
         setTimeout(() => { setPhase('reveal'); openAnswerCard(); }, 600);
       }
     } else {
-      animateFeedback();
+      // Feedback visible pour mauvaise réponse
+      setWrongFlash(true);
+      setTimeout(() => setWrongFlash(false), 600);
     }
   };
 
@@ -398,7 +402,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
           <View style={styles.inputContainer}>
             <View style={styles.inputRow}>
               <TextInput
-                style={styles.textInput}
+                style={[styles.textInput, wrongFlash && styles.textInputWrong]}
                 placeholder="Tapez le titre de la chanson..."
                 placeholderTextColor={`${BEAT}66`}
                 value={inputText}
@@ -406,12 +410,17 @@ export default function BlindTestGameScreen({ navigation, route }) {
                 onSubmitEditing={handleGuess}
                 returnKeyType="done"
                 autoCorrect={false}
-                autoCapitalize="words"
+                autoCapitalize="none"
               />
+              {/* Sur web : onMouseDown avec preventDefault() pour éviter que l'input
+                  perde le focus avant le déclenchement de la validation */}
               <TouchableOpacity
                 style={[styles.validateBtn, !inputText.trim() && styles.validateBtnDisabled]}
-                onPress={handleGuess}
-                disabled={!inputText.trim()}
+                onPress={Platform.OS !== 'web' ? handleGuess : undefined}
+                onMouseDown={Platform.OS === 'web' ? (e) => {
+                  e.preventDefault();
+                  handleGuess(inputText);
+                } : undefined}
                 activeOpacity={0.8}
               >
                 <Text style={styles.validateBtnText}>✓</Text>
@@ -555,6 +564,7 @@ const styles = StyleSheet.create({
   validateBtn:         { backgroundColor: BEAT, borderRadius: radius.md, paddingVertical: spacing.md, paddingHorizontal: spacing.lg, alignItems: 'center', justifyContent: 'center' },
   validateBtnDisabled: { backgroundColor: `${BEAT}44` },
   validateBtnText:     { fontSize: 20, fontWeight: '900', color: '#fff' },
+  textInputWrong:      { borderColor: '#EF4444', backgroundColor: '#1A0505' },
 
   skipBtn:      { borderRadius: radius.full, overflow: 'hidden' },
   skipBtnInner: { paddingVertical: spacing.md, paddingHorizontal: spacing.xl, alignItems: 'center', borderRadius: radius.full, borderWidth: 1, borderColor: `${BEAT}33` },
