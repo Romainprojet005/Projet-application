@@ -241,6 +241,7 @@ export default function MenuScreen({ navigation }) {
   const isDragging      = useRef(false);
   const dragStartX      = useRef(0);
   const dragStartScroll = useRef(0);
+  const isMomentum      = useRef(false);
   // scrollX starts at INIT_OFF so the first render's interpolations are correct
   const scrollX    = useRef(new Animated.Value(INIT_OFF)).current;
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -249,9 +250,10 @@ export default function MenuScreen({ navigation }) {
   useEffect(() => {
     Animated.timing(headerAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
     // Jump to the middle copy without animation on mount
+    // Mobile needs more time for layout than web (one frame isn't enough on Android)
     const t = setTimeout(() => {
       scrollRef.current?.scrollTo({ x: INIT_OFF, animated: false });
-    }, 16); // one frame
+    }, Platform.OS === 'web' ? 16 : 150);
     return () => clearTimeout(t);
   }, []);
 
@@ -280,7 +282,9 @@ export default function MenuScreen({ navigation }) {
     }
   }, []);
 
-  const onScrollEnd = (e) => handleScrollEnd(e.nativeEvent.contentOffset.x);
+  const onScrollEnd = useCallback((e) => {
+    handleScrollEnd(e.nativeEvent.contentOffset.x);
+  }, [handleScrollEnd]);
 
   const onMouseDown = (e) => {
     if (Platform.OS !== 'web') return;
@@ -367,8 +371,10 @@ export default function MenuScreen({ navigation }) {
             }
           )}
           scrollEventThrottle={16}
+          onScrollBeginDrag={() => { isMomentum.current = false; }}
+          onMomentumScrollBegin={() => { isMomentum.current = true; }}
           onMomentumScrollEnd={onScrollEnd}
-          onScrollEndDrag={onScrollEnd}
+          onScrollEndDrag={(e) => { if (!isMomentum.current) onScrollEnd(e); }}
           style={{ flex: 1 }}
         >
           {LOOP_ITEMS.map((char, i) => (
