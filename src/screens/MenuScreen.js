@@ -20,10 +20,10 @@ const CARD_GAP   = 20;
 const ITEM_SIZE  = CARD_W + CARD_GAP;
 const SIDE_INSET = (SW - CARD_W) / 2;
 
-// Infinite loop : 3 copies of the array, start at the middle copy
+// Infinite loop : 5 copies, start at the middle copy (copy 3)
 const N          = characters.length;
-const LOOP_ITEMS = [...characters, ...characters, ...characters];
-const INIT_OFF   = N * ITEM_SIZE;
+const LOOP_ITEMS = [...characters, ...characters, ...characters, ...characters, ...characters];
+const INIT_OFF   = 2 * N * ITEM_SIZE;
 
 const STARS = Array.from({ length: 60 }, (_, i) => ({
   id: i,
@@ -268,13 +268,14 @@ export default function MenuScreen({ navigation }) {
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };
 
+  // Normalise toujours vers la copie centrale (copie 3, offset 2*N)
   const handleScrollEnd = useCallback((offset) => {
     const idx = Math.round(offset / ITEM_SIZE);
-    setActiveIdx(((idx % N) + N) % N);
-    if (idx < N) {
-      scrollRef.current?.scrollTo({ x: (idx + N) * ITEM_SIZE, animated: false });
-    } else if (idx >= 2 * N) {
-      scrollRef.current?.scrollTo({ x: (idx - N) * ITEM_SIZE, animated: false });
+    const pos = ((idx % N) + N) % N;
+    setActiveIdx(pos);
+    const target = 2 * N + pos;
+    if (idx !== target) {
+      scrollRef.current?.scrollTo({ x: target * ITEM_SIZE, animated: false });
     }
   }, []);
 
@@ -290,8 +291,18 @@ export default function MenuScreen({ navigation }) {
 
   const onMouseMove = (e) => {
     if (!isDragging.current) return;
-    const delta = dragStartX.current - e.nativeEvent.pageX;
-    scrollRef.current?.scrollTo({ x: dragStartScroll.current + delta, animated: false });
+    let newOffset = dragStartScroll.current + (dragStartX.current - e.nativeEvent.pageX);
+
+    // Téléportation silencieuse pendant le drag pour un vrai scroll infini
+    if (newOffset < N * ITEM_SIZE) {
+      newOffset += N * ITEM_SIZE;
+      dragStartScroll.current += N * ITEM_SIZE;
+    } else if (newOffset > 3 * N * ITEM_SIZE) {
+      newOffset -= N * ITEM_SIZE;
+      dragStartScroll.current -= N * ITEM_SIZE;
+    }
+
+    scrollRef.current?.scrollTo({ x: newOffset, animated: false });
   };
 
   const onMouseUp = () => {
