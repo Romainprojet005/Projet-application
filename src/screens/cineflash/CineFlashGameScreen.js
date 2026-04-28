@@ -328,11 +328,11 @@ export default function CineFlashGameScreen({ navigation, route }) {
           </View>
         </View>
 
-        {/* Image */}
+        {/* Image — ordre inversé : la plus reconnaissable d'abord */}
         <View style={styles.imageContainer}>
           <CineImage
             title={film.title}
-            imgIndex={imgIdx}
+            imgIndex={2 - imgIdx}
             style={StyleSheet.absoluteFillObject}
           />
 
