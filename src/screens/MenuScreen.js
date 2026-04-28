@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -235,7 +235,12 @@ const cd = StyleSheet.create({
 
 // ─── MenuScreen ────────────────────────────────────────────────────────
 export default function MenuScreen({ navigation }) {
-  const scrollRef  = useRef(null);
+  const scrollRef       = useRef(null);
+  const dragContainerRef = useRef(null);
+  const currentScrollX  = useRef(INIT_OFF);
+  const isDragging      = useRef(false);
+  const dragStartX      = useRef(0);
+  const dragStartScroll = useRef(0);
   // scrollX starts at INIT_OFF so the first render's interpolations are correct
   const scrollX    = useRef(new Animated.Value(INIT_OFF)).current;
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -263,17 +268,40 @@ export default function MenuScreen({ navigation }) {
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };
 
-  const onScrollEnd = (e) => {
-    const offset = e.nativeEvent.contentOffset.x;
-    const idx    = Math.round(offset / ITEM_SIZE);
+  const handleScrollEnd = useCallback((offset) => {
+    const idx = Math.round(offset / ITEM_SIZE);
     setActiveIdx(((idx % N) + N) % N);
-
-    // Teleport silently to the middle copy when reaching an edge copy
     if (idx < N) {
       scrollRef.current?.scrollTo({ x: (idx + N) * ITEM_SIZE, animated: false });
     } else if (idx >= 2 * N) {
       scrollRef.current?.scrollTo({ x: (idx - N) * ITEM_SIZE, animated: false });
     }
+  }, []);
+
+  const onScrollEnd = (e) => handleScrollEnd(e.nativeEvent.contentOffset.x);
+
+  const onMouseDown = (e) => {
+    if (Platform.OS !== 'web') return;
+    isDragging.current = true;
+    dragStartX.current = e.nativeEvent.pageX;
+    dragStartScroll.current = currentScrollX.current;
+    if (dragContainerRef.current?.style) dragContainerRef.current.style.cursor = 'grabbing';
+  };
+
+  const onMouseMove = (e) => {
+    if (!isDragging.current) return;
+    const delta = dragStartX.current - e.nativeEvent.pageX;
+    scrollRef.current?.scrollTo({ x: dragStartScroll.current + delta, animated: false });
+  };
+
+  const onMouseUp = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    if (dragContainerRef.current?.style) dragContainerRef.current.style.cursor = 'grab';
+    const offset = currentScrollX.current;
+    const snapped = Math.round(offset / ITEM_SIZE) * ITEM_SIZE;
+    scrollRef.current?.scrollTo({ x: snapped, animated: true });
+    setTimeout(() => handleScrollEnd(snapped), 350);
   };
 
   return (
@@ -303,33 +331,45 @@ export default function MenuScreen({ navigation }) {
       </Animated.Text>
 
       {/* Infinite carousel */}
-      <ScrollView
-        ref={scrollRef}
-        horizontal
-        snapToInterval={ITEM_SIZE}
-        snapToAlignment="start"
-        decelerationRate="fast"
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: SIDE_INSET, paddingVertical: 12 }}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          { useNativeDriver: true }
-        )}
-        scrollEventThrottle={16}
-        onMomentumScrollEnd={onScrollEnd}
-        onScrollEndDrag={onScrollEnd}
-        style={{ flex: 1 }}
+      <View
+        ref={dragContainerRef}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        style={[{ flex: 1 }, Platform.OS === 'web' && { cursor: 'grab', userSelect: 'none' }]}
       >
-        {LOOP_ITEMS.map((char, i) => (
-          <GameCard
-            key={`${char.id}-${i}`}
-            character={char}
-            loopIdx={i}
-            scrollX={scrollX}
-            onPress={handleSelectGame}
-          />
-        ))}
-      </ScrollView>
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          snapToInterval={ITEM_SIZE}
+          snapToAlignment="start"
+          decelerationRate="fast"
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: SIDE_INSET, paddingVertical: 12 }}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+            {
+              useNativeDriver: true,
+              listener: (e) => { currentScrollX.current = e.nativeEvent.contentOffset.x; },
+            }
+          )}
+          scrollEventThrottle={16}
+          onMomentumScrollEnd={onScrollEnd}
+          onScrollEndDrag={onScrollEnd}
+          style={{ flex: 1 }}
+        >
+          {LOOP_ITEMS.map((char, i) => (
+            <GameCard
+              key={`${char.id}-${i}`}
+              character={char}
+              loopIdx={i}
+              scrollX={scrollX}
+              onPress={handleSelectGame}
+            />
+          ))}
+        </ScrollView>
+      </View>
 
       {/* Pagination dots */}
       <Animated.View style={[s.dots, { opacity: headerAnim }]}>
