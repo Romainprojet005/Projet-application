@@ -84,12 +84,12 @@ const eq = StyleSheet.create({
 
 // ─────────────────────────────────────────────────────────────────────────────
 export default function BlindTestGameScreen({ navigation, route }) {
-  const { playerNames = [], songCount = 10, timeLimit = 30 } = route.params || {};
+  const { playerNames = [], songCount = 10, timeLimit = 30, categoryId = 'france' } = route.params || {};
   const hasPlayers = playerNames.length > 0;
   const isInfinite = timeLimit === null;
   const TOTAL_TIME = timeLimit ?? 30;
 
-  const [songs]      = useState(() => selectSongs(songCount));
+  const [songs]      = useState(() => selectSongs(songCount, categoryId));
   const [songIdx,    setSongIdx]    = useState(0);
   const [phase,      setPhase]      = useState('idle'); // idle|playing|found|reveal|final
   const [scores,     setScores]     = useState(() => Object.fromEntries(playerNames.map(n => [n, 0])));

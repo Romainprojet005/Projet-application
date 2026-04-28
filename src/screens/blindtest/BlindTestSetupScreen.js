@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  TextInput, Animated, Platform,
+  TextInput, Animated, Platform, ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
-import { rockSongs } from '../../data/blindTestSongs';
+import { CATEGORIES, getSongsCount } from '../../data/blindTestSongs';
 
 const BEAT       = '#10B981';
 const BEAT_DARK  = '#059669';
@@ -17,8 +17,9 @@ const TIME_OPTIONS  = [30, null]; // null = infini
 const MAX_PLAYERS = 6;
 
 export default function BlindTestSetupScreen({ navigation }) {
+  const [categoryId, setCategoryId]   = useState('france');
   const [songCount, setSongCount]     = useState(10);
-  const [timeLimit, setTimeLimit]     = useState(30); // 30s ou null (infini)
+  const [timeLimit, setTimeLimit]     = useState(30);
   const [playerNames, setPlayerNames] = useState(['', '']);
   const [inputFocus, setInputFocus]   = useState(null);
 
@@ -36,9 +37,12 @@ export default function BlindTestSetupScreen({ navigation }) {
   const removePlayer = (i) => { if (playerNames.length > 1) setPlayerNames(playerNames.filter((_, j) => j !== i)); };
   const updatePlayer = (i, v) => { const n = [...playerNames]; n[i] = v; setPlayerNames(n); };
 
+  const activeCat = CATEGORIES.find(c => c.id === categoryId) ?? CATEGORIES[0];
+  const available = getSongsCount(categoryId);
+
   const handleStart = () => {
     const validNames = playerNames.map(n => n.trim()).filter(Boolean);
-    navigation.navigate('BlindTestGame', { songCount, playerNames: validNames, timeLimit });
+    navigation.navigate('BlindTestGame', { songCount, playerNames: validNames, timeLimit, categoryId });
   };
 
   return (
@@ -57,12 +61,38 @@ export default function BlindTestSetupScreen({ navigation }) {
             </View>
           </View>
           <Text style={styles.pageTitle}>BLIND TEST</Text>
-          <Text style={styles.pageSubtitle}>Reconnaissez les tubes rock avant le buzzer</Text>
+          <Text style={styles.pageSubtitle}>Reconnaissez les tubes avant le buzzer</Text>
         </Animated.View>
 
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
 
-          <View style={styles.rulesCard}>
+          {/* ── Catégorie ── */}
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>🎵  Catégorie</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catRow}>
+              {CATEGORIES.map(cat => {
+                const active = categoryId === cat.id;
+                return (
+                  <TouchableOpacity
+                    key={cat.id}
+                    onPress={() => setCategoryId(cat.id)}
+                    style={[
+                      styles.catPill,
+                      active && { backgroundColor: cat.color + '30', borderColor: cat.color },
+                    ]}
+                  >
+                    <Text style={styles.catEmoji}>{cat.emoji}</Text>
+                    <Text style={[styles.catText, active && { color: cat.color, fontWeight: '800' }]}>
+                      {cat.name}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+
+          {/* ── Règles ── */}
+          <View style={[styles.rulesCard, { borderColor: activeCat.color + '35', backgroundColor: activeCat.color + '18' }]}>
             <Text style={styles.rulesTitle}>🎯  Comment jouer</Text>
             {timeLimit === null ? (
               <>
@@ -78,11 +108,12 @@ export default function BlindTestSetupScreen({ navigation }) {
             )}
             <Text style={styles.rulesNote}>
               {timeLimit === null
-                ? 'Cliquez ▶ pour lancer l\'extrait, puis tapez le titre. Appuyez sur "Je ne sais pas" pour passer.'
-                : 'Cliquez ▶ pour lancer l\'extrait, puis tapez le titre de la chanson. Plus vite = plus de points !'}
+                ? "Cliquez ▶ pour lancer l'extrait, puis tapez le titre. Appuyez sur \"Je ne sais pas\" pour passer."
+                : "Cliquez ▶ pour lancer l'extrait, puis tapez le titre. Plus vite = plus de points !"}
             </Text>
           </View>
 
+          {/* ── Temps ── */}
           <View style={styles.card}>
             <Text style={styles.cardLabel}>⏱  Temps par chanson</Text>
             <View style={styles.pillRow}>
@@ -100,6 +131,7 @@ export default function BlindTestSetupScreen({ navigation }) {
             </View>
           </View>
 
+          {/* ── Nb chansons ── */}
           <View style={styles.card}>
             <Text style={styles.cardLabel}>🎵  Nombre de chansons</Text>
             <View style={styles.pillRow}>
@@ -115,6 +147,7 @@ export default function BlindTestSetupScreen({ navigation }) {
             </View>
           </View>
 
+          {/* ── Joueurs ── */}
           <View style={styles.card}>
             <Text style={styles.cardLabel}>👥  Joueurs (optionnel)</Text>
             <Text style={styles.cardHint}>Laissez vide pour jouer sans suivi des scores</Text>
@@ -147,11 +180,16 @@ export default function BlindTestSetupScreen({ navigation }) {
             )}
           </View>
 
-          <View style={styles.summaryCard}>
+          {/* ── Résumé ── */}
+          <View style={[styles.summaryCard, { borderColor: activeCat.color + '30', backgroundColor: activeCat.color + '15' }]}>
             <Text style={styles.summaryTitle}>📋  Résumé</Text>
             <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Catégorie</Text>
+              <Text style={styles.summaryValue}>{activeCat.emoji}  {activeCat.name}</Text>
+            </View>
+            <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Chansons</Text>
-              <Text style={styles.summaryValue}>{songCount} / {rockSongs.length} disponibles</Text>
+              <Text style={styles.summaryValue}>{songCount} / {available} disponibles</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Temps</Text>
@@ -209,9 +247,21 @@ const styles = StyleSheet.create({
 
   form: { paddingHorizontal: spacing.xl, gap: spacing.md },
 
+  // Catégorie
+  catRow:  { flexDirection: 'row', gap: spacing.sm, paddingVertical: spacing.xs },
+  catPill: {
+    flexDirection: 'row', alignItems: 'center', gap: spacing.xs,
+    paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
+    borderRadius: radius.full, borderWidth: 1,
+    backgroundColor: colors.surface, borderColor: colors.border,
+  },
+  catEmoji: { fontSize: 16 },
+  catText:  { fontSize: 13, fontWeight: '600', color: colors.textMuted },
+
+  // Règles
   rulesCard: {
-    backgroundColor: `${BEAT}18`, borderRadius: radius.lg,
-    padding: spacing.lg, borderWidth: 1, borderColor: `${BEAT}35`,
+    borderRadius: radius.lg,
+    padding: spacing.lg, borderWidth: 1,
   },
   rulesTitle:  { fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
   rulesLine:   { fontSize: 13, color: colors.textSecondary, marginBottom: 4 },
@@ -260,8 +310,8 @@ const styles = StyleSheet.create({
   addBtnText: { color: BEAT_LIGHT, fontSize: 13, fontWeight: '600' },
 
   summaryCard: {
-    backgroundColor: `${BEAT}15`, borderRadius: radius.lg,
-    padding: spacing.lg, borderWidth: 1, borderColor: `${BEAT}30`,
+    borderRadius: radius.lg,
+    padding: spacing.lg, borderWidth: 1,
   },
   summaryTitle: { fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: spacing.md },
   summaryRow:   { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.xs },
