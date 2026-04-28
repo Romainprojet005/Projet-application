@@ -29,12 +29,15 @@ function YoutubeAudio({ src }) {
   if (Platform.OS !== 'web' || !src) return null;
   return (
     <iframe
+      key={src}
       src={src}
       style={{
-        position: 'absolute', width: 1, height: 1,
-        opacity: 0, pointerEvents: 'none', border: 'none',
+        position: 'fixed', top: -400, left: -400,
+        width: 320, height: 180,
+        border: 'none', zIndex: -1,
+        pointerEvents: 'none',
       }}
-      allow="autoplay; encrypted-media"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       title="blind-test-audio"
     />
   );
@@ -308,6 +311,8 @@ export default function BlindTestGameScreen({ navigation, route }) {
   // ── Game screen ────────────────────────────────────────────────────────────
   return (
     <LinearGradient colors={['#001A0F', '#00110A', '#001A0F']} style={styles.container}>
+      <YoutubeAudio src={iframeSrc} />
+
       {/* Progress */}
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${(songIdx / songs.length) * 100}%` }]} />
@@ -340,8 +345,6 @@ export default function BlindTestGameScreen({ navigation, route }) {
 
         {/* Music zone */}
         <View style={styles.musicZone}>
-          <YoutubeAudio src={iframeSrc} />
-
           {phase === 'idle' && (
             <View style={styles.idleContent}>
               <Text style={styles.idleNote}>🎵</Text>

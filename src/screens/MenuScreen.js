@@ -14,8 +14,10 @@ import { colors, spacing, radius } from '../theme';
 import { characters } from '../data/characters';
 
 const { width: SW, height: SH } = Dimensions.get('window');
-const CARD_W     = Math.min(SW * 0.80, 400);
-const CARD_H     = Math.min(SH * 0.74, 580);
+// Sur web le navigateur lui-même prend de la place (barre d'adresse, onglets…)
+// On réduit les dimensions pour que les cartes ne débordent pas en bas
+const CARD_W     = Platform.OS === 'web' ? Math.min(SW * 0.72, 360) : Math.min(SW * 0.80, 400);
+const CARD_H     = Platform.OS === 'web' ? Math.min(SH * 0.65, 500) : Math.min(SH * 0.74, 580);
 const CARD_GAP   = 20;
 const ITEM_SIZE  = CARD_W + CARD_GAP;
 const SIDE_INSET = (SW - CARD_W) / 2;
