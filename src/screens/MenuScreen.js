@@ -192,37 +192,43 @@ const cd = StyleSheet.create({
   },
   card: {
     borderRadius: 28, borderWidth: 1.5,
-    paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop:    Platform.select({ web: spacing.md, default: spacing.sm }),
+    paddingBottom: Platform.select({ web: spacing.lg, default: spacing.md }),
     overflow: 'hidden', flexDirection: 'column',
   },
 
   // Status
-  topRow:      { alignItems: 'center', marginBottom: spacing.md },
+  topRow:      { alignItems: 'center', marginBottom: Platform.select({ web: spacing.md, default: spacing.sm }) },
   statusBadge: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: radius.full },
   statusText:  { fontSize: 10, fontWeight: '900', color: '#fff', letterSpacing: 1.5 },
 
-  // Emoji hero
-  emojiWrap:  { alignItems: 'center', justifyContent: 'center', height: 148, marginBottom: spacing.md },
-  halo:       { position: 'absolute', width: 148, height: 148, borderRadius: 74 },
-  ringOuter:  { position: 'absolute', width: 136, height: 136, borderRadius: 68, borderWidth: 1.5 },
-  ringInner:  { position: 'absolute', width: 110, height: 110, borderRadius: 55, borderWidth: 1 },
-  avatar:     { width: 92, height: 92, borderRadius: 46, borderWidth: 2.5, alignItems: 'center', justifyContent: 'center' },
-  emoji:      { fontSize: 48 },
+  // Emoji hero — taille réduite sur mobile pour éviter le débordement du bas
+  emojiWrap: {
+    alignItems: 'center', justifyContent: 'center',
+    height:       Platform.select({ web: 148, default: 114 }),
+    marginBottom: Platform.select({ web: spacing.md, default: spacing.sm }),
+  },
+  halo:     { position: 'absolute', width: Platform.select({ web: 148, default: 114 }), height: Platform.select({ web: 148, default: 114 }), borderRadius: Platform.select({ web: 74, default: 57 }) },
+  ringOuter:{ position: 'absolute', width: Platform.select({ web: 136, default: 104 }), height: Platform.select({ web: 136, default: 104 }), borderRadius: Platform.select({ web: 68, default: 52 }), borderWidth: 1.5 },
+  ringInner:{ position: 'absolute', width: Platform.select({ web: 110, default: 84  }), height: Platform.select({ web: 110, default: 84  }), borderRadius: Platform.select({ web: 55, default: 42 }), borderWidth: 1 },
+  avatar:   { width: Platform.select({ web: 92, default: 70 }), height: Platform.select({ web: 92, default: 70 }), borderRadius: Platform.select({ web: 46, default: 35 }), borderWidth: 2.5, alignItems: 'center', justifyContent: 'center' },
+  emoji:    { fontSize: Platform.select({ web: 48, default: 36 }) },
 
   // Nom du jeu
-  divider:    { height: 2, borderRadius: 1, marginVertical: 8 },
-  gameName:   { fontWeight: '900', letterSpacing: 1.5, textAlign: 'center' },
+  divider:  { height: 2, borderRadius: 1, marginVertical: Platform.select({ web: 8, default: 5 }) },
+  gameName: { fontWeight: '900', letterSpacing: 1.5, textAlign: 'center' },
 
   // Personnage
-  charName:   { fontSize: 15, fontWeight: '800', textAlign: 'center', marginTop: spacing.sm, marginBottom: 2 },
-  charTitle:  { fontSize: 9, fontWeight: '700', letterSpacing: 2, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.sm },
+  charName:  { fontSize: 15, fontWeight: '800', textAlign: 'center', marginTop: spacing.sm, marginBottom: 2 },
+  charTitle: { fontSize: 9, fontWeight: '700', letterSpacing: 2, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.sm },
 
   // Catchphrase
   catchphrase: { fontSize: 12, color: colors.textSecondary, textAlign: 'center', fontStyle: 'italic', lineHeight: 18, marginBottom: spacing.xs },
 
   // Bouton
   playBtnWrap: { shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.45, shadowRadius: 12, elevation: 10 },
-  playBtn:     { paddingVertical: 16, borderRadius: radius.full, alignItems: 'center' },
+  playBtn:     { paddingVertical: Platform.select({ web: 16, default: 13 }), borderRadius: radius.full, alignItems: 'center' },
   playBtnText: { fontSize: 14, fontWeight: '900', color: '#fff', letterSpacing: 2 },
 });
 
