@@ -44,6 +44,11 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
   const ring1      = useRef(new Animated.Value(0)).current;
   const ring2      = useRef(new Animated.Value(0)).current;
 
+  // Taille dynamique du nom selon longueur (hors espaces) — fonctionne web + natif
+  const nameChars      = character.gameName.replace(/\s+/g, '').length;
+  const gameNameSize   = nameChars <= 5 ? 40 : nameChars <= 9 ? 34 : nameChars <= 13 ? 28 : 23;
+  const gameNameHeight = gameNameSize * 1.25;
+
   // Scale/opacity/rotation driven by scroll position of THIS card in the looped array
   const inputRange    = [(loopIdx - 1) * ITEM_SIZE, loopIdx * ITEM_SIZE, (loopIdx + 1) * ITEM_SIZE];
   const cardScale     = scrollX.interpolate({ inputRange, outputRange: [0.86, 1, 0.86], extrapolate: 'clamp' });
@@ -132,10 +137,12 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
             {/* ── Nom du jeu — pièce maîtresse ── */}
             <View style={[cd.divider, { backgroundColor: character.color + '90' }]} />
             <Text
-              style={[cd.gameName, { color: '#FFFFFF' }]}
-              adjustsFontSizeToFit
+              style={[cd.gameName, {
+                color: character.color,
+                fontSize: gameNameSize,
+                lineHeight: gameNameHeight,
+              }]}
               numberOfLines={2}
-              minimumFontScale={0.6}
             >
               {character.gameName}
             </Text>
@@ -200,7 +207,7 @@ const cd = StyleSheet.create({
 
   // Nom du jeu
   divider:    { height: 2, borderRadius: 1, marginVertical: 8 },
-  gameName:   { fontSize: 40, fontWeight: '900', letterSpacing: 1.5, textAlign: 'center', lineHeight: 44 },
+  gameName:   { fontWeight: '900', letterSpacing: 1.5, textAlign: 'center' },
 
   // Personnage
   charName:   { fontSize: 15, fontWeight: '800', textAlign: 'center', marginTop: spacing.sm, marginBottom: 2 },
