@@ -118,7 +118,9 @@ export default function CineFlashGameScreen({ navigation, route }) {
   const answerOpacity = useRef(new Animated.Value(0)).current;
 
   const film         = films[filmIdx] || films[0];
-  const currentPts   = 3 - imgIdx;             // 3, 2 ou 1
+  const totalImgs    = film.imgs ?? 3;
+  const maxImgIdx    = totalImgs - 1;
+  const currentPts   = totalImgs - imgIdx;     // adapté au nb d'images
   const currentPlayer = hasPlayers ? playerNames[filmIdx % playerNames.length] : null;
 
   // Reset input quand l'indice ou le film change
@@ -159,7 +161,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
       setPhase('feedback');
       animateFeedback();
       setTimeout(() => {
-        if (imgIdx < 2) {
+        if (imgIdx < maxImgIdx) {
           setImgIdx(i => i + 1);
           setPhase('playing');
           setWasCorrect(null);
@@ -176,7 +178,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
   // ── Passer à l'indice suivant sans deviner ─────────────────────────────────
   const handleSkip = () => {
     if (phase !== 'playing') return;
-    if (imgIdx < 2) {
+    if (imgIdx < maxImgIdx) {
       setImgIdx(i => i + 1);
     } else {
       setResults(prev => [...prev, { title: film.title, finder: null, points: 0 }]);
@@ -328,18 +330,18 @@ export default function CineFlashGameScreen({ navigation, route }) {
           </View>
         </View>
 
-        {/* Image — ordre inversé : la plus reconnaissable d'abord */}
+        {/* Image — ordre obscur→reconnaissable */}
         <View style={styles.imageContainer}>
           <CineImage
             title={film.title}
-            imgIndex={2 - imgIdx}
+            imgIndex={imgIdx}
             style={StyleSheet.absoluteFillObject}
           />
 
           {/* Dots sur l'image */}
           {phase !== 'answer' && (
             <View style={styles.dotsOnImage}>
-              <DotRow total={3} active={imgIdx} />
+              <DotRow total={totalImgs} active={imgIdx} />
             </View>
           )}
 
@@ -356,12 +358,12 @@ export default function CineFlashGameScreen({ navigation, route }) {
                 style={styles.feedbackInner}
               >
                 <Text style={styles.feedbackEmoji}>
-                  {wasCorrect ? '🎉' : imgIdx < 2 ? '💡' : '😅'}
+                  {wasCorrect ? '🎉' : imgIdx < maxImgIdx ? '💡' : '😅'}
                 </Text>
                 <Text style={styles.feedbackText}>
                   {wasCorrect
                     ? `+${currentPts} pt${currentPts > 1 ? 's' : ''} !`
-                    : imgIdx < 2 ? 'Indice suivant...' : 'Raté !'}
+                    : imgIdx < maxImgIdx ? 'Indice suivant...' : 'Raté !'}
                 </Text>
               </LinearGradient>
             </Animated.View>
@@ -369,7 +371,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
         </View>
 
         <Text style={styles.hintLabel}>
-          Indice {imgIdx + 1} / 3
+          Indice {imgIdx + 1} / {totalImgs}
         </Text>
 
         {/* Champ texte de guess */}
@@ -411,8 +413,8 @@ export default function CineFlashGameScreen({ navigation, route }) {
                 style={styles.skipBtnInner}
               >
                 <Text style={styles.skipBtnText}>
-                  {imgIdx < 2
-                    ? `⏭  INDICE SUIVANT  (${imgIdx + 2}/3)`
+                  {imgIdx < maxImgIdx
+                    ? `⏭  INDICE SUIVANT  (${imgIdx + 2}/${totalImgs})`
                     : '⏭  PASSER — révéler la réponse'}
                 </Text>
               </LinearGradient>
@@ -445,7 +447,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
             <Text style={styles.answerTitle}>{film.title}</Text>
 
             <View style={styles.answerPoster}>
-              <CineImage title={film.title} imgIndex={2} style={StyleSheet.absoluteFillObject} />
+              <CineImage title={film.title} imgIndex={maxImgIdx} style={StyleSheet.absoluteFillObject} />
             </View>
 
             <TouchableOpacity onPress={handleNextFilm} style={styles.nextFilmBtn} activeOpacity={0.85}>
