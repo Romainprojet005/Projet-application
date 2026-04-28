@@ -1,11 +1,12 @@
 // IDs YouTube — vérifiables sur youtube.com/watch?v=ID
 
 export const CATEGORIES = [
-  { id: 'france',   name: 'Chansons Françaises', emoji: '🇫🇷', color: '#2563EB' },
-  { id: 'rock',     name: 'Rock',                emoji: '🎸',  color: '#10B981' },
-  { id: 'annees80', name: 'Années 80',            emoji: '🕺',  color: '#F59E0B' },
-  { id: 'annees90', name: 'Années 90',            emoji: '💿',  color: '#EC4899' },
-  { id: 'pop',      name: 'Pop Internationale',   emoji: '🎤',  color: '#8B5CF6' },
+  { id: 'france',      name: 'Chansons Françaises', emoji: '🇫🇷', color: '#2563EB' },
+  { id: 'rock',        name: 'Rock',                emoji: '🎸',  color: '#10B981' },
+  { id: 'annees80',    name: 'Années 80',            emoji: '🕺',  color: '#F59E0B' },
+  { id: 'annees90',    name: 'Années 90',            emoji: '💿',  color: '#EC4899' },
+  { id: 'pop',         name: 'Pop Internationale',   emoji: '🎤',  color: '#8B5CF6' },
+  { id: 'dessinanime', name: 'Dessins Animés',       emoji: '📺',  color: '#F97316' },
 ];
 
 const SONGS_BY_CATEGORY = {
@@ -124,6 +125,31 @@ const SONGS_BY_CATEGORY = {
     { id: 19, title: 'Levitating',                artist: 'Dua Lipa',               videoId: 'TlPH1MtOrJs', startAt: 0  },
     { id: 20, title: 'Watermelon Sugar',          artist: 'Harry Styles',           videoId: 'E07s5ZYygMg', startAt: 0  },
   ],
+
+  dessinanime: [
+    // IDs à vérifier sur youtube.com/watch?v=ID — uploads de fans, peuvent changer
+    { id: 1,  title: 'Pokémon',                        artist: 'Générique', videoId: 'vMDMNV_mKOk', startAt: 0 },
+    { id: 2,  title: 'Dragon Ball Z',                  artist: 'Générique', videoId: 'mPbHPMxQiAg', startAt: 0 },
+    { id: 3,  title: 'Code Lyoko',                     artist: 'Générique', videoId: 'qdv3NdG7mtM', startAt: 0 },
+    { id: 4,  title: 'Totally Spies',                  artist: 'Générique', videoId: 'O_4CfnbYXSQ', startAt: 0 },
+    { id: 5,  title: 'Galactik Football',              artist: 'Générique', videoId: 'uZ5b2eSPzCw', startAt: 0 },
+    { id: 6,  title: 'Miraculous Ladybug',             artist: 'Générique', videoId: 'OAM_1yKXDEE', startAt: 0 },
+    { id: 7,  title: 'Les Chevaliers du Zodiaque',     artist: 'Générique', videoId: 'lGBXPEvdK2I', startAt: 0 },
+    { id: 8,  title: 'One Piece',                      artist: 'Générique', videoId: 'qrp3Fzs1AAY', startAt: 0 },
+    { id: 9,  title: 'Naruto',                         artist: 'Générique', videoId: 'pBH3Hn3OPKU', startAt: 0 },
+    { id: 10, title: 'Titeuf',                         artist: 'Générique', videoId: 'sVdJJlhIAhk', startAt: 0 },
+    { id: 11, title: 'Winx Club',                      artist: 'Générique', videoId: '0xS74b6Sf8A', startAt: 0 },
+    { id: 12, title: 'Les As de la Jungle',            artist: 'Générique', videoId: 'XtLXNqKUEco', startAt: 0 },
+    { id: 13, title: "Avatar, le dernier maître de l'air", artist: 'Générique', videoId: 'vNfmKwrYnUE', startAt: 0 },
+    { id: 14, title: 'Olive et Tom',                   artist: 'Générique', videoId: 'NYKPG3H5V2w', startAt: 0 },
+    { id: 15, title: 'W.I.T.C.H.',                    artist: 'Générique', videoId: 'EM-VFSt1gMw', startAt: 0 },
+    { id: 16, title: 'Beyblade Metal Fusion',          artist: 'Générique', videoId: 'n0pG2B80Kpw', startAt: 0 },
+    { id: 17, title: 'Angelo la Débrouille',           artist: 'Générique', videoId: 'M9ks7DLXxN8', startAt: 0 },
+    { id: 18, title: 'Oggy et les Cafards',            artist: 'Générique', videoId: 'GQFzKhOEGEo', startAt: 0 },
+    { id: 19, title: 'Redakai',                        artist: 'Générique', videoId: 'DCHbBVJv_o8', startAt: 0 },
+    { id: 20, title: 'Rekkit Rabbit',                  artist: 'Générique', videoId: 'HWCAJ7OEkd0', startAt: 0 },
+  ],
+
 };
 
 export function getCategoryMeta(id) {
