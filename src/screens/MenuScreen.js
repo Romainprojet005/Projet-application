@@ -235,6 +235,7 @@ export default function MenuScreen({ navigation }) {
   const dragStartX         = useRef(0);
   const dragStartScroll    = useRef(0);
   const isMomentum         = useRef(false);
+  const wheelCooldown      = useRef(false);
   // scrollX starts at INIT_OFF so the first render's interpolations are correct
   const scrollX    = useRef(new Animated.Value(INIT_OFF)).current;
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -322,6 +323,15 @@ export default function MenuScreen({ navigation }) {
     setTimeout(() => handleScrollEnd(snapped), 350);
   };
 
+  const onWheel = (e) => {
+    if (Platform.OS !== 'web' || wheelCooldown.current) return;
+    const delta = e.nativeEvent?.deltaY ?? 0;
+    if (Math.abs(delta) < 3) return;
+    wheelCooldown.current = true;
+    navigateTo(delta > 0 ? 1 : -1);
+    setTimeout(() => { wheelCooldown.current = false; }, 480);
+  };
+
   return (
     <LinearGradient colors={['#06040F', '#0D0720', '#060410']} style={s.container}>
       {STARS.map(star => (
@@ -381,6 +391,7 @@ export default function MenuScreen({ navigation }) {
             scrollRef.current?.scrollToOffset({ offset: snapped, animated: true });
             setTimeout(() => handleScrollEnd(snapped), 350);
           }}
+          onWheel={onWheel}
           style={[{ flex: 1 }, Platform.OS === 'web' && { cursor: 'grab', userSelect: 'none' }]}
         >
           <FlatList
@@ -395,7 +406,7 @@ export default function MenuScreen({ navigation }) {
             initialScrollIndex={INIT_IDX}
             snapToInterval={ITEM_SIZE}
             snapToAlignment="start"
-            decelerationRate="fast"
+            decelerationRate={Platform.OS !== 'web' ? 'normal' : 'fast'}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: SIDE_INSET, paddingVertical: 12 }}
             onScroll={Animated.event(
@@ -453,9 +464,6 @@ export default function MenuScreen({ navigation }) {
         ))}
       </Animated.View>
 
-      <Animated.Text style={[s.hint, { opacity: headerAnim }]}>
-        ← Glissez pour découvrir tous les jeux →
-      </Animated.Text>
     </LinearGradient>
   );
 }
@@ -471,7 +479,6 @@ const s = StyleSheet.create({
   countLine:   { textAlign: 'center', fontSize: 11, color: colors.textMuted, marginBottom: spacing.xs },
   dots:        { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 7, paddingVertical: 12 },
   dot:         { height: 6, borderRadius: 3, ...Platform.select({ web: { transition: 'width 0.3s ease, background-color 0.3s ease' } }) },
-  hint:        { textAlign: 'center', fontSize: 11, color: colors.textMuted, paddingBottom: Platform.OS === 'ios' ? 38 : 16 },
   arrowBtn: {
     position: 'absolute', top: '38%',
     width: 34, height: 56, borderRadius: 12,
