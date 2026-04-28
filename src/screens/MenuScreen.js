@@ -37,35 +37,6 @@ const STARS = Array.from({ length: 60 }, (_, i) => ({
   opacity: Math.random() * 0.4 + 0.05,
 }));
 
-// ─── StatBar ──────────────────────────────────────────────────────────
-function StatBar({ label, value, color }) {
-  const barWidth = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.timing(barWidth, {
-      toValue: value, duration: 900, delay: 300, useNativeDriver: false,
-    }).start();
-  }, []);
-  return (
-    <View style={st.row}>
-      <Text style={st.label}>{label}</Text>
-      <View style={st.track}>
-        <Animated.View style={[st.fill, {
-          backgroundColor: color,
-          width: barWidth.interpolate({ inputRange: [0, 100], outputRange: ['0%', '100%'] }),
-        }]} />
-      </View>
-      <Text style={st.val}>{value}</Text>
-    </View>
-  );
-}
-const st = StyleSheet.create({
-  row:   { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
-  label: { width: 80, fontSize: 10, color: colors.textSecondary, letterSpacing: 0.3 },
-  track: { flex: 1, height: 4, backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 2, overflow: 'hidden', marginHorizontal: 8 },
-  fill:  { height: '100%', borderRadius: 2 },
-  val:   { width: 26, fontSize: 10, color: colors.textMuted, textAlign: 'right' },
-});
-
 // ─── GameCard ──────────────────────────────────────────────────────────
 function GameCard({ character, loopIdx, scrollX, onPress }) {
   const pressScale = useRef(new Animated.Value(1)).current;
@@ -165,21 +136,9 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
             {/* Character */}
             <Text style={cd.charName}>{character.name}</Text>
             <Text style={[cd.charTitle, { color: character.color + 'AA' }]}>{character.title.toUpperCase()}</Text>
-            <Text style={cd.charDesc} numberOfLines={2}>{character.description}</Text>
+            <Text style={cd.charDesc} numberOfLines={3}>{character.description}</Text>
 
-            {/* Separator */}
-            <LinearGradient
-              colors={['transparent', character.color + '55', 'transparent']}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-              style={cd.sep}
-            />
-
-            {/* Stats */}
-            <View style={cd.stats}>
-              {Object.entries(character.stats).map(([k, v]) => (
-                <StatBar key={k} label={k} value={v} color={character.color} />
-              ))}
-            </View>
+            <View style={{ flex: 1 }} />
 
             {/* Play button */}
             {character.available ? (
@@ -213,7 +172,7 @@ const cd = StyleSheet.create({
   card: {
     borderRadius: 28, borderWidth: 1.5,
     paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xl,
-    overflow: 'hidden',
+    overflow: 'hidden', flexDirection: 'column',
   },
   topRow:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
   numBadge:    { width: 34, height: 34, borderRadius: 17, borderWidth: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.04)' },
@@ -226,26 +185,26 @@ const cd = StyleSheet.create({
   ringInner:   { position: 'absolute', width: 120, height: 120, borderRadius: 60, borderWidth: 1.5 },
   avatar:      { width: 100, height: 100, borderRadius: 50, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   emoji:       { fontSize: 54 },
-  gameName:    { fontSize: 26, fontWeight: '900', letterSpacing: 2, textAlign: 'center', marginBottom: 6 },
+  gameName:    { fontSize: 30, fontWeight: '900', letterSpacing: 2, textAlign: 'center', marginBottom: 6 },
   nameBar:     { height: 2, width: 44, borderRadius: 1, alignSelf: 'center', marginBottom: spacing.md },
   charName:    { fontSize: 17, fontWeight: '800', color: colors.text, textAlign: 'center', marginBottom: 3 },
   charTitle:   { fontSize: 10, fontWeight: '700', letterSpacing: 2, textAlign: 'center', marginBottom: spacing.sm },
   charDesc:    { fontSize: 12, color: colors.textSecondary, lineHeight: 18, textAlign: 'center', marginBottom: spacing.md },
-  sep:         { height: 1.5, marginBottom: spacing.md },
-  stats:       { marginBottom: spacing.md },
   playBtn:     { paddingVertical: 14, borderRadius: radius.full, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
   playBtnText: { fontSize: 13, fontWeight: '900', color: '#fff', letterSpacing: 1.5 },
 });
 
 // ─── MenuScreen ────────────────────────────────────────────────────────
 export default function MenuScreen({ navigation }) {
-  const scrollRef       = useRef(null);
-  const dragContainerRef = useRef(null);
-  const currentScrollX  = useRef(INIT_OFF);
-  const isDragging      = useRef(false);
-  const dragStartX      = useRef(0);
-  const dragStartScroll = useRef(0);
-  const isMomentum      = useRef(false);
+  const scrollRef          = useRef(null);
+  const dragContainerRef   = useRef(null);
+  const currentScrollX     = useRef(INIT_OFF);
+  const manualScrollOffset = useRef(INIT_OFF); // source de vérité pour le drag web
+  const rafRef             = useRef(null);     // throttle RAF pour scroll web
+  const isDragging         = useRef(false);
+  const dragStartX         = useRef(0);
+  const dragStartScroll    = useRef(0);
+  const isMomentum         = useRef(false);
   // scrollX starts at INIT_OFF so the first render's interpolations are correct
   const scrollX    = useRef(new Animated.Value(INIT_OFF)).current;
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -257,7 +216,8 @@ export default function MenuScreen({ navigation }) {
     if (Platform.OS === 'web') {
       const t = setTimeout(() => {
         scrollRef.current?.scrollToOffset({ offset: INIT_OFF, animated: false });
-      }, 16);
+        manualScrollOffset.current = INIT_OFF;
+      }, 100); // 100ms pour laisser le FlatList finir son layout
       return () => clearTimeout(t);
     }
   }, []);
@@ -282,8 +242,10 @@ export default function MenuScreen({ navigation }) {
     const pos = ((idx % N) + N) % N;
     setActiveIdx(pos);
     const target = MID * N + pos;
+    const targetOffset = target * ITEM_SIZE;
+    manualScrollOffset.current = targetOffset;
     if (idx !== target) {
-      scrollRef.current?.scrollToOffset({ offset: target * ITEM_SIZE, animated: false });
+      scrollRef.current?.scrollToOffset({ offset: targetOffset, animated: false });
     }
   }, []);
 
@@ -295,32 +257,29 @@ export default function MenuScreen({ navigation }) {
     if (Platform.OS !== 'web') return;
     isDragging.current = true;
     dragStartX.current = e.nativeEvent.pageX;
-    dragStartScroll.current = currentScrollX.current;
+    dragStartScroll.current = manualScrollOffset.current;
     if (dragContainerRef.current?.style) dragContainerRef.current.style.cursor = 'grabbing';
   };
 
   const onMouseMove = (e) => {
     if (!isDragging.current) return;
-    let newOffset = dragStartScroll.current + (dragStartX.current - e.nativeEvent.pageX);
-
-    // Téléportation silencieuse pendant le drag pour un vrai scroll infini
-    if (newOffset < N * ITEM_SIZE) {
-      newOffset += N * ITEM_SIZE;
-      dragStartScroll.current += N * ITEM_SIZE;
-    } else if (newOffset > 3 * N * ITEM_SIZE) {
-      newOffset -= N * ITEM_SIZE;
-      dragStartScroll.current -= N * ITEM_SIZE;
-    }
-
-    scrollRef.current?.scrollToOffset({ offset: newOffset, animated: false });
+    const newOffset = dragStartScroll.current + (dragStartX.current - e.nativeEvent.pageX);
+    manualScrollOffset.current = newOffset;
+    // Throttle à 1 appel par frame pour éviter les flashs noirs
+    if (rafRef.current) return;
+    rafRef.current = requestAnimationFrame(() => {
+      scrollRef.current?.scrollToOffset({ offset: manualScrollOffset.current, animated: false });
+      rafRef.current = null;
+    });
   };
 
   const onMouseUp = () => {
     if (!isDragging.current) return;
     isDragging.current = false;
     if (dragContainerRef.current?.style) dragContainerRef.current.style.cursor = 'grab';
-    const offset = currentScrollX.current;
+    const offset = manualScrollOffset.current;
     const snapped = Math.round(offset / ITEM_SIZE) * ITEM_SIZE;
+    manualScrollOffset.current = snapped;
     scrollRef.current?.scrollToOffset({ offset: snapped, animated: true });
     setTimeout(() => handleScrollEnd(snapped), 350);
   };
@@ -358,6 +317,31 @@ export default function MenuScreen({ navigation }) {
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
+        onTouchStart={(e) => {
+          if (Platform.OS !== 'web') return;
+          const touch = e.nativeEvent.touches?.[0];
+          if (!touch) return;
+          isDragging.current = true;
+          dragStartX.current = touch.pageX;
+          dragStartScroll.current = manualScrollOffset.current;
+        }}
+        onTouchMove={(e) => {
+          if (!isDragging.current) return;
+          const touch = e.nativeEvent.touches?.[0];
+          if (!touch) return;
+          const newOffset = dragStartScroll.current + (dragStartX.current - touch.pageX);
+          manualScrollOffset.current = newOffset;
+          scrollRef.current?.scrollToOffset({ offset: newOffset, animated: false });
+        }}
+        onTouchEnd={() => {
+          if (!isDragging.current) return;
+          isDragging.current = false;
+          const offset = manualScrollOffset.current;
+          const snapped = Math.round(offset / ITEM_SIZE) * ITEM_SIZE;
+          manualScrollOffset.current = snapped;
+          scrollRef.current?.scrollToOffset({ offset: snapped, animated: true });
+          setTimeout(() => handleScrollEnd(snapped), 350);
+        }}
         style={[{ flex: 1 }, Platform.OS === 'web' && { cursor: 'grab', userSelect: 'none' }]}
       >
         <FlatList
@@ -387,9 +371,9 @@ export default function MenuScreen({ navigation }) {
           onMomentumScrollBegin={() => { isMomentum.current = true; }}
           onMomentumScrollEnd={onScrollEnd}
           onScrollEndDrag={(e) => { if (!isMomentum.current) onScrollEnd(e); }}
-          initialNumToRender={7}
-          maxToRenderPerBatch={5}
-          windowSize={5}
+          initialNumToRender={Platform.OS === 'web' ? 15 : 7}
+          maxToRenderPerBatch={Platform.OS === 'web' ? 10 : 5}
+          windowSize={Platform.OS === 'web' ? 21 : 5}
           style={{ flex: 1 }}
         />
       </View>

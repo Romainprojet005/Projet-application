@@ -10,7 +10,6 @@ import { selectSongs } from '../../data/blindTestSongs';
 const BEAT       = '#10B981';
 const BEAT_DARK  = '#059669';
 const BEAT_LIGHT = '#6EE7B7';
-const TOTAL_TIME = 30;
 
 function normalize(s) {
   return s.toLowerCase()
@@ -82,8 +81,10 @@ const eq = StyleSheet.create({
 
 // ─────────────────────────────────────────────────────────────────────────────
 export default function BlindTestGameScreen({ navigation, route }) {
-  const { playerNames = [], songCount = 10 } = route.params || {};
+  const { playerNames = [], songCount = 10, timeLimit = 30 } = route.params || {};
   const hasPlayers = playerNames.length > 0;
+  const isInfinite = timeLimit === null;
+  const TOTAL_TIME = timeLimit ?? 30;
 
   const [songs]      = useState(() => selectSongs(songCount));
   const [songIdx,    setSongIdx]    = useState(0);
@@ -106,8 +107,14 @@ export default function BlindTestGameScreen({ navigation, route }) {
 
   useEffect(() => { songRef.current = songs[songIdx]; }, [songIdx]);
 
-  const currentPts = timer >= 20 ? 3 : timer >= 10 ? 2 : 1;
-  const timerColor = timer >= 20 ? BEAT : timer >= 10 ? '#F59E0B' : '#EF4444';
+  const currentPts = isInfinite ? 1
+    : timer >= TOTAL_TIME * 2 / 3 ? 3
+    : timer >= TOTAL_TIME / 3 ? 2
+    : 1;
+  const timerColor = isInfinite ? BEAT
+    : timer >= TOTAL_TIME * 2 / 3 ? BEAT
+    : timer >= TOTAL_TIME / 3 ? '#F59E0B'
+    : '#EF4444';
 
   // ── Timer ──────────────────────────────────────────────────────────────────
   const stopTimer = useCallback(() => {
@@ -152,9 +159,11 @@ export default function BlindTestGameScreen({ navigation, route }) {
     setIframeSrc(
       `https://www.youtube.com/embed/${song.videoId}?autoplay=1&start=${song.startAt}&rel=0&modestbranding=1&controls=0&iv_load_policy=3`
     );
-    timerRef.current = setInterval(() => {
-      setTimer(t => Math.max(0, t - 1));
-    }, 1000);
+    if (!isInfinite) {
+      timerRef.current = setInterval(() => {
+        setTimer(t => Math.max(0, t - 1));
+      }, 1000);
+    }
   };
 
   // ── Guess ──────────────────────────────────────────────────────────────────
@@ -222,7 +231,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
       : [];
     const foundCount = results.filter(r => r.points > 0).length;
     const totalPts   = results.reduce((s, r) => s + r.points, 0);
-    const maxPts     = songs.length * 3;
+    const maxPts     = isInfinite ? songs.length : songs.length * 3;
     const pct        = Math.round((totalPts / Math.max(maxPts, 1)) * 100);
 
     return (
@@ -345,8 +354,14 @@ export default function BlindTestGameScreen({ navigation, route }) {
             <View style={styles.playingContent}>
               <EqBars />
               <View style={[styles.timerWrap, { borderColor: `${timerColor}60` }]}>
-                <Text style={[styles.timerNum, { color: timerColor }]}>{timer}</Text>
-                <Text style={styles.timerLabel}>s</Text>
+                {isInfinite ? (
+                  <Text style={[styles.timerNum, { color: timerColor, fontSize: 40 }]}>∞</Text>
+                ) : (
+                  <>
+                    <Text style={[styles.timerNum, { color: timerColor }]}>{timer}</Text>
+                    <Text style={styles.timerLabel}>s</Text>
+                  </>
+                )}
               </View>
             </View>
           )}
@@ -404,7 +419,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
             </View>
             <TouchableOpacity onPress={handleReveal} style={styles.skipBtn} activeOpacity={0.8}>
               <LinearGradient colors={['#001A0F', '#002D1A']} style={styles.skipBtnInner}>
-                <Text style={styles.skipBtnText}>⏭  RÉVÉLER LA RÉPONSE</Text>
+                <Text style={styles.skipBtnText}>❓  Je ne sais pas</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>

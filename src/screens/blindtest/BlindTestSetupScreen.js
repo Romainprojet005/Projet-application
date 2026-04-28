@@ -13,10 +13,12 @@ const BEAT_DARK  = '#059669';
 const BEAT_LIGHT = '#6EE7B7';
 
 const ROUND_OPTIONS = [5, 10, 15, 20];
+const TIME_OPTIONS  = [30, null]; // null = infini
 const MAX_PLAYERS = 6;
 
 export default function BlindTestSetupScreen({ navigation }) {
-  const [songCount, setSongCount]   = useState(10);
+  const [songCount, setSongCount]     = useState(10);
+  const [timeLimit, setTimeLimit]     = useState(30); // 30s ou null (infini)
   const [playerNames, setPlayerNames] = useState(['', '']);
   const [inputFocus, setInputFocus]   = useState(null);
 
@@ -36,7 +38,7 @@ export default function BlindTestSetupScreen({ navigation }) {
 
   const handleStart = () => {
     const validNames = playerNames.map(n => n.trim()).filter(Boolean);
-    navigation.navigate('BlindTestGame', { songCount, playerNames: validNames });
+    navigation.navigate('BlindTestGame', { songCount, playerNames: validNames, timeLimit });
   };
 
   return (
@@ -62,12 +64,40 @@ export default function BlindTestSetupScreen({ navigation }) {
 
           <View style={styles.rulesCard}>
             <Text style={styles.rulesTitle}>🎯  Comment jouer</Text>
-            <Text style={styles.rulesLine}>⏱  0 → 10 s  →  <Text style={styles.rulesPoints}>3 pts</Text></Text>
-            <Text style={styles.rulesLine}>⏱  10 → 20 s  →  <Text style={styles.rulesPoints}>2 pts</Text></Text>
-            <Text style={styles.rulesLine}>⏱  20 → 30 s  →  <Text style={styles.rulesPoints}>1 pt</Text></Text>
+            {timeLimit === null ? (
+              <>
+                <Text style={styles.rulesLine}>∞  Pas de limite de temps</Text>
+                <Text style={styles.rulesLine}>✅  <Text style={styles.rulesPoints}>1 pt</Text>  si la chanson est trouvée</Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.rulesLine}>⏱  0 → {Math.round(timeLimit / 3)} s  →  <Text style={styles.rulesPoints}>3 pts</Text></Text>
+                <Text style={styles.rulesLine}>⏱  {Math.round(timeLimit / 3)} → {Math.round(timeLimit * 2 / 3)} s  →  <Text style={styles.rulesPoints}>2 pts</Text></Text>
+                <Text style={styles.rulesLine}>⏱  {Math.round(timeLimit * 2 / 3)} → {timeLimit} s  →  <Text style={styles.rulesPoints}>1 pt</Text></Text>
+              </>
+            )}
             <Text style={styles.rulesNote}>
-              Cliquez ▶ pour lancer l'extrait, puis tapez le titre de la chanson. Plus vite = plus de points !
+              {timeLimit === null
+                ? 'Cliquez ▶ pour lancer l\'extrait, puis tapez le titre. Appuyez sur "Je ne sais pas" pour passer.'
+                : 'Cliquez ▶ pour lancer l\'extrait, puis tapez le titre de la chanson. Plus vite = plus de points !'}
             </Text>
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>⏱  Temps par chanson</Text>
+            <View style={styles.pillRow}>
+              {TIME_OPTIONS.map(t => (
+                <TouchableOpacity
+                  key={t ?? 'inf'}
+                  onPress={() => setTimeLimit(t)}
+                  style={[styles.pill, timeLimit === t && styles.pillActive]}
+                >
+                  <Text style={[styles.pillText, timeLimit === t && styles.pillTextActive]}>
+                    {t === null ? '∞' : `${t} s`}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
 
           <View style={styles.card}>
@@ -124,12 +154,16 @@ export default function BlindTestSetupScreen({ navigation }) {
               <Text style={styles.summaryValue}>{songCount} / {rockSongs.length} disponibles</Text>
             </View>
             <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Temps</Text>
+              <Text style={styles.summaryValue}>{timeLimit === null ? 'Infini ∞' : `${timeLimit} s`}</Text>
+            </View>
+            <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Joueurs</Text>
               <Text style={styles.summaryValue}>{playerNames.filter(n => n.trim()).length || 'Mode libre'}</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Max points</Text>
-              <Text style={styles.summaryValue}>{songCount * 3} pts</Text>
+              <Text style={styles.summaryValue}>{timeLimit === null ? `${songCount} pts` : `${songCount * 3} pts`}</Text>
             </View>
           </View>
         </Animated.View>
