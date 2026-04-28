@@ -3,7 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
   Animated,
   Dimensions,
@@ -20,10 +20,14 @@ const CARD_GAP   = 20;
 const ITEM_SIZE  = CARD_W + CARD_GAP;
 const SIDE_INSET = (SW - CARD_W) / 2;
 
-// Infinite loop : 5 copies, start at the middle copy (copy 3)
+// Infinite loop : 101 copies, start at the middle copy (copy 50)
+// FlatList virtualise → seules ~7 cartes sont rendues en mémoire
 const N          = characters.length;
-const LOOP_ITEMS = [...characters, ...characters, ...characters, ...characters, ...characters];
-const INIT_OFF   = 2 * N * ITEM_SIZE;
+const COPIES     = 101;
+const MID        = Math.floor(COPIES / 2);   // 50
+const LOOP_ITEMS = Array.from({ length: COPIES }, () => characters).flat();
+const INIT_IDX   = MID * N;                  // index de départ (400 pour N=8)
+const INIT_OFF   = INIT_IDX * ITEM_SIZE;     // offset pour Animated.Value
 
 const STARS = Array.from({ length: 60 }, (_, i) => ({
   id: i,
@@ -249,12 +253,13 @@ export default function MenuScreen({ navigation }) {
 
   useEffect(() => {
     Animated.timing(headerAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
-    // Jump to the middle copy without animation on mount
-    // Mobile needs more time for layout than web (one frame isn't enough on Android)
-    const t = setTimeout(() => {
-      scrollRef.current?.scrollTo({ x: INIT_OFF, animated: false });
-    }, Platform.OS === 'web' ? 16 : 150);
-    return () => clearTimeout(t);
+    // Sur web, scrollTo reste nécessaire car FlatList n'a pas initialScrollIndex fiable sur web
+    if (Platform.OS === 'web') {
+      const t = setTimeout(() => {
+        scrollRef.current?.scrollToOffset({ offset: INIT_OFF, animated: false });
+      }, 16);
+      return () => clearTimeout(t);
+    }
   }, []);
 
   const handleSelectGame = (character) => {
@@ -271,14 +276,14 @@ export default function MenuScreen({ navigation }) {
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };
 
-  // Normalise toujours vers la copie centrale (copie 3, offset 2*N)
+  // Normalise vers la copie centrale (copie 50) — filet de sécurité si l'utilisateur atteint un bord
   const handleScrollEnd = useCallback((offset) => {
     const idx = Math.round(offset / ITEM_SIZE);
     const pos = ((idx % N) + N) % N;
     setActiveIdx(pos);
-    const target = 2 * N + pos;
+    const target = MID * N + pos;
     if (idx !== target) {
-      scrollRef.current?.scrollTo({ x: target * ITEM_SIZE, animated: false });
+      scrollRef.current?.scrollToOffset({ offset: target * ITEM_SIZE, animated: false });
     }
   }, []);
 
@@ -307,7 +312,7 @@ export default function MenuScreen({ navigation }) {
       dragStartScroll.current -= N * ITEM_SIZE;
     }
 
-    scrollRef.current?.scrollTo({ x: newOffset, animated: false });
+    scrollRef.current?.scrollToOffset({ offset: newOffset, animated: false });
   };
 
   const onMouseUp = () => {
@@ -316,7 +321,7 @@ export default function MenuScreen({ navigation }) {
     if (dragContainerRef.current?.style) dragContainerRef.current.style.cursor = 'grab';
     const offset = currentScrollX.current;
     const snapped = Math.round(offset / ITEM_SIZE) * ITEM_SIZE;
-    scrollRef.current?.scrollTo({ x: snapped, animated: true });
+    scrollRef.current?.scrollToOffset({ offset: snapped, animated: true });
     setTimeout(() => handleScrollEnd(snapped), 350);
   };
 
@@ -355,9 +360,16 @@ export default function MenuScreen({ navigation }) {
         onMouseLeave={onMouseUp}
         style={[{ flex: 1 }, Platform.OS === 'web' && { cursor: 'grab', userSelect: 'none' }]}
       >
-        <ScrollView
+        <FlatList
           ref={scrollRef}
+          data={LOOP_ITEMS}
           horizontal
+          keyExtractor={(_, i) => String(i)}
+          renderItem={({ item, index }) => (
+            <GameCard character={item} loopIdx={index} scrollX={scrollX} onPress={handleSelectGame} />
+          )}
+          getItemLayout={(_, index) => ({ length: ITEM_SIZE, offset: index * ITEM_SIZE, index })}
+          initialScrollIndex={INIT_IDX}
           snapToInterval={ITEM_SIZE}
           snapToAlignment="start"
           decelerationRate="fast"
@@ -375,18 +387,11 @@ export default function MenuScreen({ navigation }) {
           onMomentumScrollBegin={() => { isMomentum.current = true; }}
           onMomentumScrollEnd={onScrollEnd}
           onScrollEndDrag={(e) => { if (!isMomentum.current) onScrollEnd(e); }}
+          initialNumToRender={7}
+          maxToRenderPerBatch={5}
+          windowSize={5}
           style={{ flex: 1 }}
-        >
-          {LOOP_ITEMS.map((char, i) => (
-            <GameCard
-              key={`${char.id}-${i}`}
-              character={char}
-              loopIdx={i}
-              scrollX={scrollX}
-              onPress={handleSelectGame}
-            />
-          ))}
-        </ScrollView>
+        />
       </View>
 
       {/* Pagination dots */}
