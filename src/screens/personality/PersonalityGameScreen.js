@@ -7,10 +7,9 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 
-const IMG_HEIGHT = Platform.OS === 'web'
-  ? Math.min(Dimensions.get('window').height * 0.55, 500)
-  : Math.min(Dimensions.get('window').height * 0.42, 340);
 const SCREEN_W = Dimensions.get('window').width;
+const PC_IMG_W = Platform.OS === 'web' ? Math.min(380, SCREEN_W - 48) : undefined;
+const IMG_HEIGHT = Math.min(Dimensions.get('window').height * 0.42, 340);
 const IMG_SQUARE = Math.min(IMG_HEIGHT, SCREEN_W - 48);
 
 // Normalise pour comparaison (minuscules, sans accents ni ponctuation)
@@ -21,6 +20,21 @@ function normalize(s) {
     .replace(/[^a-z0-9\s]/g, '')
     .trim()
     .replace(/\s+/g, ' ');
+}
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, (_, i) => Array.from({ length: n + 1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function maxErrors(len) {
+  if (len >= 8) return 2;
+  if (len >= 5) return 1;
+  return 0;
 }
 
 const ORANGE = '#F97316';
@@ -135,9 +149,10 @@ export default function PersonalityGameScreen({ navigation, route }) {
     if (phase !== 'playing' || !inputText.trim()) return;
     const inputNorm = normalize(inputText);
     const correctNorm = normalize(currentPersonality.name);
-    // Accepte le nom complet ou le dernier mot du nom (nom de famille) si >= 4 chars
     const lastWord = normalize(currentPersonality.name.split(' ').pop());
-    const correct = inputNorm === correctNorm || (lastWord.length >= 4 && inputNorm === lastWord);
+    const correct =
+      levenshtein(inputNorm, correctNorm) <= maxErrors(correctNorm.length) ||
+      (lastWord.length >= 4 && levenshtein(inputNorm, lastWord) <= maxErrors(lastWord.length));
     handleChoice({ id: correct ? currentPersonality.id : '__wrong__' });
   };
 
@@ -251,6 +266,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
           style={[
             styles.imageContainer,
             mode === 'tiles' && !isReveal && styles.imageContainerSquare,
+            Platform.OS === 'web' && { width: PC_IMG_W, alignSelf: 'center' },
             { opacity: cardOpacity, transform: [{ translateY: cardSlide }] },
           ]}
         >
@@ -262,7 +278,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
                   source={personalityImages[currentPersonality.id]}
                   style={[
                     styles.faceImage,
-                    Platform.OS === 'web' && !isReveal && { objectPosition: 'top center' },
+                    Platform.OS === 'web' && { objectPosition: 'top center' },
                   ]}
                   resizeMode={isReveal ? 'contain' : 'cover'}
                   onError={() => setImgError(true)}
