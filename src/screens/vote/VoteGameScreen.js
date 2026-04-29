@@ -19,7 +19,7 @@ const VOTE_LIGHT = '#A5B4FC';
 export default function VoteGameScreen({ route, navigation }) {
   const { questionCount = 10, playerNames = [], categoryId = 'all' } = route.params || {};
 
-  const [questions]          = useState(() => selectQuestions(questionCount, categoryId));
+  const [questions]          = useState(() => selectQuestions(questionCount, categoryId, playerNames));
   const [questionIdx, setQuestionIdx]       = useState(0);
   const [phase, setPhase]                   = useState('player_ready');
   const [currentVoterIdx, setCurrentVoterIdx] = useState(0);

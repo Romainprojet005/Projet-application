@@ -37,8 +37,8 @@ export default function VoteSetupScreen({ navigation }) {
 
   const validPlayers = playerNames.map(n => n.trim()).filter(Boolean);
   const activeCat    = VOTE_CATEGORIES.find(c => c.id === categoryId) ?? VOTE_CATEGORIES[0];
-  const available    = selectQuestions(999, categoryId).length;
-  const canStart     = validPlayers.length >= 2;
+  const available    = selectQuestions(999, categoryId, validPlayers).length;
+  const canStart     = validPlayers.length >= 2 && !(activeCat.needsPlayers && validPlayers.length < 2);
 
   const handleStart = () => {
     if (!canStart) return;

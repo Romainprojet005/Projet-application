@@ -1,6 +1,7 @@
 export const VOTE_CATEGORIES = [
   { id: 'all',        name: 'Tout mélangé',    emoji: '🎲', color: '#6366F1' },
-  { id: 'tuPreferes', name: 'Tu préfères',      emoji: '🤔', color: '#F43F5E' },
+  { id: 'cible',      name: 'Ciblé 🎯',        emoji: '🎯', color: '#F43F5E', needsPlayers: true },
+  { id: 'tuPreferes', name: 'Tu préfères',      emoji: '🤔', color: '#EC4899' },
   { id: 'pourContre', name: 'Pour ou Contre',   emoji: '⚖️', color: '#F59E0B' },
   { id: 'cEstPlutot', name: "C'est plutôt...",  emoji: '🪞', color: '#06B6D4' },
   { id: 'debat',      name: 'Débat',            emoji: '🔥', color: '#EF4444' },
@@ -101,6 +102,40 @@ const QUESTIONS = {
     { id: 20, q: 'Le destin existe vraiment ?',                   a: '👍  Oui', b: '👎  Non' },
   ],
 
+  cible: [
+    // — Innocent / Fun —
+    { id: 1,  q: 'Entre {A} et {B}, avec qui partirais-tu en road trip ?',              a: '🚗  {A}', b: '🚗  {B}', targeted: true },
+    { id: 2,  q: 'Entre {A} et {B}, qui ferait le/la meilleur(e) colocataire ?',        a: '🏠  {A}', b: '🏠  {B}', targeted: true },
+    { id: 3,  q: 'Bloqué(e) dans un ascenseur, tu préfères être avec {A} ou {B} ?',     a: '🛗  {A}', b: '🛗  {B}', targeted: true },
+    { id: 4,  q: 'Entre {A} et {B}, qui te ferait le plus rire ?',                      a: '😂  {A}', b: '😂  {B}', targeted: true },
+    { id: 5,  q: 'Apocalypse zombie : tu choisis {A} ou {B} dans ton équipe ?',         a: '🧟  {A}', b: '🧟  {B}', targeted: true },
+    { id: 6,  q: 'Entre {A} et {B}, qui est le/la plus courageux/courageuse ?',         a: '💪  {A}', b: '💪  {B}', targeted: true },
+    { id: 7,  q: 'Entre {A} et {B}, qui ferait le/la meilleur(e) patron(ne) ?',         a: '👔  {A}', b: '👔  {B}', targeted: true },
+    { id: 8,  q: 'Danser toute la nuit : tu choisis {A} ou {B} ?',                      a: '💃  {A}', b: '💃  {B}', targeted: true },
+    { id: 9,  q: 'Entre {A} et {B}, qui garderait le mieux un secret ?',                a: '🤫  {A}', b: '🤫  {B}', targeted: true },
+    { id: 10, q: 'Entre {A} et {B}, qui serait le/la plus fidèle en couple ?',          a: '💍  {A}', b: '💍  {B}', targeted: true },
+    { id: 11, q: 'Tu confierais ta vie à {A} ou à {B} ?',                               a: '🫀  {A}', b: '🫀  {B}', targeted: true },
+    { id: 12, q: 'Entre {A} et {B}, qui est le/la plus mature ?',                       a: '🧠  {A}', b: '🧠  {B}', targeted: true },
+    // — Flirt / Séduction —
+    { id: 13, q: 'Entre {A} et {B}, qui est le/la plus séduisant(e) ?',                 a: '😍  {A}', b: '😍  {B}', targeted: true },
+    { id: 14, q: 'Un dîner aux chandelles : tu choisis {A} ou {B} ?',                   a: '🕯️  {A}', b: '🕯️  {B}', targeted: true },
+    { id: 15, q: 'Entre {A} et {B}, qui a le plus de charme ?',                         a: '✨  {A}', b: '✨  {B}', targeted: true },
+    { id: 16, q: 'Tu échangerais un baiser avec {A} ou {B} ?',                          a: '💋  {A}', b: '💋  {B}', targeted: true },
+    { id: 17, q: 'Entre {A} et {B}, qui semble le/la plus hot ?',                       a: '🔥  {A}', b: '🔥  {B}', targeted: true },
+    { id: 18, q: 'Un week-end romantique : tu emmènes {A} ou {B} ?',                    a: '🌹  {A}', b: '🌹  {B}', targeted: true },
+    { id: 19, q: 'Entre {A} et {B}, qui te donne le plus envie ?',                      a: '👀  {A}', b: '👀  {B}', targeted: true },
+    { id: 20, q: 'Partager un jacuzzi : tu choisis {A} ou {B} ?',                       a: '🛁  {A}', b: '🛁  {B}', targeted: true },
+    { id: 21, q: 'Entre {A} et {B}, qui serait le/la plus audacieux/audacieuse au lit ?', a: '😈  {A}', b: '😈  {B}', targeted: true },
+    { id: 22, q: 'Entre {A} et {B}, qui ferait le/la meilleur(e) amant(e) ?',           a: '💝  {A}', b: '💝  {B}', targeted: true },
+    // — Indiscrets / 18+ —
+    { id: 23, q: 'Une nuit folle : tu choisis {A} ou {B} ?',                            a: '🌙  {A}', b: '🌙  {B}', targeted: true },
+    { id: 24, q: 'Entre {A} et {B}, qui semble le/la plus doué(e) au lit ?',            a: '🎯  {A}', b: '🎯  {B}', targeted: true },
+    { id: 25, q: 'Coucher avec l\'un d\'eux : tu choisirais {A} ou {B} ?',              a: '😏  {A}', b: '😏  {B}', targeted: true },
+    { id: 26, q: 'Entre {A} et {B}, avec qui serais-tu le/la plus compatible au lit ?', a: '🔥  {A}', b: '🔥  {B}', targeted: true },
+    { id: 27, q: 'Un plan à 3, tu gardes qui : {A} ou {B} ?',                           a: '😈  {A}', b: '😈  {B}', targeted: true },
+    { id: 28, q: 'Entre {A} et {B}, qui a le corps qui te plaît le plus ?',             a: '💪  {A}', b: '💪  {B}', targeted: true },
+  ],
+
   adulte: [
     // — Débats politiques —
     { id: 1,  q: 'La peine de mort devrait être rétablie en France ?',          a: '👍  Oui', b: '👎  Non' },
@@ -150,13 +185,22 @@ const QUESTIONS = {
   ],
 };
 
-export function selectQuestions(count, categoryId = 'all') {
+function injectPlayers(q, playerNames) {
+  if (!q.targeted || playerNames.length < 2) return q.targeted ? null : q;
+  const p = [...playerNames].sort(() => Math.random() - 0.5);
+  const A = p[0], B = p[1];
+  const sub = s => s.replace(/\{A\}/g, A).replace(/\{B\}/g, B);
+  return { ...q, q: sub(q.q), a: sub(q.a), b: sub(q.b) };
+}
+
+export function selectQuestions(count, categoryId = 'all', playerNames = []) {
   let pool;
   if (categoryId === 'all') {
-    pool = Object.values(QUESTIONS).flat();
+    pool = Object.values(QUESTIONS).flat().filter(q => !q.targeted);
   } else {
     pool = QUESTIONS[categoryId] ?? Object.values(QUESTIONS).flat();
   }
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, Math.min(count, pool.length));
+  const selected = shuffled.slice(0, Math.min(count, pool.length));
+  return selected.map(q => injectPlayers(q, playerNames)).filter(Boolean);
 }
