@@ -23,6 +23,22 @@ function normalize(s) {
     .replace(/\s+/g, ' ');
 }
 
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, (_, i) => Array.from({ length: n + 1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+// 1 faute tolérée à partir de 5 lettres, 2 à partir de 8
+function maxErrors(len) {
+  if (len >= 8) return 2;
+  if (len >= 5) return 1;
+  return 0;
+}
+
 const ORANGE = '#F97316';
 const ORANGE_DARK = '#C2410C';
 const ORANGE_LIGHT = '#FED7AA';
@@ -135,9 +151,10 @@ export default function PersonalityGameScreen({ navigation, route }) {
     if (phase !== 'playing' || !inputText.trim()) return;
     const inputNorm = normalize(inputText);
     const correctNorm = normalize(currentPersonality.name);
-    // Accepte le nom complet ou le dernier mot du nom (nom de famille) si >= 4 chars
     const lastWord = normalize(currentPersonality.name.split(' ').pop());
-    const correct = inputNorm === correctNorm || (lastWord.length >= 4 && inputNorm === lastWord);
+    const correct =
+      levenshtein(inputNorm, correctNorm) <= maxErrors(correctNorm.length) ||
+      (lastWord.length >= 4 && levenshtein(inputNorm, lastWord) <= maxErrors(lastWord.length));
     handleChoice({ id: correct ? currentPersonality.id : '__wrong__' });
   };
 
