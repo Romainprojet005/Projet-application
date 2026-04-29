@@ -8,6 +8,13 @@ export const isSupabaseConfigured = true;
 let _client = null;
 try {
   _client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    },
     realtime: { params: { eventsPerSecond: 10 } },
   });
 } catch (e) {
