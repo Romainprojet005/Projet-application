@@ -32,8 +32,9 @@ function parseSongs(raw) {
   return raw;
 }
 
-function openYoutube(videoId, startAt) {
-  Linking.openURL(`https://www.youtube.com/watch?v=${videoId}&t=${startAt || 0}`);
+function openYoutube(song) {
+  const q = encodeURIComponent(`${song.title} ${song.artist}`);
+  Linking.openURL(`https://www.youtube.com/results?search_query=${q}`);
 }
 
 export default function BlindMultiGameScreen({ navigation, route }) {
@@ -100,7 +101,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
             setRoundResult(null);
             if (isHostRef.current) {
               const song = songs[nr.current_song_idx];
-              if (song) openYoutube(song.videoId, song.startAt);
+              if (song) openYoutube(song);
             }
             startLocalTimer(nr);
           }
@@ -135,7 +136,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
     const r = roomRef.current;
     if (!r) return;
     const song = r.songs[r.current_song_idx];
-    if (song) openYoutube(song.videoId, song.startAt);
+    if (song) openYoutube(song);
     await supabase.from('blind_rooms').update({
       phase: 'playing',
       round_started_at: new Date().toISOString(),
@@ -331,7 +332,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
               {roundResult === 'won' && <Text style={styles.statusWon}>✅ Trouvé ! En attente des autres…</Text>}
               {roundResult === 'lost' && <Text style={styles.statusLost}>😅 Quelqu'un a été plus rapide !</Text>}
               {isHost && song && (
-                <TouchableOpacity onPress={() => openYoutube(song.videoId, song.startAt)} style={styles.relancerBtn}>
+                <TouchableOpacity onPress={() => openYoutube(song)} style={styles.relancerBtn}>
                   <Text style={styles.relancerText}>↩ Relancer sur YouTube</Text>
                 </TouchableOpacity>
               )}

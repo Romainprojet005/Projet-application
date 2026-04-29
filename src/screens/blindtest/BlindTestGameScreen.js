@@ -24,8 +24,9 @@ function isCorrectGuess(input, title) {
   return tit === inp || (inp.length >= 4 && tit.includes(inp));
 }
 
-function openYoutube(videoId, startAt) {
-  Linking.openURL(`https://www.youtube.com/watch?v=${videoId}&t=${startAt || 0}`);
+function openYoutube(song) {
+  const q = encodeURIComponent(`${song.title} ${song.artist}`);
+  Linking.openURL(`https://www.youtube.com/results?search_query=${q}`);
 }
 
 // ── Equalizer animation ───────────────────────────────────────────────────────
@@ -144,7 +145,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const handlePlay = () => {
     setPhase('playing');
     phaseRef.current = 'playing';
-    openYoutube(song.videoId, song.startAt);
+    openYoutube(song);
     if (!isInfinite) {
       timerRef.current = setInterval(() => {
         setTimer(t => Math.max(0, t - 1));
@@ -350,7 +351,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
                   </>
                 )}
               </View>
-              <TouchableOpacity onPress={() => openYoutube(song.videoId, song.startAt)} style={styles.relancerBtn}>
+              <TouchableOpacity onPress={() => openYoutube(song)} style={styles.relancerBtn}>
                 <Text style={styles.relancerText}>↩ Relancer sur YouTube</Text>
               </TouchableOpacity>
             </View>
