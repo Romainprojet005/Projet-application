@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
+import { BUZZER_MODES } from '../../data/buzzerQuestions';
 
 const BUZZ_COLOR = '#DC2626';
 const BUZZ_DARK  = '#B91C1C';
@@ -24,6 +25,7 @@ export default function BuzzerSetupScreen({ navigation }) {
     Array.from({ length: 6 }, (_, i) => `Joueur ${i + 1}`)
   );
   const [inputFocus, setInputFocus] = useState(null);
+  const [mode, setMode] = useState('quiz');
 
   const fadeIn  = useRef(new Animated.Value(0)).current;
   const slideUp = useRef(new Animated.Value(40)).current;
@@ -42,10 +44,12 @@ export default function BuzzerSetupScreen({ navigation }) {
   };
 
   const handleStart = () => {
-    const names  = playerNames.slice(0, playerCount).map((n, i) => n.trim() || `Joueur ${i + 1}`);
+    const names   = playerNames.slice(0, playerCount).map((n, i) => n.trim() || `Joueur ${i + 1}`);
     const colorss = PLAYER_COLORS.slice(0, playerCount);
-    navigation.navigate('BuzzerGame', { playerNames: names, playerColors: colorss });
+    navigation.navigate('BuzzerGame', { playerNames: names, playerColors: colorss, mode });
   };
+
+  const selectedMode = BUZZER_MODES.find(m => m.id === mode);
 
   return (
     <LinearGradient colors={['#1A0000', '#0A0000', '#1A0000']} style={styles.container}>
@@ -63,7 +67,7 @@ export default function BuzzerSetupScreen({ navigation }) {
             </View>
           </View>
           <Text style={styles.pageTitle}>BUZZER</Text>
-          <Text style={styles.pageSubtitle}>Premier à appuyer sur sa couleur a la parole !</Text>
+          <Text style={styles.pageSubtitle}>Premier à buzzer répond — dans le temps imparti !</Text>
         </Animated.View>
 
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
@@ -71,14 +75,35 @@ export default function BuzzerSetupScreen({ navigation }) {
           <View style={[styles.rulesCard, { borderColor: BUZZ_COLOR + '35', backgroundColor: BUZZ_COLOR + '18' }]}>
             <Text style={styles.rulesTitle}>⚡  Comment jouer</Text>
             <Text style={styles.rulesLine}>📱  Posez le téléphone au centre de la table</Text>
-            <Text style={styles.rulesLine}>🎯  L'animateur pose une question à voix haute</Text>
-            <Text style={styles.rulesLine}>⚡  Appuyez "Lancer", puis buzzez sur votre couleur</Text>
-            <Text style={styles.rulesLine}>🏆  Premier à buzzer → a la parole</Text>
+            <Text style={styles.rulesLine}>🎯  Une question s'affiche à l'écran</Text>
+            <Text style={styles.rulesLine}>⚡  Appuyez "Lancer" — buzzez sur votre couleur dès que vous savez !</Text>
+            <Text style={styles.rulesLine}>⏱  Le premier à buzzer a <Text style={styles.rulesPoints}>10 secondes</Text> pour répondre</Text>
             <Text style={styles.rulesLine}>✅  Bonne réponse → <Text style={styles.rulesPoints}>+1 pt</Text></Text>
             <Text style={styles.rulesLine}>❌  Mauvaise réponse → <Text style={styles.rulesPoints}>0 pt</Text></Text>
-            <Text style={styles.rulesNote}>Fonctionne avec le Quiz, le Blind Test, ou vos propres questions !</Text>
           </View>
 
+          {/* Mode de jeu */}
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>🎮  Mode de jeu</Text>
+            <View style={styles.modeRow}>
+              {BUZZER_MODES.map(m => (
+                <TouchableOpacity
+                  key={m.id}
+                  onPress={() => setMode(m.id)}
+                  style={[
+                    styles.modeBtn,
+                    mode === m.id && { backgroundColor: m.color + '25', borderColor: m.color },
+                  ]}
+                >
+                  <Text style={styles.modeEmoji}>{m.emoji}</Text>
+                  <Text style={[styles.modeName, mode === m.id && { color: m.color, fontWeight: '800' }]}>{m.name}</Text>
+                  <Text style={styles.modeDesc}>{m.desc}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Nombre de joueurs */}
           <View style={styles.card}>
             <Text style={styles.cardLabel}>👥  Nombre de joueurs</Text>
             <View style={styles.pillRow}>
@@ -94,6 +119,7 @@ export default function BuzzerSetupScreen({ navigation }) {
             </View>
           </View>
 
+          {/* Noms des joueurs */}
           <View style={styles.card}>
             <Text style={styles.cardLabel}>🎮  Noms des joueurs</Text>
             {Array.from({ length: playerCount }, (_, i) => (
@@ -167,13 +193,23 @@ const styles = StyleSheet.create({
   rulesTitle:  { fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
   rulesLine:   { fontSize: 13, color: colors.textSecondary, marginBottom: 4 },
   rulesPoints: { color: BUZZ_LIGHT, fontWeight: '800' },
-  rulesNote:   { fontSize: 11, color: colors.textMuted, fontStyle: 'italic', marginTop: spacing.sm },
 
   card: {
     backgroundColor: colors.card, borderRadius: radius.lg,
     padding: spacing.lg, borderWidth: 1, borderColor: colors.border,
   },
   cardLabel: { fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
+
+  modeRow: { gap: spacing.sm },
+  modeBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+    borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md, paddingVertical: spacing.sm + 2,
+  },
+  modeEmoji: { fontSize: 20 },
+  modeName:  { fontSize: 14, fontWeight: '700', color: colors.text, flex: 1 },
+  modeDesc:  { fontSize: 11, color: colors.textMuted },
 
   pillRow: { flexDirection: 'row', gap: spacing.sm },
   pill: {
