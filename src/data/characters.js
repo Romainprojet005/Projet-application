@@ -152,25 +152,6 @@ export const characters = [
     },
   },
   {
-    id: 'flash',
-    name: 'Flash',
-    emoji: '⚡',
-    title: 'Le Maître du Buzzer',
-    description:
-      "Plus rapide que l'éclair ! Transforme ton téléphone en buzzer géant. Premier à appuyer sur sa couleur décroche la parole — réflexes et instinct au programme !",
-    catchphrase: '"Rapidité, instinct, victoire !"',
-    color: '#DC2626',
-    gradientColors: ['#1A0000', '#2D0000'],
-    game: 'buzzer',
-    gameName: 'BUZZER',
-    available: true,
-    stats: {
-      Rapidité: 99,
-      Réflexes: 97,
-      Instinct: 95,
-    },
-  },
-  {
     id: 'cyrano',
     name: 'Cyrano de Bergerac',
     emoji: '🎭',

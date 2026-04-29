@@ -4,6 +4,7 @@ export const VOTE_CATEGORIES = [
   { id: 'pourContre', name: 'Pour ou Contre',   emoji: '⚖️', color: '#F59E0B' },
   { id: 'cEstPlutot', name: "C'est plutôt...",  emoji: '🪞', color: '#06B6D4' },
   { id: 'debat',      name: 'Débat',            emoji: '🔥', color: '#EF4444' },
+  { id: 'adulte',     name: 'Mode Adulte 🔞',   emoji: '🍷', color: '#9333EA' },
 ];
 
 const QUESTIONS = {
@@ -98,6 +99,54 @@ const QUESTIONS = {
     { id: 18, q: 'Les jeux vidéo peuvent devenir un sport olympique ?', a: '👍  Oui', b: '👎  Non' },
     { id: 19, q: 'On devrait enseigner le bonheur à l\'école ?',  a: '👍  Oui', b: '👎  Non' },
     { id: 20, q: 'Le destin existe vraiment ?',                   a: '👍  Oui', b: '👎  Non' },
+  ],
+
+  adulte: [
+    // — Débats politiques —
+    { id: 1,  q: 'La peine de mort devrait être rétablie en France ?',          a: '👍  Oui', b: '👎  Non' },
+    { id: 2,  q: 'Le cannabis devrait être légalisé ?',                          a: '👍  Oui', b: '👎  Non' },
+    { id: 3,  q: 'Le vote devrait être obligatoire ?',                           a: '👍  Oui', b: '👎  Non' },
+    { id: 4,  q: 'L\'immigration massive est une chance pour la France ?',       a: '👍  Oui', b: '👎  Non' },
+    { id: 5,  q: 'Les riches devraient payer beaucoup plus d\'impôts ?',         a: '👍  Oui', b: '👎  Non' },
+    { id: 6,  q: 'On devrait interdire les partis d\'extrême droite ?',          a: '👍  Oui', b: '👎  Non' },
+    { id: 7,  q: 'La France devrait sortir de l\'UE ?',                          a: '👍  Oui', b: '👎  Non' },
+    { id: 8,  q: 'Le service militaire obligatoire devrait revenir ?',           a: '👍  Oui', b: '👎  Non' },
+    { id: 9,  q: 'Les politiques méritent leur salaire ?',                       a: '👍  Oui', b: '👎  Non' },
+    { id: 10, q: 'On devrait légaliser l\'euthanasie ?',                         a: '👍  Oui', b: '👎  Non' },
+    { id: 11, q: 'La PMA pour toutes était une bonne décision ?',               a: '👍  Oui', b: '👎  Non' },
+    { id: 12, q: 'Les religions ont trop d\'influence en politique ?',           a: '👍  Oui', b: '👎  Non' },
+    { id: 13, q: 'Le revenu universel est une bonne idée ?',                     a: '👍  Oui', b: '👎  Non' },
+    { id: 14, q: 'Les réseaux sociaux devraient être régulés par l\'État ?',     a: '👍  Oui', b: '👎  Non' },
+    // — Débats de société —
+    { id: 15, q: 'On devrait abolir le mariage traditionnel ?',                  a: '👍  Oui', b: '👎  Non' },
+    { id: 16, q: 'Les hommes et les femmes sont vraiment égaux aujourd\'hui ?',  a: '👍  Oui', b: '👎  Non' },
+    { id: 17, q: 'La prostitution devrait être légalisée ?',                     a: '👍  Oui', b: '👎  Non' },
+    { id: 18, q: 'On peut être amoureux de quelqu\'un qu\'on n\'a jamais vu IRL ?', a: '👍  Oui', b: '👎  Non' },
+    { id: 19, q: 'L\'infidélité peut être pardonnée ?',                          a: '👍  Oui', b: '👎  Non' },
+    { id: 20, q: 'La jalousie prouve qu\'on aime vraiment ?',                    a: '👍  Oui', b: '👎  Non' },
+    // — Tu préfères (adulte) —
+    { id: 21, q: 'Tu préfères…', a: '🍷  Un bon vin entre amis', b: '🥃  Une soirée whisky' },
+    { id: 22, q: 'Tu préfères…', a: '😈  Être le dominant',       b: '🐑  Être le soumis'   },
+    { id: 23, q: 'Tu préfères…', a: '🌶️  Sexto coquin',          b: '📞  Appel vocal sexy'  },
+    { id: 24, q: 'Tu préfères avoir…', a: '💪  Un corps parfait mais mauvais au lit', b: '🔥  Un corps ordinaire mais exceptionnel au lit' },
+    { id: 25, q: 'Tu préfères…', a: '🎭  Jeu de rôle en couple', b: '🎲  Soirée libertine'  },
+    // — Questions sexuelles / couple —
+    { id: 26, q: 'Le sexe sans amour peut être meilleur qu\'avec amour ?',       a: '👍  Oui', b: '👎  Non' },
+    { id: 27, q: 'L\'attirance physique est plus importante que la personnalité ?', a: '👍  Oui', b: '👎  Non' },
+    { id: 28, q: 'La fréquence en couple baisse forcément avec le temps ?',      a: '👍  Oui', b: '👎  Non' },
+    { id: 29, q: 'Regarder du porno en couple est sain ?',                       a: '👍  Oui', b: '👎  Non' },
+    { id: 30, q: 'Un couple peut survivre à une longue période sans intimité ?', a: '👍  Oui', b: '👎  Non' },
+    { id: 31, q: 'Les amis avec bénéfices finissent toujours mal ?',             a: '👍  Oui', b: '👎  Non' },
+    { id: 32, q: 'La taille a de l\'importance ?',                               a: '👍  Oui', b: '👎  Non' },
+    { id: 33, q: 'Le premier rapport d\'un couple donne le ton pour la suite ?', a: '👍  Oui', b: '👎  Non' },
+    { id: 34, q: 'Avoir des fantasmes sur quelqu\'un d\'autre est une infidélité ?', a: '👍  Oui', b: '👎  Non' },
+    { id: 35, q: 'On peut être trop bien sexuellement pour quelqu\'un ?',        a: '👍  Oui', b: '👎  Non' },
+    // — Dilemmes trash —
+    { id: 36, q: 'Tu préfères…', a: '🤐  Ne plus jamais faire l\'amour', b: '💸  Perdre toutes tes économies' },
+    { id: 37, q: 'Tu préfères…', a: '👀  Voir par les yeux de ton ex pendant 1 journée', b: '📱  Lire ses messages privés' },
+    { id: 38, q: 'Tu préfères…', a: '🍑  Avoir 3 nuits folles avec un inconnu', b: '❤️  1 mois de tendresse avec l\'amour de ta vie' },
+    { id: 39, q: 'Pour ou contre le coup d\'un soir sans lendemain ?',           a: '✅  Pour', b: '❌  Contre' },
+    { id: 40, q: 'Pour ou contre partager son téléphone avec son/sa partenaire ?', a: '✅  Pour', b: '❌  Contre' },
   ],
 };
 

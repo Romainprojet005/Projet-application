@@ -25,6 +25,9 @@ function isCorrectGuess(input, title) {
 }
 
 // ── YouTube iframe (web only) ─────────────────────────────────────────────────
+// L'iframe doit rester dans le viewport pour que Chrome et Safari autorisent
+// l'autoplay déclenché par un geste utilisateur. On la rend invisible mais
+// en bas à droite de l'écran (bottom:0 / right:0) pour contourner cette restriction.
 function YoutubeAudio({ src }) {
   if (Platform.OS !== 'web' || !src) return null;
   return (
@@ -32,12 +35,13 @@ function YoutubeAudio({ src }) {
       key={src}
       src={src}
       style={{
-        position: 'fixed', top: -400, left: -400,
-        width: 320, height: 180,
-        border: 'none', zIndex: -1,
+        position: 'fixed', bottom: 0, right: 0,
+        width: 2, height: 2, opacity: 0,
+        border: 'none', zIndex: 1,
         pointerEvents: 'none',
       }}
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
       title="blind-test-audio"
     />
   );
