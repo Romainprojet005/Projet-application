@@ -22,6 +22,8 @@ import BlindTestSetupScreen from '../screens/blindtest/BlindTestSetupScreen';
 import BlindTestGameScreen from '../screens/blindtest/BlindTestGameScreen';
 import VoteSetupScreen from '../screens/vote/VoteSetupScreen';
 import VoteGameScreen from '../screens/vote/VoteGameScreen';
+import BuzzerSetupScreen from '../screens/buzzer/BuzzerSetupScreen';
+import BuzzerGameScreen from '../screens/buzzer/BuzzerGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -54,6 +56,8 @@ const linking = {
       BlindTestGame: 'blindtest/game',
       VoteSetup: 'vote',
       VoteGame: 'vote/game',
+      BuzzerSetup: 'buzzer',
+      BuzzerGame: 'buzzer/game',
     },
   },
 };
@@ -88,6 +92,8 @@ export default function AppNavigator() {
         <Stack.Screen name="BlindTestGame" component={BlindTestGameScreen} />
         <Stack.Screen name="VoteSetup" component={VoteSetupScreen} />
         <Stack.Screen name="VoteGame" component={VoteGameScreen} />
+        <Stack.Screen name="BuzzerSetup" component={BuzzerSetupScreen} />
+        <Stack.Screen name="BuzzerGame" component={BuzzerGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
