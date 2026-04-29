@@ -1,11 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = (process.env.EXPO_PUBLIC_SUPABASE_URL || '').trim();
+const SUPABASE_URL = 'https://mdfwbswlejpcstycjcnj.supabase.co';
 const SUPABASE_ANON_KEY = (process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '').trim();
 
-export const isSupabaseConfigured = Boolean(
-  SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('https://')
-);
+export const isSupabaseConfigured = Boolean(SUPABASE_ANON_KEY && SUPABASE_ANON_KEY.startsWith('eyJ'));
 
 let _client = null;
 try {
