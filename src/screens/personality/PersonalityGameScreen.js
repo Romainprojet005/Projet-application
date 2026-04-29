@@ -8,10 +8,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 
 const SCREEN_W = Dimensions.get('window').width;
+const PC_IMG_SIZE = Platform.OS === 'web' ? Math.min(420, SCREEN_W - 48) : undefined;
 const IMG_HEIGHT = Platform.OS === 'web'
-  ? Math.min(Dimensions.get('window').height * 0.55, 500)
+  ? PC_IMG_SIZE
   : Math.min(Dimensions.get('window').height * 0.42, 340);
-const PC_IMG_W = Platform.OS === 'web' ? Math.min(420, SCREEN_W - 48) : undefined;
 
 // Normalise pour comparaison (minuscules, sans accents ni ponctuation)
 function normalize(s) {
@@ -267,7 +267,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
         <Animated.View
           style={[
             styles.imageContainer,
-            Platform.OS === 'web' && { width: PC_IMG_W, alignSelf: 'center' },
+            Platform.OS === 'web' && { width: PC_IMG_SIZE, alignSelf: 'center' },
             { opacity: cardOpacity, transform: [{ translateY: cardSlide }] },
           ]}
         >
