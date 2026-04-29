@@ -1,20 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://mdfwbswlejpcstycjcnj.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kZndic3dsZWpwY3N0eWNqY25qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NzQ0NzYsImV4cCI6MjA5MzA1MDQ3Nn0.7oRaTDpaX9amQwLaJf8-uBN-os9gEKThowLBkvOYh3E';
+const SUPABASE_KEY = 'sb_publishable_oSmPF4n_PyzC8DyzlSDD6Q_kCPweM4A';
 
 export const isSupabaseConfigured = true;
 
 let _client = null;
 try {
-  _client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  _client = createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
-    global: {
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
-    },
     realtime: { params: { eventsPerSecond: 10 } },
   });
 } catch (e) {
