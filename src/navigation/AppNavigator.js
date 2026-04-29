@@ -20,6 +20,9 @@ import MotDePasseSetupScreen from '../screens/motdepasse/MotDePasseSetupScreen';
 import MotDePasseGameScreen from '../screens/motdepasse/MotDePasseGameScreen';
 import BlindTestSetupScreen from '../screens/blindtest/BlindTestSetupScreen';
 import BlindTestGameScreen from '../screens/blindtest/BlindTestGameScreen';
+import BlindMultiSetupScreen from '../screens/blindtest/BlindMultiSetupScreen';
+import BlindMultiLobbyScreen from '../screens/blindtest/BlindMultiLobbyScreen';
+import BlindMultiGameScreen from '../screens/blindtest/BlindMultiGameScreen';
 import VoteSetupScreen from '../screens/vote/VoteSetupScreen';
 import VoteGameScreen from '../screens/vote/VoteGameScreen';
 import VoteMultiSetupScreen from '../screens/vote/VoteMultiSetupScreen';
@@ -60,6 +63,9 @@ const linking = {
       MotDePasseGame: 'motdepasse/game',
       BlindTestSetup: 'blindtest',
       BlindTestGame: 'blindtest/game',
+      BlindMultiSetup: 'blindtest/multi',
+      BlindMultiLobby: 'blindtest/multi/lobby',
+      BlindMultiGame: 'blindtest/multi/game',
       VoteSetup: 'vote',
       VoteGame: 'vote/game',
       VoteMultiSetup: 'vote/multi',
@@ -102,6 +108,9 @@ export default function AppNavigator() {
         <Stack.Screen name="MotDePasseGame" component={MotDePasseGameScreen} />
         <Stack.Screen name="BlindTestSetup" component={BlindTestSetupScreen} />
         <Stack.Screen name="BlindTestGame" component={BlindTestGameScreen} />
+        <Stack.Screen name="BlindMultiSetup" component={BlindMultiSetupScreen} />
+        <Stack.Screen name="BlindMultiLobby" component={BlindMultiLobbyScreen} />
+        <Stack.Screen name="BlindMultiGame" component={BlindMultiGameScreen} />
         <Stack.Screen name="VoteSetup" component={VoteSetupScreen} />
         <Stack.Screen name="VoteGame" component={VoteGameScreen} />
         <Stack.Screen name="VoteMultiSetup" component={VoteMultiSetupScreen} />

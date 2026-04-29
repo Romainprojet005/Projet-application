@@ -212,6 +212,14 @@ export default function BlindTestSetupScreen({ navigation }) {
               <Text style={styles.launchText}>🎸  QUE LA MUSIQUE COMMENCE !</Text>
             </LinearGradient>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('BlindMultiSetup')}
+            style={styles.multiBtn}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.multiBtnText}>📱  Mode multi-téléphones</Text>
+          </TouchableOpacity>
         </Animated.View>
 
       </PageScroll>
@@ -324,4 +332,10 @@ const styles = StyleSheet.create({
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
   launchText: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+
+  multiBtn: {
+    marginTop: spacing.md, paddingVertical: spacing.md, alignItems: 'center',
+    borderWidth: 1, borderColor: BEAT + '55', borderRadius: radius.full,
+  },
+  multiBtnText: { color: BEAT_LIGHT, fontSize: 14, fontWeight: '700' },
 });
