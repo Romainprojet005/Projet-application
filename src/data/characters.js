@@ -152,6 +152,25 @@ export const characters = [
     },
   },
   {
+    id: 'charlie_chaplin',
+    name: 'Charlie Chaplin',
+    emoji: '🎩',
+    title: 'Le Roi du Mime',
+    description:
+      'Le génie du cinéma muet débarque en soirée ! Un joueur mime un mot, les autres tapent leur réponse sur leur téléphone. Chacun son écran, zéro triche !',
+    catchphrase: '"L\'imagination, c\'est le début de la création !"',
+    color: '#C026D3',
+    gradientColors: ['#1A0028', '#2D0045'],
+    game: 'mime',
+    gameName: 'MIME EXPRESS',
+    available: true,
+    stats: {
+      Expressivité: 99,
+      Créativité: 95,
+      Communication: 0,
+    },
+  },
+  {
     id: 'cyrano',
     name: 'Cyrano de Bergerac',
     emoji: '🎭',

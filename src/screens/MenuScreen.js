@@ -268,6 +268,7 @@ export default function MenuScreen({ navigation }) {
       motdepasse:  'MotDePasseSetup',
       blindtest:   'BlindTestSetup',
       vote:        'VoteSetup',
+      mime:        'MimeSetup',
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };

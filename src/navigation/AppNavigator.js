@@ -22,6 +22,10 @@ import BlindTestSetupScreen from '../screens/blindtest/BlindTestSetupScreen';
 import BlindTestGameScreen from '../screens/blindtest/BlindTestGameScreen';
 import VoteSetupScreen from '../screens/vote/VoteSetupScreen';
 import VoteGameScreen from '../screens/vote/VoteGameScreen';
+import MimeSetupScreen from '../screens/mime/MimeSetupScreen';
+import MimeLobbyScreen from '../screens/mime/MimeLobbyScreen';
+import MimeGameScreen from '../screens/mime/MimeGameScreen';
+import MimeFinalScreen from '../screens/mime/MimeFinalScreen';
 
 const Stack = createStackNavigator();
 
@@ -54,6 +58,10 @@ const linking = {
       BlindTestGame: 'blindtest/game',
       VoteSetup: 'vote',
       VoteGame: 'vote/game',
+      MimeSetup: 'mime',
+      MimeLobby: 'mime/lobby',
+      MimeGame: 'mime/game',
+      MimeFinal: 'mime/final',
     },
   },
 };
@@ -88,6 +96,10 @@ export default function AppNavigator() {
         <Stack.Screen name="BlindTestGame" component={BlindTestGameScreen} />
         <Stack.Screen name="VoteSetup" component={VoteSetupScreen} />
         <Stack.Screen name="VoteGame" component={VoteGameScreen} />
+        <Stack.Screen name="MimeSetup" component={MimeSetupScreen} />
+        <Stack.Screen name="MimeLobby" component={MimeLobbyScreen} />
+        <Stack.Screen name="MimeGame" component={MimeGameScreen} />
+        <Stack.Screen name="MimeFinal" component={MimeFinalScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
