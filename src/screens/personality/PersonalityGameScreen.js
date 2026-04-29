@@ -260,8 +260,11 @@ export default function PersonalityGameScreen({ navigation, route }) {
               {personalityImages[currentPersonality.id] && !imgError ? (
                 <Image
                   source={personalityImages[currentPersonality.id]}
-                  style={styles.faceImage}
-                  resizeMode={isReveal || Platform.OS === 'web' ? 'contain' : 'cover'}
+                  style={[
+                    styles.faceImage,
+                    Platform.OS === 'web' && !isReveal && { objectPosition: 'top center' },
+                  ]}
+                  resizeMode={isReveal ? 'contain' : 'cover'}
                   onError={() => setImgError(true)}
                 />
               ) : (

@@ -85,6 +85,26 @@ export const ALL_PERSONALITIES = [
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Chris_Evans_July_2021.jpg/400px-Chris_Evans_July_2021.jpg',
     hint: 'Acteur américain — Captain America dans Marvel',
   },
+  {
+    id: 'margot_robbie', name: 'Margot Robbie', category: 'cinema', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Margot_Robbie_in_2019.jpg/400px-Margot_Robbie_in_2019.jpg',
+    hint: 'Actrice australienne — Barbie, Harley Quinn, Le Loup de Wall Street',
+  },
+  {
+    id: 'tom_hanks', name: 'Tom Hanks', category: 'cinema', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Tom_Hanks_TIFF_2019.jpg/400px-Tom_Hanks_TIFF_2019.jpg',
+    hint: 'Acteur américain — Forrest Gump, Cast Away, Il faut sauver le soldat Ryan',
+  },
+  {
+    id: 'joaquin_phoenix', name: 'Joaquin Phoenix', category: 'cinema', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Joaquin_Phoenix_2018.jpg/400px-Joaquin_Phoenix_2018.jpg',
+    hint: 'Acteur américain — Oscar pour Joker, Her, Gladiator',
+  },
+  {
+    id: 'julia_roberts', name: 'Julia Roberts', category: 'cinema', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Julia_Roberts_2016_%28cropped%29.jpg/400px-Julia_Roberts_2016_%28cropped%29.jpg',
+    hint: 'Actrice américaine — Pretty Woman, Erin Brockovich',
+  },
 
   // ── MUSIQUE INTERNATIONALE ─────────────────────────────────
   {
@@ -167,6 +187,26 @@ export const ALL_PERSONALITIES = [
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Shakira_2009.jpg/400px-Shakira_2009.jpg',
     hint: 'Chanteuse colombienne — Waka Waka, Hips Don\'t Lie',
   },
+  {
+    id: 'dua_lipa', name: 'Dua Lipa', category: 'musique', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Dua_Lipa_2018.jpg/400px-Dua_Lipa_2018.jpg',
+    hint: 'Chanteuse britannico-albanaise — Levitating, Don\'t Start Now, Physical',
+  },
+  {
+    id: 'harry_styles', name: 'Harry Styles', category: 'musique', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Harry_Styles_in_2018.jpg/400px-Harry_Styles_in_2018.jpg',
+    hint: 'Chanteur britannique — One Direction, As It Was, Watermelon Sugar',
+  },
+  {
+    id: 'post_malone', name: 'Post Malone', category: 'musique', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Post_Malone_2019_by_Glenn_Francis.jpg/400px-Post_Malone_2019_by_Glenn_Francis.jpg',
+    hint: 'Rappeur américain — Sunflower, Circles, Rockstar, tatouages sur le visage',
+  },
+  {
+    id: 'nicki_minaj', name: 'Nicki Minaj', category: 'musique', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Nicki_Minaj_2011.jpg/400px-Nicki_Minaj_2011.jpg',
+    hint: 'Rappeuse américaine — Super Bass, Anaconda, Starships',
+  },
 
   // ── SPORT INTERNATIONAL ────────────────────────────────────
   {
@@ -243,6 +283,21 @@ export const ALL_PERSONALITIES = [
     id: 'tiger_woods', name: 'Tiger Woods', category: 'sport', flag: '🌍',
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Tiger_Woods_%40_WGC_-_Bridgestone_Invitational_%28cropped%29.jpg/400px-Tiger_Woods_%40_WGC_-_Bridgestone_Invitational_%28cropped%29.jpg',
     hint: 'Golfeur américain — 15 titres majeurs, révolution du golf mondial',
+  },
+  {
+    id: 'lewis_hamilton', name: 'Lewis Hamilton', category: 'sport', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Lewis_Hamilton_2016_Malaysia_2.jpg/400px-Lewis_Hamilton_2016_Malaysia_2.jpg',
+    hint: 'Pilote F1 britannique — 7 titres de champion du monde avec Mercedes',
+  },
+  {
+    id: 'simone_biles', name: 'Simone Biles', category: 'sport', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Simone_Biles_at_the_2016_Summer_Olympics_%28cropped%29.jpg/400px-Simone_Biles_at_the_2016_Summer_Olympics_%28cropped%29.jpg',
+    hint: 'Gymnaste américaine — 4 médailles d\'or JO 2016, plus grande gymnaste de tous les temps',
+  },
+  {
+    id: 'steph_curry', name: 'Stephen Curry', category: 'sport', flag: '🌍',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Stephen_Curry_2016_%28cropped%29.jpg/400px-Stephen_Curry_2016_%28cropped%29.jpg',
+    hint: 'Basketteur américain — Golden State Warriors, meilleur tireur à 3 points de l\'histoire NBA',
   },
 
   // ── POLITIQUE INTERNATIONALE ───────────────────────────────
@@ -355,6 +410,16 @@ export const ALL_PERSONALITIES = [
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Louis_de_Fun%C3%A8s_1965.jpg/400px-Louis_de_Fun%C3%A8s_1965.jpg',
     hint: 'Acteur comique français — Le Gendarme de Saint-Tropez, La Grande Vadrouille',
   },
+  {
+    id: 'jamel_debbouze', name: 'Jamel Debbouze', category: 'fr_cinema', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Jamel_Debbouze_2011.jpg/400px-Jamel_Debbouze_2011.jpg',
+    hint: 'Humoriste et acteur franco-marocain — Amélie Poulain, Divines, Jamel Comedy Club',
+  },
+  {
+    id: 'sophie_marceau', name: 'Sophie Marceau', category: 'fr_cinema', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Sophie_Marceau_Cannes_2015.jpg/400px-Sophie_Marceau_Cannes_2015.jpg',
+    hint: 'Actrice française — La Boum, Braveheart, Bond Girl dans Le Monde ne suffit pas',
+  },
 
   // ── MUSIQUE FRANÇAISE ──────────────────────────────────────
   {
@@ -406,6 +471,26 @@ export const ALL_PERSONALITIES = [
     id: 'dj_snake', name: 'DJ Snake', category: 'fr_musique', flag: '🇫🇷',
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/DJ_Snake_2017.jpg/400px-DJ_Snake_2017.jpg',
     hint: 'DJ français — Lean On, Taki Taki, Un Poco Loco',
+  },
+  {
+    id: 'angele', name: 'Angèle', category: 'fr_musique', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Angele_2019.jpg/400px-Angele_2019.jpg',
+    hint: 'Chanteuse belge — Tout oublier, Balance ton quoi, Fever avec Dua Lipa',
+  },
+  {
+    id: 'charles_aznavour', name: 'Charles Aznavour', category: 'fr_musique', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Charles_Aznavour%2C_2008.jpg/400px-Charles_Aznavour%2C_2008.jpg',
+    hint: 'Chanteur franco-arménien — La Bohème, She, légende de la chanson française',
+  },
+  {
+    id: 'booba', name: 'Booba', category: 'fr_musique', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Booba_2017_%28cropped%29.jpg/400px-Booba_2017_%28cropped%29.jpg',
+    hint: 'Rappeur français — Kopp S, Trône, DCG, duc de Boulogne',
+  },
+  {
+    id: 'soprano', name: 'Soprano', category: 'fr_musique', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Soprano_2019_%28cropped%29.jpg/400px-Soprano_2019_%28cropped%29.jpg',
+    hint: 'Rappeur marseillais — Chocolat, Venom, ex-Psy 4 de la Rime',
   },
 
   // ── YOUTUBEURS / INFLUENCEURS INTERNATIONAUX ───────────────
@@ -461,6 +546,16 @@ export const ALL_PERSONALITIES = [
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Amixem.jpg/400px-Amixem.jpg',
     hint: 'YouTubeur français — Alexis Chabrol, défis, humour décalé',
   },
+  {
+    id: 'inoxtag', name: 'Inoxtag', category: 'fr_youtubeur', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Inoxtag_2023_%28cropped%29.jpg/400px-Inoxtag_2023_%28cropped%29.jpg',
+    hint: 'YouTubeur français — gaming, a gravi l\'Everest en direct, des millions d\'abonnés',
+  },
+  {
+    id: 'gotaga', name: 'Gotaga', category: 'fr_youtubeur', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Gotaga_2019_%28cropped%29.jpg/400px-Gotaga_2019_%28cropped%29.jpg',
+    hint: 'YouTubeur et streamer français — Corentin Houssein, gaming compétitif, Call of Duty',
+  },
 
   // ── SPORT FRANÇAIS ─────────────────────────────────────────
   {
@@ -507,6 +602,16 @@ export const ALL_PERSONALITIES = [
     id: 'yannick_noah', name: 'Yannick Noah', category: 'fr_sport', flag: '🇫🇷',
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Yannick_Noah_2009.jpg/400px-Yannick_Noah_2009.jpg',
     hint: 'Tennisman et chanteur français — Roland Garros 1983, Saga Africa',
+  },
+  {
+    id: 'didier_deschamps', name: 'Didier Deschamps', category: 'fr_sport', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Didier_Deschamps_2018.jpg/400px-Didier_Deschamps_2018.jpg',
+    hint: 'Footballeur et sélectionneur français — champion du monde joueur 1998 et entraîneur 2018',
+  },
+  {
+    id: 'jo_tsonga', name: 'Jo-Wilfried Tsonga', category: 'fr_sport', flag: '🇫🇷',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Jo-Wilfried_Tsonga_2011.jpg/400px-Jo-Wilfried_Tsonga_2011.jpg',
+    hint: 'Tennisman français — top 5 mondial, finaliste Wimbledon, surnommé "Ali"',
   },
 
   // ── POLITIQUE FRANÇAISE ────────────────────────────────────

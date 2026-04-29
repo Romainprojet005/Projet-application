@@ -74,6 +74,20 @@ const PERSONALITIES = [
   { id: 'mark_zuckerberg',    name: 'Mark Zuckerberg' },
   { id: 'steve_jobs',         name: 'Steve Jobs' },
   { id: 'jeff_bezos',         name: 'Jeff Bezos' },
+  // CINÉMA INTERNATIONAL (nouveaux)
+  { id: 'margot_robbie',      name: 'Margot Robbie' },
+  { id: 'tom_hanks',          name: 'Tom Hanks' },
+  { id: 'joaquin_phoenix',    name: 'Joaquin Phoenix' },
+  { id: 'julia_roberts',      name: 'Julia Roberts' },
+  // MUSIQUE INTERNATIONALE (nouveaux)
+  { id: 'dua_lipa',           name: 'Dua Lipa' },
+  { id: 'harry_styles',       name: 'Harry Styles' },
+  { id: 'post_malone',        name: 'Post Malone' },
+  { id: 'nicki_minaj',        name: 'Nicki Minaj' },
+  // SPORT INTERNATIONAL (nouveaux)
+  { id: 'lewis_hamilton',     name: 'Lewis Hamilton' },
+  { id: 'simone_biles',       name: 'Simone Biles' },
+  { id: 'steph_curry',        name: 'Stephen Curry' },
   // CINÉMA FRANÇAIS
   { id: 'omar_sy',            name: 'Omar Sy' },
   { id: 'marion_cotillard',   name: 'Marion Cotillard' },
@@ -84,6 +98,8 @@ const PERSONALITIES = [
   { id: 'audrey_tautou',      name: 'Audrey Tautou' },
   { id: 'isabelle_adjani',    name: 'Isabelle Adjani' },
   { id: 'louis_de_funes',     name: 'Louis de Funès' },
+  { id: 'jamel_debbouze',     name: 'Jamel Debbouze' },
+  { id: 'sophie_marceau',     name: 'Sophie Marceau' },
   // MUSIQUE FRANÇAISE
   { id: 'stromae',            name: 'Stromae' },
   { id: 'aya_nakamura',       name: 'Aya Nakamura' },
@@ -95,6 +111,10 @@ const PERSONALITIES = [
   { id: 'daft_punk',          name: 'Daft Punk' },
   { id: 'mc_solaar',          name: 'MC Solaar' },
   { id: 'dj_snake',           name: 'DJ Snake' },
+  { id: 'angele',             name: 'Angèle',                wiki: 'Angèle_(singer)' },
+  { id: 'charles_aznavour',   name: 'Charles Aznavour' },
+  { id: 'booba',              name: 'Booba',                 wiki: 'Booba' },
+  { id: 'soprano',            name: 'Soprano',               wiki: 'Soprano_(rapper)' },
   // YOUTUBEURS INTERNATIONAUX
   { id: 'mrbeast',            name: 'MrBeast' },
   { id: 'pewdiepie',          name: 'PewDiePie' },
@@ -107,6 +127,8 @@ const PERSONALITIES = [
   { id: 'lena_situations',    name: 'Léna Situations',       wiki: 'Léna_Situations' },
   { id: 'norman',             name: 'Norman',                wiki: 'Norman_Thavaud' },
   { id: 'amixem',             name: 'Amixem' },
+  { id: 'inoxtag',            name: 'Inoxtag' },
+  { id: 'gotaga',             name: 'Gotaga' },
   // SPORT FRANÇAIS
   { id: 'thierry_henry',      name: 'Thierry Henry' },
   { id: 'karim_benzema',      name: 'Karim Benzema' },
@@ -117,6 +139,8 @@ const PERSONALITIES = [
   { id: 'teddy_riner',        name: 'Teddy Riner' },
   { id: 'amelie_mauresmo',    name: 'Amélie Mauresmo' },
   { id: 'yannick_noah',       name: 'Yannick Noah' },
+  { id: 'didier_deschamps',   name: 'Didier Deschamps' },
+  { id: 'jo_tsonga',          name: 'Jo-Wilfried Tsonga',   wiki: 'Jo-Wilfried_Tsonga' },
   // POLITIQUE FRANÇAISE
   { id: 'emmanuel_macron',    name: 'Emmanuel Macron' },
   { id: 'marine_le_pen',      name: 'Marine Le Pen' },
