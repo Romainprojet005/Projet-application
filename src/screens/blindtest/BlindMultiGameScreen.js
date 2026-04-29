@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, TextInput,
-  ScrollView, Platform, ActivityIndicator,
+  ScrollView, Platform, ActivityIndicator, Linking,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
@@ -32,19 +32,8 @@ function parseSongs(raw) {
   return raw;
 }
 
-// YouTube audio player — invisible iframe, stays in viewport for browser autoplay policy
-function YoutubeAudio({ src }) {
-  if (Platform.OS !== 'web' || !src) return null;
-  return (
-    <iframe
-      key={src}
-      src={src}
-      style={{ position: 'fixed', bottom: 0, right: 0, width: 2, height: 2, opacity: 0, border: 'none', zIndex: 1, pointerEvents: 'none' }}
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-      title="blind-multi-audio"
-    />
-  );
+function openYoutube(videoId, startAt) {
+  Linking.openURL(`https://www.youtube.com/watch?v=${videoId}&t=${startAt || 0}`);
 }
 
 export default function BlindMultiGameScreen({ navigation, route }) {
@@ -55,7 +44,6 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   const [timer, setTimer]         = useState(null);
   const [inputText, setInputText] = useState('');
   const [wrongFlash, setWrongFlash] = useState(false);
-  const [iframeSrc, setIframeSrc]   = useState(null);
   const [roundResult, setRoundResult] = useState(null); // 'won' | 'lost' | null
 
   const isHostRef  = useRef(false);
@@ -106,24 +94,18 @@ export default function BlindMultiGameScreen({ navigation, route }) {
             setTimer(null);
             setInputText('');
             setRoundResult(null);
-            setIframeSrc(null);
           }
           if (nr.phase === 'playing') {
             setInputText('');
             setRoundResult(null);
             if (isHostRef.current) {
               const song = songs[nr.current_song_idx];
-              if (song) {
-                setIframeSrc(
-                  `https://www.youtube.com/embed/${song.videoId}?autoplay=1&start=${song.startAt}&rel=0&modestbranding=1&controls=0&iv_load_policy=3`
-                );
-              }
+              if (song) openYoutube(song.videoId, song.startAt);
             }
             startLocalTimer(nr);
           }
           if (nr.phase === 'found' || nr.status === 'finished') {
             clearInterval(timerRef.current);
-            setIframeSrc(null);
             const { data: ps } = await supabase
               .from('blind_players').select().eq('room_id', roomId).order('score', { ascending: false });
             if (ps) { setPlayers(ps); playersRef.current = ps; }
@@ -150,6 +132,10 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   };
 
   const handlePlay = async () => {
+    const r = roomRef.current;
+    if (!r) return;
+    const song = r.songs[r.current_song_idx];
+    if (song) openYoutube(song.videoId, song.startAt);
     await supabase.from('blind_rooms').update({
       phase: 'playing',
       round_started_at: new Date().toISOString(),
@@ -281,8 +267,6 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   // ── Game screen ───────────────────────────────────────────────────────────────
   return (
     <LinearGradient colors={BG} style={styles.container}>
-      {isHost && <YoutubeAudio src={iframeSrc} />}
-
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: songs.length > 0 ? `${(room.current_song_idx / songs.length) * 100}%` : '0%' }]} />
       </View>
@@ -346,6 +330,11 @@ export default function BlindMultiGameScreen({ navigation, route }) {
               )}
               {roundResult === 'won' && <Text style={styles.statusWon}>✅ Trouvé ! En attente des autres…</Text>}
               {roundResult === 'lost' && <Text style={styles.statusLost}>😅 Quelqu'un a été plus rapide !</Text>}
+              {isHost && song && (
+                <TouchableOpacity onPress={() => openYoutube(song.videoId, song.startAt)} style={styles.relancerBtn}>
+                  <Text style={styles.relancerText}>↩ Relancer sur YouTube</Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
 
@@ -480,8 +469,10 @@ const styles = StyleSheet.create({
   ptsChip:     { flexDirection: 'row', alignItems: 'baseline', borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderWidth: 1, gap: 4 },
   ptsNum:      { fontSize: 22, fontWeight: '900' },
   ptsLabel:    { fontSize: 12, fontWeight: '700' },
-  statusWon:   { fontSize: 13, fontWeight: '700', color: BEAT_LIGHT },
-  statusLost:  { fontSize: 13, fontWeight: '700', color: '#F59E0B' },
+  statusWon:    { fontSize: 13, fontWeight: '700', color: BEAT_LIGHT },
+  statusLost:   { fontSize: 13, fontWeight: '700', color: '#F59E0B' },
+  relancerBtn:  { paddingVertical: spacing.xs, paddingHorizontal: spacing.md },
+  relancerText: { fontSize: 12, color: BEAT_LIGHT + 'AA', fontWeight: '600', textDecorationLine: 'underline' },
 
   foundZone:      { alignItems: 'center', gap: spacing.md, width: '100%' },
   foundEmoji:     { fontSize: 48 },

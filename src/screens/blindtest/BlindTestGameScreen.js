@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  TextInput, Animated, Platform, ScrollView,
+  TextInput, Animated, Platform, ScrollView, Linking,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
@@ -24,27 +24,8 @@ function isCorrectGuess(input, title) {
   return tit === inp || (inp.length >= 4 && tit.includes(inp));
 }
 
-// ── YouTube iframe (web only) ─────────────────────────────────────────────────
-// L'iframe doit rester dans le viewport pour que Chrome et Safari autorisent
-// l'autoplay déclenché par un geste utilisateur. On la rend invisible mais
-// en bas à droite de l'écran (bottom:0 / right:0) pour contourner cette restriction.
-function YoutubeAudio({ src }) {
-  if (Platform.OS !== 'web' || !src) return null;
-  return (
-    <iframe
-      key={src}
-      src={src}
-      style={{
-        position: 'fixed', bottom: 0, right: 0,
-        width: 2, height: 2, opacity: 0,
-        border: 'none', zIndex: 1,
-        pointerEvents: 'none',
-      }}
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-      title="blind-test-audio"
-    />
-  );
+function openYoutube(videoId, startAt) {
+  Linking.openURL(`https://www.youtube.com/watch?v=${videoId}&t=${startAt || 0}`);
 }
 
 // ── Equalizer animation ───────────────────────────────────────────────────────
@@ -100,7 +81,6 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const [results,    setResults]    = useState([]);
   const [inputText,  setInputText]  = useState('');
   const [timer,      setTimer]      = useState(TOTAL_TIME);
-  const [iframeSrc,  setIframeSrc]  = useState(null);
   const [foundPts,   setFoundPts]   = useState(0);
   const [wrongFlash, setWrongFlash] = useState(false);
 
@@ -164,9 +144,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const handlePlay = () => {
     setPhase('playing');
     phaseRef.current = 'playing';
-    setIframeSrc(
-      `https://www.youtube.com/embed/${song.videoId}?autoplay=1&start=${song.startAt}&rel=0&modestbranding=1&controls=0&iv_load_policy=3`
-    );
+    openYoutube(song.videoId, song.startAt);
     if (!isInfinite) {
       timerRef.current = setInterval(() => {
         setTimer(t => Math.max(0, t - 1));
@@ -221,7 +199,6 @@ export default function BlindTestGameScreen({ navigation, route }) {
   // ── Next song ──────────────────────────────────────────────────────────────
   const handleNext = () => {
     closeAnswerCard();
-    setIframeSrc(null);
     setInputText('');
     setTimer(TOTAL_TIME);
     setFoundPts(0);
@@ -315,7 +292,6 @@ export default function BlindTestGameScreen({ navigation, route }) {
   // ── Game screen ────────────────────────────────────────────────────────────
   return (
     <LinearGradient colors={['#001A0F', '#00110A', '#001A0F']} style={styles.container}>
-      <YoutubeAudio src={iframeSrc} />
 
       {/* Progress */}
       <View style={styles.progressTrack}>
@@ -374,6 +350,9 @@ export default function BlindTestGameScreen({ navigation, route }) {
                   </>
                 )}
               </View>
+              <TouchableOpacity onPress={() => openYoutube(song.videoId, song.startAt)} style={styles.relancerBtn}>
+                <Text style={styles.relancerText}>↩ Relancer sur YouTube</Text>
+              </TouchableOpacity>
             </View>
           )}
 
@@ -536,7 +515,9 @@ const styles = StyleSheet.create({
   playBtn:     { paddingVertical: spacing.md + 4, paddingHorizontal: spacing.xl + 8, borderRadius: radius.full, alignItems: 'center' },
   playBtnText: { fontSize: 16, fontWeight: '900', color: '#fff', letterSpacing: 2 },
 
-  playingContent: { alignItems: 'center', gap: spacing.xl },
+  playingContent: { alignItems: 'center', gap: spacing.md },
+  relancerBtn:  { paddingVertical: spacing.xs, paddingHorizontal: spacing.md },
+  relancerText: { fontSize: 12, color: BEAT_LIGHT + 'AA', fontWeight: '600', textDecorationLine: 'underline' },
   timerWrap: {
     width: 90, height: 90, borderRadius: 45, borderWidth: 3,
     alignItems: 'center', justifyContent: 'center',
