@@ -33,3 +33,8 @@ jobs:
         with:
           folder: dist
           branch: gh-pages
+
+      - name: Deploy to Netlify
+        run: npx netlify-cli deploy --prod --dir dist --site 24ba9bcc-f41c-4981-8abd-a4d74d228025
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
