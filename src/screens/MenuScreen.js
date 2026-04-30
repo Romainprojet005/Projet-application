@@ -11,7 +11,7 @@ const { width: SW, height: SH } = Dimensions.get('window');
 const N = characters.length;
 
 // Rayon du cylindre : assez grand pour espacer les cartes, assez petit pour rester visible
-const CARD_W  = Platform.OS === 'web' ? Math.min(SW * 0.38, 215) : Math.min(SW * 0.52, 215);
+const CARD_W  = Platform.OS === 'web' ? Math.min(SW * 0.38, 215) : Math.min(SW * 0.62, 250);
 const RADIUS  = CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15; // cartes légèrement espacées
 const STEP    = (2 * Math.PI) / N; // angle entre chaque carte
 
@@ -222,49 +222,6 @@ const cd = StyleSheet.create({
   playBtnText: { fontSize: 12, fontWeight: '900', color: '#fff', letterSpacing: 2 },
 });
 
-// ── CardBack — verso affiché quand la carte fait face à l'arrière ────
-const CardBack = memo(function CardBack() {
-  return (
-    <LinearGradient
-      colors={['#0D0B28', '#1A1560', '#0D0B28']}
-      start={{ x: 0.3, y: 0 }} end={{ x: 0.7, y: 1 }}
-      style={cb.card}
-    >
-      <LinearGradient
-        colors={['rgba(255,255,255,0.10)', 'rgba(255,255,255,0)']}
-        start={{ x: 0.15, y: 0 }} end={{ x: 0.85, y: 0.4 }}
-        style={StyleSheet.absoluteFill} pointerEvents="none"
-      />
-      <View style={cb.patternRow}>
-        {['✦', '·', '✦', '·', '✦'].map((sym, i) => <Text key={i} style={cb.patternChar}>{sym}</Text>)}
-      </View>
-      <View style={cb.emblem}>
-        <Text style={cb.emblemEmoji}>🎭</Text>
-        <Text style={cb.emblemLabel}>LA SOIRÉE</Text>
-        <Text style={cb.emblemLabel2}>DES LÉGENDES</Text>
-      </View>
-      <View style={cb.patternRow}>
-        {['✦', '·', '✦', '·', '✦'].map((sym, i) => <Text key={i} style={cb.patternChar}>{sym}</Text>)}
-      </View>
-    </LinearGradient>
-  );
-});
-
-const cb = StyleSheet.create({
-  card: {
-    width: CARD_W, flex: 1, borderRadius: 24, borderWidth: 1.5,
-    borderColor: 'rgba(120, 100, 220, 0.55)',
-    alignItems: 'center', justifyContent: 'center',
-    gap: 16, overflow: 'hidden',
-  },
-  patternRow:   { flexDirection: 'row', gap: 8 },
-  patternChar:  { color: 'rgba(180, 160, 255, 0.4)', fontSize: 14, fontWeight: '700' },
-  emblem:       { alignItems: 'center', gap: 6 },
-  emblemEmoji:  { fontSize: 52 },
-  emblemLabel:  { fontSize: 14, fontWeight: '900', color: 'rgba(200, 180, 255, 0.9)', letterSpacing: 3 },
-  emblemLabel2: { fontSize: 11, fontWeight: '700', color: 'rgba(160, 140, 220, 0.7)', letterSpacing: 4 },
-});
-
 // ── MenuScreen ────────────────────────────────────────────────────────
 export default function MenuScreen({ navigation }) {
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -314,7 +271,7 @@ export default function MenuScreen({ navigation }) {
   }, [refresh]);
 
   const snapToNearest = useCallback((velocityX = 0) => {
-    const momentum = -velocityX * DRAG_FACTOR * 60;
+    const momentum = velocityX * DRAG_FACTOR * 60;
     const raw = rotRef.current + momentum;
     const snapped = Math.round(raw / STEP) * STEP;
     targetRef.current = snapped;
@@ -333,7 +290,7 @@ export default function MenuScreen({ navigation }) {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
       },
       onPanResponderMove: (_, gs) => {
-        const rot = dragStartRot.current - gs.dx * DRAG_FACTOR;
+        const rot = dragStartRot.current + gs.dx * DRAG_FACTOR;
         rotRef.current = rot;
         setPositions(computePositions(rot));
       },
@@ -427,11 +384,9 @@ export default function MenuScreen({ navigation }) {
         {sortedIndices.map(i => {
           const pos  = positions[i];
           const char = characters[i];
-          const isBack = pos.depth < 0;
           return (
             <View
               key={char.id}
-              {...(Platform.OS === 'web' ? { className: 'card-slot-3d' } : {})}
               style={[s.cardSlot, {
                 transform: [
                   { perspective: 900 },
@@ -443,23 +398,7 @@ export default function MenuScreen({ navigation }) {
                 zIndex: Math.round((pos.depth + 1) * 50),
               }]}
             >
-              {Platform.OS === 'web' ? (
-                <>
-                  <View className="card-front">
-                    <GameCard character={char} onPress={handleSelectGame} />
-                  </View>
-                  <View className="card-back">
-                    <CardBack />
-                  </View>
-                </>
-              ) : (
-                <>
-                  <GameCard character={char} onPress={handleSelectGame} />
-                  <View style={[StyleSheet.absoluteFill, { opacity: isBack ? 1 : 0 }]}>
-                    <CardBack />
-                  </View>
-                </>
-              )}
+              <GameCard character={char} onPress={handleSelectGame} />
             </View>
           );
         })}
