@@ -56,8 +56,8 @@ function computePositions(rotation) {
     const depth  = cosA;
     // scale : 1.0 (avant) → 0.28 (arrière)
     const sc     = 0.28 + 0.72 * ((depth + 1) / 2);
-    // opacity : visible même à l'arrière (0.18) pour l'effet "qui passe derrière"
-    const op     = 0.18 + 0.82 * ((depth + 1) / 2);
+    // opacity : 0 dès que la carte passe derrière (ry > 90°) pour éviter le miroir
+    const op     = depth <= 0 ? 0 : Math.min(1, 0.2 + 0.8 * depth);
     // orientation tangentielle : la carte est tangente au cylindre
     const ry     = (alpha * 180 / Math.PI);
     return { x, depth, sc, op, ry };
