@@ -83,11 +83,13 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const [inputText,  setInputText]  = useState('');
   const [timer,      setTimer]      = useState(TOTAL_TIME);
   const [foundPts,   setFoundPts]   = useState(0);
-  const [wrongFlash, setWrongFlash] = useState(false);
+  const [wrongFlash,   setWrongFlash]   = useState(false);
+  const [previewError, setPreviewError] = useState(false);
 
   const timerRef  = useRef(null);
   const phaseRef  = useRef('idle');
   const songRef   = useRef(songs[0]);
+  const audioRef  = useRef(null);
   const answerSlide   = useRef(new Animated.Value(300)).current;
   const answerOpacity = useRef(new Animated.Value(0)).current;
   const feedbackScale = useRef(new Animated.Value(0)).current;
@@ -108,6 +110,13 @@ export default function BlindTestGameScreen({ navigation, route }) {
   // ── Timer ──────────────────────────────────────────────────────────────────
   const stopTimer = useCallback(() => {
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+  }, []);
+
+  const stopAudio = useCallback(() => {
+    if (Platform.OS === 'web' && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    }
   }, []);
 
   useEffect(() => {
@@ -142,14 +151,33 @@ export default function BlindTestGameScreen({ navigation, route }) {
   };
 
   // ── Play ───────────────────────────────────────────────────────────────────
-  const handlePlay = () => {
+  const handlePlay = async () => {
     setPhase('playing');
     phaseRef.current = 'playing';
-    Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}`);
+    setPreviewError(false);
+
     if (!isInfinite) {
-      timerRef.current = setInterval(() => {
-        setTimer(t => Math.max(0, t - 1));
-      }, 1000);
+      timerRef.current = setInterval(() => setTimer(t => Math.max(0, t - 1)), 1000);
+    }
+
+    if (Platform.OS === 'web') {
+      try {
+        const q   = encodeURIComponent(`${song.title} ${song.artist}`);
+        const res = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&entity=song&limit=10`);
+        const data = await res.json();
+        const url  = data.results?.find(r => r.previewUrl)?.previewUrl;
+        if (url && audioRef.current) {
+          audioRef.current.src = url;
+          audioRef.current.volume = 1;
+          await audioRef.current.play().catch(() => {});
+        } else {
+          setPreviewError(true);
+        }
+      } catch {
+        setPreviewError(true);
+      }
+    } else {
+      Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}`);
     }
   };
 
@@ -188,6 +216,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
 
   // ── Reveal (skip) ──────────────────────────────────────────────────────────
   const handleReveal = () => {
+    stopAudio();
     stopTimer();
     phaseRef.current = 'reveal';
     setPhase('reveal');
@@ -199,10 +228,12 @@ export default function BlindTestGameScreen({ navigation, route }) {
 
   // ── Next song ──────────────────────────────────────────────────────────────
   const handleNext = () => {
+    stopAudio();
     closeAnswerCard();
     setInputText('');
     setTimer(TOTAL_TIME);
     setFoundPts(0);
+    setPreviewError(false);
     if (songIdx < songs.length - 1) {
       setSongIdx(i => i + 1);
       phaseRef.current = 'idle';
@@ -341,7 +372,11 @@ export default function BlindTestGameScreen({ navigation, route }) {
           {(phase === 'playing') && (
             <View style={styles.playingContent}>
               <EqBars />
-              <Text style={styles.ytNotice}>🎵 YouTube ouvert — revenez ici pour répondre</Text>
+              {previewError && (
+                <TouchableOpacity onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}`)} style={styles.relancerBtn}>
+                  <Text style={styles.relancerText}>❌ Aperçu indisponible — ouvrir YouTube</Text>
+                </TouchableOpacity>
+              )}
               <View style={[styles.timerWrap, { borderColor: `${timerColor}60` }]}>
                 {isInfinite ? (
                   <Text style={[styles.timerNum, { color: timerColor, fontSize: 40 }]}>∞</Text>
@@ -352,12 +387,6 @@ export default function BlindTestGameScreen({ navigation, route }) {
                   </>
                 )}
               </View>
-              <TouchableOpacity
-                onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}`)}
-                style={styles.relancerBtn}
-              >
-                <Text style={styles.relancerText}>↩ Relancer sur YouTube</Text>
-              </TouchableOpacity>
             </View>
           )}
 
@@ -425,6 +454,9 @@ export default function BlindTestGameScreen({ navigation, route }) {
           </View>
         )}
       </ScrollView>
+
+      {/* Hidden audio player (web only) */}
+      {Platform.OS === 'web' && <audio ref={audioRef} />}
 
       {/* Answer card */}
       {(phase === 'reveal') && (
