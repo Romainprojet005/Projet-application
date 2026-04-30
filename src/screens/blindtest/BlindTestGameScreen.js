@@ -84,7 +84,6 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const [timer,      setTimer]      = useState(TOTAL_TIME);
   const [foundPts,   setFoundPts]   = useState(0);
   const [wrongFlash, setWrongFlash] = useState(false);
-  const [showEmbed,  setShowEmbed]  = useState(false);
 
   const timerRef  = useRef(null);
   const phaseRef  = useRef('idle');
@@ -146,10 +145,11 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const handlePlay = () => {
     setPhase('playing');
     phaseRef.current = 'playing';
+    const url = `https://www.youtube.com/watch?v=${song.videoId}`;
     if (Platform.OS === 'web') {
-      setShowEmbed(true);
+      window.open(url, '_blank', 'noopener');
     } else {
-      Linking.openURL(`https://youtu.be/${song.videoId}`);
+      Linking.openURL(url);
     }
     if (!isInfinite) {
       timerRef.current = setInterval(() => {
@@ -208,7 +208,6 @@ export default function BlindTestGameScreen({ navigation, route }) {
     setInputText('');
     setTimer(TOTAL_TIME);
     setFoundPts(0);
-    setShowEmbed(false);
     if (songIdx < songs.length - 1) {
       setSongIdx(i => i + 1);
       phaseRef.current = 'idle';
@@ -345,37 +344,30 @@ export default function BlindTestGameScreen({ navigation, route }) {
           )}
 
           {(phase === 'playing') && (
-            <>
-              {Platform.OS === 'web' && showEmbed && (
-                <View style={StyleSheet.absoluteFill}>
-                  <iframe
-                    key={song.videoId}
-                    src={`https://www.youtube.com/embed/${song.videoId}?autoplay=1&rel=0&modestbranding=1`}
-                    frameBorder="0"
-                    allow="autoplay; encrypted-media"
-                    style={{ width: '100%', height: '100%', border: 'none' }}
-                  />
-                </View>
-              )}
-              <View style={[styles.playingContent, { zIndex: 1 }]}>
-                <EqBars />
-                <View style={[styles.timerWrap, { borderColor: `${timerColor}60` }]}>
-                  {isInfinite ? (
-                    <Text style={[styles.timerNum, { color: timerColor, fontSize: 40 }]}>∞</Text>
-                  ) : (
-                    <>
-                      <Text style={[styles.timerNum, { color: timerColor }]}>{timer}</Text>
-                      <Text style={styles.timerLabel}>s</Text>
-                    </>
-                  )}
-                </View>
-                {Platform.OS !== 'web' && (
-                  <TouchableOpacity onPress={() => Linking.openURL(`https://youtu.be/${song.videoId}`)} style={styles.relancerBtn}>
-                    <Text style={styles.relancerText}>↩ Relancer sur YouTube</Text>
-                  </TouchableOpacity>
+            <View style={styles.playingContent}>
+              <EqBars />
+              <Text style={styles.ytNotice}>🎵 YouTube ouvert — revenez ici pour répondre</Text>
+              <View style={[styles.timerWrap, { borderColor: `${timerColor}60` }]}>
+                {isInfinite ? (
+                  <Text style={[styles.timerNum, { color: timerColor, fontSize: 40 }]}>∞</Text>
+                ) : (
+                  <>
+                    <Text style={[styles.timerNum, { color: timerColor }]}>{timer}</Text>
+                    <Text style={styles.timerLabel}>s</Text>
+                  </>
                 )}
               </View>
-            </>
+              <TouchableOpacity
+                onPress={() => {
+                  const url = `https://www.youtube.com/watch?v=${song.videoId}`;
+                  if (Platform.OS === 'web') window.open(url, '_blank', 'noopener');
+                  else Linking.openURL(url);
+                }}
+                style={styles.relancerBtn}
+              >
+                <Text style={styles.relancerText}>↩ Relancer sur YouTube</Text>
+              </TouchableOpacity>
+            </View>
           )}
 
           {phase === 'found' && (
@@ -538,6 +530,7 @@ const styles = StyleSheet.create({
   playBtnText: { fontSize: 16, fontWeight: '900', color: '#fff', letterSpacing: 2 },
 
   playingContent: { alignItems: 'center', gap: spacing.md },
+  ytNotice:     { fontSize: 12, color: BEAT_LIGHT, fontWeight: '600', textAlign: 'center', opacity: 0.8 },
   relancerBtn:  { paddingVertical: spacing.xs, paddingHorizontal: spacing.md },
   relancerText: { fontSize: 12, color: BEAT_LIGHT + 'AA', fontWeight: '600', textDecorationLine: 'underline' },
   timerWrap: {
