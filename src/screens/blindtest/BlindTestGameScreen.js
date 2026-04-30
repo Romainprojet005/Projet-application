@@ -145,12 +145,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const handlePlay = () => {
     setPhase('playing');
     phaseRef.current = 'playing';
-    const url = `https://www.youtube.com/watch?v=${song.videoId}`;
-    if (Platform.OS === 'web') {
-      window.open(url, '_blank', 'noopener');
-    } else {
-      Linking.openURL(url);
-    }
+    Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}`);
     if (!isInfinite) {
       timerRef.current = setInterval(() => {
         setTimer(t => Math.max(0, t - 1));
@@ -358,11 +353,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
                 )}
               </View>
               <TouchableOpacity
-                onPress={() => {
-                  const url = `https://www.youtube.com/watch?v=${song.videoId}`;
-                  if (Platform.OS === 'web') window.open(url, '_blank', 'noopener');
-                  else Linking.openURL(url);
-                }}
+                onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}`)}
                 style={styles.relancerBtn}
               >
                 <Text style={styles.relancerText}>↩ Relancer sur YouTube</Text>
