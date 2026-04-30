@@ -23,9 +23,9 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
   document.head?.appendChild(_s);
 }
 
-// Cartes plus petites : on en voit 3+ dans le carousel
-const CARD_W   = Platform.OS === 'web' ? Math.min(SW * 0.54, 240) : Math.min(SW * 0.60, 255);
-const CARD_GAP = 10;
+// Cartes : centre dominant, côtés visibles (style coverflow)
+const CARD_W   = Platform.OS === 'web' ? Math.min(SW * 0.58, 268) : Math.min(SW * 0.63, 270);
+const CARD_GAP = 8;
 const ITEM_SIZE  = CARD_W + CARD_GAP;
 const SIDE_INSET = (SW - CARD_W) / 2;
 
@@ -73,10 +73,11 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
     (loopIdx + 1) * ITEM_SIZE,
     (loopIdx + 2) * ITEM_SIZE,
   ];
-  const cardScale      = scrollX.interpolate({ inputRange, outputRange: [0.58, 0.78, 1, 0.78, 0.58], extrapolate: 'clamp' });
-  const cardOpacity    = scrollX.interpolate({ inputRange, outputRange: [0.28, 0.68, 1, 0.68, 0.28], extrapolate: 'clamp' });
-  const cardRotateY    = scrollX.interpolate({ inputRange, outputRange: ['-52deg', '-28deg', '0deg', '28deg', '52deg'], extrapolate: 'clamp' });
-  const cardTranslateY = scrollX.interpolate({ inputRange, outputRange: [44, 18, 0, 18, 44], extrapolate: 'clamp' });
+  // Toutes les cartes à la même hauteur (comme les packs Pokémon TCG) — seule la rotation 3D crée la profondeur
+  const cardScale      = scrollX.interpolate({ inputRange, outputRange: [0.62, 0.82, 1, 0.82, 0.62], extrapolate: 'clamp' });
+  const cardOpacity    = scrollX.interpolate({ inputRange, outputRange: [0.22, 0.65, 1, 0.65, 0.22], extrapolate: 'clamp' });
+  const cardRotateY    = scrollX.interpolate({ inputRange, outputRange: ['-50deg', '-27deg', '0deg', '27deg', '50deg'], extrapolate: 'clamp' });
+  const cardTranslateY = scrollX.interpolate({ inputRange, outputRange: [0, 0, 0, 0, 0], extrapolate: 'clamp' });
 
   useEffect(() => {
     if (character.available) {
@@ -97,7 +98,7 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
   return (
     <Animated.View style={{
       width: CARD_W, marginRight: CARD_GAP, alignSelf: 'center',
-      transform: [{ perspective: 850 }, { scale: cardScale }, { rotateY: cardRotateY }, { translateY: cardTranslateY }],
+      transform: [{ perspective: 1000 }, { scale: cardScale }, { rotateY: cardRotateY }, { translateY: cardTranslateY }],
       opacity: cardOpacity,
     }}>
       <Animated.View
@@ -469,7 +470,7 @@ export default function MenuScreen({ navigation }) {
             decelerationRate="fast"
             disableIntervalMomentum={Platform.OS !== 'web'}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: SIDE_INSET, paddingTop: 8, paddingBottom: 80 }}
+            contentContainerStyle={{ paddingHorizontal: SIDE_INSET, paddingTop: 8, paddingBottom: 55 }}
             onScroll={Animated.event(
               [{ nativeEvent: { contentOffset: { x: scrollX } } }],
               {
