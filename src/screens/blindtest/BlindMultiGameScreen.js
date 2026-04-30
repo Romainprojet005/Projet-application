@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, TextInput,
-  ScrollView, Platform, ActivityIndicator, Linking,
+  ScrollView, Platform, ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
@@ -104,11 +104,8 @@ export default function BlindMultiGameScreen({ navigation, route }) {
               const song = songs[nr.current_song_idx];
               if (song) {
                 const start = song.startAt ?? 0;
-                if (isMobileWeb) {
-                  Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}&t=${start}`);
-                } else {
-                  setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`);
-                }
+                const controls = isMobileWeb ? 1 : 0;
+                setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=${controls}&rel=0&modestbranding=1&iv_load_policy=3`);
               }
             }
             startLocalTimer(nr);
@@ -147,11 +144,8 @@ export default function BlindMultiGameScreen({ navigation, route }) {
     const song = r.songs[r.current_song_idx];
     if (song) {
       const start = song.startAt ?? 0;
-      if (isMobileWeb) {
-        Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}&t=${start}`);
-      } else {
-        setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`);
-      }
+      const controls = isMobileWeb ? 1 : 0;
+      setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=${controls}&rel=0&modestbranding=1&iv_load_policy=3`);
     }
     await supabase.from('blind_rooms').update({
       phase: 'playing',
@@ -351,12 +345,9 @@ export default function BlindMultiGameScreen({ navigation, route }) {
                 <TouchableOpacity
                   onPress={() => {
                     const start = song.startAt ?? 0;
-                    if (isMobileWeb) {
-                      Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}&t=${start}`);
-                    } else {
-                      setYtSrc('');
-                      setTimeout(() => setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`), 100);
-                    }
+                    const controls = isMobileWeb ? 1 : 0;
+                    setYtSrc('');
+                    setTimeout(() => setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=${controls}&rel=0&modestbranding=1&iv_load_policy=3`), 100);
                   }}
                   style={styles.relancerBtn}
                 >
@@ -454,11 +445,18 @@ export default function BlindMultiGameScreen({ navigation, route }) {
         )}
       </ScrollView>
 
-      {Platform.OS === 'web' && !!ytSrc && React.createElement('iframe', {
+      {Platform.OS === 'web' && !isMobileWeb && !!ytSrc && React.createElement('iframe', {
         key: ytSrc,
         src: ytSrc,
         allow: 'autoplay; encrypted-media',
         style: { position: 'fixed', bottom: -1, left: -1, width: 1, height: 1, opacity: 0, border: 'none', pointerEvents: 'none' },
+      })}
+      {Platform.OS === 'web' && isMobileWeb && !!ytSrc && React.createElement('iframe', {
+        key: ytSrc,
+        src: ytSrc,
+        allow: 'autoplay; encrypted-media',
+        allowFullScreen: true,
+        style: { position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', width: '92%', height: 180, border: 'none', borderRadius: 12, zIndex: 10 },
       })}
     </LinearGradient>
   );

@@ -160,12 +160,13 @@ export default function BlindTestGameScreen({ navigation, route }) {
       timerRef.current = setInterval(() => setTimer(t => Math.max(0, t - 1)), 1000);
     }
 
-    if (Platform.OS === 'web' && !isMobileWeb) {
+    if (Platform.OS === 'web') {
       const start = song.startAt ?? 0;
-      setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`);
+      // Mobile : controls=1 pour que l'utilisateur puisse appuyer sur play si l'autoplay est bloqué (iOS)
+      const controls = isMobileWeb ? 1 : 0;
+      setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=${controls}&rel=0&modestbranding=1&iv_load_policy=3`);
     } else {
-      const start = song.startAt ?? 0;
-      Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}&t=${start}`);
+      Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}`);
     }
   };
 
@@ -358,10 +359,16 @@ export default function BlindTestGameScreen({ navigation, route }) {
 
           {(phase === 'playing') && (
             <View style={styles.playingContent}>
-              <EqBars />
-              {isMobileWeb && (
-                <Text style={styles.mobileNotice}>🎵 YouTube ouvert — revenez ici pour deviner !</Text>
-              )}
+              {isMobileWeb && !!ytSrc
+                ? React.createElement('iframe', {
+                    key: ytSrc,
+                    src: ytSrc,
+                    allow: 'autoplay; encrypted-media',
+                    allowFullScreen: true,
+                    style: { width: '100%', height: 160, border: 'none', borderRadius: 12 },
+                  })
+                : <EqBars />
+              }
               <View style={[styles.timerWrap, { borderColor: `${timerColor}60` }]}>
                 {isInfinite ? (
                   <Text style={[styles.timerNum, { color: timerColor, fontSize: 40 }]}>∞</Text>
@@ -440,7 +447,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
         )}
       </ScrollView>
 
-      {Platform.OS === 'web' && !!ytSrc && React.createElement('iframe', {
+      {Platform.OS === 'web' && !isMobileWeb && !!ytSrc && React.createElement('iframe', {
         key: ytSrc,
         src: ytSrc,
         allow: 'autoplay; encrypted-media',
