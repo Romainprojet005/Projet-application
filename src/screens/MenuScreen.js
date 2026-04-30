@@ -57,7 +57,7 @@ function computePositions(rotation) {
     // scale : 1.0 (avant) → 0.28 (arrière)
     const sc     = 0.28 + 0.72 * ((depth + 1) / 2);
     const op     = 0.18 + 0.82 * ((depth + 1) / 2);
-    const ry     = -(alpha * 180 / Math.PI);
+    const ry     = (alpha * 180 / Math.PI);
     return { x, depth, sc, op, ry };
   });
 }
@@ -266,7 +266,7 @@ export default function MenuScreen({ navigation }) {
   }, [refresh]);
 
   const snapToNearest = useCallback((velocityX = 0) => {
-    const momentum = -velocityX * DRAG_FACTOR * 60;
+    const momentum = velocityX * DRAG_FACTOR * 60;
     const raw = rotRef.current + momentum;
     const snapped = Math.round(raw / STEP) * STEP;
     targetRef.current = snapped;
@@ -285,7 +285,7 @@ export default function MenuScreen({ navigation }) {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
       },
       onPanResponderMove: (_, gs) => {
-        const rot = dragStartRot.current - gs.dx * DRAG_FACTOR;
+        const rot = dragStartRot.current + gs.dx * DRAG_FACTOR;
         rotRef.current = rot;
         setPositions(computePositions(rot));
       },
