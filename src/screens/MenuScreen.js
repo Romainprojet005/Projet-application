@@ -56,10 +56,8 @@ function computePositions(rotation) {
     const depth  = cosA;
     // scale : 1.0 (avant) → 0.28 (arrière)
     const sc     = 0.28 + 0.72 * ((depth + 1) / 2);
-    // opacity : 0 dès que la carte passe derrière (ry > 90°) pour éviter le miroir
-    const op     = depth <= 0 ? 0 : Math.min(1, 0.2 + 0.8 * depth);
-    // orientation tangentielle : la carte est tangente au cylindre
-    const ry     = (alpha * 180 / Math.PI);
+    const op     = 0.18 + 0.82 * ((depth + 1) / 2);
+    const ry     = -(alpha * 180 / Math.PI);
     return { x, depth, sc, op, ry };
   });
 }
@@ -268,7 +266,7 @@ export default function MenuScreen({ navigation }) {
   }, [refresh]);
 
   const snapToNearest = useCallback((velocityX = 0) => {
-    const momentum = velocityX * DRAG_FACTOR * 60;
+    const momentum = -velocityX * DRAG_FACTOR * 60;
     const raw = rotRef.current + momentum;
     const snapped = Math.round(raw / STEP) * STEP;
     targetRef.current = snapped;
@@ -287,7 +285,7 @@ export default function MenuScreen({ navigation }) {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
       },
       onPanResponderMove: (_, gs) => {
-        const rot = dragStartRot.current + gs.dx * DRAG_FACTOR;
+        const rot = dragStartRot.current - gs.dx * DRAG_FACTOR;
         rotRef.current = rot;
         setPositions(computePositions(rot));
       },
@@ -384,7 +382,6 @@ export default function MenuScreen({ navigation }) {
           return (
             <View
               key={char.id}
-              {...(Platform.OS === 'web' ? { className: 'card-slot-3d' } : {})}
               style={[s.cardSlot, {
                 transform: [
                   { perspective: 900 },
