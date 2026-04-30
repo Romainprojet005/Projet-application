@@ -22,12 +22,9 @@ const DRAG_FACTOR = STEP / CARD_W;
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
   const _s = document.createElement('style');
   _s.textContent = `
-    .card-reflect { -webkit-box-reflect: below 4px linear-gradient(transparent 52%, rgba(2,1,10,0.5)); }
+    .card-reflect { -webkit-box-reflect: below 4px linear-gradient(transparent 52%, rgba(2,1,10,0.5));
+                    backface-visibility: hidden; -webkit-backface-visibility: hidden; }
     .card-slot-3d { transform-style: preserve-3d; }
-    .card-front   { backface-visibility: hidden; -webkit-backface-visibility: hidden; position: relative; }
-    .card-back    { backface-visibility: hidden; -webkit-backface-visibility: hidden;
-                    transform: rotateY(180deg);
-                    position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
   `;
   document.head?.appendChild(_s);
 }
@@ -387,6 +384,7 @@ export default function MenuScreen({ navigation }) {
           return (
             <View
               key={char.id}
+              {...(Platform.OS === 'web' ? { className: 'card-slot-3d' } : {})}
               style={[s.cardSlot, {
                 transform: [
                   { perspective: 900 },
