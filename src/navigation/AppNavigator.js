@@ -33,6 +33,8 @@ import MimeSetupScreen from '../screens/mime/MimeSetupScreen';
 import MimeLobbyScreen from '../screens/mime/MimeLobbyScreen';
 import MimeGameScreen from '../screens/mime/MimeGameScreen';
 import MimeFinalScreen from '../screens/mime/MimeFinalScreen';
+import BuzzerSetupScreen from '../screens/buzzer/BuzzerSetupScreen';
+import BuzzerGameScreen from '../screens/buzzer/BuzzerGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -76,6 +78,8 @@ const linking = {
       MimeLobby: 'mime/lobby',
       MimeGame: 'mime/game',
       MimeFinal: 'mime/final',
+      BuzzerSetup: 'buzzer',
+      BuzzerGame: 'buzzer/game',
     },
   },
 };
@@ -121,6 +125,8 @@ export default function AppNavigator() {
         <Stack.Screen name="MimeLobby" component={MimeLobbyScreen} />
         <Stack.Screen name="MimeGame" component={MimeGameScreen} />
         <Stack.Screen name="MimeFinal" component={MimeFinalScreen} />
+        <Stack.Screen name="BuzzerSetup" component={BuzzerSetupScreen} />
+        <Stack.Screen name="BuzzerGame" component={BuzzerGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

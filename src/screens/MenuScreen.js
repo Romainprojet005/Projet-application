@@ -14,6 +14,13 @@ import { colors, spacing, radius } from '../theme';
 import { characters } from '../data/characters';
 
 const { width: SW, height: SH } = Dimensions.get('window');
+
+// Inject CSS reflection for web (Chromium/Safari)
+if (Platform.OS === 'web' && typeof document !== 'undefined') {
+  const _s = document.createElement('style');
+  _s.textContent = `.card-reflect { -webkit-box-reflect: below 6px linear-gradient(transparent 48%, rgba(200,225,255,0.45)); }`;
+  document.head?.appendChild(_s);
+}
 // Sur web le navigateur lui-même prend de la place (barre d'adresse, onglets…)
 // On réduit les dimensions pour que les cartes ne débordent pas en bas
 const CARD_W   = Platform.OS === 'web' ? Math.min(SW * 0.72, 360) : Math.min(SW * 0.80, 400);
@@ -52,10 +59,10 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
 
   // Scale/opacity/rotation driven by scroll position of THIS card in the looped array
   const inputRange    = [(loopIdx - 1) * ITEM_SIZE, loopIdx * ITEM_SIZE, (loopIdx + 1) * ITEM_SIZE];
-  const cardScale     = scrollX.interpolate({ inputRange, outputRange: [0.86, 1, 0.86], extrapolate: 'clamp' });
-  const cardOpacity   = scrollX.interpolate({ inputRange, outputRange: [0.48, 1, 0.48], extrapolate: 'clamp' });
-  const cardRotateY   = scrollX.interpolate({ inputRange, outputRange: ['18deg', '0deg', '-18deg'], extrapolate: 'clamp' });
-  const cardTranslateY = scrollX.interpolate({ inputRange, outputRange: [28, 0, 28], extrapolate: 'clamp' });
+  const cardScale     = scrollX.interpolate({ inputRange, outputRange: [0.78, 1, 0.78], extrapolate: 'clamp' });
+  const cardOpacity   = scrollX.interpolate({ inputRange, outputRange: [0.72, 1, 0.72], extrapolate: 'clamp' });
+  const cardRotateY   = scrollX.interpolate({ inputRange, outputRange: ['40deg', '0deg', '-40deg'], extrapolate: 'clamp' });
+  const cardTranslateY = scrollX.interpolate({ inputRange, outputRange: [70, 0, 70], extrapolate: 'clamp' });
 
   useEffect(() => {
     if (character.available) {
@@ -74,8 +81,8 @@ function GameCard({ character, loopIdx, scrollX, onPress }) {
   const r2 = ring2.interpolate({ inputRange: [0, 1], outputRange: ['360deg', '0deg']   });
 
   return (
-    <Animated.View style={{ width: CARD_W, marginRight: CARD_GAP, alignSelf: 'center', transform: [{ perspective: 1200 }, { scale: cardScale }, { rotateY: cardRotateY }, { translateY: cardTranslateY }], opacity: cardOpacity }}>
-      <Animated.View style={{ transform: [{ scale: pressScale }] }}>
+    <Animated.View style={{ width: CARD_W, marginRight: CARD_GAP, alignSelf: 'center', transform: [{ perspective: 900 }, { scale: cardScale }, { rotateY: cardRotateY }, { translateY: cardTranslateY }], opacity: cardOpacity }}>
+      <Animated.View style={{ transform: [{ scale: pressScale }] }} {...(Platform.OS === 'web' ? { className: 'card-reflect' } : {})}>
 
         {character.available && (
           <View style={[cd.shadow, { shadowColor: character.color, backgroundColor: character.color + '22' }]} />
@@ -269,6 +276,7 @@ export default function MenuScreen({ navigation }) {
       blindtest:   'BlindTestSetup',
       vote:        'VoteSetup',
       mime:        'MimeSetup',
+      buzzer:      'BuzzerSetup',
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };
@@ -339,14 +347,7 @@ export default function MenuScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={['#06040F', '#0D0720', '#060410']} style={s.container}>
-      {STARS.map(star => (
-        <View key={star.id} pointerEvents="none" style={{
-          position: 'absolute', top: star.top, left: star.left,
-          width: star.size, height: star.size, borderRadius: star.size / 2,
-          backgroundColor: '#FFF', opacity: star.opacity,
-        }} />
-      ))}
+    <LinearGradient colors={['#CADEFD', '#EEF5FF', '#CADEFD']} style={s.container}>
 
       {/* Header */}
       <Animated.View style={[s.header, { opacity: headerAnim }]}>
@@ -421,7 +422,7 @@ export default function MenuScreen({ navigation }) {
             decelerationRate="fast"
             disableIntervalMomentum={Platform.OS !== 'web'}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: SIDE_INSET, paddingVertical: 12 }}
+            contentContainerStyle={{ paddingHorizontal: SIDE_INSET, paddingTop: 8, paddingBottom: 90 }}
             onScroll={Animated.event(
               [{ nativeEvent: { contentOffset: { x: scrollX } } }],
               {
@@ -467,7 +468,7 @@ export default function MenuScreen({ navigation }) {
               s.dot,
               i === activeIdx
                 ? { width: 22, backgroundColor: characters[activeIdx]?.color ?? colors.primary }
-                : { width: 6,  backgroundColor: 'rgba(255,255,255,0.20)' },
+                : { width: 6,  backgroundColor: 'rgba(30,60,120,0.18)' },
             ]}
           />
         ))}
@@ -481,17 +482,17 @@ const s = StyleSheet.create({
   container:   { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   header:      { flexDirection: 'row', alignItems: 'center', paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },
   backBtn:     { width: 70 },
-  backBtnText: { color: colors.primaryLight, fontSize: 14, fontWeight: '600' },
+  backBtnText: { color: '#3B6FD4', fontSize: 14, fontWeight: '600' },
   headerCenter:{ flex: 1, alignItems: 'center' },
-  title:       { fontSize: 22, fontWeight: '900', color: colors.text, letterSpacing: 4 },
-  subtitle:    { fontSize: 12, color: colors.primaryLight, letterSpacing: 2, marginTop: -2 },
-  countLine:   { textAlign: 'center', fontSize: 11, color: colors.textMuted, marginBottom: spacing.xs },
+  title:       { fontSize: 22, fontWeight: '900', color: '#1A2D5A', letterSpacing: 4 },
+  subtitle:    { fontSize: 12, color: '#4A6FA5', letterSpacing: 2, marginTop: -2 },
+  countLine:   { textAlign: 'center', fontSize: 11, color: '#6A8AAA', marginBottom: spacing.xs },
   dots:        { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 7, paddingVertical: 12 },
   dot:         { height: 6, borderRadius: 3, ...Platform.select({ web: { transition: 'width 0.3s ease, background-color 0.3s ease' } }) },
   arrowBtn: {
     position: 'absolute', top: '38%',
     width: 34, height: 56, borderRadius: 12,
-    backgroundColor: 'rgba(0,0,0,0.55)',
+    backgroundColor: 'rgba(255,255,255,0.75)',
     borderWidth: 1,
     alignItems: 'center', justifyContent: 'center',
     zIndex: 10,

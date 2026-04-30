@@ -171,6 +171,25 @@ export const characters = [
     },
   },
   {
+    id: 'flash',
+    name: 'Flash',
+    emoji: '⚡',
+    title: 'Le Maître du Buzzer',
+    description:
+      'Le super-héros le plus rapide de l\'univers met vos réflexes à l\'épreuve ! Buzzez avant les autres et répondez à la question pour marquer des points.',
+    catchphrase: '"Rapidité, instinct, victoire !"',
+    color: '#DC2626',
+    gradientColors: ['#1A0000', '#2D0000'],
+    game: 'buzzer',
+    gameName: 'BUZZER',
+    available: true,
+    stats: {
+      Rapidité: 99,
+      Réflexes: 97,
+      Instinct: 95,
+    },
+  },
+  {
     id: 'cyrano',
     name: 'Cyrano de Bergerac',
     emoji: '🎭',
