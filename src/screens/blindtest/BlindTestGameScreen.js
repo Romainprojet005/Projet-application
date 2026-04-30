@@ -84,6 +84,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const [timer,      setTimer]      = useState(TOTAL_TIME);
   const [foundPts,   setFoundPts]   = useState(0);
   const [wrongFlash, setWrongFlash] = useState(false);
+  const [showEmbed,  setShowEmbed]  = useState(false);
 
   const timerRef  = useRef(null);
   const phaseRef  = useRef('idle');
@@ -145,7 +146,11 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const handlePlay = () => {
     setPhase('playing');
     phaseRef.current = 'playing';
-    openYoutube(song);
+    if (Platform.OS === 'web') {
+      setShowEmbed(true);
+    } else {
+      Linking.openURL(`https://youtu.be/${song.videoId}`);
+    }
     if (!isInfinite) {
       timerRef.current = setInterval(() => {
         setTimer(t => Math.max(0, t - 1));
@@ -203,6 +208,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
     setInputText('');
     setTimer(TOTAL_TIME);
     setFoundPts(0);
+    setShowEmbed(false);
     if (songIdx < songs.length - 1) {
       setSongIdx(i => i + 1);
       phaseRef.current = 'idle';
@@ -339,22 +345,37 @@ export default function BlindTestGameScreen({ navigation, route }) {
           )}
 
           {(phase === 'playing') && (
-            <View style={styles.playingContent}>
-              <EqBars />
-              <View style={[styles.timerWrap, { borderColor: `${timerColor}60` }]}>
-                {isInfinite ? (
-                  <Text style={[styles.timerNum, { color: timerColor, fontSize: 40 }]}>∞</Text>
-                ) : (
-                  <>
-                    <Text style={[styles.timerNum, { color: timerColor }]}>{timer}</Text>
-                    <Text style={styles.timerLabel}>s</Text>
-                  </>
+            <>
+              {Platform.OS === 'web' && showEmbed && (
+                <View style={StyleSheet.absoluteFill}>
+                  <iframe
+                    key={song.videoId}
+                    src={`https://www.youtube.com/embed/${song.videoId}?autoplay=1&rel=0&modestbranding=1`}
+                    frameBorder="0"
+                    allow="autoplay; encrypted-media"
+                    style={{ width: '100%', height: '100%', border: 'none' }}
+                  />
+                </View>
+              )}
+              <View style={[styles.playingContent, { zIndex: 1 }]}>
+                <EqBars />
+                <View style={[styles.timerWrap, { borderColor: `${timerColor}60` }]}>
+                  {isInfinite ? (
+                    <Text style={[styles.timerNum, { color: timerColor, fontSize: 40 }]}>∞</Text>
+                  ) : (
+                    <>
+                      <Text style={[styles.timerNum, { color: timerColor }]}>{timer}</Text>
+                      <Text style={styles.timerLabel}>s</Text>
+                    </>
+                  )}
+                </View>
+                {Platform.OS !== 'web' && (
+                  <TouchableOpacity onPress={() => Linking.openURL(`https://youtu.be/${song.videoId}`)} style={styles.relancerBtn}>
+                    <Text style={styles.relancerText}>↩ Relancer sur YouTube</Text>
+                  </TouchableOpacity>
                 )}
               </View>
-              <TouchableOpacity onPress={() => openYoutube(song)} style={styles.relancerBtn}>
-                <Text style={styles.relancerText}>↩ Relancer sur YouTube</Text>
-              </TouchableOpacity>
-            </View>
+            </>
           )}
 
           {phase === 'found' && (

@@ -11,7 +11,10 @@ const { width: SW, height: SH } = Dimensions.get('window');
 const N = characters.length;
 
 // Rayon du cylindre : assez grand pour espacer les cartes, assez petit pour rester visible
-const CARD_W  = Platform.OS === 'web' ? Math.min(SW * 0.38, 215) : Math.min(SW * 0.75, 300);
+const IS_MOBILE_WEB = Platform.OS === 'web' && SW < 600;
+const CARD_W = IS_MOBILE_WEB ? Math.min(SW * 0.72, 290)
+             : Platform.OS === 'web' ? Math.min(SW * 0.38, 215)
+             : Math.min(SW * 0.75, 300);
 const RADIUS  = CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15; // cartes légèrement espacées
 const STEP    = (2 * Math.PI) / N; // angle entre chaque carte
 
