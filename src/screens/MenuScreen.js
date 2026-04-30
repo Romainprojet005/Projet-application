@@ -268,6 +268,14 @@ export default function MenuScreen({ navigation }) {
     rafRef.current = requestAnimationFrame(animate);
   }, [refresh]);
 
+  const navigateCard = useCallback((dir) => {
+    // dir: +1 = carte précédente, -1 = carte suivante
+    const current = Math.round(rotRef.current / STEP) * STEP;
+    targetRef.current = current + dir * STEP;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(animate);
+  }, [animate]);
+
   const snapToNearest = useCallback((velocityX = 0) => {
     const momentum = velocityX * DRAG_FACTOR * 60;
     const raw = rotRef.current + momentum;
@@ -378,28 +386,38 @@ export default function MenuScreen({ navigation }) {
       </Animated.Text>
 
       {/* Cylindre 3D — cartes positionnées en cercle */}
-      <View style={s.stage} {...panResponder.panHandlers}>
-        {sortedIndices.map(i => {
-          const pos  = positions[i];
-          const char = characters[i];
-          return (
-            <View
-              key={char.id}
-              style={[s.cardSlot, {
-                transform: [
-                  { perspective: 900 },
-                  { translateX: pos.x },
-                  { scale: pos.sc },
-                  { rotateY: `${pos.ry}deg` },
-                ],
-                opacity: pos.op,
-                zIndex: Math.round((pos.depth + 1) * 50),
-              }]}
-            >
-              <GameCard character={char} onPress={handleSelectGame} />
-            </View>
-          );
-        })}
+      <View style={s.stageWrapper}>
+        <View style={s.stage} {...panResponder.panHandlers}>
+          {sortedIndices.map(i => {
+            const pos  = positions[i];
+            const char = characters[i];
+            return (
+              <View
+                key={char.id}
+                style={[s.cardSlot, {
+                  transform: [
+                    { perspective: 900 },
+                    { translateX: pos.x },
+                    { scale: pos.sc },
+                    { rotateY: `${pos.ry}deg` },
+                  ],
+                  opacity: pos.op,
+                  zIndex: Math.round((pos.depth + 1) * 50),
+                }]}
+              >
+                <GameCard character={char} onPress={handleSelectGame} />
+              </View>
+            );
+          })}
+        </View>
+        <View style={s.arrowOverlay} pointerEvents="box-none">
+          <TouchableOpacity onPress={() => navigateCard(+1)} style={s.arrowBtn} activeOpacity={0.7}>
+            <Text style={s.arrowText}>‹</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigateCard(-1)} style={s.arrowBtn} activeOpacity={0.7}>
+            <Text style={s.arrowText}>›</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Pagination dots */}
@@ -430,6 +448,7 @@ const s = StyleSheet.create({
   title:        { fontSize: 22, fontWeight: '900', color: colors.text, letterSpacing: 4 },
   subtitle:     { fontSize: 12, color: colors.primaryLight, letterSpacing: 2, marginTop: -2 },
   countLine:    { textAlign: 'center', fontSize: 11, color: colors.textMuted, marginBottom: spacing.xs },
+  stageWrapper: { flex: 1, position: 'relative' },
   stage: {
     flex: 1,
     alignItems: 'center',
@@ -437,6 +456,19 @@ const s = StyleSheet.create({
     overflow: 'hidden',
     ...Platform.select({ web: { cursor: 'grab', userSelect: 'none' } }),
   },
+  arrowOverlay: {
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 10,
+  },
+  arrowBtn: {
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.10)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)',
+    alignItems: 'center', justifyContent: 'center',
+    zIndex: 999,
+  },
+  arrowText: { color: '#fff', fontSize: 30, fontWeight: '300', lineHeight: 34, marginTop: -2 },
   cardSlot: {
     position: 'absolute',
   },
