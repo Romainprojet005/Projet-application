@@ -18,10 +18,17 @@ const STEP    = (2 * Math.PI) / N; // angle entre chaque carte
 // Sensibilité du drag : 1 card-width → 1 position
 const DRAG_FACTOR = STEP / CARD_W;
 
-// Réflexion verre sombre (web)
+// Réflexion + 3D card flip (web)
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
   const _s = document.createElement('style');
-  _s.textContent = `.card-reflect { -webkit-box-reflect: below 4px linear-gradient(transparent 52%, rgba(2,1,10,0.5)); }`;
+  _s.textContent = `
+    .card-reflect { -webkit-box-reflect: below 4px linear-gradient(transparent 52%, rgba(2,1,10,0.5)); }
+    .card-slot-3d { transform-style: preserve-3d; }
+    .card-front   { backface-visibility: hidden; -webkit-backface-visibility: hidden; position: relative; }
+    .card-back    { backface-visibility: hidden; -webkit-backface-visibility: hidden;
+                    transform: rotateY(180deg);
+                    position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+  `;
   document.head?.appendChild(_s);
 }
 
@@ -54,8 +61,8 @@ function computePositions(rotation) {
     const sc     = 0.28 + 0.72 * ((depth + 1) / 2);
     // opacity : visible même à l'arrière (0.18) pour l'effet "qui passe derrière"
     const op     = 0.18 + 0.82 * ((depth + 1) / 2);
-    // la carte fait face à la caméra en sens inverse de son angle
-    const ry     = -(alpha * 180 / Math.PI);
+    // orientation tangentielle : la carte est tangente au cylindre
+    const ry     = (alpha * 180 / Math.PI);
     return { x, depth, sc, op, ry };
   });
 }
@@ -213,6 +220,49 @@ const cd = StyleSheet.create({
   playBtnWrap: { marginTop: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.45, shadowRadius: 10, elevation: 8 },
   playBtn:     { paddingVertical: Platform.select({ web: 13, default: 10 }), borderRadius: radius.full, alignItems: 'center' },
   playBtnText: { fontSize: 12, fontWeight: '900', color: '#fff', letterSpacing: 2 },
+});
+
+// ── CardBack — verso affiché quand la carte fait face à l'arrière ────
+const CardBack = memo(function CardBack() {
+  return (
+    <LinearGradient
+      colors={['#0D0B28', '#1A1560', '#0D0B28']}
+      start={{ x: 0.3, y: 0 }} end={{ x: 0.7, y: 1 }}
+      style={cb.card}
+    >
+      <LinearGradient
+        colors={['rgba(255,255,255,0.10)', 'rgba(255,255,255,0)']}
+        start={{ x: 0.15, y: 0 }} end={{ x: 0.85, y: 0.4 }}
+        style={StyleSheet.absoluteFill} pointerEvents="none"
+      />
+      <View style={cb.patternRow}>
+        {['✦', '·', '✦', '·', '✦'].map((sym, i) => <Text key={i} style={cb.patternChar}>{sym}</Text>)}
+      </View>
+      <View style={cb.emblem}>
+        <Text style={cb.emblemEmoji}>🎭</Text>
+        <Text style={cb.emblemLabel}>LA SOIRÉE</Text>
+        <Text style={cb.emblemLabel2}>DES LÉGENDES</Text>
+      </View>
+      <View style={cb.patternRow}>
+        {['✦', '·', '✦', '·', '✦'].map((sym, i) => <Text key={i} style={cb.patternChar}>{sym}</Text>)}
+      </View>
+    </LinearGradient>
+  );
+});
+
+const cb = StyleSheet.create({
+  card: {
+    width: CARD_W, flex: 1, borderRadius: 24, borderWidth: 1.5,
+    borderColor: 'rgba(120, 100, 220, 0.55)',
+    alignItems: 'center', justifyContent: 'center',
+    gap: 16, overflow: 'hidden',
+  },
+  patternRow:   { flexDirection: 'row', gap: 8 },
+  patternChar:  { color: 'rgba(180, 160, 255, 0.4)', fontSize: 14, fontWeight: '700' },
+  emblem:       { alignItems: 'center', gap: 6 },
+  emblemEmoji:  { fontSize: 52 },
+  emblemLabel:  { fontSize: 14, fontWeight: '900', color: 'rgba(200, 180, 255, 0.9)', letterSpacing: 3 },
+  emblemLabel2: { fontSize: 11, fontWeight: '700', color: 'rgba(160, 140, 220, 0.7)', letterSpacing: 4 },
 });
 
 // ── MenuScreen ────────────────────────────────────────────────────────
@@ -375,26 +425,41 @@ export default function MenuScreen({ navigation }) {
       {/* Cylindre 3D — cartes positionnées en cercle */}
       <View style={s.stage} {...panResponder.panHandlers}>
         {sortedIndices.map(i => {
-          const pos = positions[i];
+          const pos  = positions[i];
           const char = characters[i];
+          const isBack = pos.depth < 0;
           return (
             <View
               key={char.id}
-              style={[
-                s.cardSlot,
-                {
-                  transform: [
-                    { perspective: 900 },
-                    { translateX: pos.x },
-                    { scale: pos.sc },
-                    { rotateY: `${pos.ry}deg` },
-                  ],
-                  opacity: pos.op,
-                  zIndex: Math.round((pos.depth + 1) * 50),
-                },
-              ]}
+              {...(Platform.OS === 'web' ? { className: 'card-slot-3d' } : {})}
+              style={[s.cardSlot, {
+                transform: [
+                  { perspective: 900 },
+                  { translateX: pos.x },
+                  { scale: pos.sc },
+                  { rotateY: `${pos.ry}deg` },
+                ],
+                opacity: pos.op,
+                zIndex: Math.round((pos.depth + 1) * 50),
+              }]}
             >
-              <GameCard character={char} onPress={handleSelectGame} />
+              {Platform.OS === 'web' ? (
+                <>
+                  <View className="card-front">
+                    <GameCard character={char} onPress={handleSelectGame} />
+                  </View>
+                  <View className="card-back">
+                    <CardBack />
+                  </View>
+                </>
+              ) : (
+                <>
+                  <GameCard character={char} onPress={handleSelectGame} />
+                  <View style={[StyleSheet.absoluteFill, { opacity: isBack ? 1 : 0 }]}>
+                    <CardBack />
+                  </View>
+                </>
+              )}
             </View>
           );
         })}
