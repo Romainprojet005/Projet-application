@@ -11,6 +11,11 @@ const BEAT       = '#10B981';
 const BEAT_DARK  = '#059669';
 const BEAT_LIGHT = '#6EE7B7';
 
+// Les navigateurs mobiles bloquent l'autoplay dans les iframes cachées
+const isMobileWeb = Platform.OS === 'web' &&
+  typeof navigator !== 'undefined' &&
+  /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
 function normalize(s) {
   return s.toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -83,13 +88,12 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const [inputText,  setInputText]  = useState('');
   const [timer,      setTimer]      = useState(TOTAL_TIME);
   const [foundPts,   setFoundPts]   = useState(0);
-  const [wrongFlash,   setWrongFlash]   = useState(false);
-  const [previewError, setPreviewError] = useState(false);
+  const [wrongFlash, setWrongFlash] = useState(false);
+  const [ytSrc,      setYtSrc]      = useState('');
 
   const timerRef  = useRef(null);
   const phaseRef  = useRef('idle');
   const songRef   = useRef(songs[0]);
-  const audioRef  = useRef(null);
   const answerSlide   = useRef(new Animated.Value(300)).current;
   const answerOpacity = useRef(new Animated.Value(0)).current;
   const feedbackScale = useRef(new Animated.Value(0)).current;
@@ -113,10 +117,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
   }, []);
 
   const stopAudio = useCallback(() => {
-    if (Platform.OS === 'web' && audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = '';
-    }
+    if (Platform.OS === 'web') setYtSrc('');
   }, []);
 
   useEffect(() => {
@@ -151,33 +152,20 @@ export default function BlindTestGameScreen({ navigation, route }) {
   };
 
   // ── Play ───────────────────────────────────────────────────────────────────
-  const handlePlay = async () => {
+  const handlePlay = () => {
     setPhase('playing');
     phaseRef.current = 'playing';
-    setPreviewError(false);
 
     if (!isInfinite) {
       timerRef.current = setInterval(() => setTimer(t => Math.max(0, t - 1)), 1000);
     }
 
-    if (Platform.OS === 'web') {
-      try {
-        const q   = encodeURIComponent(`${song.title} ${song.artist}`);
-        const res = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&entity=song&limit=10`);
-        const data = await res.json();
-        const url  = data.results?.find(r => r.previewUrl)?.previewUrl;
-        if (url && audioRef.current) {
-          audioRef.current.src = url;
-          audioRef.current.volume = 1;
-          await audioRef.current.play().catch(() => {});
-        } else {
-          setPreviewError(true);
-        }
-      } catch {
-        setPreviewError(true);
-      }
+    if (Platform.OS === 'web' && !isMobileWeb) {
+      const start = song.startAt ?? 0;
+      setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`);
     } else {
-      Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}`);
+      const start = song.startAt ?? 0;
+      Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}&t=${start}`);
     }
   };
 
@@ -233,7 +221,6 @@ export default function BlindTestGameScreen({ navigation, route }) {
     setInputText('');
     setTimer(TOTAL_TIME);
     setFoundPts(0);
-    setPreviewError(false);
     if (songIdx < songs.length - 1) {
       setSongIdx(i => i + 1);
       phaseRef.current = 'idle';
@@ -372,10 +359,8 @@ export default function BlindTestGameScreen({ navigation, route }) {
           {(phase === 'playing') && (
             <View style={styles.playingContent}>
               <EqBars />
-              {previewError && (
-                <TouchableOpacity onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}`)} style={styles.relancerBtn}>
-                  <Text style={styles.relancerText}>❌ Aperçu indisponible — ouvrir YouTube</Text>
-                </TouchableOpacity>
+              {isMobileWeb && (
+                <Text style={styles.mobileNotice}>🎵 YouTube ouvert — revenez ici pour deviner !</Text>
               )}
               <View style={[styles.timerWrap, { borderColor: `${timerColor}60` }]}>
                 {isInfinite ? (
@@ -455,8 +440,12 @@ export default function BlindTestGameScreen({ navigation, route }) {
         )}
       </ScrollView>
 
-      {/* Hidden audio player (web only) */}
-      {Platform.OS === 'web' && <audio ref={audioRef} />}
+      {Platform.OS === 'web' && !!ytSrc && React.createElement('iframe', {
+        key: ytSrc,
+        src: ytSrc,
+        allow: 'autoplay; encrypted-media',
+        style: { position: 'fixed', bottom: -1, left: -1, width: 1, height: 1, opacity: 0, border: 'none', pointerEvents: 'none' },
+      })}
 
       {/* Answer card */}
       {(phase === 'reveal') && (
@@ -553,6 +542,7 @@ const styles = StyleSheet.create({
   playBtnText: { fontSize: 16, fontWeight: '900', color: '#fff', letterSpacing: 2 },
 
   playingContent: { alignItems: 'center', gap: spacing.md },
+  mobileNotice: { fontSize: 12, color: BEAT_LIGHT, fontWeight: '600', textAlign: 'center', opacity: 0.85, paddingHorizontal: spacing.lg },
   ytNotice:     { fontSize: 12, color: BEAT_LIGHT, fontWeight: '600', textAlign: 'center', opacity: 0.8 },
   relancerBtn:  { paddingVertical: spacing.xs, paddingHorizontal: spacing.md },
   relancerText: { fontSize: 12, color: BEAT_LIGHT + 'AA', fontWeight: '600', textDecorationLine: 'underline' },
