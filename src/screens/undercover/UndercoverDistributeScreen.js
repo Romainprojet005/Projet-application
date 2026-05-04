@@ -175,14 +175,6 @@ function GameBoardScreen({ roles, onBackToMenu }) {
                 <Text style={[styles.roleBadgeLabel, { color: modalCfg.color }]}>{modalCfg.label}</Text>
               </View>
 
-              {/* Character image in modal */}
-              <CharacterImage name={modalRole.word} style={styles.charImageModal} />
-
-              <View style={styles.wordBox}>
-                <Text style={styles.wordLabel}>SON MOT</Text>
-                <Text style={styles.wordText}>{modalRole.word || '???'}</Text>
-              </View>
-
               <TouchableOpacity onPress={handleEliminate} style={styles.gbConfirmBtn} activeOpacity={0.85}>
                 <Text style={styles.gbConfirmBtnText}>💀  Confirmer l'élimination</Text>
               </TouchableOpacity>
