@@ -51,11 +51,12 @@ const blurStyle = (step) => {
   return {};
 };
 
-// Mosaic grid: 3 cols × 4 rows = 12 tiles
-const GRID_COLS = 3;
-const GRID_ROWS = 4;
-const TILE_W = 100 / GRID_COLS; // 33.33%
-const TILE_H = 100 / GRID_ROWS; // 25%
+// Mosaic grid: 8 cols × 12 rows = 96 tiles (8 tiles revealed per step → same area as before)
+const GRID_COLS = 8;
+const GRID_ROWS = 12;
+const TILE_W = 100 / GRID_COLS; // 12.5%
+const TILE_H = 100 / GRID_ROWS; // 8.33%
+const TILES_PER_STEP = 8; // step1→8, step2→16, step3→24, step4→32 (same % area as old 1/12, 2/12…)
 
 // Dark overlay with N randomly-placed revealed tiles (each shows the real image)
 function TilesMask({ revealedTiles, source, imgError }) {
@@ -222,7 +223,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
 
   const progress = currentIdx / rounds.length;
   const isReveal = phase === 'reveal';
-  const revealedTiles = mode === 'tiles' ? currentRound.tileOrder.slice(0, step) : null;
+  const revealedTiles = mode === 'tiles' ? currentRound.tileOrder.slice(0, step * TILES_PER_STEP) : null;
 
   return (
     <LinearGradient colors={BG} style={styles.container}>
@@ -256,7 +257,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
               {mode === 'blur' ? '🌫️ Flou' : '🎲 Mosaïque'}
             </Text>
             {mode === 'tiles' && !isReveal && (
-              <Text style={styles.featureLabel}>{step} case{step > 1 ? 's' : ''} / 12</Text>
+              <Text style={styles.featureLabel}>{step * TILES_PER_STEP} cases / 96</Text>
             )}
           </View>
         </View>

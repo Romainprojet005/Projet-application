@@ -308,7 +308,7 @@ export default function VoteGameScreen({ route, navigation }) {
     const medals = ['🥇', '🥈', '🥉'];
     return (
       <LinearGradient colors={['#080818', '#0C0A24', '#080818']} style={styles.container}>
-        <ScrollView contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={false}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={false}>
           <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 
             <Text style={styles.finalTitle}>🏆  Résultats finaux</Text>

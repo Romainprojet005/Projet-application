@@ -204,10 +204,9 @@ export default function MimeGameScreen({ navigation, route }) {
   const submitGuess = () => {
     if (!guess.trim() || !room || transitioning || foundIds.includes(playerId)) return;
     const myName = players.find(p => p.id === playerId)?.name ?? '';
-    channelRef.current?.send({
-      type: 'broadcast', event: 'guess',
-      payload: { playerId, playerName: myName, text: guess.trim(), roomRound: room.round_number },
-    });
+    const payload = { playerId, playerName: myName, text: guess.trim(), roomRound: room.round_number };
+    channelRef.current?.send({ type: 'broadcast', event: 'guess', payload });
+    handleIncomingGuess(payload);
     setGuess('');
   };
 

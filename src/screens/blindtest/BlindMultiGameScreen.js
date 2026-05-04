@@ -45,11 +45,11 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   const [inputText, setInputText] = useState('');
   const [wrongFlash, setWrongFlash] = useState(false);
   const [roundResult, setRoundResult] = useState(null); // 'won' | 'lost' | null
-  const [ytSrc, setYtSrc]             = useState('');
 
   const isHostRef  = useRef(false);
   const channelRef = useRef(null);
   const timerRef   = useRef(null);
+  const iframeRef  = useRef(null);
   const roomRef    = useRef(null);
   const playersRef = useRef([]);
 
@@ -95,24 +95,23 @@ export default function BlindMultiGameScreen({ navigation, route }) {
             setTimer(null);
             setInputText('');
             setRoundResult(null);
-            setYtSrc('');
+            if (iframeRef.current) iframeRef.current.src = '';
           }
           if (nr.phase === 'playing') {
             setInputText('');
             setRoundResult(null);
             if (isHostRef.current) {
               const song = songs[nr.current_song_idx];
-              if (song) {
+              if (song && iframeRef.current) {
                 const start = song.startAt ?? 0;
-                const controls = isMobileWeb ? 1 : 0;
-                setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=${controls}&rel=0&modestbranding=1&iv_load_policy=3`);
+                iframeRef.current.src = `https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
               }
             }
             startLocalTimer(nr);
           }
           if (nr.phase === 'found' || nr.status === 'finished') {
             clearInterval(timerRef.current);
-            setYtSrc('');
+            if (iframeRef.current) iframeRef.current.src = '';
             const { data: ps } = await supabase
               .from('blind_players').select().eq('room_id', roomId).order('score', { ascending: false });
             if (ps) { setPlayers(ps); playersRef.current = ps; }
@@ -142,10 +141,9 @@ export default function BlindMultiGameScreen({ navigation, route }) {
     const r = roomRef.current;
     if (!r) return;
     const song = r.songs[r.current_song_idx];
-    if (song) {
+    if (song && iframeRef.current) {
       const start = song.startAt ?? 0;
-      const controls = isMobileWeb ? 1 : 0;
-      setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=${controls}&rel=0&modestbranding=1&iv_load_policy=3`);
+      iframeRef.current.src = `https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
     }
     await supabase.from('blind_rooms').update({
       phase: 'playing',
@@ -344,10 +342,12 @@ export default function BlindMultiGameScreen({ navigation, route }) {
               {isHost && song && (
                 <TouchableOpacity
                   onPress={() => {
+                    if (!iframeRef.current) return;
                     const start = song.startAt ?? 0;
-                    const controls = isMobileWeb ? 1 : 0;
-                    setYtSrc('');
-                    setTimeout(() => setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=${controls}&rel=0&modestbranding=1&iv_load_policy=3`), 100);
+                    iframeRef.current.src = '';
+                    setTimeout(() => {
+                      iframeRef.current.src = `https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
+                    }, 100);
                   }}
                   style={styles.relancerBtn}
                 >

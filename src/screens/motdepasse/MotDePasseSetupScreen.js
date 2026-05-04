@@ -21,6 +21,7 @@ export default function MotDePasseSetupScreen({ navigation }) {
   const [players,    setPlayers]    = useState(['', '']);
   const [timerSecs,  setTimerSecs]  = useState(60);
   const [wordCount,  setWordCount]  = useState(30);
+  const [category,   setCategory]   = useState('normal');
   const [inputFocus, setInputFocus] = useState(null);
   const [error,      setError]      = useState('');
 
@@ -47,7 +48,7 @@ export default function MotDePasseSetupScreen({ navigation }) {
     if (new Set(trimmed.map(n => n.toLowerCase())).size !== trimmed.length) {
       setError('Deux joueurs ont le même prénom !'); return;
     }
-    const cards = getMotDePasseCards(wordCount);
+    const cards = getMotDePasseCards(wordCount, category);
     navigation.navigate('MotDePasseGame', { players: trimmed, cards, timerSecs });
   };
 
@@ -100,6 +101,29 @@ export default function MotDePasseSetupScreen({ navigation }) {
                 </TouchableOpacity>
               ))}
             </View>
+          </View>
+
+          {/* Catégorie */}
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>🔞  Catégorie</Text>
+            <View style={styles.pillRow}>
+              {[
+                { key: 'normal', label: 'Tout public', emoji: '👪' },
+                { key: 'adult',  label: 'Adulte 18+',  emoji: '🔞' },
+              ].map(c => (
+                <TouchableOpacity
+                  key={c.key}
+                  onPress={() => setCategory(c.key)}
+                  style={[styles.pill, category === c.key && styles.pillActive]}
+                >
+                  <Text style={styles.pillNum}>{c.emoji}</Text>
+                  <Text style={[styles.pillLabel, category === c.key && { color: CYAN_LIGHT }]}>{c.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {category === 'adult' && (
+              <Text style={styles.adultWarning}>⚠️  Contenu réservé aux adultes</Text>
+            )}
           </View>
 
           {/* Nb mots */}
@@ -219,6 +243,7 @@ const styles = StyleSheet.create({
   pillNum: { fontSize: 20, fontWeight: '900', color: colors.textMuted },
   pillNumActive: { color: CYAN_LIGHT },
   pillLabel: { fontSize: 10, color: colors.textMuted, marginTop: 1 },
+  adultWarning: { fontSize: 11, color: '#F59E0B', marginTop: spacing.sm, textAlign: 'center', fontStyle: 'italic' },
 
   playerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
   inputWrap: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, paddingHorizontal: spacing.sm, gap: spacing.xs },

@@ -89,11 +89,10 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const [timer,      setTimer]      = useState(TOTAL_TIME);
   const [foundPts,   setFoundPts]   = useState(0);
   const [wrongFlash, setWrongFlash] = useState(false);
-  const [ytSrc,      setYtSrc]      = useState('');
-
   const timerRef  = useRef(null);
   const phaseRef  = useRef('idle');
   const songRef   = useRef(songs[0]);
+  const iframeRef = useRef(null);
   const answerSlide   = useRef(new Animated.Value(300)).current;
   const answerOpacity = useRef(new Animated.Value(0)).current;
   const feedbackScale = useRef(new Animated.Value(0)).current;
@@ -117,7 +116,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
   }, []);
 
   const stopAudio = useCallback(() => {
-    if (Platform.OS === 'web') setYtSrc('');
+    if (Platform.OS === 'web' && iframeRef.current) iframeRef.current.src = '';
   }, []);
 
   useEffect(() => {
@@ -162,9 +161,11 @@ export default function BlindTestGameScreen({ navigation, route }) {
 
     if (Platform.OS === 'web') {
       const start = song.startAt ?? 0;
-      // Mobile : controls=1 pour que l'utilisateur puisse appuyer sur play si l'autoplay est bloqué (iOS)
-      const controls = isMobileWeb ? 1 : 0;
-      setYtSrc(`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=${controls}&rel=0&modestbranding=1&iv_load_policy=3`);
+      // Manipulation DOM synchrone dans le gestionnaire de clic = le navigateur mobile
+      // reconnaît le geste utilisateur et autorise l'autoplay dans l'iframe caché
+      if (iframeRef.current) {
+        iframeRef.current.src = `https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
+      }
     } else {
       Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}`);
     }
@@ -359,16 +360,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
 
           {(phase === 'playing') && (
             <View style={styles.playingContent}>
-              {isMobileWeb && !!ytSrc
-                ? React.createElement('iframe', {
-                    key: ytSrc,
-                    src: ytSrc,
-                    allow: 'autoplay; encrypted-media',
-                    allowFullScreen: true,
-                    style: { width: '100%', height: 160, border: 'none', borderRadius: 12 },
-                  })
-                : <EqBars />
-              }
+              <EqBars />
               <View style={[styles.timerWrap, { borderColor: `${timerColor}60` }]}>
                 {isInfinite ? (
                   <Text style={[styles.timerNum, { color: timerColor, fontSize: 40 }]}>∞</Text>
@@ -447,9 +439,8 @@ export default function BlindTestGameScreen({ navigation, route }) {
         )}
       </ScrollView>
 
-      {Platform.OS === 'web' && !isMobileWeb && !!ytSrc && React.createElement('iframe', {
-        key: ytSrc,
-        src: ytSrc,
+      {Platform.OS === 'web' && React.createElement('iframe', {
+        ref: iframeRef,
         allow: 'autoplay; encrypted-media',
         style: { position: 'fixed', bottom: -1, left: -1, width: 1, height: 1, opacity: 0, border: 'none', pointerEvents: 'none' },
       })}

@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../theme';
 import { characters } from '../data/characters';
+import AdBanner from '../components/AdBanner';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 const N = characters.length;
@@ -434,6 +435,8 @@ export default function MenuScreen({ navigation }) {
           />
         ))}
       </Animated.View>
+
+      <AdBanner />
 
     </LinearGradient>
   );

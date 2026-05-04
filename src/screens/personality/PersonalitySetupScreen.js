@@ -66,7 +66,7 @@ export default function PersonalitySetupScreen({ navigation }) {
     const rounds = personalities.map(p => ({
       personality: p,
       choices: buildChoices(p, personalities.length >= 4 ? personalities : personalities),
-      tileOrder: shuffleTiles(12),
+      tileOrder: shuffleTiles(96),
     }));
     navigation.navigate('PersonalityGame', { players: trimmed, rounds });
   };

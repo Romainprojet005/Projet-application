@@ -19,6 +19,11 @@ export const MOT_DE_PASSE_CARDS = [
   { word: 'CROCODILE',          forbidden: ['Dents', 'Mâchoire', 'Reptile', 'Vert', 'Nager'] },
   { word: 'GIRAFE',             forbidden: ['Cou', 'Grand', 'Afrique', 'Taches', 'Savane'] },
   { word: 'ARAIGNÉE',           forbidden: ['Toile', 'Pattes', 'Peur', 'Venin', 'Huit'] },
+  { word: 'PAPILLON',           forbidden: ['Insecte', 'Aile', 'Chenille', 'Cocon', 'Voler'] },
+  { word: 'RENARD',             forbidden: ['Roux', 'Forêt', 'Rusé', 'Queue', 'Chasser'] },
+  { word: 'HIBOU',              forbidden: ['Oiseau', 'Nuit', 'Yeux', 'Forêt', 'Hululu'] },
+  { word: 'PIEUVRE',            forbidden: ['Tentacules', 'Mer', 'Encre', 'Huit', 'Mollusque'] },
+  { word: 'FLAMANT ROSE',       forbidden: ['Rose', 'Oiseau', 'Patte', 'Équilibre', 'Afrique'] },
 
   // ── SPORTS ───────────────────────────────────────────────────────
   { word: 'FOOTBALL',           forbidden: ['Ballon', 'But', 'Terrain', 'Joueur', 'Équipe'] },
@@ -31,6 +36,9 @@ export const MOT_DE_PASSE_CARDS = [
   { word: 'RUGBY',              forbidden: ['Ballon', 'Ovale', 'Plaquage', 'Essai', 'Équipe'] },
   { word: 'GOLF',               forbidden: ['Balle', 'Club', 'Trou', 'Fairway', 'Green'] },
   { word: 'ESCRIME',            forbidden: ['Épée', 'Masque', 'Fleuret', 'Combat', 'Touche'] },
+  { word: 'TRAMPOLINE',         forbidden: ['Sauter', 'Rebondir', 'Ressort', 'Sport', 'Enfant'] },
+  { word: 'SKATEBOARD',         forbidden: ['Planche', 'Roulettes', 'Glisser', 'Trick', 'Street'] },
+  { word: 'SURF',               forbidden: ['Vague', 'Mer', 'Planche', 'Glisser', 'Hawaii'] },
 
   // ── ALIMENTS ─────────────────────────────────────────────────────
   { word: 'PIZZA',              forbidden: ['Italie', 'Fromage', 'Tomate', 'Four', 'Ronde'] },
@@ -43,6 +51,11 @@ export const MOT_DE_PASSE_CARDS = [
   { word: 'HAMBURGER',          forbidden: ['Bun', 'Steak', 'Américain', 'McDonald', 'Fast-food'] },
   { word: 'PÂTES',              forbidden: ['Italie', 'Cuire', 'Sauce', 'Spaghetti', 'Farine'] },
   { word: 'FRAISE',             forbidden: ['Rouge', 'Fruit', 'Printemps', 'Confiture', 'Saison'] },
+  { word: 'CHAMPAGNE',          forbidden: ['Bulles', 'Fête', 'France', 'Alcool', 'Bouteille'] },
+  { word: 'BAGUETTE',           forbidden: ['France', 'Pain', 'Boulanger', 'Long', 'Croustillant'] },
+  { word: 'RAMEN',              forbidden: ['Japon', 'Soupe', 'Nouilles', 'Bouillon', 'Chaud'] },
+  { word: 'TACO',               forbidden: ['Mexique', 'Tortilla', 'Salsa', 'Manger', 'Mexicain'] },
+  { word: 'FONDUE',             forbidden: ['Fromage', 'Suisse', 'Chauffer', 'Partager', 'Manger'] },
 
   // ── LIEUX ────────────────────────────────────────────────────────
   { word: 'PLAGE',              forbidden: ['Mer', 'Sable', 'Vacances', 'Soleil', 'Eau'] },
@@ -53,6 +66,8 @@ export const MOT_DE_PASSE_CARDS = [
   { word: 'STADE',              forbidden: ['Sport', 'Tribunes', 'Match', 'Pelouse', 'Spectateurs'] },
   { word: 'MUSÉE',              forbidden: ['Art', 'Tableau', 'Culture', 'Expo', 'Œuvre'] },
   { word: 'SUPERMARCHÉ',        forbidden: ['Courses', 'Rayon', 'Caisse', 'Chariot', 'Acheter'] },
+  { word: 'GROTTE',             forbidden: ['Caverne', 'Pierre', 'Sombre', 'Stalactite', 'Préhistoire'] },
+  { word: 'IGLOO',              forbidden: ['Neige', 'Esquimau', 'Arctique', 'Froid', 'Glace'] },
 
   // ── OBJETS ───────────────────────────────────────────────────────
   { word: 'TÉLÉPHONE',          forbidden: ['Appeler', 'Écran', 'Portable', 'Mobile', 'Sonner'] },
@@ -63,6 +78,9 @@ export const MOT_DE_PASSE_CARDS = [
   { word: 'LUNETTES',           forbidden: ['Voir', 'Yeux', 'Verre', 'Monture', 'Vue'] },
   { word: 'CASQUE',             forbidden: ['Tête', 'Protection', 'Moto', 'Musique', 'Son'] },
   { word: 'BOUGIE',             forbidden: ['Lumière', 'Feu', 'Cire', 'Flamme', 'Romantique'] },
+  { word: 'PARACHUTE',          forbidden: ['Sauter', 'Chute', 'Ciel', 'Tissu', 'Avion'] },
+  { word: 'BOOMERANG',          forbidden: ['Revenir', 'Lancer', 'Australie', 'Bois', 'Retour'] },
+  { word: 'LASSO',              forbidden: ['Cowboy', 'Attraper', 'Corde', 'Rodéo', 'Lancer'] },
 
   // ── POP CULTURE ──────────────────────────────────────────────────
   { word: 'SUPERMAN',           forbidden: ['Super-héros', 'Cape', 'Kryptonite', 'Clark Kent', 'Voler'] },
@@ -73,6 +91,15 @@ export const MOT_DE_PASSE_CARDS = [
   { word: 'MINECRAFT',          forbidden: ['Jeu', 'Cube', 'Construire', 'Creeper', 'Blocs'] },
   { word: 'NETFLIX',            forbidden: ['Film', 'Série', 'Streaming', 'Abonnement', 'Regarder'] },
   { word: 'EMOJI',              forbidden: ['Symbole', 'Émotion', 'Téléphone', 'Image', 'Exprimer'] },
+  { word: 'SHERLOCK HOLMES',    forbidden: ['Détective', 'Pipe', 'Chapeau', 'Watson', 'Anglais'] },
+  { word: 'JAMES BOND',         forbidden: ['Espion', 'Agent', 'Martini', 'Mission', 'Voiture'] },
+  { word: 'SELFIE',             forbidden: ['Photo', 'Soi-même', 'Téléphone', 'Partager', 'Poser'] },
+  { word: 'INFLUENCEUR',        forbidden: ['Réseaux', 'Followers', 'YouTube', 'Instagram', 'Marque'] },
+  { word: 'PODCAST',            forbidden: ['Audio', 'Écouter', 'Épisode', 'Micro', 'Voix'] },
+  { word: 'GRAFFITI',           forbidden: ['Peinture', 'Mur', 'Spray', 'Dessin', 'Street'] },
+  { word: 'KARAOKE',            forbidden: ['Chanter', 'Micro', 'Chanson', 'Bar', 'Écran'] },
+  { word: 'TAPIS ROUGE',        forbidden: ['Célébrités', 'Cinéma', 'Oscar', 'Mode', 'Marcher'] },
+  { word: 'PAPARAZZI',          forbidden: ['Photo', 'Célébrités', 'Caché', 'Appareil', 'Suivre'] },
 
   // ── NATURE / SCIENCE ─────────────────────────────────────────────
   { word: 'ÉCLIPSE',            forbidden: ['Soleil', 'Lune', 'Ombre', 'Astronomie', 'Cacher'] },
@@ -81,6 +108,8 @@ export const MOT_DE_PASSE_CARDS = [
   { word: 'ARC-EN-CIEL',        forbidden: ['Couleur', 'Pluie', 'Soleil', 'Beau', 'Ciel'] },
   { word: 'AVALANCHE',          forbidden: ['Neige', 'Montagne', 'Glisser', 'Danger', 'Ski'] },
   { word: 'DIAMANT',            forbidden: ['Pierre', 'Bijou', 'Dur', 'Bague', 'Précieux'] },
+  { word: 'ORIGAMI',            forbidden: ['Papier', 'Plier', 'Japon', 'Figure', 'Art'] },
+  { word: 'KARMA',              forbidden: ['Destin', 'Bouddhisme', 'Bien', 'Mal', 'Retour'] },
 
   // ── MOTS ABSTRAITS ───────────────────────────────────────────────
   { word: 'LIBERTÉ',            forbidden: ['Libre', 'Droit', 'Choisir', 'Indépendance', 'Prison'] },
@@ -88,6 +117,7 @@ export const MOT_DE_PASSE_CARDS = [
   { word: 'PATIENCE',           forbidden: ['Attendre', 'Calme', 'Temps', 'Vertu', 'Zen'] },
   { word: 'JALOUSIE',           forbidden: ['Jaloux', 'Envie', 'Rival', 'Sentiment', 'Vert'] },
   { word: 'NOSTALGIE',          forbidden: ['Passé', 'Souvenir', 'Mélancolie', 'Vieux', 'Temps'] },
+  { word: 'PROCRASTINATION',    forbidden: ['Remettre', 'Retarder', 'Plus tard', 'Paresse', 'Tâche'] },
 
   // ── MÉTIERS ──────────────────────────────────────────────────────
   { word: 'MÉDECIN',            forbidden: ['Docteur', 'Hôpital', 'Soigner', 'Malade', 'Ordonnance'] },
@@ -97,6 +127,7 @@ export const MOT_DE_PASSE_CARDS = [
   { word: 'ACTEUR',             forbidden: ['Film', 'Jouer', 'Rôle', 'Scène', 'Hollywood'] },
   { word: 'MAGICIEN',           forbidden: ['Magie', 'Tour', 'Baguette', 'Chapeau', 'Illusion'] },
   { word: 'PIRATE',             forbidden: ['Bateau', 'Mer', 'Trésor', 'Perroquet', 'Crochet'] },
+  { word: 'ASTRONOME',          forbidden: ['Étoiles', 'Télescope', 'Espace', 'Science', 'Planètes'] },
 
   // ── FÊTES / EVENTS ───────────────────────────────────────────────
   { word: 'NOËL',               forbidden: ['Père Noël', 'Cadeau', 'Sapin', 'Hiver', 'Décembre'] },
@@ -118,19 +149,51 @@ export const MOT_DE_PASSE_CARDS = [
   { word: 'CLÉOPÂTRE',          forbidden: ['Égypte', 'Reine', 'Serpent', 'Pharaon', 'César'] },
   { word: 'PICASSO',            forbidden: ['Peintre', 'Art', 'Tableau', 'Cubisme', 'Espagne'] },
   { word: 'SHAKESPEARE',        forbidden: ['Écrivain', 'Roméo', 'Anglais', 'Théâtre', 'Hamlet'] },
+
+  // ── ADULTE 🔞 ────────────────────────────────────────────────────
+  { category: 'adult', word: 'KAMA-SUTRA',        forbidden: ['Livre', 'Inde', 'Positions', 'Corps', 'Couple'] },
+  { category: 'adult', word: 'STRIP-POKER',        forbidden: ['Cartes', 'Jeu', 'Déshabiller', 'Enjeu', 'Pari'] },
+  { category: 'adult', word: 'APHRODISIAQUE',      forbidden: ['Désir', 'Stimuler', 'Huître', 'Libido', 'Sexe'] },
+  { category: 'adult', word: 'FANTASME',           forbidden: ['Rêve', 'Désir', 'Imaginaire', 'Secret', 'Sexe'] },
+  { category: 'adult', word: 'LINGERIE',           forbidden: ['Sous-vêtements', 'Dentelle', 'Féminin', 'Soutien', 'Porter'] },
+  { category: 'adult', word: 'TINDER',             forbidden: ['Application', 'Swiper', 'Rencontres', 'Profil', 'Match'] },
+  { category: 'adult', word: 'INFIDÈLE',           forbidden: ['Tromper', 'Couple', 'Liaison', 'Tromperie', 'Adultère'] },
+  { category: 'adult', word: 'AMANT',              forbidden: ['Secret', 'Relation', 'Couple', 'Homme', 'Maîtresse'] },
+  { category: 'adult', word: 'VOYEUR',             forbidden: ['Regarder', 'Secret', 'Observer', 'Fenêtre', 'Indiscret'] },
+  { category: 'adult', word: 'STRIPTEASE',         forbidden: ['Danser', 'Déshabiller', 'Club', 'Barre', 'Spectacle'] },
+  { category: 'adult', word: 'LIBIDO',             forbidden: ['Désir', 'Sexuel', 'Envie', 'Pulsion', 'Manque'] },
+  { category: 'adult', word: 'PRÉSERVATIF',        forbidden: ['Protection', 'Contraception', 'Caoutchouc', 'Capote', 'Utiliser'] },
+  { category: 'adult', word: 'FÉTICHE',            forbidden: ['Objet', 'Désir', 'Spécial', 'Fixation', 'Attirance'] },
+  { category: 'adult', word: 'COCU',               forbidden: ['Trompé', 'Tromper', 'Couple', 'Cornes', 'Adultère'] },
+  { category: 'adult', word: 'SÉDUCTEUR',          forbidden: ['Charme', 'Draguer', 'Don Juan', 'Attirer', 'Flirt'] },
+  { category: 'adult', word: 'SEXTOY',             forbidden: ['Objet', 'Plaisir', 'Intime', 'Vibrer', 'Corps'] },
+  { category: 'adult', word: 'SEXTING',            forbidden: ['Message', 'Photo', 'Téléphone', 'Intime', 'Envoyer'] },
+  { category: 'adult', word: 'ONE-NIGHT STAND',    forbidden: ['Nuit', 'Rencontre', 'Aventure', 'Coucher', 'Lendemain'] },
+  { category: 'adult', word: 'ORGASME',            forbidden: ['Plaisir', 'Culminer', 'Corps', 'Jouir', 'Sommet'] },
+  { category: 'adult', word: 'LIBERTINAGE',        forbidden: ['Liberté', 'Relations', 'Ouvert', 'Partenaires', 'Couple'] },
+  { category: 'adult', word: 'MAÎTRESSE',          forbidden: ['Secret', 'Relation', 'Couple', 'Femme', 'Amant'] },
+  { category: 'adult', word: 'BDSM',               forbidden: ['Dominant', 'Soumis', 'Attacher', 'Fouet', 'Jeu'] },
+  { category: 'adult', word: 'EXHIBITIONNISTE',    forbidden: ['Montrer', 'Nu', 'Public', 'Corps', 'Dévoiler'] },
+  { category: 'adult', word: 'FLIRT',              forbidden: ['Séduire', 'Draguer', 'Regard', 'Sourire', 'Romantique'] },
+  { category: 'adult', word: 'ÉROTIQUE',           forbidden: ['Sensuel', 'Désir', 'Film', 'Roman', 'Charnel'] },
 ];
 
-let _usedIndices = new Set();
+const _usedNormal = new Set();
+const _usedAdult  = new Set();
 
-export function getMotDePasseCards(count) {
-  let available = MOT_DE_PASSE_CARDS
+export function getMotDePasseCards(count, category = 'normal') {
+  const isAdult = category === 'adult';
+  const used = isAdult ? _usedAdult : _usedNormal;
+  const pool = MOT_DE_PASSE_CARDS
     .map((c, i) => ({ ...c, _i: i }))
-    .filter(c => !_usedIndices.has(c._i));
+    .filter(c => isAdult ? c.category === 'adult' : c.category !== 'adult');
+
+  let available = pool.filter(c => !used.has(c._i));
   if (available.length < count) {
-    _usedIndices.clear();
-    available = MOT_DE_PASSE_CARDS.map((c, i) => ({ ...c, _i: i }));
+    used.clear();
+    available = pool;
   }
   const selected = shuffle([...available]).slice(0, Math.min(count, available.length));
-  selected.forEach(c => _usedIndices.add(c._i));
+  selected.forEach(c => used.add(c._i));
   return selected;
 }
