@@ -178,8 +178,8 @@ export const characters = [
     description:
       'Le super-héros le plus rapide de l\'univers met vos réflexes à l\'épreuve ! Buzzez avant les autres et répondez à la question pour marquer des points.',
     catchphrase: '"Rapidité, instinct, victoire !"',
-    color: '#DC2626',
-    gradientColors: ['#1A0000', '#2D0000'],
+    color: '#EAB308',
+    gradientColors: ['#1A1400', '#2D2200'],
     game: 'buzzer',
     gameName: 'BUZZER',
     available: true,
@@ -197,8 +197,8 @@ export const characters = [
     description:
       'Le juge implacable préside le tribunal des amis ! Chacun écrit une vérité sur un autre, l\'accusé doit convaincre le jury que c\'est faux. La vérité sera jugée !',
     catchphrase: '"La cour est ouverte !"',
-    color: '#F59E0B',
-    gradientColors: ['#1A0C00', '#2D1500'],
+    color: '#14B8A6',
+    gradientColors: ['#001A18', '#002D28'],
     game: 'tribunal',
     gameName: 'TRIBUNAL',
     available: true,
