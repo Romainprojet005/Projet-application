@@ -132,7 +132,6 @@ function GameBoardScreen({ roles, onBackToMenu }) {
                   <>
                     <Text style={styles.gbEmoji}>{roleCfg.emoji}</Text>
                     <Text style={[styles.gbRole, { color: roleCfg.color }]}>{roleCfg.label}</Text>
-                    <Text style={styles.gbWord} numberOfLines={2}>{r.word || '???'}</Text>
                     <View style={styles.gbElimTag}>
                       <Text style={styles.gbElimTagText}>💀 ÉLIMINÉ</Text>
                     </View>

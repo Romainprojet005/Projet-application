@@ -338,6 +338,7 @@ export default function MenuScreen({ navigation }) {
       vote:        'VoteSetup',
       mime:        'MimeSetup',
       buzzer:      'BuzzerSetup',
+      tribunal:    'TribunalSetup',
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };

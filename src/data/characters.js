@@ -190,6 +190,25 @@ export const characters = [
     },
   },
   {
+    id: 'tribunal',
+    name: 'Le Juge',
+    emoji: '⚖️',
+    title: 'Gardien de la Vérité',
+    description:
+      'Le juge implacable préside le tribunal des amis ! Chacun écrit une vérité sur un autre, l\'accusé doit convaincre le jury que c\'est faux. La vérité sera jugée !',
+    catchphrase: '"La cour est ouverte !"',
+    color: '#F59E0B',
+    gradientColors: ['#1A0C00', '#2D1500'],
+    game: 'tribunal',
+    gameName: 'TRIBUNAL',
+    available: true,
+    stats: {
+      Vérité: 99,
+      Bluff: 88,
+      Persuasion: 94,
+    },
+  },
+  {
     id: 'cyrano',
     name: 'Cyrano de Bergerac',
     emoji: '🎭',
