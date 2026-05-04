@@ -226,7 +226,7 @@ export default function VoteGameScreen({ route, navigation }) {
           </View>
           <Text style={styles.progressLabel}>{questionIdx + 1}/{questions.length}</Text>
         </View>
-        <ScrollView contentContainerStyle={styles.revealScroll} showsVerticalScrollIndicator={false}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.revealScroll} showsVerticalScrollIndicator={false}>
           <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 
             <Text style={styles.revealHeading}>🗳️  Résultat du vote</Text>
