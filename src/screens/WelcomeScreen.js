@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, Animated,
   TouchableOpacity, Platform,
@@ -126,24 +126,6 @@ function ShootingStar() {
   );
 }
 
-// ── Confetti ──────────────────────────────────────────────────────────
-const CONFETTI_COLORS = ['#D4AF37', '#F4DC8C', '#EC4899', '#A78BFA', '#10B981', '#F87171', '#FBBF24'];
-const CONFETTI_COUNT = 24;
-
-function ConfettiPiece({ color, startX, anim }) {
-  return (
-    <Animated.View pointerEvents="none" style={{
-      position: 'absolute', bottom: 80, left: startX,
-      width: 7, height: 7, borderRadius: 2, backgroundColor: color,
-      opacity: anim.opacity,
-      transform: [
-        { translateX: anim.x }, { translateY: anim.y },
-        { rotate: anim.rotate.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) },
-      ],
-    }} />
-  );
-}
-
 // ── WelcomeScreen ─────────────────────────────────────────────────────
 export default function WelcomeScreen({ navigation }) {
   const bgOpacity   = useRef(new Animated.Value(0)).current;
@@ -153,17 +135,6 @@ export default function WelcomeScreen({ navigation }) {
   const buttonScale = useRef(new Animated.Value(0)).current;
   const pulseAnim   = useRef(new Animated.Value(1)).current;
   const shimmer     = useRef(new Animated.Value(0)).current;
-
-  const [confetti] = useState(() =>
-    Array.from({ length: CONFETTI_COUNT }, (_, i) => ({
-      color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-      startX: 80 + Math.random() * 200,
-      anim: {
-        x: new Animated.Value(0), y: new Animated.Value(0),
-        opacity: new Animated.Value(0), rotate: new Animated.Value(0),
-      },
-    }))
-  );
 
   useEffect(() => {
     Animated.sequence([
@@ -185,25 +156,6 @@ export default function WelcomeScreen({ navigation }) {
       ])).start();
     });
   }, []);
-
-  const fireConfetti = () => {
-    confetti.forEach(({ anim }) => {
-      anim.x.setValue(0); anim.y.setValue(0);
-      anim.opacity.setValue(0); anim.rotate.setValue(0);
-    });
-    Animated.parallel(confetti.map(({ anim }) => {
-      const delay = Math.random() * 200;
-      return Animated.parallel([
-        Animated.sequence([
-          Animated.timing(anim.opacity, { toValue: 1, duration: 80,  delay, useNativeDriver: true }),
-          Animated.timing(anim.opacity, { toValue: 0, duration: 500, delay: delay + 500, useNativeDriver: true }),
-        ]),
-        Animated.timing(anim.y,      { toValue: -(120 + Math.random() * 180), duration: 900 + Math.random() * 400, delay, useNativeDriver: true }),
-        Animated.timing(anim.x,      { toValue: (Math.random() - 0.5) * 220,  duration: 900 + Math.random() * 400, delay, useNativeDriver: true }),
-        Animated.timing(anim.rotate, { toValue: 1, duration: 900, delay, useNativeDriver: true }),
-      ]);
-    })).start();
-  };
 
   return (
     <LinearGradient colors={['#050410', '#0A0820', '#050410']} style={st.container}>
@@ -287,7 +239,7 @@ export default function WelcomeScreen({ navigation }) {
         {/* Bouton COMMENCER */}
         <Animated.View style={{ width: '100%', alignItems: 'center', transform: [{ scale: Animated.multiply(buttonScale, pulseAnim) }] }}>
           <TouchableOpacity
-            onPress={() => { fireConfetti(); setTimeout(() => navigation.replace('Menu'), 400); }}
+            onPress={() => navigation.replace('Menu')}
             activeOpacity={0.88}
             style={st.buttonWrap}
           >
@@ -320,7 +272,6 @@ export default function WelcomeScreen({ navigation }) {
         </Animated.View>
       </View>
 
-      {confetti.map((c, i) => <ConfettiPiece key={i} color={c.color} startX={c.startX} anim={c.anim} />)}
     </LinearGradient>
   );
 }
