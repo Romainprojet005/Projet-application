@@ -1,4 +1,6 @@
-import React, { useRef, useEffect, useState, useCallback, memo } from 'react';
+import React, {
+  useRef, useEffect, useLayoutEffect, useState, useCallback, memo,
+} from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   PanResponder, Animated, Easing, Dimensions, Platform,
@@ -12,25 +14,60 @@ const { width: SW, height: SH } = Dimensions.get('window');
 const N = characters.length;
 
 const IS_MOBILE_WEB = Platform.OS === 'web' && SW < 600;
-const CARD_W = IS_MOBILE_WEB ? Math.min(SW * 0.68, 230)
+
+// Cartes plus petites sur mobile pour laisser de l'espace entre elles
+const CARD_W = IS_MOBILE_WEB ? Math.min(SW * 0.56, 200)
              : Platform.OS === 'web' ? 280
              : Math.min(SW * 0.75, 300);
 const CARD_H = Math.round(CARD_W * 1.5);
 
-const RADIUS = Platform.OS === 'web'
-  ? (IS_MOBILE_WEB ? 300 : 480)
-  : CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15;
+// Rayon plus grand sur mobile → plus d'espace entre les cartes
+const RADIUS = IS_MOBILE_WEB ? Math.max(SW * 1.05, 360)
+             : Platform.OS === 'web' ? 490
+             : CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15;
+
 const STEP = (2 * Math.PI) / N;
 
-// Plus sensible sur mobile (moins de pixels pour avancer d'une carte)
-const DRAG_FACTOR = STEP / (IS_MOBILE_WEB ? CARD_W * 0.55 : CARD_W);
+// Sensibilité du glisser
+const DRAG_FACTOR = STEP / (IS_MOBILE_WEB ? CARD_W * 0.5 : CARD_W);
 
-// ── Web: CSS ──────────────────────────────────────────────────────────
+// ── Calcul position d'une carte pour une rotation donnée ─────────────
+function cardPos(rot, i) {
+  const alpha = rot + i * STEP;
+  const cosA  = Math.cos(alpha);
+  const sinA  = Math.sin(alpha);
+  const t     = (cosA + 1) / 2; // 0 = derrière, 1 = devant
+  // Sur mobile : falloff plus marqué → cartes latérales très petites/transparentes
+  const pow = IS_MOBILE_WEB ? 2.2 : 1;
+  const sc  = IS_MOBILE_WEB ? 0.12 + 0.88 * Math.pow(t, pow) : 0.28 + 0.72 * t;
+  const op  = IS_MOBILE_WEB ? 0.05 + 0.95 * Math.pow(t, 2.8) : 0.18 + 0.82 * t;
+  return {
+    x:     RADIUS * sinA,
+    depth: cosA,
+    sc, op,
+    ry:    alpha * 180 / Math.PI,
+    z:     Math.round((cosA + 1) * 50),
+  };
+}
+
+function computePositions(rot) {
+  return characters.map((_, i) => cardPos(rot, i));
+}
+
+function getFrontIdx(rot) {
+  let best = 0, bestD = -Infinity;
+  for (let i = 0; i < N; i++) {
+    const d = Math.cos(rot + i * STEP);
+    if (d > bestD) { bestD = d; best = i; }
+  }
+  return best;
+}
+
+// ── CSS injection (web) ───────────────────────────────────────────────
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
   if (!document.getElementById('sdl-fonts')) {
     const lk = document.createElement('link');
-    lk.id = 'sdl-fonts';
-    lk.rel = 'stylesheet';
+    lk.id = 'sdl-fonts'; lk.rel = 'stylesheet';
     lk.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;500;600&display=swap';
     document.head.appendChild(lk);
   }
@@ -38,106 +75,147 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
     const st = document.createElement('style');
     st.id = 'sdl-menu-css';
     st.textContent = `
-      /* Carousel slots — GPU layer pour fluidité mobile */
-      .card-slot-3d {
-        transform-style: preserve-3d;
+      /* === Carousel stage === */
+      .sdl-stage {
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+        cursor: grab; user-select: none; -webkit-user-select: none;
+        perspective: 900px;
+      }
+      .sdl-stage.grabbing { cursor: grabbing; }
+
+      /* Slot GPU layer — will-change garantit un layer dédié */
+      .sdl-slot {
+        position: absolute;
         will-change: transform, opacity;
+        transform-style: preserve-3d;
         -webkit-transform-style: preserve-3d;
       }
 
-      /* Nébuleuses */
-      .sdl-nebula { position:absolute; border-radius:50%; filter:blur(80px); pointer-events:none; animation:sdl-drift 30s ease-in-out infinite alternate; }
-      .sdl-nebula-1 { top:10%; left:-10%; width:500px; height:500px; background:#7C3AED; opacity:0.12; }
-      .sdl-nebula-2 { top:50%; right:-8%; width:400px; height:400px; background:#EC4899; opacity:0.10; animation-delay:-10s; }
-      .sdl-nebula-3 { bottom:-10%; left:30%; width:450px; height:450px; background:#0EA5E9; opacity:0.10; animation-delay:-20s; }
-      @keyframes sdl-drift { from{transform:translate(0,0) scale(1);} to{transform:translate(40px,-30px) scale(1.1);} }
+      /* === Nébuleuses === */
+      .sdl-nebula {
+        position: absolute; border-radius: 50%;
+        filter: blur(80px); pointer-events: none;
+        animation: sdl-drift 30s ease-in-out infinite alternate;
+      }
+      .sdl-nebula-1 { top:10%;  left:-10%; width:500px; height:500px; background:#7C3AED; opacity:.12; }
+      .sdl-nebula-2 { top:50%;  right:-8%; width:400px; height:400px; background:#EC4899; opacity:.10; animation-delay:-10s; }
+      .sdl-nebula-3 { bottom:-10%; left:30%; width:450px; height:450px; background:#0EA5E9; opacity:.10; animation-delay:-20s; }
+      @keyframes sdl-drift { from{transform:translate(0,0)scale(1);} to{transform:translate(40px,-30px)scale(1.1);} }
 
-      /* Obsidian front */
+      /* === Carte Obsidienne === */
       .ob-front {
-        background: radial-gradient(ellipse at 50% 0%, color-mix(in oklab, var(--accent) 20%, transparent), transparent 60%),
-                    linear-gradient(180deg, #14101F 0%, #0A0815 60%, #0F0A1F 100%);
-        border: 1px solid rgba(212,175,55,0.25);
-        box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.08), inset 0 1px 0 rgba(255,255,255,0.04);
-        padding: 22px 20px 18px;
+        background:
+          radial-gradient(ellipse at 50% 0%, color-mix(in oklab,var(--accent) 22%,transparent), transparent 62%),
+          linear-gradient(180deg, #14101F 0%, #0A0815 60%, #0F0A1F 100%);
+        border: 1px solid rgba(212,175,55,.28);
+        box-shadow: 0 28px 70px rgba(0,0,0,.65),
+                    0 0 0 1px rgba(212,175,55,.07),
+                    inset 0 1px 0 rgba(255,255,255,.04);
+        padding: 20px 18px 16px;
         font-family: 'Cormorant Garamond', Georgia, serif;
         color: #F8E9C8;
         display: flex; flex-direction: column;
-        border-radius: 18px; overflow: hidden;
-        position: relative;
+        border-radius: 18px; overflow: hidden; position: relative;
         cursor: pointer;
-        transition: border-color 0.25s ease, box-shadow 0.25s ease;
-        user-select: none;
+        transition: border-color .25s ease, box-shadow .25s ease;
         -webkit-tap-highlight-color: transparent;
+        touch-action: none;
       }
       .ob-front:hover {
-        border-color: rgba(212,175,55,0.55);
-        box-shadow: 0 36px 90px rgba(0,0,0,0.65), 0 0 0 1px rgba(212,175,55,0.2), 0 0 30px rgba(212,175,55,0.1), inset 0 1px 0 rgba(255,255,255,0.06);
+        border-color: rgba(212,175,55,.55);
+        box-shadow: 0 36px 90px rgba(0,0,0,.7), 0 0 0 1px rgba(212,175,55,.2),
+                    0 0 28px rgba(212,175,55,.1), inset 0 1px 0 rgba(255,255,255,.06);
       }
-      .ob-unavailable { cursor: default; opacity: 0.55; }
-      .ob-unavailable:hover { border-color: rgba(212,175,55,0.25) !important; box-shadow: 0 30px 80px rgba(0,0,0,0.6) !important; }
+      .ob-unavailable { cursor:default; opacity:.52; pointer-events:none; }
 
-      .ob-grain { position:absolute; inset:0; pointer-events:none; opacity:0.5; background-image:radial-gradient(circle at 20% 30%, rgba(212,175,55,0.08) 1px, transparent 1.5px), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.04) 1px, transparent 1.5px); background-size:40px 40px,60px 60px; }
-      .ob-corner { position:absolute; width:28px; height:28px; border-color:#D4AF37; }
-      .ob-corner.tl { top:10px; left:10px; border-top:1.5px solid; border-left:1.5px solid; }
-      .ob-corner.tr { top:10px; right:10px; border-top:1.5px solid; border-right:1.5px solid; }
-      .ob-corner.bl { bottom:10px; left:10px; border-bottom:1.5px solid; border-left:1.5px solid; }
-      .ob-corner.br { bottom:10px; right:10px; border-bottom:1.5px solid; border-right:1.5px solid; }
-      .ob-header { display:flex; align-items:center; justify-content:center; gap:10px; font-family:'JetBrains Mono','Courier New',monospace; font-size:10px; letter-spacing:3px; color:#D4AF37; margin-bottom:6px; position:relative; z-index:1; }
+      .ob-grain { position:absolute; inset:0; pointer-events:none; opacity:.5;
+        background-image: radial-gradient(circle at 20% 30%,rgba(212,175,55,.08) 1px,transparent 1.5px),
+                          radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 1px,transparent 1.5px);
+        background-size: 40px 40px,60px 60px; }
+      .ob-corner { position:absolute; width:26px; height:26px; border-color:#D4AF37; }
+      .ob-corner.tl { top:9px; left:9px; border-top:1.5px solid; border-left:1.5px solid; }
+      .ob-corner.tr { top:9px; right:9px; border-top:1.5px solid; border-right:1.5px solid; }
+      .ob-corner.bl { bottom:9px; left:9px; border-bottom:1.5px solid; border-left:1.5px solid; }
+      .ob-corner.br { bottom:9px; right:9px; border-bottom:1.5px solid; border-right:1.5px solid; }
+      .ob-header { display:flex; align-items:center; justify-content:center; gap:9px;
+        font-family:'JetBrains Mono','Courier New',monospace; font-size:9px; letter-spacing:3px;
+        color:#D4AF37; margin-bottom:5px; position:relative; z-index:1; }
       .ob-dot { width:4px; height:4px; background:#D4AF37; border-radius:50%; display:inline-block; }
-      .ob-emoji-frame { position:relative; width:110px; height:110px; margin:12px auto 8px; display:flex; align-items:center; justify-content:center; border:1.5px solid #D4AF37; border-radius:50%; z-index:1; }
-      .ob-emoji-frame::before { content:''; position:absolute; inset:-8px; border:1px solid rgba(212,175,55,0.3); border-radius:50%; }
-      .ob-frame-glow { position:absolute; inset:4px; border-radius:50%; background:radial-gradient(circle, color-mix(in oklab, var(--accent) 30%, transparent), transparent 70%); filter:blur(8px); }
-      .ob-emoji { font-size:56px; position:relative; z-index:1; line-height:1; filter:drop-shadow(0 0 12px rgba(212,175,55,0.4)); }
-      .ob-name-block { text-align:center; margin:4px 0 8px; position:relative; z-index:1; }
-      .ob-rule { height:1px; background:linear-gradient(90deg,transparent,#D4AF37,transparent); margin:6px 0; }
-      .ob-name { font-family:'Cormorant Garamond',Georgia,serif; font-weight:600; font-style:italic; font-size:22px; color:#F8E9C8; letter-spacing:0.5px; line-height:1.1; }
-      .ob-title { font-family:'JetBrains Mono','Courier New',monospace; font-size:9px; letter-spacing:2.5px; color:rgba(212,175,55,0.7); margin-top:4px; text-transform:uppercase; }
-      .ob-game { text-align:center; font-family:'Cinzel',Georgia,serif; font-weight:700; font-size:18px; letter-spacing:4px; color:#D4AF37; text-shadow:0 0 10px rgba(212,175,55,0.3); margin:6px 0 10px; position:relative; z-index:1; }
-      .ob-meta { display:flex; align-items:center; justify-content:center; gap:18px; margin-top:auto; padding-top:10px; position:relative; z-index:1; }
+      .ob-emoji-frame { position:relative; width:100px; height:100px; margin:10px auto 7px;
+        display:flex; align-items:center; justify-content:center;
+        border:1.5px solid #D4AF37; border-radius:50%; z-index:1; }
+      .ob-emoji-frame::before { content:''; position:absolute; inset:-7px;
+        border:1px solid rgba(212,175,55,.3); border-radius:50%; }
+      .ob-frame-glow { position:absolute; inset:4px; border-radius:50;
+        background:radial-gradient(circle,color-mix(in oklab,var(--accent) 30%,transparent),transparent 70%);
+        filter:blur(8px); border-radius:50%; }
+      .ob-emoji { font-size:50px; position:relative; z-index:1; line-height:1;
+        filter:drop-shadow(0 0 10px rgba(212,175,55,.4)); }
+      .ob-name-block { text-align:center; margin:3px 0 7px; position:relative; z-index:1; }
+      .ob-rule { height:1px; background:linear-gradient(90deg,transparent,#D4AF37,transparent); margin:5px 0; }
+      .ob-name { font-family:'Cormorant Garamond',Georgia,serif; font-weight:600; font-style:italic;
+        font-size:20px; color:#F8E9C8; letter-spacing:.5px; line-height:1.1; }
+      .ob-title { font-family:'JetBrains Mono','Courier New',monospace; font-size:8px;
+        letter-spacing:2.5px; color:rgba(212,175,55,.7); margin-top:4px; text-transform:uppercase; }
+      .ob-game { text-align:center; font-family:'Cinzel',Georgia,serif; font-weight:700;
+        font-size:16px; letter-spacing:4px; color:#D4AF37; text-shadow:0 0 10px rgba(212,175,55,.3);
+        margin:5px 0 9px; position:relative; z-index:1; }
+      .ob-meta { display:flex; align-items:center; justify-content:center; gap:16px;
+        margin-top:auto; padding-top:9px; position:relative; z-index:1; }
       .ob-meta-cell { display:flex; flex-direction:column; align-items:center; gap:2px; }
-      .ob-meta-label { font-family:'JetBrains Mono','Courier New',monospace; font-size:8px; letter-spacing:2px; color:rgba(212,175,55,0.6); }
-      .ob-meta-value { font-family:'Cormorant Garamond',Georgia,serif; font-weight:600; font-size:16px; color:#F8E9C8; }
-      .ob-meta-divider { width:1px; height:24px; background:rgba(212,175,55,0.3); }
-      .ob-soon { position:absolute; inset:0; background:rgba(5,4,16,0.62); border-radius:18px; display:flex; align-items:center; justify-content:center; z-index:20; }
-      .ob-soon-badge { font-family:'JetBrains Mono','Courier New',monospace; font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.45); border:1px solid rgba(255,255,255,0.18); padding:7px 16px; border-radius:999px; }
+      .ob-meta-label { font-family:'JetBrains Mono','Courier New',monospace; font-size:7px;
+        letter-spacing:2px; color:rgba(212,175,55,.6); }
+      .ob-meta-value { font-family:'Cormorant Garamond',Georgia,serif; font-weight:600;
+        font-size:15px; color:#F8E9C8; }
+      .ob-meta-divider { width:1px; height:22px; background:rgba(212,175,55,.3); }
+      .ob-soon { position:absolute; inset:0; background:rgba(5,4,16,.62); border-radius:18px;
+        display:flex; align-items:center; justify-content:center; z-index:20; }
+      .ob-soon-badge { font-family:'JetBrains Mono','Courier New',monospace; font-size:9px;
+        letter-spacing:3px; color:rgba(255,255,255,.45);
+        border:1px solid rgba(255,255,255,.18); padding:6px 14px; border-radius:999px; }
 
-      .sdl-hint { font-family:'JetBrains Mono','Courier New',monospace; font-size:10px; letter-spacing:1.5px; color:rgba(255,255,255,0.28); }
+      /* Nav arrows */
+      .sdl-nav { position:absolute; top:50%; transform:translateY(-50%);
+        width:44px; height:44px; border-radius:50%; border:1px solid rgba(255,255,255,.22);
+        background:rgba(255,255,255,.08); backdrop-filter:blur(16px);
+        color:#fff; font-size:28px; font-weight:300; line-height:1;
+        display:flex; align-items:center; justify-content:center;
+        cursor:pointer; z-index:50; transition:background .2s,border-color .2s; }
+      .sdl-nav:hover { background:rgba(255,255,255,.14); border-color:rgba(212,175,55,.5); }
+      .sdl-nav-prev { left:12px; }
+      .sdl-nav-next { right:12px; }
+
+      /* Dots */
+      .sdl-dots { display:flex; align-items:center; justify-content:center; gap:7px; padding:10px 0; }
+      .sdl-dot { height:6px; border-radius:3px; background:rgba(255,255,255,.2);
+        border:none; cursor:pointer; padding:0; transition:width .3s,background .3s; }
+      .sdl-dot.active { width:22px; box-shadow:0 0 8px var(--accent); }
+
+      /* Hint */
+      .sdl-hint { font-family:'JetBrains Mono','Courier New',monospace; font-size:10px;
+        letter-spacing:1.5px; color:rgba(255,255,255,.28); display:block; text-align:center; padding-bottom:8px; }
     `;
     document.head.appendChild(st);
   }
 }
 
-// ── Étoiles ───────────────────────────────────────────────────────────
+// ── Étoiles (native) ──────────────────────────────────────────────────
 function makeStarLayer(count, maxSize) {
   const base = Array.from({ length: count }, () => ({
-    left: Math.random() * SW,
-    top:  Math.random() * SH,
+    left: Math.random() * SW, top: Math.random() * SH,
     size: Math.random() * maxSize + 0.5,
     op:   Math.random() * 0.45 + 0.12,
   }));
-  return [
-    ...base.map((s, i) => ({ ...s, id: i })),
-    ...base.map((s, i) => ({ ...s, id: i + count, top: s.top + SH })),
-  ];
+  return [...base.map((s, i) => ({ ...s, id: i })),
+          ...base.map((s, i) => ({ ...s, id: i + count, top: s.top + SH }))];
 }
 const STAR_L1 = makeStarLayer(30, 1.5);
 const STAR_L2 = makeStarLayer(18, 2.2);
 const STAR_L3 = makeStarLayer(10, 3.2);
 
-// ── Positions cylindre ────────────────────────────────────────────────
-function computePositions(rotation) {
-  return characters.map((_, i) => {
-    const alpha = rotation + i * STEP;
-    const cosA  = Math.cos(alpha);
-    const x     = RADIUS * Math.sin(alpha);
-    const sc    = 0.28 + 0.72 * ((cosA + 1) / 2);
-    const op    = 0.18 + 0.82 * ((cosA + 1) / 2);
-    const ry    = alpha * 180 / Math.PI;
-    return { x, depth: cosA, sc, op, ry };
-  });
-}
-
-// ── Obsidian card (web, sans flip) ────────────────────────────────────
+// ── Carte Obsidienne (web, sans flip) ─────────────────────────────────
 function ObsidianCard({ character, idx, onPlay }) {
   const n = String(idx + 1).padStart(2, '0');
   return (
@@ -292,14 +370,6 @@ const cd = StyleSheet.create({
   playBtnText: { fontSize: 12, fontWeight: '900', color: '#fff', letterSpacing: 2 },
 });
 
-// ── GameCard — sélecteur web / natif ──────────────────────────────────
-const GameCard = memo(function GameCard({ character, onPress, idx }) {
-  if (Platform.OS === 'web') {
-    return <ObsidianCard character={character} idx={idx} onPlay={() => onPress(character)} />;
-  }
-  return <GameCardNative character={character} onPress={onPress} />;
-});
-
 // ── MenuScreen ────────────────────────────────────────────────────────
 export default function MenuScreen({ navigation }) {
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -307,85 +377,167 @@ export default function MenuScreen({ navigation }) {
   const starMid    = useRef(new Animated.Value(0)).current;
   const starFast   = useRef(new Animated.Value(0)).current;
 
+  // Rotation du cylindre
   const rotRef       = useRef(0);
   const targetRef    = useRef(0);
-  const dragStartRot = useRef(0);
-  const isDragging   = useRef(false);
   const rafRef       = useRef(null);
+  const dragRafRef   = useRef(null);  // throttle drag sur web
 
-  const [positions, setPositions] = useState(() => computePositions(0));
+  // DOM refs pour manipulation directe (web uniquement)
+  const cardSlotRefs = useRef({});
+  const stageRef     = useRef(null);
+  const dotsRef      = useRef({});
+
+  // State minimal : juste l'index actif (pour les dots et les positions natives)
   const [activeIdx, setActiveIdx] = useState(0);
+  const [positions, setPositions] = useState(() => computePositions(0)); // natif seulement
 
-  const getFrontIdx = (rot) => {
-    let best = 0, bestDepth = -Infinity;
-    for (let i = 0; i < N; i++) {
-      const d = Math.cos(rot + i * STEP);
-      if (d > bestDepth) { bestDepth = d; best = i; }
+  // ── Mise à jour du carousel ────────────────────────────────────────
+  // Sur web : DOM direct → 0 re-render pendant l'animation
+  // Sur natif : setState classique
+  const updateCarousel = useCallback((rot) => {
+    if (Platform.OS === 'web') {
+      characters.forEach((_, i) => {
+        const el = cardSlotRefs.current[i];
+        if (!el) return;
+        const p = cardPos(rot, i);
+        el.style.transform = `translateX(${p.x}px) scale(${p.sc}) rotateY(${p.ry}deg)`;
+        el.style.opacity    = p.op;
+        el.style.zIndex     = p.z;
+      });
+    } else {
+      setPositions(computePositions(rot));
     }
-    return best;
-  };
+  }, []);
 
-  const refresh = useCallback((rot) => { setPositions(computePositions(rot)); }, []);
-
+  // ── Animation lerp vers la cible ──────────────────────────────────
   const animate = useCallback(() => {
-    const cur  = rotRef.current;
-    const tgt  = targetRef.current;
-    const diff = tgt - cur;
+    const diff = targetRef.current - rotRef.current;
     if (Math.abs(diff) < 0.001) {
-      rotRef.current = tgt;
-      refresh(tgt);
-      setActiveIdx(getFrontIdx(tgt));
+      rotRef.current = targetRef.current;
+      updateCarousel(rotRef.current);
+      setActiveIdx(getFrontIdx(rotRef.current));
       return;
     }
-    // Lerp légèrement plus rapide pour le ressenti mobile
-    rotRef.current = cur + diff * 0.17;
-    refresh(rotRef.current);
+    rotRef.current += diff * 0.18;
+    updateCarousel(rotRef.current);
     rafRef.current = requestAnimationFrame(animate);
-  }, [refresh]);
+  }, [updateCarousel]);
 
   const navigateCard = useCallback((dir) => {
-    const current = Math.round(rotRef.current / STEP) * STEP;
-    targetRef.current = current + dir * STEP;
+    targetRef.current = Math.round(rotRef.current / STEP) * STEP + dir * STEP;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(animate);
   }, [animate]);
 
-  const snapToNearest = useCallback((velocityX = 0) => {
-    const momentum    = velocityX * DRAG_FACTOR * 55;
-    const raw         = rotRef.current + momentum;
-    targetRef.current = Math.round(raw / STEP) * STEP;
+  const snapToNearest = useCallback((vx = 0) => {
+    const momentum    = vx * DRAG_FACTOR * 55;
+    targetRef.current = Math.round((rotRef.current + momentum) / STEP) * STEP;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(animate);
   }, [animate]);
 
+  // ── Gestionnaires pointer (web) ────────────────────────────────────
+  const webDrag = useRef({ active: false, startX: 0, startRot: 0, lastX: 0, lastT: 0, vx: 0 });
+
+  const onPtrDown = useCallback((e) => {
+    webDrag.current = { active: true, startX: e.clientX, startRot: rotRef.current, lastX: e.clientX, lastT: performance.now(), vx: 0 };
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    stageRef.current?.setPointerCapture?.(e.pointerId);
+    stageRef.current?.classList.add('grabbing');
+  }, []);
+
+  const onPtrMove = useCallback((e) => {
+    if (!webDrag.current.active) return;
+    const now = performance.now();
+    const dt  = now - webDrag.current.lastT;
+    if (dt > 8) {
+      webDrag.current.vx     = (e.clientX - webDrag.current.lastX) / dt;
+      webDrag.current.lastX  = e.clientX;
+      webDrag.current.lastT  = now;
+    }
+    rotRef.current = webDrag.current.startRot + (e.clientX - webDrag.current.startX) * DRAG_FACTOR;
+    // Throttle: 1 DOM update par frame
+    if (!dragRafRef.current) {
+      dragRafRef.current = requestAnimationFrame(() => {
+        dragRafRef.current = null;
+        updateCarousel(rotRef.current);
+      });
+    }
+  }, [updateCarousel]);
+
+  const onPtrUp = useCallback((e) => {
+    if (!webDrag.current.active) return;
+    webDrag.current.active = false;
+    stageRef.current?.releasePointerCapture?.(e.pointerId);
+    stageRef.current?.classList.remove('grabbing');
+    snapToNearest(webDrag.current.vx);
+  }, [snapToNearest]);
+
+  // ── PanResponder (natif) ──────────────────────────────────────────
+  const dragStartRot = useRef(0);
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder:        () => true,
       onMoveShouldSetPanResponder:         (_, gs) => Math.abs(gs.dx) > 4,
       onPanResponderGrant: () => {
-        isDragging.current = true;
         dragStartRot.current = rotRef.current;
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
       },
       onPanResponderMove: (_, gs) => {
-        const rot = dragStartRot.current + gs.dx * DRAG_FACTOR;
-        rotRef.current = rot;
-        setPositions(computePositions(rot));
+        rotRef.current = dragStartRot.current + gs.dx * DRAG_FACTOR;
+        setPositions(computePositions(rotRef.current));
       },
-      onPanResponderRelease:   (_, gs) => { isDragging.current = false; snapToNearest(gs.vx); },
-      onPanResponderTerminate: ()      => { isDragging.current = false; snapToNearest(0); },
+      onPanResponderRelease:   (_, gs) => snapToNearest(gs.vx),
+      onPanResponderTerminate: ()      => snapToNearest(0),
     })
   ).current;
 
+  // ── Keyboard (web) ────────────────────────────────────────────────
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const onKey = (e) => {
+      if (e.key === 'ArrowLeft')  navigateCard(+1);
+      if (e.key === 'ArrowRight') navigateCard(-1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [navigateCard]);
+
+  // ── Positions initiales web ───────────────────────────────────────
+  // useLayoutEffect = synchrone avant le premier paint → pas de flash
+  useLayoutEffect(() => {
+    if (Platform.OS !== 'web') return;
+    updateCarousel(0);
+  }, [updateCarousel]);
+
+  // ── Démarrage animations ──────────────────────────────────────────
   useEffect(() => {
     Animated.timing(headerAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
     const runStar = (anim, dur) =>
       Animated.loop(Animated.timing(anim, { toValue: -SH, duration: dur, useNativeDriver: true, easing: Easing.linear })).start();
-    runStar(starSlow, 30000);
-    runStar(starMid,  18000);
-    runStar(starFast,  9000);
+    runStar(starSlow, 30000); runStar(starMid, 18000); runStar(starFast, 9000);
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, []);
+
+  // ── Mise à jour dots (couleur) ────────────────────────────────────
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    Object.entries(dotsRef.current).forEach(([idx, el]) => {
+      if (!el) return;
+      const i = Number(idx);
+      if (i === activeIdx) {
+        el.style.width      = '22px';
+        el.style.background = characters[activeIdx]?.color ?? '#D4AF37';
+        el.style.setProperty('--accent', characters[activeIdx]?.color ?? '#D4AF37');
+        el.classList.add('active');
+      } else {
+        el.style.width      = '7px';
+        el.style.background = 'rgba(255,255,255,0.20)';
+        el.classList.remove('active');
+      }
+    });
+  }, [activeIdx]);
 
   const handleSelectGame = (character) => {
     const routes = {
@@ -397,32 +549,33 @@ export default function MenuScreen({ navigation }) {
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };
 
-  const sortedIndices = [...Array(N).keys()].sort((a, b) => positions[a].depth - positions[b].depth);
+  // ── Tri z-order (natif) ───────────────────────────────────────────
+  const sortedIndices = Platform.OS !== 'web'
+    ? [...Array(N).keys()].sort((a, b) => positions[a].depth - positions[b].depth)
+    : [];
+
   const starLayers = [{ stars: STAR_L1, anim: starSlow }, { stars: STAR_L2, anim: starMid }, { stars: STAR_L3, anim: starFast }];
 
+  // ── Render ────────────────────────────────────────────────────────
   return (
     <LinearGradient colors={['#050410', '#0A0820', '#050410']} style={s.container}>
 
-      {/* Nébuleuses spatiales (web) */}
+      {/* Nébuleuses web */}
       {Platform.OS === 'web' && (
         <>
-          <View {...{ className: 'sdl-nebula sdl-nebula-1' }} pointerEvents="none" style={s.nebula} />
-          <View {...{ className: 'sdl-nebula sdl-nebula-2' }} pointerEvents="none" style={s.nebula} />
-          <View {...{ className: 'sdl-nebula sdl-nebula-3' }} pointerEvents="none" style={s.nebula} />
+          <div className="sdl-nebula sdl-nebula-1" />
+          <div className="sdl-nebula sdl-nebula-2" />
+          <div className="sdl-nebula sdl-nebula-3" />
         </>
       )}
 
-      {/* Étoiles filantes */}
+      {/* Étoiles */}
       {starLayers.map(({ stars, anim }, li) => (
         <Animated.View key={li} pointerEvents="none"
           style={{ position: 'absolute', top: 0, left: 0, right: 0, height: SH * 2, transform: [{ translateY: anim }] }}
         >
           {stars.map(star => (
-            <View key={star.id} style={{
-              position: 'absolute', top: star.top, left: star.left,
-              width: star.size, height: star.size, borderRadius: star.size / 2,
-              backgroundColor: '#FFF', opacity: star.op,
-            }} />
+            <View key={star.id} style={{ position: 'absolute', top: star.top, left: star.left, width: star.size, height: star.size, borderRadius: star.size / 2, backgroundColor: '#FFF', opacity: star.op }} />
           ))}
         </Animated.View>
       ))}
@@ -443,60 +596,91 @@ export default function MenuScreen({ navigation }) {
         {characters.filter(c => c.available).length} jeux disponibles
       </Animated.Text>
 
-      {/* Cylindre 3D */}
-      <View style={s.stageWrapper}>
-        <View style={s.stage} {...panResponder.panHandlers}>
-          {sortedIndices.map(i => {
-            const pos  = positions[i];
-            const char = characters[i];
-            return (
-              <View
+      {/* ══ CARROUSEL WEB ══ */}
+      {Platform.OS === 'web' && (
+        <div style={{ flex: 1, position: 'relative' }}>
+          <div
+            ref={stageRef}
+            className="sdl-stage"
+            onPointerDown={onPtrDown}
+            onPointerMove={onPtrMove}
+            onPointerUp={onPtrUp}
+            onPointerCancel={onPtrUp}
+          >
+            {characters.map((char, i) => (
+              <div
                 key={char.id}
-                {...(Platform.OS === 'web' ? { className: 'card-slot-3d' } : {})}
-                style={[s.cardSlot, {
-                  transform: [
-                    { perspective: 900 },
-                    { translateX: pos.x },
-                    { scale: pos.sc },
-                    { rotateY: `${pos.ry}deg` },
-                  ],
-                  opacity: pos.op,
-                  zIndex: Math.round((pos.depth + 1) * 50),
-                }]}
+                ref={(el) => { cardSlotRefs.current[i] = el; }}
+                className="sdl-slot"
+                style={{ marginLeft: -CARD_W / 2, marginTop: -CARD_H / 2 }}
               >
-                <GameCard character={char} onPress={handleSelectGame} idx={i} />
-              </View>
-            );
-          })}
+                <ObsidianCard character={char} idx={i} onPlay={() => handleSelectGame(char)} />
+              </div>
+            ))}
+          </div>
+          <button className="sdl-nav sdl-nav-prev" onClick={() => navigateCard(+1)}>‹</button>
+          <button className="sdl-nav sdl-nav-next" onClick={() => navigateCard(-1)}>›</button>
+        </div>
+      )}
+
+      {/* ══ CARROUSEL NATIF ══ */}
+      {Platform.OS !== 'web' && (
+        <View style={s.stageWrapper}>
+          <View style={s.stage} {...panResponder.panHandlers}>
+            {sortedIndices.map(i => {
+              const pos = positions[i];
+              const char = characters[i];
+              return (
+                <View key={char.id} style={[s.cardSlot, {
+                  transform: [{ perspective: 900 }, { translateX: pos.x }, { scale: pos.sc }, { rotateY: `${pos.ry}deg` }],
+                  opacity: pos.op, zIndex: Math.round((pos.depth + 1) * 50),
+                }]}>
+                  <GameCardNative character={char} onPress={handleSelectGame} />
+                </View>
+              );
+            })}
+          </View>
+          <View style={s.arrowOverlay} pointerEvents="box-none">
+            <TouchableOpacity onPress={() => navigateCard(+1)} style={s.arrowBtn} activeOpacity={0.7}>
+              <Text style={s.arrowText}>‹</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigateCard(-1)} style={s.arrowBtn} activeOpacity={0.7}>
+              <Text style={s.arrowText}>›</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={s.arrowOverlay} pointerEvents="box-none">
-          <TouchableOpacity onPress={() => navigateCard(+1)} style={s.arrowBtn} activeOpacity={0.7}>
-            <Text style={s.arrowText}>‹</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigateCard(-1)} style={s.arrowBtn} activeOpacity={0.7}>
-            <Text style={s.arrowText}>›</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      )}
 
       {/* Dots */}
-      <Animated.View style={[s.dots, { opacity: headerAnim }]}>
-        {characters.map((c, i) => (
-          <View key={c.id} style={[
-            s.dot,
-            i === activeIdx
+      {Platform.OS === 'web' ? (
+        <div className="sdl-dots">
+          {characters.map((c, i) => (
+            <button
+              key={c.id}
+              ref={(el) => { dotsRef.current[i] = el; }}
+              className={`sdl-dot${i === 0 ? ' active' : ''}`}
+              style={{ width: i === 0 ? 22 : 7, background: i === 0 ? (c.color) : 'rgba(255,255,255,0.20)', '--accent': c.color }}
+              onClick={() => {
+                targetRef.current = -i * STEP;
+                if (rafRef.current) cancelAnimationFrame(rafRef.current);
+                rafRef.current = requestAnimationFrame(animate);
+              }}
+            />
+          ))}
+        </div>
+      ) : (
+        <Animated.View style={[s.dots, { opacity: headerAnim }]}>
+          {characters.map((c, i) => (
+            <View key={c.id} style={[s.dot, i === activeIdx
               ? { width: 22, backgroundColor: characters[activeIdx]?.color ?? colors.primary }
-              : { width: 6,  backgroundColor: 'rgba(255,255,255,0.20)' },
-          ]} />
-        ))}
-      </Animated.View>
+              : { width: 6,  backgroundColor: 'rgba(255,255,255,0.20)' }
+            ]} />
+          ))}
+        </Animated.View>
+      )}
 
       {Platform.OS === 'web' && (
-        <Animated.View style={[s.hintWrap, { opacity: headerAnim }]}>
-          <Text {...{ className: 'sdl-hint' }} style={s.hintText}>
-            cliquer pour jouer · glisser ou ‹ › pour naviguer
-          </Text>
-        </Animated.View>
+        <span className="sdl-hint">cliquer pour jouer · glisser ou ← → pour naviguer</span>
       )}
 
       <AdBanner />
@@ -505,8 +689,7 @@ export default function MenuScreen({ navigation }) {
 }
 
 const s = StyleSheet.create({
-  container:    { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
-  nebula:       { position: 'absolute' },
+  container:    { flex: 1, ...Platform.select({ web: { height: '100vh', display: 'flex', flexDirection: 'column' } }) },
   header:       { flexDirection: 'row', alignItems: 'center', paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },
   backBtn:      { width: 70 },
   backBtnText:  { color: colors.primaryLight, fontSize: 14, fontWeight: '600' },
@@ -515,13 +698,11 @@ const s = StyleSheet.create({
   subtitle:     { fontSize: 12, color: colors.primaryLight, letterSpacing: 2, marginTop: -2 },
   countLine:    { textAlign: 'center', fontSize: 11, color: colors.textMuted, marginBottom: spacing.xs },
   stageWrapper: { flex: 1, position: 'relative' },
-  stage:        { flex: 1, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', ...Platform.select({ web: { cursor: 'grab', userSelect: 'none' } }) },
+  stage:        { flex: 1, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   arrowOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10 },
   arrowBtn:     { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.10)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center', zIndex: 999 },
   arrowText:    { color: '#fff', fontSize: 30, fontWeight: '300', lineHeight: 34, marginTop: -2 },
   cardSlot:     { position: 'absolute' },
-  dots:         { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 7, paddingVertical: 12 },
-  dot:          { height: 6, borderRadius: 3, ...Platform.select({ web: { transition: 'width 0.3s ease, background-color 0.3s ease' } }) },
-  hintWrap:     { alignItems: 'center', paddingBottom: 8 },
-  hintText:     { fontSize: 10, color: 'rgba(255,255,255,0.28)', letterSpacing: 1 },
+  dots:         { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 7, paddingVertical: 10 },
+  dot:          { height: 6, borderRadius: 3 },
 });
