@@ -20,10 +20,12 @@ const CARD_H = Math.round(CARD_W * 1.5);
 const RADIUS = Platform.OS === 'web'
   ? (IS_MOBILE_WEB ? 300 : 480)
   : CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15;
-const STEP        = (2 * Math.PI) / N;
-const DRAG_FACTOR = STEP / CARD_W;
+const STEP = (2 * Math.PI) / N;
 
-// ── Web: CSS injection (fonts + Obsidian card + nebulas) ─────────────
+// Plus sensible sur mobile (moins de pixels pour avancer d'une carte)
+const DRAG_FACTOR = STEP / (IS_MOBILE_WEB ? CARD_W * 0.55 : CARD_W);
+
+// ── Web: CSS ──────────────────────────────────────────────────────────
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
   if (!document.getElementById('sdl-fonts')) {
     const lk = document.createElement('link');
@@ -36,36 +38,44 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
     const st = document.createElement('style');
     st.id = 'sdl-menu-css';
     st.textContent = `
-      .card-slot-3d { transform-style: preserve-3d; }
+      /* Carousel slots — GPU layer pour fluidité mobile */
+      .card-slot-3d {
+        transform-style: preserve-3d;
+        will-change: transform, opacity;
+        -webkit-transform-style: preserve-3d;
+      }
 
-      /* Nebulas */
+      /* Nébuleuses */
       .sdl-nebula { position:absolute; border-radius:50%; filter:blur(80px); pointer-events:none; animation:sdl-drift 30s ease-in-out infinite alternate; }
       .sdl-nebula-1 { top:10%; left:-10%; width:500px; height:500px; background:#7C3AED; opacity:0.12; }
       .sdl-nebula-2 { top:50%; right:-8%; width:400px; height:400px; background:#EC4899; opacity:0.10; animation-delay:-10s; }
       .sdl-nebula-3 { bottom:-10%; left:30%; width:450px; height:450px; background:#0EA5E9; opacity:0.10; animation-delay:-20s; }
       @keyframes sdl-drift { from{transform:translate(0,0) scale(1);} to{transform:translate(40px,-30px) scale(1.1);} }
 
-      /* Card flip wrapper */
-      .ob-card { cursor:pointer; transform-style:preserve-3d; user-select:none; }
-      .ob-card-inner { position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform 0.7s cubic-bezier(0.4,0,0.2,1); }
-      .ob-card.is-flipped .ob-card-inner { transform:rotateY(180deg); }
-      .ob-face { position:absolute; inset:0; border-radius:18px; overflow:hidden; display:flex; flex-direction:column; backface-visibility:hidden; -webkit-backface-visibility:hidden; transition:opacity 0.35s ease; }
-      .ob-back { transform:rotateY(180deg); }
-      .ob-front { transition-delay:0.35s; }
-      .ob-card.is-flipped .ob-front { opacity:0; transition-delay:0s; }
-      .ob-card:not(.is-flipped) .ob-back { opacity:0; transition-delay:0s; }
-      .ob-card.is-flipped .ob-back { transition-delay:0.35s; }
-
       /* Obsidian front */
       .ob-front {
         background: radial-gradient(ellipse at 50% 0%, color-mix(in oklab, var(--accent) 20%, transparent), transparent 60%),
                     linear-gradient(180deg, #14101F 0%, #0A0815 60%, #0F0A1F 100%);
-        border:1px solid rgba(212,175,55,0.25);
-        box-shadow:0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.08), inset 0 1px 0 rgba(255,255,255,0.04);
-        padding:22px 20px 18px;
-        font-family:'Cormorant Garamond',Georgia,serif;
-        color:#F8E9C8;
+        border: 1px solid rgba(212,175,55,0.25);
+        box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.08), inset 0 1px 0 rgba(255,255,255,0.04);
+        padding: 22px 20px 18px;
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        color: #F8E9C8;
+        display: flex; flex-direction: column;
+        border-radius: 18px; overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
       }
+      .ob-front:hover {
+        border-color: rgba(212,175,55,0.55);
+        box-shadow: 0 36px 90px rgba(0,0,0,0.65), 0 0 0 1px rgba(212,175,55,0.2), 0 0 30px rgba(212,175,55,0.1), inset 0 1px 0 rgba(255,255,255,0.06);
+      }
+      .ob-unavailable { cursor: default; opacity: 0.55; }
+      .ob-unavailable:hover { border-color: rgba(212,175,55,0.25) !important; box-shadow: 0 30px 80px rgba(0,0,0,0.6) !important; }
+
       .ob-grain { position:absolute; inset:0; pointer-events:none; opacity:0.5; background-image:radial-gradient(circle at 20% 30%, rgba(212,175,55,0.08) 1px, transparent 1.5px), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.04) 1px, transparent 1.5px); background-size:40px 40px,60px 60px; }
       .ob-corner { position:absolute; width:28px; height:28px; border-color:#D4AF37; }
       .ob-corner.tl { top:10px; left:10px; border-top:1.5px solid; border-left:1.5px solid; }
@@ -91,29 +101,13 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       .ob-soon { position:absolute; inset:0; background:rgba(5,4,16,0.62); border-radius:18px; display:flex; align-items:center; justify-content:center; z-index:20; }
       .ob-soon-badge { font-family:'JetBrains Mono','Courier New',monospace; font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.45); border:1px solid rgba(255,255,255,0.18); padding:7px 16px; border-radius:999px; }
 
-      /* Obsidian back */
-      .ob-back { background:radial-gradient(circle at 50% 50%, #2A1A4A 0%, #0F0A1F 60%, #050410 100%); border:1px solid rgba(212,175,55,0.25); padding:22px 20px; align-items:center; justify-content:center; }
-      .bo-pattern { position:absolute; inset:0; pointer-events:none; background-image:repeating-linear-gradient(45deg,rgba(212,175,55,0.04) 0 1px,transparent 1px 14px),repeating-linear-gradient(-45deg,rgba(212,175,55,0.04) 0 1px,transparent 1px 14px); }
-      .bo-pattern::after { content:''; position:absolute; inset:30px; border:1px solid rgba(212,175,55,0.2); border-radius:6px; }
-      .bo-center { text-align:center; position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; }
-      .bo-monogram { display:flex; justify-content:center; align-items:center; gap:4px; font-family:'Cinzel',Georgia,serif; font-weight:700; font-size:78px; line-height:1; filter:drop-shadow(0 2px 12px rgba(212,175,55,0.3)); }
-      .bo-mono-l,.bo-mono-r { background:linear-gradient(180deg,#F4DC8C 0%,#D4AF37 50%,#8B6914 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
-      .bo-mono-l { transform:translateY(-2px); }
-      .bo-mono-r { transform:translateY(2px); }
-      .bo-rule { height:1px; width:140px; margin:16px auto; background:linear-gradient(90deg,transparent,#D4AF37,transparent); }
-      .bo-tag { font-family:'Cinzel',Georgia,serif; font-size:11px; letter-spacing:5px; color:#D4AF37; }
-      .bo-tag-fr { font-family:'Cormorant Garamond',Georgia,serif; font-style:italic; font-size:11px; letter-spacing:1.5px; color:rgba(212,175,55,0.6); margin-top:8px; }
-      .bo-play-btn { margin-top:24px; padding:10px 28px; background:linear-gradient(135deg,#D4AF37,#8B6914); border:1px solid rgba(212,175,55,0.5); border-radius:999px; font-family:'Cinzel',Georgia,serif; font-weight:700; font-size:12px; letter-spacing:3px; color:#0A0815; cursor:pointer; transition:transform 0.15s,box-shadow 0.15s; box-shadow:0 4px 20px rgba(212,175,55,0.3); }
-      .bo-play-btn:hover { transform:translateY(-1px); box-shadow:0 8px 30px rgba(212,175,55,0.5); }
-
-      /* Nav + hints */
       .sdl-hint { font-family:'JetBrains Mono','Courier New',monospace; font-size:10px; letter-spacing:1.5px; color:rgba(255,255,255,0.28); }
     `;
     document.head.appendChild(st);
   }
 }
 
-// ── Étoiles animées ───────────────────────────────────────────────────
+// ── Étoiles ───────────────────────────────────────────────────────────
 function makeStarLayer(count, maxSize) {
   const base = Array.from({ length: count }, () => ({
     left: Math.random() * SW,
@@ -134,96 +128,60 @@ const STAR_L3 = makeStarLayer(10, 3.2);
 function computePositions(rotation) {
   return characters.map((_, i) => {
     const alpha = rotation + i * STEP;
-    const sinA  = Math.sin(alpha);
     const cosA  = Math.cos(alpha);
-    const x     = RADIUS * sinA;
-    const depth = cosA;
-    const sc    = 0.28 + 0.72 * ((depth + 1) / 2);
-    const op    = 0.18 + 0.82 * ((depth + 1) / 2);
-    const ry    = (alpha * 180 / Math.PI);
-    return { x, depth, sc, op, ry };
+    const x     = RADIUS * Math.sin(alpha);
+    const sc    = 0.28 + 0.72 * ((cosA + 1) / 2);
+    const op    = 0.18 + 0.82 * ((cosA + 1) / 2);
+    const ry    = alpha * 180 / Math.PI;
+    return { x, depth: cosA, sc, op, ry };
   });
 }
 
-// ── Obsidian card (web only, no hooks) ────────────────────────────────
-function ObsidianCard({ character, idx, flipped, onFlip, onPlay }) {
+// ── Obsidian card (web, sans flip) ────────────────────────────────────
+function ObsidianCard({ character, idx, onPlay }) {
   const n = String(idx + 1).padStart(2, '0');
   return (
     <div
-      className={`ob-card${flipped ? ' is-flipped' : ''}`}
-      style={{ width: CARD_W, height: CARD_H }}
-      onClick={onFlip}
+      className={`ob-front${!character.available ? ' ob-unavailable' : ''}`}
+      style={{ '--accent': character.color, width: CARD_W, height: CARD_H }}
+      onClick={character.available ? onPlay : undefined}
     >
-      <div className="ob-card-inner">
-        {/* FRONT */}
-        <div className="ob-face ob-front" style={{ '--accent': character.color }}>
-          <div className="ob-grain" />
-          <div className="ob-corner tl" /><div className="ob-corner tr" />
-          <div className="ob-corner bl" /><div className="ob-corner br" />
-          <div className="ob-header">
-            <span>N° {n}</span>
-            <span className="ob-dot" />
-            <span>LÉGENDE</span>
-          </div>
-          <div className="ob-emoji-frame">
-            <div className="ob-frame-glow" />
-            <span className="ob-emoji">{character.emoji}</span>
-          </div>
-          <div className="ob-name-block">
-            <div className="ob-rule" />
-            <div className="ob-name">{character.name}</div>
-            <div className="ob-title">{character.title}</div>
-            <div className="ob-rule" />
-          </div>
-          <div className="ob-game">{character.gameName}</div>
-          <div className="ob-meta">
-            <div className="ob-meta-cell">
-              <span className="ob-meta-label">JOUEURS</span>
-              <span className="ob-meta-value">{character.players || '2–12'}</span>
-            </div>
-            <div className="ob-meta-divider" />
-            <div className="ob-meta-cell">
-              <span className="ob-meta-label">DURÉE</span>
-              <span className="ob-meta-value">{character.time || '15 min'}</span>
-            </div>
-          </div>
-          {!character.available && (
-            <div className="ob-soon">
-              <span className="ob-soon-badge">🔒 BIENTÔT</span>
-            </div>
-          )}
+      <div className="ob-grain" />
+      <div className="ob-corner tl" /><div className="ob-corner tr" />
+      <div className="ob-corner bl" /><div className="ob-corner br" />
+      <div className="ob-header">
+        <span>N° {n}</span><span className="ob-dot" /><span>LÉGENDE</span>
+      </div>
+      <div className="ob-emoji-frame">
+        <div className="ob-frame-glow" />
+        <span className="ob-emoji">{character.emoji}</span>
+      </div>
+      <div className="ob-name-block">
+        <div className="ob-rule" />
+        <div className="ob-name">{character.name}</div>
+        <div className="ob-title">{character.title}</div>
+        <div className="ob-rule" />
+      </div>
+      <div className="ob-game">{character.gameName}</div>
+      <div className="ob-meta">
+        <div className="ob-meta-cell">
+          <span className="ob-meta-label">JOUEURS</span>
+          <span className="ob-meta-value">{character.players || '2–12'}</span>
         </div>
-
-        {/* BACK */}
-        <div className="ob-face ob-back" style={{ '--accent': character.color }}>
-          <div className="ob-grain" />
-          <div className="bo-pattern" />
-          <div className="ob-corner tl" /><div className="ob-corner tr" />
-          <div className="ob-corner bl" /><div className="ob-corner br" />
-          <div className="bo-center">
-            <div className="bo-monogram">
-              <span className="bo-mono-l">S</span>
-              <span className="bo-mono-r">L</span>
-            </div>
-            <div className="bo-rule" />
-            <div className="bo-tag">LA SOIRÉE DES LÉGENDES</div>
-            <div className="bo-tag-fr">— DOUZE LÉGENDES, UNE SEULE NUIT —</div>
-            {character.available && (
-              <button
-                className="bo-play-btn"
-                onClick={(e) => { e.stopPropagation(); onPlay(); }}
-              >
-                ⚡ JOUER
-              </button>
-            )}
-          </div>
+        <div className="ob-meta-divider" />
+        <div className="ob-meta-cell">
+          <span className="ob-meta-label">DURÉE</span>
+          <span className="ob-meta-value">{character.time || '15 min'}</span>
         </div>
       </div>
+      {!character.available && (
+        <div className="ob-soon"><span className="ob-soon-badge">🔒 BIENTÔT</span></div>
+      )}
     </div>
   );
 }
 
-// ── GameCard natif (mobile) ───────────────────────────────────────────
+// ── GameCard natif (mobile Expo) ──────────────────────────────────────
 const GameCardNative = memo(function GameCardNative({ character, onPress }) {
   const pressScale = useRef(new Animated.Value(1)).current;
   const btnPulse   = useRef(new Animated.Value(1)).current;
@@ -232,16 +190,13 @@ const GameCardNative = memo(function GameCardNative({ character, onPress }) {
 
   const nameChars    = character.gameName.replace(/\s+/g, '').length;
   const gameNameSize = nameChars <= 5 ? 34 : nameChars <= 9 ? 28 : nameChars <= 13 ? 23 : 19;
-  const gameNameH    = gameNameSize * 1.25;
 
   useEffect(() => {
     if (character.available) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(btnPulse, { toValue: 1.05, duration: 900, useNativeDriver: true }),
-          Animated.timing(btnPulse, { toValue: 1,    duration: 900, useNativeDriver: true }),
-        ])
-      ).start();
+      Animated.loop(Animated.sequence([
+        Animated.timing(btnPulse, { toValue: 1.05, duration: 900, useNativeDriver: true }),
+        Animated.timing(btnPulse, { toValue: 1,    duration: 900, useNativeDriver: true }),
+      ])).start();
     }
     Animated.loop(Animated.timing(ring1, { toValue: 1, duration: 11000, useNativeDriver: true })).start();
     Animated.loop(Animated.timing(ring2, { toValue: 1, duration:  7500, useNativeDriver: true })).start();
@@ -270,11 +225,7 @@ const GameCardNative = memo(function GameCardNative({ character, onPress }) {
             opacity: character.available ? 1 : 0.55,
           }]}
         >
-          <LinearGradient
-            colors={['rgba(255,255,255,0.13)', 'rgba(255,255,255,0)']}
-            start={{ x: 0.15, y: 0 }} end={{ x: 0.85, y: 0.35 }}
-            style={StyleSheet.absoluteFill} pointerEvents="none"
-          />
+          <LinearGradient colors={['rgba(255,255,255,0.13)', 'rgba(255,255,255,0)']} start={{ x: 0.15, y: 0 }} end={{ x: 0.85, y: 0.35 }} style={StyleSheet.absoluteFill} pointerEvents="none" />
           <View style={cd.topRow}>
             {character.available ? (
               <LinearGradient colors={['#10B981EE', '#059669BB']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={cd.statusBadge}>
@@ -290,24 +241,12 @@ const GameCardNative = memo(function GameCardNative({ character, onPress }) {
             <View style={[cd.halo, { backgroundColor: character.color + '15' }]} />
             <Animated.View style={[cd.ringOuter, { borderColor: character.color + '50', transform: [{ rotate: r1 }] }]} />
             <Animated.View style={[cd.ringInner, { borderColor: character.color + '80', transform: [{ rotate: r2 }] }]} />
-            <LinearGradient
-              colors={[character.color + '55', character.color + '25']}
-              style={[cd.avatar, { borderColor: character.color + '90' }]}
-            >
+            <LinearGradient colors={[character.color + '55', character.color + '25']} style={[cd.avatar, { borderColor: character.color + '90' }]}>
               <Text style={cd.emoji}>{character.emoji}</Text>
             </LinearGradient>
           </View>
           <View style={[cd.divider, { backgroundColor: character.color + '90' }]} />
-          <Text
-            style={[cd.gameName, {
-              color: character.color,
-              fontSize: gameNameSize,
-              lineHeight: gameNameH,
-            }]}
-            numberOfLines={2}
-            adjustsFontSizeToFit
-            minimumFontScale={0.45}
-          >
+          <Text style={[cd.gameName, { color: character.color, fontSize: gameNameSize, lineHeight: gameNameSize * 1.25 }]} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.45}>
             {character.gameName}
           </Text>
           <View style={[cd.divider, { backgroundColor: character.color + '90' }]} />
@@ -316,11 +255,7 @@ const GameCardNative = memo(function GameCardNative({ character, onPress }) {
           <Text style={cd.catchphrase} numberOfLines={2}>{character.catchphrase}</Text>
           {character.available ? (
             <Animated.View style={[cd.playBtnWrap, { transform: [{ scale: btnPulse }] }]}>
-              <LinearGradient
-                colors={[character.color + 'FF', character.color + 'CC']}
-                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-                style={cd.playBtn}
-              >
+              <LinearGradient colors={[character.color + 'FF', character.color + 'CC']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={cd.playBtn}>
                 <Text style={cd.playBtnText}>⚡  JOUER  ⚡</Text>
               </LinearGradient>
             </Animated.View>
@@ -336,17 +271,8 @@ const GameCardNative = memo(function GameCardNative({ character, onPress }) {
 });
 
 const cd = StyleSheet.create({
-  shadow: {
-    position: 'absolute', top: 8, left: 8, right: 8, bottom: -14,
-    borderRadius: 24, shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.85, shadowRadius: 36, elevation: 24,
-  },
-  card: {
-    width: CARD_W, borderRadius: 24, borderWidth: 1.5,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.xs, paddingBottom: spacing.sm,
-    overflow: 'hidden', flexDirection: 'column',
-  },
+  shadow:      { position: 'absolute', top: 8, left: 8, right: 8, bottom: -14, borderRadius: 24, shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.85, shadowRadius: 36, elevation: 24 },
+  card:        { width: CARD_W, borderRadius: 24, borderWidth: 1.5, paddingHorizontal: spacing.md, paddingTop: spacing.xs, paddingBottom: spacing.sm, overflow: 'hidden', flexDirection: 'column' },
   topRow:      { alignItems: 'center', marginBottom: 6 },
   statusBadge: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: radius.full },
   statusText:  { fontSize: 9, fontWeight: '900', color: '#fff', letterSpacing: 1.5 },
@@ -367,17 +293,9 @@ const cd = StyleSheet.create({
 });
 
 // ── GameCard — sélecteur web / natif ──────────────────────────────────
-const GameCard = memo(function GameCard({ character, onPress, flipped, onFlip, idx }) {
+const GameCard = memo(function GameCard({ character, onPress, idx }) {
   if (Platform.OS === 'web') {
-    return (
-      <ObsidianCard
-        character={character}
-        idx={idx}
-        flipped={!!flipped}
-        onFlip={() => onFlip()}
-        onPlay={() => character.available && onPress(character)}
-      />
-    );
+    return <ObsidianCard character={character} idx={idx} onPlay={() => onPress(character)} />;
   }
   return <GameCardNative character={character} onPress={onPress} />;
 });
@@ -397,7 +315,6 @@ export default function MenuScreen({ navigation }) {
 
   const [positions, setPositions] = useState(() => computePositions(0));
   const [activeIdx, setActiveIdx] = useState(0);
-  const [flipped, setFlipped]     = useState({});
 
   const getFrontIdx = (rot) => {
     let best = 0, bestDepth = -Infinity;
@@ -420,7 +337,8 @@ export default function MenuScreen({ navigation }) {
       setActiveIdx(getFrontIdx(tgt));
       return;
     }
-    rotRef.current = cur + diff * 0.14;
+    // Lerp légèrement plus rapide pour le ressenti mobile
+    rotRef.current = cur + diff * 0.17;
     refresh(rotRef.current);
     rafRef.current = requestAnimationFrame(animate);
   }, [refresh]);
@@ -433,8 +351,8 @@ export default function MenuScreen({ navigation }) {
   }, [animate]);
 
   const snapToNearest = useCallback((velocityX = 0) => {
-    const momentum = velocityX * DRAG_FACTOR * 60;
-    const raw      = rotRef.current + momentum;
+    const momentum    = velocityX * DRAG_FACTOR * 55;
+    const raw         = rotRef.current + momentum;
     targetRef.current = Math.round(raw / STEP) * STEP;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(animate);
@@ -459,13 +377,10 @@ export default function MenuScreen({ navigation }) {
     })
   ).current;
 
-  // Reset le flip quand on change de carte
-  useEffect(() => { setFlipped({}); }, [activeIdx]);
-
   useEffect(() => {
     Animated.timing(headerAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
-    const runStar = (anim, duration) =>
-      Animated.loop(Animated.timing(anim, { toValue: -SH, duration, useNativeDriver: true, easing: Easing.linear })).start();
+    const runStar = (anim, dur) =>
+      Animated.loop(Animated.timing(anim, { toValue: -SH, duration: dur, useNativeDriver: true, easing: Easing.linear })).start();
     runStar(starSlow, 30000);
     runStar(starMid,  18000);
     runStar(starFast,  9000);
@@ -474,29 +389,16 @@ export default function MenuScreen({ navigation }) {
 
   const handleSelectGame = (character) => {
     const routes = {
-      undercover:  'UndercoverSetup',
-      quiz:        'QuizSetup',
-      amitie:      'AmitieSetup',
-      personality: 'PersonalitySetup',
-      cineflash:   'CineFlashSetup',
-      emojiquiz:   'EmojiQuizSetup',
-      motdepasse:  'MotDePasseSetup',
-      blindtest:   'BlindTestSetup',
-      vote:        'VoteSetup',
-      mime:        'MimeSetup',
-      buzzer:      'BuzzerSetup',
-      tribunal:    'TribunalSetup',
+      undercover: 'UndercoverSetup', quiz: 'QuizSetup', amitie: 'AmitieSetup',
+      personality: 'PersonalitySetup', cineflash: 'CineFlashSetup', emojiquiz: 'EmojiQuizSetup',
+      motdepasse: 'MotDePasseSetup', blindtest: 'BlindTestSetup', vote: 'VoteSetup',
+      mime: 'MimeSetup', buzzer: 'BuzzerSetup', tribunal: 'TribunalSetup',
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };
 
   const sortedIndices = [...Array(N).keys()].sort((a, b) => positions[a].depth - positions[b].depth);
-
-  const starLayers = [
-    { stars: STAR_L1, anim: starSlow },
-    { stars: STAR_L2, anim: starMid  },
-    { stars: STAR_L3, anim: starFast },
-  ];
+  const starLayers = [{ stars: STAR_L1, anim: starSlow }, { stars: STAR_L2, anim: starMid }, { stars: STAR_L3, anim: starFast }];
 
   return (
     <LinearGradient colors={['#050410', '#0A0820', '#050410']} style={s.container}>
@@ -510,10 +412,9 @@ export default function MenuScreen({ navigation }) {
         </>
       )}
 
-      {/* Étoiles animées */}
+      {/* Étoiles filantes */}
       {starLayers.map(({ stars, anim }, li) => (
-        <Animated.View
-          key={li} pointerEvents="none"
+        <Animated.View key={li} pointerEvents="none"
           style={{ position: 'absolute', top: 0, left: 0, right: 0, height: SH * 2, transform: [{ translateY: anim }] }}
         >
           {stars.map(star => (
@@ -548,7 +449,6 @@ export default function MenuScreen({ navigation }) {
           {sortedIndices.map(i => {
             const pos  = positions[i];
             const char = characters[i];
-            const isFront = i === activeIdx;
             return (
               <View
                 key={char.id}
@@ -564,13 +464,7 @@ export default function MenuScreen({ navigation }) {
                   zIndex: Math.round((pos.depth + 1) * 50),
                 }]}
               >
-                <GameCard
-                  character={char}
-                  onPress={handleSelectGame}
-                  flipped={flipped[char.id]}
-                  onFlip={() => isFront && setFlipped(f => ({ ...f, [char.id]: !f[char.id] }))}
-                  idx={i}
-                />
+                <GameCard character={char} onPress={handleSelectGame} idx={i} />
               </View>
             );
           })}
@@ -585,32 +479,27 @@ export default function MenuScreen({ navigation }) {
         </View>
       </View>
 
-      {/* Dots de pagination */}
+      {/* Dots */}
       <Animated.View style={[s.dots, { opacity: headerAnim }]}>
         {characters.map((c, i) => (
-          <View
-            key={c.id}
-            style={[
-              s.dot,
-              i === activeIdx
-                ? { width: 22, backgroundColor: characters[activeIdx]?.color ?? colors.primary }
-                : { width: 6,  backgroundColor: 'rgba(255,255,255,0.20)' },
-            ]}
-          />
+          <View key={c.id} style={[
+            s.dot,
+            i === activeIdx
+              ? { width: 22, backgroundColor: characters[activeIdx]?.color ?? colors.primary }
+              : { width: 6,  backgroundColor: 'rgba(255,255,255,0.20)' },
+          ]} />
         ))}
       </Animated.View>
 
-      {/* Hint web */}
       {Platform.OS === 'web' && (
         <Animated.View style={[s.hintWrap, { opacity: headerAnim }]}>
           <Text {...{ className: 'sdl-hint' }} style={s.hintText}>
-            cliquer pour retourner · glisser ou ‹ › pour naviguer
+            cliquer pour jouer · glisser ou ‹ › pour naviguer
           </Text>
         </Animated.View>
       )}
 
       <AdBanner />
-
     </LinearGradient>
   );
 }
@@ -626,10 +515,7 @@ const s = StyleSheet.create({
   subtitle:     { fontSize: 12, color: colors.primaryLight, letterSpacing: 2, marginTop: -2 },
   countLine:    { textAlign: 'center', fontSize: 11, color: colors.textMuted, marginBottom: spacing.xs },
   stageWrapper: { flex: 1, position: 'relative' },
-  stage: {
-    flex: 1, alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-    ...Platform.select({ web: { cursor: 'grab', userSelect: 'none' } }),
-  },
+  stage:        { flex: 1, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', ...Platform.select({ web: { cursor: 'grab', userSelect: 'none' } }) },
   arrowOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10 },
   arrowBtn:     { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.10)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center', zIndex: 999 },
   arrowText:    { color: '#fff', fontSize: 30, fontWeight: '300', lineHeight: 34, marginTop: -2 },
