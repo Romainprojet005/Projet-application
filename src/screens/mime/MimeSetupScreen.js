@@ -7,10 +7,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { supabase, isSupabaseConfigured } from '../../services/supabase';
 
-const PINK = '#C026D3';
-const PINK_DARK = '#86198F';
-const PINK_LIGHT = '#E879F9';
-const BG = ['#1A0028', '#0A0A1B'];
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const PINK       = GOLD;
+const PINK_DARK  = GOLD_DARK;
+const PINK_LIGHT = GOLD_LIGHT;
+const BG         = OB_BG;
 
 function generateCode() {
   return Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random() * 23)]).join('');
@@ -176,7 +177,7 @@ export default function MimeSetupScreen({ navigation }) {
               disabled={!name.trim() || loading}
               activeOpacity={0.8}
             >
-              <LinearGradient colors={[PINK, PINK_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
+              <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
                 {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>✨ CRÉER LA SALLE</Text>}
               </LinearGradient>
             </TouchableOpacity>
@@ -203,7 +204,7 @@ export default function MimeSetupScreen({ navigation }) {
               disabled={!name.trim() || joinCode.length < 4 || loading}
               activeOpacity={0.8}
             >
-              <LinearGradient colors={[PINK, PINK_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
+              <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
                 {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>🚀 REJOINDRE</Text>}
               </LinearGradient>
             </TouchableOpacity>
@@ -223,9 +224,9 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
   tabs: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.lg, padding: 4, marginBottom: spacing.xl },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.md },
-  tabActive: { backgroundColor: PINK },
+  tabActive: { backgroundColor: GOLD },
   tabText: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
-  tabTextActive: { color: colors.text },
+  tabTextActive: { color: LAUNCH_TEXT },
   field: { marginBottom: spacing.lg },
   label: { fontSize: 11, fontWeight: '800', color: PINK_LIGHT, letterSpacing: 2, marginBottom: spacing.sm },
   input: {
@@ -251,7 +252,7 @@ const styles = StyleSheet.create({
   mainBtn: { borderRadius: radius.full, overflow: 'hidden', marginTop: spacing.md },
   mainBtnDisabled: { opacity: 0.4 },
   mainBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  mainBtnText: { fontSize: 15, fontWeight: '900', color: colors.text, letterSpacing: 2 },
+  mainBtnText: { fontSize: 15, fontWeight: '900', color: LAUNCH_TEXT, letterSpacing: 2 },
   configError: { flex: 1, justifyContent: 'center', padding: spacing.xl },
   configTitle: { fontSize: 22, fontWeight: '900', color: PINK_LIGHT, marginBottom: spacing.lg, textAlign: 'center' },
   configText: { fontSize: 13, color: colors.textSecondary, lineHeight: 22, fontFamily: Platform.OS === 'web' ? 'monospace' : 'Courier' },

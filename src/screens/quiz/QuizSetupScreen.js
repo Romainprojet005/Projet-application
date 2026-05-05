@@ -12,7 +12,8 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { quizCategories, buildQuestions } from '../../data/quizQuestions';
 
-const ZAPCOLOR = '#6366F1';
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const ZAPCOLOR  = GOLD;
 const HOT_COLOR = '#EF4444';
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 8;
@@ -64,7 +65,7 @@ export default function QuizSetupScreen({ navigation }) {
   const canStart = selectedCategories.length > 0 && effectiveCount > 0;
 
   return (
-    <LinearGradient colors={['#05050E', '#0C0A2C', '#05050E']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+    <LinearGradient colors={OB_BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
       <PageScroll contentContainerStyle={styles.scroll}>
 
         {/* Header */}
@@ -232,7 +233,7 @@ export default function QuizSetupScreen({ navigation }) {
             activeOpacity={0.88}
           >
             <LinearGradient
-              colors={[ZAPCOLOR, '#0369A1']}
+              colors={GOLD_GRADIENT}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
@@ -423,5 +424,5 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText: { fontSize: 16, fontWeight: '800', color: colors.text, letterSpacing: 2 },
+  launchText: { fontSize: 16, fontWeight: '800', color: LAUNCH_TEXT, letterSpacing: 2 },
 });

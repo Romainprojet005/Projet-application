@@ -13,9 +13,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 
-const CIN       = '#DC2626';
-const CIN_DARK  = '#991B1B';
-const CIN_LIGHT = '#FCA5A5';
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const CIN       = GOLD;
+const CIN_DARK  = GOLD_DARK;
+const CIN_LIGHT = GOLD_LIGHT;
 
 const ROUND_OPTIONS = [5, 10, 15, 20];
 const MAX_PLAYERS = 6;
@@ -59,7 +60,7 @@ export default function CineFlashSetupScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={['#0D0000', '#1A0500', '#0D0000']} style={styles.container}>
+    <LinearGradient colors={OB_BG} style={styles.container}>
       <PageScroll contentContainerStyle={styles.scroll}>
         {/* Header */}
         <Animated.View style={[styles.header, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
@@ -164,7 +165,7 @@ export default function CineFlashSetupScreen({ navigation }) {
         <Animated.View style={{ opacity: fadeIn, paddingHorizontal: spacing.xl, paddingBottom: 48 }}>
           <TouchableOpacity onPress={handleStart} style={styles.launchBtn} activeOpacity={0.88}>
             <LinearGradient
-              colors={[CIN, CIN_DARK]}
+              colors={GOLD_GRADIENT}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
@@ -315,5 +316,5 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText: { fontSize: 15, fontWeight: '800', color: colors.text, letterSpacing: 2 },
+  launchText: { fontSize: 15, fontWeight: '800', color: LAUNCH_TEXT, letterSpacing: 2 },
 });

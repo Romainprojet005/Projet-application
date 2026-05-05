@@ -13,9 +13,10 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { wordThemes, generateRandomPair } from '../../data/wordLists';
 
-const AMB       = '#D97706';
-const AMB_DARK  = '#92400E';
-const AMB_LIGHT = '#FCD34D';
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const AMB       = GOLD;
+const AMB_DARK  = GOLD_DARK;
+const AMB_LIGHT = GOLD_LIGHT;
 
 // Persiste en mémoire tant que l'app n'est pas fermée
 const usedPairsPerTheme = {};
@@ -83,7 +84,7 @@ export default function UndercoverSetupScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={['#090400', '#1A0B00', '#090400']} style={styles.container}>
+    <LinearGradient colors={OB_BG} style={styles.container}>
       <PageScroll contentContainerStyle={styles.scroll}>
         {/* Header */}
         <Animated.View
@@ -217,7 +218,7 @@ export default function UndercoverSetupScreen({ navigation }) {
         <Animated.View style={{ opacity: fadeIn, paddingHorizontal: spacing.xl, paddingBottom: 48 }}>
           <TouchableOpacity onPress={handleStart} style={styles.launchBtn} activeOpacity={0.88}>
             <LinearGradient
-              colors={[AMB, AMB_DARK]}
+              colors={GOLD_GRADIENT}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
@@ -392,7 +393,7 @@ const styles = StyleSheet.create({
   launchText: {
     fontSize: 16,
     fontWeight: '800',
-    color: colors.text,
+    color: LAUNCH_TEXT,
     letterSpacing: 2,
   },
 });

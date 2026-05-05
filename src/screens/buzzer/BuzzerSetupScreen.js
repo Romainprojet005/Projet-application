@@ -8,9 +8,10 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { BUZZER_MODES } from '../../data/buzzerQuestions';
 
-const BUZZ_COLOR = '#DC2626';
-const BUZZ_DARK  = '#B91C1C';
-const BUZZ_LIGHT = '#FCA5A5';
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const BUZZ_COLOR = GOLD;
+const BUZZ_DARK  = GOLD_DARK;
+const BUZZ_LIGHT = GOLD_LIGHT;
 
 export const PLAYER_COLORS = [
   '#EF4444', '#3B82F6', '#10B981', '#F59E0B',
@@ -52,7 +53,7 @@ export default function BuzzerSetupScreen({ navigation }) {
   const selectedMode = BUZZER_MODES.find(m => m.id === mode);
 
   return (
-    <LinearGradient colors={['#1A0000', '#0A0000', '#1A0000']} style={styles.container}>
+    <LinearGradient colors={OB_BG} style={styles.container}>
       <PageScroll contentContainerStyle={styles.scroll}>
 
         <Animated.View style={[styles.header, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
@@ -147,7 +148,7 @@ export default function BuzzerSetupScreen({ navigation }) {
         <Animated.View style={{ opacity: fadeIn, paddingHorizontal: spacing.xl, paddingBottom: 48 }}>
           <TouchableOpacity onPress={handleStart} style={styles.launchBtn} activeOpacity={0.88}>
             <LinearGradient
-              colors={[BUZZ_COLOR, BUZZ_DARK]}
+              colors={GOLD_GRADIENT}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
@@ -235,5 +236,5 @@ const styles = StyleSheet.create({
     shadowColor: BUZZ_COLOR, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+  launchText: { fontSize: 15, fontWeight: '800', color: LAUNCH_TEXT, letterSpacing: 2 },
 });

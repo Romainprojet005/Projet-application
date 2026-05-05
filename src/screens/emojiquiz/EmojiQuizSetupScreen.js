@@ -8,10 +8,11 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { EMOJI_CATEGORIES, buildEmojiRound } from '../../data/emojiQuizData';
 
-const AMB       = '#F59E0B';
-const AMB_DARK  = '#B45309';
-const AMB_LIGHT = '#FDE68A';
-const BG        = ['#1A0F00', '#2D1A00', '#1A0F00'];
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const AMB       = GOLD;
+const AMB_DARK  = GOLD_DARK;
+const AMB_LIGHT = GOLD_LIGHT;
+const BG        = OB_BG;
 
 const ROUND_OPTIONS = [5, 10, 15, 20];
 const MAX_PLAYERS = 8;
@@ -191,7 +192,7 @@ export default function EmojiQuizSetupScreen({ navigation }) {
             style={[styles.launchBtn, !canStart && { opacity: 0.4 }]}
             activeOpacity={0.88}
           >
-            <LinearGradient colors={[AMB, AMB_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.launchGradient}>
+            <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.launchGradient}>
               <Text style={styles.launchText}>🤩  C'EST PARTI !</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -260,5 +261,5 @@ const styles = StyleSheet.create({
 
   launchBtn: { borderRadius: radius.full, overflow: 'hidden', marginTop: spacing.lg, shadowColor: AMB, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12 },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText: { fontSize: 16, fontWeight: '800', color: '#000', letterSpacing: 2 },
+  launchText: { fontSize: 16, fontWeight: '800', color: LAUNCH_TEXT, letterSpacing: 2 },
 });

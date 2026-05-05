@@ -8,9 +8,10 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { CATEGORIES, getSongsCount } from '../../data/blindTestSongs';
 
-const BEAT       = '#10B981';
-const BEAT_DARK  = '#059669';
-const BEAT_LIGHT = '#6EE7B7';
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const BEAT       = GOLD;
+const BEAT_DARK  = GOLD_DARK;
+const BEAT_LIGHT = GOLD_LIGHT;
 
 const ROUND_OPTIONS = [5, 10, 15, 20];
 const TIME_OPTIONS  = [30, null]; // null = infini
@@ -46,7 +47,7 @@ export default function BlindTestSetupScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={['#001A0F', '#00110A', '#001A0F']} style={styles.container}>
+    <LinearGradient colors={OB_BG} style={styles.container}>
       <PageScroll contentContainerStyle={styles.scroll}>
 
         <Animated.View style={[styles.header, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
@@ -208,7 +209,7 @@ export default function BlindTestSetupScreen({ navigation }) {
 
         <Animated.View style={{ opacity: fadeIn, paddingHorizontal: spacing.xl, paddingBottom: 48 }}>
           <TouchableOpacity onPress={handleStart} style={styles.launchBtn} activeOpacity={0.88}>
-            <LinearGradient colors={[BEAT, BEAT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.launchGradient}>
+            <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.launchGradient}>
               <Text style={styles.launchText}>🎸  QUE LA MUSIQUE COMMENCE !</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -331,7 +332,7 @@ const styles = StyleSheet.create({
     shadowColor: BEAT, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+  launchText: { fontSize: 15, fontWeight: '800', color: LAUNCH_TEXT, letterSpacing: 2 },
 
   multiBtn: {
     marginTop: spacing.md, paddingVertical: spacing.md, alignItems: 'center',

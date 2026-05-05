@@ -8,10 +8,11 @@ import { colors, spacing, radius } from '../../theme';
 import { supabase } from '../../services/supabase';
 import { VOTE_CATEGORIES } from '../../data/voteData';
 
-const VOTE_COLOR = '#6366F1';
-const VOTE_DARK  = '#4F46E5';
-const VOTE_LIGHT = '#A5B4FC';
-const BG = ['#080818', '#0C0A24', '#080818'];
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const VOTE_COLOR = GOLD;
+const VOTE_DARK  = GOLD_DARK;
+const VOTE_LIGHT = GOLD_LIGHT;
+const BG         = OB_BG;
 
 const ROUND_OPTIONS = [5, 10, 15, 20];
 
@@ -185,7 +186,7 @@ export default function VoteMultiSetupScreen({ navigation }) {
               disabled={!name.trim() || loading}
               activeOpacity={0.8}
             >
-              <LinearGradient colors={[VOTE_COLOR, VOTE_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
+              <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
                 {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>✨ CRÉER LA SALLE</Text>}
               </LinearGradient>
             </TouchableOpacity>
@@ -212,7 +213,7 @@ export default function VoteMultiSetupScreen({ navigation }) {
               disabled={!name.trim() || joinCode.length < 4 || loading}
               activeOpacity={0.8}
             >
-              <LinearGradient colors={[VOTE_COLOR, VOTE_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
+              <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
                 {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>🚀 REJOINDRE</Text>}
               </LinearGradient>
             </TouchableOpacity>
@@ -232,9 +233,9 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
   tabs: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.lg, padding: 4, marginBottom: spacing.xl },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.md },
-  tabActive: { backgroundColor: VOTE_COLOR },
+  tabActive: { backgroundColor: GOLD },
   tabText: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
-  tabTextActive: { color: colors.text },
+  tabTextActive: { color: LAUNCH_TEXT },
   field: { marginBottom: spacing.lg },
   label: { fontSize: 11, fontWeight: '800', color: VOTE_LIGHT, letterSpacing: 2, marginBottom: spacing.sm },
   input: {
@@ -263,5 +264,5 @@ const styles = StyleSheet.create({
   mainBtn: { borderRadius: radius.full, overflow: 'hidden', marginTop: spacing.md },
   mainBtnDisabled: { opacity: 0.4 },
   mainBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  mainBtnText: { fontSize: 15, fontWeight: '900', color: colors.text, letterSpacing: 2 },
+  mainBtnText: { fontSize: 15, fontWeight: '900', color: LAUNCH_TEXT, letterSpacing: 2 },
 });

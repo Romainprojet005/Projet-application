@@ -8,10 +8,11 @@ import { colors, spacing, radius } from '../../theme';
 import { supabase } from '../../services/supabase';
 import { CATEGORIES } from '../../data/blindTestSongs';
 
-const BEAT       = '#10B981';
-const BEAT_DARK  = '#059669';
-const BEAT_LIGHT = '#6EE7B7';
-const BG = ['#001A0F', '#00110A', '#001A0F'];
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const BEAT       = GOLD;
+const BEAT_DARK  = GOLD_DARK;
+const BEAT_LIGHT = GOLD_LIGHT;
+const BG         = OB_BG;
 
 const SONG_OPTIONS = [5, 10, 15, 20];
 const TIME_OPTIONS = [30, null]; // null = infini
@@ -191,7 +192,7 @@ export default function BlindMultiSetupScreen({ navigation }) {
               style={[styles.mainBtn, (!name.trim() || loading) && styles.mainBtnDisabled]}
               onPress={handleCreate} disabled={!name.trim() || loading} activeOpacity={0.8}
             >
-              <LinearGradient colors={[BEAT, BEAT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
+              <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
                 {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>✨ CRÉER LA SALLE</Text>}
               </LinearGradient>
             </TouchableOpacity>
@@ -216,7 +217,7 @@ export default function BlindMultiSetupScreen({ navigation }) {
               style={[styles.mainBtn, (!name.trim() || joinCode.length < 4 || loading) && styles.mainBtnDisabled]}
               onPress={handleJoin} disabled={!name.trim() || joinCode.length < 4 || loading} activeOpacity={0.8}
             >
-              <LinearGradient colors={[BEAT, BEAT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
+              <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
                 {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>🚀 REJOINDRE</Text>}
               </LinearGradient>
             </TouchableOpacity>
@@ -236,9 +237,9 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
   tabs: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.lg, padding: 4, marginBottom: spacing.xl },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.md },
-  tabActive: { backgroundColor: BEAT },
+  tabActive: { backgroundColor: GOLD },
   tabText: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
-  tabTextActive: { color: colors.text },
+  tabTextActive: { color: LAUNCH_TEXT },
   field: { marginBottom: spacing.lg },
   label: { fontSize: 11, fontWeight: '800', color: BEAT_LIGHT, letterSpacing: 2, marginBottom: spacing.sm },
   input: {
@@ -271,5 +272,5 @@ const styles = StyleSheet.create({
   mainBtn:         { borderRadius: radius.full, overflow: 'hidden', marginTop: spacing.md },
   mainBtnDisabled: { opacity: 0.4 },
   mainBtnGrad:     { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  mainBtnText:     { fontSize: 15, fontWeight: '900', color: colors.text, letterSpacing: 2 },
+  mainBtnText:     { fontSize: 15, fontWeight: '900', color: LAUNCH_TEXT, letterSpacing: 2 },
 });

@@ -7,10 +7,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { supabase, isSupabaseConfigured } from '../../services/supabase';
 
-const GOLD      = '#F59E0B';
-const GOLD_DARK = '#D97706';
-const GOLD_LIGHT = '#FDE68A';
-const BG = ['#0A0600', '#1A0C00', '#0A0600'];
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const BG = OB_BG;
 
 function generateCode() {
   return Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random() * 23)]).join('');
@@ -141,7 +139,7 @@ export default function TribunalSetupScreen({ navigation }) {
           disabled={!canProceed || loading}
           activeOpacity={0.8}
         >
-          <LinearGradient colors={[GOLD, GOLD_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
+          <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
             {loading
               ? <ActivityIndicator color="#000" />
               : <Text style={styles.mainBtnText}>{tab === 'create' ? '⚖️ CRÉER LA SALLE' : '🚀 REJOINDRE'}</Text>
@@ -174,7 +172,7 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
   tabs: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.lg, padding: 4, marginBottom: spacing.xl },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.md },
-  tabActive: { backgroundColor: GOLD },
+  tabActive: { backgroundColor: GOLD_LIGHT },
   tabText: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
   tabTextActive: { color: '#000' },
   field: { marginBottom: spacing.lg },

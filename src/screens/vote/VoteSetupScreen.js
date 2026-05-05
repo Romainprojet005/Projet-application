@@ -8,9 +8,10 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { VOTE_CATEGORIES, selectQuestions } from '../../data/voteData';
 
-const VOTE_COLOR = '#6366F1';
-const VOTE_DARK  = '#4F46E5';
-const VOTE_LIGHT = '#A5B4FC';
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const VOTE_COLOR = GOLD;
+const VOTE_DARK  = GOLD_DARK;
+const VOTE_LIGHT = GOLD_LIGHT;
 
 const ROUND_OPTIONS = [5, 10, 15, 20];
 const MAX_PLAYERS   = 8;
@@ -46,7 +47,7 @@ export default function VoteSetupScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={['#080818', '#0C0A24', '#080818']} style={styles.container}>
+    <LinearGradient colors={OB_BG} style={styles.container}>
       <PageScroll contentContainerStyle={styles.scroll}>
 
         <Animated.View style={[styles.header, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
@@ -175,7 +176,7 @@ export default function VoteSetupScreen({ navigation }) {
             activeOpacity={0.88}
           >
             <LinearGradient
-              colors={[VOTE_COLOR, VOTE_DARK]}
+              colors={GOLD_GRADIENT}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
@@ -292,7 +293,7 @@ const styles = StyleSheet.create({
     shadowColor: VOTE_COLOR, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+  launchText: { fontSize: 15, fontWeight: '800', color: LAUNCH_TEXT, letterSpacing: 2 },
 
   multiBtn: {
     marginTop: spacing.md, paddingVertical: spacing.md, alignItems: 'center',

@@ -8,10 +8,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { getPersonalities, buildChoices } from '../../data/personalityData';
 
-const ORANGE = '#F97316';
-const ORANGE_DARK = '#C2410C';
-const ORANGE_LIGHT = '#FED7AA';
-const BG = ['#1A0A00', '#2D1500', '#1A0A00'];
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const ORANGE       = GOLD;
+const ORANGE_DARK  = GOLD_DARK;
+const ORANGE_LIGHT = GOLD_LIGHT;
+const BG           = OB_BG;
 
 function shuffleTiles(n) {
   const arr = Array.from({ length: n }, (_, i) => i);
@@ -211,7 +212,7 @@ export default function PersonalitySetupScreen({ navigation }) {
               style={{ marginBottom: spacing.xxl }}
             >
               <LinearGradient
-                colors={canLaunch ? [ORANGE, ORANGE_DARK] : [colors.border, colors.surface]}
+                colors={canLaunch ? GOLD_GRADIENT : [colors.border, colors.surface]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.launchBtn}
@@ -347,5 +348,5 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
   },
-  launchBtnText: { fontSize: 15, fontWeight: '900', color: colors.text, letterSpacing: 2 },
+  launchBtnText: { fontSize: 15, fontWeight: '900', color: LAUNCH_TEXT, letterSpacing: 2 },
 });

@@ -14,10 +14,11 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { getQuestions } from '../../data/amitieQuestions';
 
-const ROSE = '#F43F5E';
-const ROSE_DARK = '#881337';
-const ROSE_LIGHT = '#FDA4AF';
-const BG = ['#1A0008', '#2D0010', '#1A0A12'];
+import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+const ROSE       = GOLD;
+const ROSE_DARK  = GOLD_DARK;
+const ROSE_LIGHT = GOLD_LIGHT;
+const BG         = OB_BG;
 
 export default function AmitieSetupScreen({ navigation }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -209,7 +210,7 @@ export default function AmitieSetupScreen({ navigation }) {
               style={{ marginBottom: spacing.xxl }}
             >
               <LinearGradient
-                colors={canLaunch ? [ROSE, ROSE_DARK] : [colors.border, colors.surface]}
+                colors={canLaunch ? GOLD_GRADIENT : [colors.border, colors.surface]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.launchBtn}
@@ -387,7 +388,7 @@ const styles = StyleSheet.create({
   launchBtnText: {
     fontSize: 15,
     fontWeight: '900',
-    color: colors.text,
+    color: LAUNCH_TEXT,
     letterSpacing: 2,
   },
 });
