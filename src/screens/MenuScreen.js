@@ -20,7 +20,7 @@ const CARD_W = IS_MOBILE_WEB ? Math.min(SW * 0.56, 200)
              : Platform.OS === 'web' ? 280
              : Math.min(SW * 0.75, 300);
 // Plafond : ne jamais dépasser la hauteur dispo (SH - header - dots - marges)
-const CARD_H = Math.min(Math.round(CARD_W * 1.28), SH - 240);
+const CARD_H = Math.min(Math.round(CARD_W * 1.55), SH - 210);
 
 // Rayon plus grand sur mobile → plus d'espace entre les cartes
 const RADIUS = IS_MOBILE_WEB ? Math.max(SW * 1.05, 360)
@@ -89,6 +89,8 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       /* Slot GPU layer — will-change garantit un layer dédié */
       .sdl-slot {
         position: absolute;
+        top: 50%;
+        left: 50%;
         will-change: transform, opacity;
         transform-style: preserve-3d;
         -webkit-transform-style: preserve-3d;
@@ -472,6 +474,12 @@ export default function MenuScreen({ navigation }) {
     webDrag.current.active = false;
     stageRef.current?.releasePointerCapture?.(e.pointerId);
     stageRef.current?.classList.remove('grabbing');
+    const dx = Math.abs(e.clientX - webDrag.current.startX);
+    if (dx < 6) {
+      const char = characters[getFrontIdx(rotRef.current)];
+      if (char?.available) handleSelectGameRef.current?.(char);
+      return;
+    }
     snapToNearest(webDrag.current.vx);
   }, [snapToNearest]);
 
@@ -549,6 +557,8 @@ export default function MenuScreen({ navigation }) {
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };
+  const handleSelectGameRef = useRef(null);
+  handleSelectGameRef.current = handleSelectGame;
 
   // ── Tri z-order (natif) ───────────────────────────────────────────
   const sortedIndices = Platform.OS !== 'web'
