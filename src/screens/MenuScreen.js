@@ -19,7 +19,7 @@ const IS_MOBILE_WEB = Platform.OS === 'web' && SW < 600;
 const CARD_W = IS_MOBILE_WEB ? Math.min(SW * 0.56, 200)
              : Platform.OS === 'web' ? 280
              : Math.min(SW * 0.75, 300);
-const CARD_H = Math.round(CARD_W * 1.5);
+const CARD_H = Math.round(CARD_W * 1.28);
 
 // Rayon plus grand sur mobile → plus d'espace entre les cartes
 const RADIUS = IS_MOBILE_WEB ? Math.max(SW * 1.05, 360)
