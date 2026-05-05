@@ -7,10 +7,12 @@ export const characters = [
     description:
       'Le célèbre détective de Baker Street traque le mensonge et perce les secrets. Ici, chaque mot compte… et l\'imposteur ne lui échappera pas.',
     catchphrase: '"Élémentaire, mon cher Watson !"',
-    color: '#7C3AED',
+    color: '#A78BFA',
     gradientColors: ['#1A0A3B', '#2D1069'],
     game: 'undercover',
     gameName: 'UNDERCOVER',
+    players: '4–12',
+    time: '15 min',
     available: true,
     stats: {
       Déduction: 99,
@@ -26,10 +28,12 @@ export const characters = [
     description:
       'Le célèbre archéologue-aventurier troque son fouet contre une bobine de film ! 3 indices photos pour identifier un film. Moins vous en avez besoin, plus vous marquez de points.',
     catchphrase: '"Je déteste les serpents… mais j\'adore le cinéma !"',
-    color: '#DC2626',
+    color: '#F87171',
     gradientColors: ['#1A0000', '#2D0000'],
     game: 'cineflash',
     gameName: 'CINÉ-FLASH',
+    players: '2–8',
+    time: '10 min',
     available: true,
     stats: {
       Culture: 95,
@@ -45,10 +49,12 @@ export const characters = [
     description:
       'Le juge implacable préside le tribunal des amis ! Chacun écrit une vérité sur un autre, l\'accusé doit convaincre le jury que c\'est faux. La vérité sera jugée !',
     catchphrase: '"La cour est ouverte !"',
-    color: '#14B8A6',
+    color: '#5EEAD4',
     gradientColors: ['#001A18', '#002D28'],
     game: 'tribunal',
     gameName: 'TRIBUNAL',
+    players: '4–10',
+    time: '20 min',
     available: true,
     stats: {
       Vérité: 99,
@@ -64,10 +70,12 @@ export const characters = [
     description:
       'Un renard et un chien de chasse, amis pour la vie malgré tout. Rox & Rouky vont tester si votre amitié est aussi forte que la leur.',
     catchphrase: '"Les meilleurs amis pour toujours !"',
-    color: '#F43F5E',
+    color: '#FB7185',
     gradientColors: ['#2D0010', '#4A001A'],
     game: 'amitie',
     gameName: 'TEST RELATION',
+    players: '2',
+    time: '15 min',
     available: true,
     stats: {
       Loyauté: 98,
@@ -83,10 +91,12 @@ export const characters = [
     description:
       'Le lycéen de Hill Valley dégaine sa Gibson ES-345 ! Reconnaissez les tubes rock avant que le chronomètre n\'explose. Grande puissance de feu musicale.',
     catchphrase: '"Cette chanson va faire danser vos grands-parents !"',
-    color: '#10B981',
+    color: '#34D399',
     gradientColors: ['#001A0F', '#002D1A'],
     game: 'blindtest',
     gameName: 'BLIND TEST',
+    players: '2–10',
+    time: '15 min',
     available: true,
     stats: {
       Rythme: 97,
@@ -102,10 +112,12 @@ export const characters = [
     description:
       'L\'excentrique chocolatier cache ses secrets derrière 3 emojis ! Films, musiques, séries ou célébrités — saurez-vous décrypter ses énigmes sucrées ?',
     catchphrase: '"Décryptez le message des emojis !"',
-    color: '#F59E0B',
+    color: '#FBBF24',
     gradientColors: ['#1A0F00', '#2D1A00'],
     game: 'emojiquiz',
     gameName: 'EMOJI QUIZ',
+    players: '2–8',
+    time: '10 min',
     available: true,
     stats: {
       Culture: 95,
@@ -121,10 +133,12 @@ export const characters = [
     description:
       "L'Arbitre impartial tranche chaque débat ! Votez en secret sur des questions, débats et dilemmes. Celui qui pense comme la majorité remporte les points !",
     catchphrase: '"La majorité a toujours raison… ou presque !"',
-    color: '#6366F1',
+    color: '#818CF8',
     gradientColors: ['#0A0818', '#12103A'],
     game: 'vote',
     gameName: 'VOTE MAJORITÉ',
+    players: '3–12',
+    time: '15 min',
     available: true,
     stats: {
       Diplomatie: 95,
@@ -140,10 +154,12 @@ export const characters = [
     description:
       'Elles ne voient pas grand chose… et pourtant elles sont là pour tester votre vue ! Saurez-vous reconnaître les célébrités mieux qu\'elles ?',
     catchphrase: '"On ne les voit pas… mais on les reconnaît !"',
-    color: '#F97316',
+    color: '#FB923C',
     gradientColors: ['#2D0F00', '#4A1A00'],
     game: 'personality',
     gameName: 'DEVINE LA PERSONNALITÉ',
+    players: '2–10',
+    time: '10 min',
     available: true,
     stats: {
       Observation: 12,
@@ -159,10 +175,12 @@ export const characters = [
     description:
       'La plus brillante sorcière de sa génération. Avec sa mémoire encyclopédique et sa rapidité légendaire, elle teste vos connaissances sans pitié.',
     catchphrase: '"Ce n\'est pas de la magie, c\'est du savoir !"',
-    color: '#0EA5E9',
+    color: '#38BDF8',
     gradientColors: ['#0A1A3B', '#0A2B4A'],
     game: 'quiz',
     gameName: 'QUIZ',
+    players: '2–10',
+    time: '15 min',
     available: true,
     stats: {
       Savoir: 99,
@@ -178,10 +196,12 @@ export const characters = [
     description:
       'Le super-héros le plus rapide de l\'univers met vos réflexes à l\'épreuve ! Buzzez avant les autres et répondez à la question pour marquer des points.',
     catchphrase: '"Rapidité, instinct, victoire !"',
-    color: '#EAB308',
+    color: '#FACC15',
     gradientColors: ['#1A1400', '#2D2200'],
     game: 'buzzer',
     gameName: 'BUZZER',
+    players: '3–10',
+    time: '15 min',
     available: true,
     stats: {
       Rapidité: 99,
@@ -197,10 +217,12 @@ export const characters = [
     description:
       'Le génie du cinéma muet débarque en soirée ! Un joueur mime un mot, les autres tapent leur réponse sur leur téléphone. Chacun son écran, zéro triche !',
     catchphrase: '"L\'imagination, c\'est le début de la création !"',
-    color: '#C026D3',
+    color: '#E879F9',
     gradientColors: ['#1A0028', '#2D0045'],
     game: 'mime',
     gameName: 'MIME EXPRESS',
+    players: '4–12',
+    time: '15 min',
     available: true,
     stats: {
       Expressivité: 99,
@@ -216,10 +238,12 @@ export const characters = [
     description:
       'Le légendaire poète gascon au grand nez teste votre éloquence ! Décrivez un mot sans prononcer les 5 mots interdits. L\'art de la périphrase vous sauvera.',
     catchphrase: '"Des mots, toujours des mots !"',
-    color: '#06B6D4',
+    color: '#22D3EE',
     gradientColors: ['#001218', '#002030'],
     game: 'motdepasse',
     gameName: 'MOT DE PASSE',
+    players: '2–10',
+    time: '15 min',
     available: true,
     stats: {
       Éloquence: 99,
