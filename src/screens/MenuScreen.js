@@ -210,6 +210,16 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         letter-spacing:3px; color:rgba(255,255,255,.45);
         border:1px solid rgba(255,255,255,.18); padding:6px 14px; border-radius:999px; }
 
+      /* Stats (affichées uniquement sur mobile via media query) */
+      .ob-stats { display:none; }
+      .ob-stat-row { display:flex; align-items:center; gap:5px; }
+      .ob-stat-name { font-family:'JetBrains Mono','Courier New',monospace; font-size:7px;
+        letter-spacing:1px; color:rgba(212,175,55,.55); width:44px; flex-shrink:0; text-transform:uppercase; }
+      .ob-stat-bar-bg { flex:1; height:2px; background:rgba(255,255,255,.08); border-radius:2px; overflow:hidden; }
+      .ob-stat-bar-fill { height:100%; border-radius:2px; }
+      .ob-stat-val { font-family:'JetBrains Mono','Courier New',monospace;
+        font-size:7px; color:rgba(212,175,55,.45); width:16px; text-align:right; flex-shrink:0; }
+
       /* === Dos Obsidien === */
       .ob-back {
         background: radial-gradient(circle at 50% 50%, #2A1A4A 0%, #0F0A1F 60%, #050410 100%);
@@ -297,22 +307,63 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-meta-hint { display: none; }
         .sdl-slot { will-change: auto; transition: none; }
 
+        /* Carte compacte mobile */
         .ob-front {
           background:
-            radial-gradient(ellipse at 50% 0%, rgba(212,175,55,.10), transparent 58%),
+            radial-gradient(ellipse at 50% 0%, rgba(212,175,55,.12), transparent 55%),
+            radial-gradient(ellipse at 50% 100%, color-mix(in oklab,var(--accent) 8%,transparent), transparent 60%),
             linear-gradient(180deg, #1A1430 0%, #0A0815 55%, #0F0A1F 100%);
           box-shadow: 0 8px 28px rgba(0,0,0,.75),
                       0 0 0 1px rgba(212,175,55,.22),
-                      inset 0 1px 0 rgba(255,255,255,.05);
+                      inset 0 1px 0 rgba(255,255,255,.06);
           transition: none;
+          padding: 14px 12px 12px;
         }
         .ob-front:hover { border-color: rgba(212,175,55,.45); }
-        .ob-grain      { display: none; }
-        .ob-frame-glow { filter: none; }
-        .ob-emoji      { filter: drop-shadow(0 0 8px rgba(212,175,55,.32)); }
-        .ob-game       { text-shadow: 0 0 8px rgba(212,175,55,.28); }
-        .sdl-nav     { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(0,0,0,.45); }
-        .sdl-nebula  { display: none; }
+
+        /* Grain réactivé (légèrement) */
+        .ob-grain { display: block; opacity: 0.18; }
+
+        /* Coins plus petits */
+        .ob-corner { width: 20px; height: 20px; }
+        .ob-corner.tl, .ob-corner.tr { top: 7px; }
+        .ob-corner.bl, .ob-corner.br { bottom: 7px; }
+        .ob-corner.tl, .ob-corner.bl { left: 7px; }
+        .ob-corner.tr, .ob-corner.br { right: 7px; }
+
+        /* Header */
+        .ob-header { font-size: 8px; letter-spacing: 2px; margin-bottom: 3px; }
+
+        /* Emoji frame réduit */
+        .ob-emoji-frame { width: 80px; height: 80px; margin: 5px auto 5px; }
+        .ob-emoji-frame::before { inset: -6px; }
+        .ob-frame-glow { filter: none; opacity: 0.55; }
+        .ob-emoji { font-size: 38px; filter: drop-shadow(0 0 6px rgba(212,175,55,.35)); }
+
+        /* Nom + titre */
+        .ob-name-block { margin-bottom: 3px; }
+        .ob-rule { margin: 3px 0; }
+        .ob-name { font-size: 15px; }
+        .ob-title { font-size: 7.5px; letter-spacing: 2px; margin-top: 2px; }
+
+        /* Nom du jeu */
+        .ob-game { font-size: 12px; letter-spacing: 2.5px; text-shadow: 0 0 8px rgba(212,175,55,.28); margin: 3px 0 5px; }
+
+        /* Stats */
+        .ob-stats {
+          display: flex; flex-direction: column; gap: 4px;
+          padding: 4px 0 2px;
+          border-top: 1px solid rgba(212,175,55,.12);
+        }
+
+        /* Meta */
+        .ob-meta { gap: 12px; padding-top: 6px; }
+        .ob-meta-label { font-size: 7px; letter-spacing: 1.5px; }
+        .ob-meta-value { font-size: 13px; }
+        .ob-meta-divider { height: 18px; }
+
+        .sdl-nav    { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(0,0,0,.45); }
+        .sdl-nebula { display: none; }
       }
     `;
     document.head.appendChild(st);
@@ -360,6 +411,22 @@ function ObsidianFront({ character, idx }) {
         <div className="ob-rule" />
       </div>
       <div className="ob-game">{character.gameName}</div>
+      {character.stats && (
+        <div className="ob-stats">
+          {Object.entries(character.stats).map(([key, val]) => (
+            <div className="ob-stat-row" key={key}>
+              <span className="ob-stat-name">{key.slice(0, 7)}</span>
+              <div className="ob-stat-bar-bg">
+                <div
+                  className="ob-stat-bar-fill"
+                  style={{ width: `${val}%`, background: character.color }}
+                />
+              </div>
+              <span className="ob-stat-val">{val}</span>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="ob-meta">
         <div className="ob-meta-cell">
           <span className="ob-meta-label">JOUEURS</span>
