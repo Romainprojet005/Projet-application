@@ -37,9 +37,10 @@ function cardPos(rot, i) {
   const sinA  = Math.sin(alpha);
   const t     = (cosA + 1) / 2;
   if (IS_DESKTOP_WEB) {
-    // Cylindre 3D réel avec profondeur Z
+    // Cylindre 3D réel avec profondeur Z + lift vertical sur la carte du devant
     return {
       x:     RADIUS * sinA,
+      y:     -28 * t,          // front card remonte de 28px, cartes du fond restent en place
       z:     RADIUS * (cosA - 1),
       sc:    0.5 + 0.5 * t,
       op:    0.25 + 0.75 * t,
@@ -143,7 +144,8 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
           radial-gradient(ellipse at 50% 0%, color-mix(in oklab,var(--accent) 22%,transparent), transparent 62%),
           linear-gradient(180deg, #14101F 0%, #0A0815 60%, #0F0A1F 100%);
         border: 1px solid rgba(212,175,55,.28);
-        box-shadow: 0 30px 80px rgba(0,0,0,.65),
+        box-shadow: 0 50px 120px rgba(0,0,0,.9),
+                    0 20px 40px rgba(0,0,0,.6),
                     0 0 0 1px rgba(212,175,55,.07),
                     inset 0 1px 0 rgba(255,255,255,.04);
         padding: 22px 20px 18px;
@@ -157,8 +159,9 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       }
       .ob-front:hover {
         border-color: rgba(212,175,55,.55);
-        box-shadow: 0 36px 90px rgba(0,0,0,.7), 0 0 0 1px rgba(212,175,55,.2),
-                    0 0 28px rgba(212,175,55,.1), inset 0 1px 0 rgba(255,255,255,.06);
+        box-shadow: 0 60px 140px rgba(0,0,0,.95), 0 25px 50px rgba(0,0,0,.7),
+                    0 0 0 1px rgba(212,175,55,.2),
+                    0 0 40px rgba(212,175,55,.12), inset 0 1px 0 rgba(255,255,255,.06);
       }
       .ob-unavailable { opacity:.52; }
 
@@ -516,7 +519,7 @@ export default function MenuScreen({ navigation }) {
         const el = cardSlotRefs.current[i];
         if (!el) return;
         const p = cardPos(rot, i);
-        el.style.transform = `translate3d(${p.x}px, 0, ${p.z}px) scale(${p.sc}) rotateY(${p.ry}deg)`;
+        el.style.transform = `translate3d(${p.x}px, ${p.y ?? 0}px, ${p.z}px) scale(${p.sc}) rotateY(${p.ry}deg)`;
         el.style.opacity   = String(p.op);
         el.style.zIndex    = String(Math.round((p.depth + 1) * 100));
       });
