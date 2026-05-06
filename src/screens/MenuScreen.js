@@ -16,14 +16,14 @@ const N = characters.length;
 const IS_MOBILE_WEB = Platform.OS === 'web' && SW < 600;
 const IS_DESKTOP_WEB = Platform.OS === 'web' && !IS_MOBILE_WEB;
 
-const CARD_W = IS_MOBILE_WEB ? Math.min(SW * 0.56, 200)
+const CARD_W = IS_MOBILE_WEB ? Math.min(SW * 0.52, 210)
              : IS_DESKTOP_WEB ? 280
              : Math.min(SW * 0.75, 300);
 const CARD_H = IS_MOBILE_WEB ? Math.min(Math.round(CARD_W * 1.55), SH - 210)
              : IS_DESKTOP_WEB ? 420
              : Math.min(Math.round(CARD_W * 1.55), SH - 210);
 
-const RADIUS = IS_MOBILE_WEB ? Math.max(SW * 1.05, 360)
+const RADIUS = IS_MOBILE_WEB ? 300
              : IS_DESKTOP_WEB ? 560
              : CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15;
 
@@ -36,11 +36,10 @@ function cardPos(rot, i) {
   const cosA  = Math.cos(alpha);
   const sinA  = Math.sin(alpha);
   const t     = (cosA + 1) / 2;
-  if (IS_DESKTOP_WEB) {
-    // Cylindre 3D réel avec profondeur Z + lift vertical sur la carte du devant
+  if (IS_DESKTOP_WEB || IS_MOBILE_WEB) {
     return {
       x:     RADIUS * sinA,
-      y:     -28 * t,          // front card remonte de 28px, cartes du fond restent en place
+      y:     (IS_DESKTOP_WEB ? -28 : -16) * t,
       z:     RADIUS * (cosA - 1),
       sc:    0.5 + 0.5 * t,
       op:    0.25 + 0.75 * t,
@@ -48,9 +47,8 @@ function cardPos(rot, i) {
       depth: cosA,
     };
   }
-  const pow = IS_MOBILE_WEB ? 2.2 : 1;
-  const sc  = IS_MOBILE_WEB ? 0.12 + 0.88 * Math.pow(t, pow) : 0.28 + 0.72 * t;
-  const op  = IS_MOBILE_WEB ? 0.05 + 0.95 * Math.pow(t, 2.8) : 0.18 + 0.82 * t;
+  const sc = 0.28 + 0.72 * t;
+  const op = 0.18 + 0.82 * t;
   return {
     x: RADIUS * sinA, z: 0, depth: cosA, sc, op,
     ry: alpha * 180 / Math.PI,
@@ -292,6 +290,10 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       @media (max-width: 768px) {
         .sdl-nav-prev { left: 8px; }
         .sdl-nav-next { right: 8px; }
+      }
+      @media (max-width: 600px) {
+        .sdl-stage { perspective: 800px; }
+        .sdl-meta-hint { display: none; }
       }
     `;
     document.head.appendChild(st);
