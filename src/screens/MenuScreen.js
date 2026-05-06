@@ -311,6 +311,8 @@ function makeStarLayer(count, maxSize) {
 const STAR_L1 = makeStarLayer(30, 1.5);
 const STAR_L2 = makeStarLayer(18, 2.2);
 const STAR_L3 = makeStarLayer(10, 3.2);
+// Native : couche unique allégée (moins de Views)
+const STAR_NATIVE = makeStarLayer(12, 2.5);
 
 // ── Carte Obsidienne — face ────────────────────────────────────────────
 function ObsidianFront({ character, idx }) {
@@ -382,26 +384,9 @@ function ObsidianBack({ character }) {
 // ── GameCard natif (mobile Expo) ──────────────────────────────────────
 const GameCardNative = memo(function GameCardNative({ character, onPress }) {
   const pressScale = useRef(new Animated.Value(1)).current;
-  const btnPulse   = useRef(new Animated.Value(1)).current;
-  const ring1      = useRef(new Animated.Value(0)).current;
-  const ring2      = useRef(new Animated.Value(0)).current;
 
   const nameChars    = character.gameName.replace(/\s+/g, '').length;
   const gameNameSize = nameChars <= 5 ? 34 : nameChars <= 9 ? 28 : nameChars <= 13 ? 23 : 19;
-
-  useEffect(() => {
-    if (character.available) {
-      Animated.loop(Animated.sequence([
-        Animated.timing(btnPulse, { toValue: 1.05, duration: 900, useNativeDriver: true }),
-        Animated.timing(btnPulse, { toValue: 1,    duration: 900, useNativeDriver: true }),
-      ])).start();
-    }
-    Animated.loop(Animated.timing(ring1, { toValue: 1, duration: 11000, useNativeDriver: true })).start();
-    Animated.loop(Animated.timing(ring2, { toValue: 1, duration:  7500, useNativeDriver: true })).start();
-  }, []);
-
-  const r1 = ring1.interpolate({ inputRange: [0, 1], outputRange: ['0deg',   '360deg'] });
-  const r2 = ring2.interpolate({ inputRange: [0, 1], outputRange: ['360deg', '0deg']   });
 
   return (
     <Animated.View style={{ transform: [{ scale: pressScale }] }}>
@@ -437,8 +422,8 @@ const GameCardNative = memo(function GameCardNative({ character, onPress }) {
           </View>
           <View style={cd.emojiWrap}>
             <View style={[cd.halo, { backgroundColor: character.color + '15' }]} />
-            <Animated.View style={[cd.ringOuter, { borderColor: character.color + '50', transform: [{ rotate: r1 }] }]} />
-            <Animated.View style={[cd.ringInner, { borderColor: character.color + '80', transform: [{ rotate: r2 }] }]} />
+            <View style={[cd.ringOuter, { borderColor: character.color + '50' }]} />
+            <View style={[cd.ringInner, { borderColor: character.color + '80' }]} />
             <LinearGradient colors={[character.color + '55', character.color + '25']} style={[cd.avatar, { borderColor: character.color + '90' }]}>
               <Text style={cd.emoji}>{character.emoji}</Text>
             </LinearGradient>
@@ -452,11 +437,11 @@ const GameCardNative = memo(function GameCardNative({ character, onPress }) {
           <Text style={cd.charTitle}>{character.title.toUpperCase()}</Text>
           <Text style={cd.catchphrase} numberOfLines={2}>{character.catchphrase}</Text>
           {character.available ? (
-            <Animated.View style={[cd.playBtnWrap, { transform: [{ scale: btnPulse }] }]}>
+            <View style={cd.playBtnWrap}>
               <LinearGradient colors={[character.color + 'FF', character.color + 'CC']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={cd.playBtn}>
                 <Text style={cd.playBtnText}>⚡  JOUER  ⚡</Text>
               </LinearGradient>
-            </Animated.View>
+            </View>
           ) : (
             <View style={[cd.playBtn, { backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' }]}>
               <Text style={[cd.playBtnText, { color: colors.textMuted }]}>🚧  Bientôt</Text>
@@ -643,7 +628,11 @@ export default function MenuScreen({ navigation }) {
     Animated.timing(headerAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
     const runStar = (anim, dur) =>
       Animated.loop(Animated.timing(anim, { toValue: -SH, duration: dur, useNativeDriver: true, easing: Easing.linear })).start();
-    runStar(starSlow, 30000); runStar(starMid, 18000); runStar(starFast, 9000);
+    if (Platform.OS === 'web') {
+      runStar(starSlow, 30000); runStar(starMid, 18000); runStar(starFast, 9000);
+    } else {
+      runStar(starSlow, 30000);
+    }
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, []);
 
@@ -689,10 +678,12 @@ export default function MenuScreen({ navigation }) {
   handleSelectGameRef.current = handleSelectGame;
 
   const sortedIndices = Platform.OS !== 'web'
-    ? [...Array(N).keys()].sort((a, b) => positions[a].depth - positions[b].depth)
+    ? [...Array(N).keys()].sort((a, b) => positions[a].depth - positions[b].depth).slice(-5)
     : [];
 
-  const starLayers = [{ stars: STAR_L1, anim: starSlow }, { stars: STAR_L2, anim: starMid }, { stars: STAR_L3, anim: starFast }];
+  const starLayers = Platform.OS === 'web'
+    ? [{ stars: STAR_L1, anim: starSlow }, { stars: STAR_L2, anim: starMid }, { stars: STAR_L3, anim: starFast }]
+    : [{ stars: STAR_NATIVE, anim: starSlow }];
 
   return (
     <LinearGradient colors={['#050410', '#0A0820', '#050410']} style={s.container}>
