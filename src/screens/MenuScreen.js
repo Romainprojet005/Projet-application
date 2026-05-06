@@ -23,7 +23,7 @@ const CARD_H = IS_MOBILE_WEB ? Math.min(Math.round(CARD_W * 1.75), SH - 190)
              : IS_DESKTOP_WEB ? 420
              : Math.min(Math.round(CARD_W * 1.55), SH - 210);
 
-const RADIUS = IS_MOBILE_WEB ? 360
+const RADIUS = IS_MOBILE_WEB ? 430
              : IS_DESKTOP_WEB ? 640
              : CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15;
 
