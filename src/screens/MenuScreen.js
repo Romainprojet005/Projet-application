@@ -386,8 +386,10 @@ const OB_GOLD     = '#D4AF37';
 const OB_CREAM    = '#F8E9C8';
 const OB_BORDER   = 'rgba(212,175,55,0.28)';
 const OB_GOLD_DIM = 'rgba(212,175,55,0.6)';
-const MONO        = Platform.OS === 'ios' ? 'Courier New' : 'monospace';
-const SERIF       = Platform.OS === 'ios' ? 'Georgia' : 'serif';
+// Polices identiques au web (chargées via expo-font dans App.js)
+const MONO   = Platform.OS !== 'web' ? 'JetBrainsMono_400Regular'          : 'monospace';
+const SERIF  = Platform.OS !== 'web' ? 'CormorantGaramond_600SemiBold_Italic' : 'serif';
+const CINZEL = Platform.OS !== 'web' ? 'Cinzel_700Bold'                    : 'serif';
 
 const GameCardNative = memo(function GameCardNative({ character, idx, onPress }) {
   const pressScale = useRef(new Animated.Value(1)).current;
@@ -423,11 +425,13 @@ const GameCardNative = memo(function GameCardNative({ character, idx, onPress })
             <Text style={ob.headerTxt}>LÉGENDE</Text>
           </View>
 
-          {/* Cadre emoji circulaire */}
+          {/* Cadre emoji circulaire avec anneau extérieur */}
           <View style={ob.emojiOuter}>
-            <View style={ob.emojiInner}>
-              <View style={[ob.emojiGlow, { backgroundColor: character.color }]} />
-              <Text style={ob.emojiTxt}>{character.emoji}</Text>
+            <View style={ob.emojiRingOuter}>
+              <View style={ob.emojiInner}>
+                <View style={[ob.emojiGlow, { backgroundColor: character.color }]} />
+                <Text style={ob.emojiTxt}>{character.emoji}</Text>
+              </View>
             </View>
           </View>
 
@@ -475,35 +479,36 @@ const GameCardNative = memo(function GameCardNative({ character, idx, onPress })
 const ob = StyleSheet.create({
   card: {
     borderRadius: 18, borderWidth: 1, borderColor: OB_BORDER, overflow: 'hidden',
-    paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16, flexDirection: 'column',
+    paddingHorizontal: 20, paddingTop: 22, paddingBottom: 18, flexDirection: 'column',
     shadowColor: '#000', shadowOffset: { width: 0, height: 24 }, shadowOpacity: 0.85, shadowRadius: 36, elevation: 18,
   },
-  accentGlow: { position: 'absolute', top: -24, left: '18%', right: '18%', height: 72, borderRadius: 36, opacity: 0.16 },
-  corner:     { position: 'absolute', width: 26, height: 26 },
+  accentGlow: { position: 'absolute', top: -24, left: '15%', right: '15%', height: 80, borderRadius: 40, opacity: 0.18 },
+  corner:     { position: 'absolute', width: 28, height: 28 },
   cTL: { top: 10, left: 10, borderTopWidth: 1.5, borderLeftWidth: 1.5, borderColor: OB_GOLD },
   cTR: { top: 10, right: 10, borderTopWidth: 1.5, borderRightWidth: 1.5, borderColor: OB_GOLD },
   cBL: { bottom: 10, left: 10, borderBottomWidth: 1.5, borderLeftWidth: 1.5, borderColor: OB_GOLD },
   cBR: { bottom: 10, right: 10, borderBottomWidth: 1.5, borderRightWidth: 1.5, borderColor: OB_GOLD },
-  header:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 8 },
-  headerTxt: { fontFamily: MONO, fontSize: 10, letterSpacing: 3, color: OB_GOLD },
-  headerDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: OB_GOLD },
-  emojiOuter:{ alignItems: 'center', marginTop: 6, marginBottom: 8 },
-  emojiInner:{ width: 108, height: 108, borderRadius: 54, borderWidth: 1.5, borderColor: OB_GOLD, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  emojiGlow: { ...StyleSheet.absoluteFillObject, opacity: 0.25 },
-  emojiTxt:  { fontSize: 46 },
-  nameBlock: { alignItems: 'center', marginBottom: 8 },
-  rule:      { height: 1, alignSelf: 'stretch', marginVertical: 5 },
-  charName:  { fontFamily: SERIF, fontWeight: '600', fontStyle: 'italic', fontSize: 20, color: OB_CREAM, letterSpacing: 0.5, textAlign: 'center', lineHeight: 24 },
-  charTitle: { fontFamily: MONO, fontSize: 9, letterSpacing: 2.5, color: 'rgba(212,175,55,0.7)', textAlign: 'center', marginTop: 3 },
-  gameName:  { fontWeight: '900', fontSize: 15, letterSpacing: 4, color: OB_GOLD, textAlign: 'center' },
-  meta:      { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(212,175,55,0.15)' },
-  metaCell:  { alignItems: 'center', gap: 2 },
-  metaLabel: { fontFamily: MONO, fontSize: 8, letterSpacing: 2, color: 'rgba(212,175,55,0.6)' },
-  metaVal:   { fontFamily: SERIF, fontWeight: '600', fontSize: 14, color: OB_CREAM },
-  metaSep:   { width: 1, height: 24, backgroundColor: 'rgba(212,175,55,0.3)' },
-  soonWrap:  { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(5,4,16,0.65)', borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  soonBadge: { borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 999 },
-  soonTxt:   { fontFamily: MONO, fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,0.45)' },
+  header:      { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 6 },
+  headerTxt:   { fontFamily: MONO, fontSize: 10, letterSpacing: 3, color: OB_GOLD },
+  headerDot:   { width: 4, height: 4, borderRadius: 2, backgroundColor: OB_GOLD },
+  emojiOuter:  { alignItems: 'center', marginTop: 12, marginBottom: 8 },
+  emojiRingOuter: { width: 126, height: 126, borderRadius: 63, borderWidth: 1, borderColor: 'rgba(212,175,55,0.3)', alignItems: 'center', justifyContent: 'center' },
+  emojiInner:  { width: 110, height: 110, borderRadius: 55, borderWidth: 1.5, borderColor: OB_GOLD, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  emojiGlow:   { ...StyleSheet.absoluteFillObject, opacity: 0.28 },
+  emojiTxt:    { fontSize: 52, lineHeight: 60 },
+  nameBlock:   { alignItems: 'center', marginBottom: 6 },
+  rule:        { height: 1, alignSelf: 'stretch', marginVertical: 6 },
+  charName:    { fontFamily: SERIF, fontSize: 22, color: OB_CREAM, letterSpacing: 0.5, textAlign: 'center', lineHeight: 26 },
+  charTitle:   { fontFamily: MONO, fontSize: 9, letterSpacing: 2.5, color: 'rgba(212,175,55,0.7)', textAlign: 'center', marginTop: 4 },
+  gameName:    { fontFamily: CINZEL, fontSize: 17, letterSpacing: 4, color: OB_GOLD, textAlign: 'center' },
+  meta:        { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(212,175,55,0.15)' },
+  metaCell:    { alignItems: 'center', gap: 2 },
+  metaLabel:   { fontFamily: MONO, fontSize: 8, letterSpacing: 2, color: 'rgba(212,175,55,0.6)' },
+  metaVal:     { fontFamily: SERIF, fontSize: 16, color: OB_CREAM },
+  metaSep:     { width: 1, height: 24, backgroundColor: 'rgba(212,175,55,0.3)' },
+  soonWrap:    { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(5,4,16,0.65)', borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  soonBadge:   { borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 999 },
+  soonTxt:     { fontFamily: MONO, fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,0.45)' },
 });
 
 // ── MenuScreen ────────────────────────────────────────────────────────
