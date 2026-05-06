@@ -14,40 +14,45 @@ const { width: SW, height: SH } = Dimensions.get('window');
 const N = characters.length;
 
 const IS_MOBILE_WEB = Platform.OS === 'web' && SW < 600;
+const IS_DESKTOP_WEB = Platform.OS === 'web' && !IS_MOBILE_WEB;
 
-// Cartes plus petites sur mobile pour laisser de l'espace entre elles
 const CARD_W = IS_MOBILE_WEB ? Math.min(SW * 0.56, 200)
-             : Platform.OS === 'web' ? 280
+             : IS_DESKTOP_WEB ? 280
              : Math.min(SW * 0.75, 300);
-// Plafond : ne jamais dépasser la hauteur dispo (SH - header - dots - marges)
-const CARD_H = Math.min(Math.round(CARD_W * 1.55), SH - 210);
+const CARD_H = IS_MOBILE_WEB ? Math.min(Math.round(CARD_W * 1.55), SH - 210)
+             : IS_DESKTOP_WEB ? 420
+             : Math.min(Math.round(CARD_W * 1.55), SH - 210);
 
-// Rayon plus grand sur mobile → plus d'espace entre les cartes
 const RADIUS = IS_MOBILE_WEB ? Math.max(SW * 1.05, 360)
-             : Platform.OS === 'web' ? 490
+             : IS_DESKTOP_WEB ? 460
              : CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15;
 
 const STEP = (2 * Math.PI) / N;
-
-// Sensibilité du glisser
 const DRAG_FACTOR = STEP / (IS_MOBILE_WEB ? CARD_W * 0.5 : CARD_W);
 
-// ── Calcul position d'une carte pour une rotation donnée ─────────────
+// ── Calcul position d'une carte ──────────────────────────────────────
 function cardPos(rot, i) {
   const alpha = rot + i * STEP;
   const cosA  = Math.cos(alpha);
   const sinA  = Math.sin(alpha);
-  const t     = (cosA + 1) / 2; // 0 = derrière, 1 = devant
-  // Sur mobile : falloff plus marqué → cartes latérales très petites/transparentes
+  const t     = (cosA + 1) / 2;
+  if (IS_DESKTOP_WEB) {
+    // Cylindre 3D réel avec profondeur Z
+    return {
+      x:     RADIUS * sinA,
+      z:     RADIUS * (cosA - 1),
+      sc:    0.5 + 0.5 * t,
+      op:    0.25 + 0.75 * t,
+      ry:    alpha * 180 / Math.PI,
+      depth: cosA,
+    };
+  }
   const pow = IS_MOBILE_WEB ? 2.2 : 1;
   const sc  = IS_MOBILE_WEB ? 0.12 + 0.88 * Math.pow(t, pow) : 0.28 + 0.72 * t;
   const op  = IS_MOBILE_WEB ? 0.05 + 0.95 * Math.pow(t, 2.8) : 0.18 + 0.82 * t;
   return {
-    x:     RADIUS * sinA,
-    depth: cosA,
-    sc, op,
-    ry:    alpha * 180 / Math.PI,
-    z:     Math.round((cosA + 1) * 50),
+    x: RADIUS * sinA, z: 0, depth: cosA, sc, op,
+    ry: alpha * 180 / Math.PI,
   };
 }
 
@@ -72,25 +77,53 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
     lk.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;500;600&display=swap';
     document.head.appendChild(lk);
   }
-  if (!document.getElementById('sdl-menu-css')) {
+  if (!document.getElementById('sdl-menu-css-v2')) {
     const st = document.createElement('style');
-    st.id = 'sdl-menu-css';
+    st.id = 'sdl-menu-css-v2';
     st.textContent = `
       /* === Carousel stage === */
       .sdl-stage {
         position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
         overflow: hidden;
         cursor: grab; user-select: none; -webkit-user-select: none;
-        perspective: 900px;
+        perspective: 1400px;
+        transform-style: preserve-3d;
       }
       .sdl-stage.grabbing { cursor: grabbing; }
 
-      /* Slot GPU layer — will-change garantit un layer dédié */
+      /* Slot GPU layer */
       .sdl-slot {
         position: absolute;
         will-change: transform, opacity;
         transform-style: preserve-3d;
         -webkit-transform-style: preserve-3d;
+        transition: opacity 0.2s ease;
+      }
+
+      /* === Flip card wrapper === */
+      .sdl-flip-card {
+        position: relative;
+        cursor: pointer;
+      }
+
+      /* Face / dos crossfade (pas de backface-visibility — problèmes de z-index) */
+      .sdl-front, .sdl-back-face {
+        transition: opacity 0.35s ease;
+        border-radius: 18px;
+      }
+      .sdl-flip-card:not(.is-flipped) .sdl-back-face {
+        opacity: 0; pointer-events: none; position: absolute; inset: 0;
+      }
+      .sdl-flip-card.is-flipped .sdl-front {
+        opacity: 0; pointer-events: none; transition-delay: 0s;
+      }
+      .sdl-flip-card:not(.is-flipped) .sdl-front {
+        opacity: 1; transition-delay: 0.35s;
+      }
+      .sdl-flip-card.is-flipped .sdl-back-face {
+        opacity: 1; pointer-events: auto; transition-delay: 0.35s;
+        position: absolute; inset: 0;
       }
 
       /* === Nébuleuses === */
@@ -104,98 +137,159 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       .sdl-nebula-3 { bottom:-10%; left:30%; width:450px; height:450px; background:#0EA5E9; opacity:.10; animation-delay:-20s; }
       @keyframes sdl-drift { from{transform:translate(0,0)scale(1);} to{transform:translate(40px,-30px)scale(1.1);} }
 
-      /* === Carte Obsidienne === */
+      /* === Carte Obsidienne (face) === */
       .ob-front {
         background:
           radial-gradient(ellipse at 50% 0%, color-mix(in oklab,var(--accent) 22%,transparent), transparent 62%),
           linear-gradient(180deg, #14101F 0%, #0A0815 60%, #0F0A1F 100%);
         border: 1px solid rgba(212,175,55,.28);
-        box-shadow: 0 28px 70px rgba(0,0,0,.65),
+        box-shadow: 0 30px 80px rgba(0,0,0,.65),
                     0 0 0 1px rgba(212,175,55,.07),
                     inset 0 1px 0 rgba(255,255,255,.04);
-        padding: 20px 18px 16px;
+        padding: 22px 20px 18px;
         font-family: 'Cormorant Garamond', Georgia, serif;
         color: #F8E9C8;
         display: flex; flex-direction: column;
         border-radius: 18px; overflow: hidden; position: relative;
-        cursor: pointer;
-        transition: border-color .25s ease, box-shadow .25s ease;
         -webkit-tap-highlight-color: transparent;
         touch-action: none;
+        transition: border-color .25s ease, box-shadow .25s ease;
       }
       .ob-front:hover {
         border-color: rgba(212,175,55,.55);
         box-shadow: 0 36px 90px rgba(0,0,0,.7), 0 0 0 1px rgba(212,175,55,.2),
                     0 0 28px rgba(212,175,55,.1), inset 0 1px 0 rgba(255,255,255,.06);
       }
-      .ob-unavailable { cursor:default; opacity:.52; pointer-events:none; }
+      .ob-unavailable { opacity:.52; }
 
       .ob-grain { position:absolute; inset:0; pointer-events:none; opacity:.5;
         background-image: radial-gradient(circle at 20% 30%,rgba(212,175,55,.08) 1px,transparent 1.5px),
                           radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 1px,transparent 1.5px);
         background-size: 40px 40px,60px 60px; }
-      .ob-corner { position:absolute; width:26px; height:26px; border-color:#D4AF37; }
-      .ob-corner.tl { top:9px; left:9px; border-top:1.5px solid; border-left:1.5px solid; }
-      .ob-corner.tr { top:9px; right:9px; border-top:1.5px solid; border-right:1.5px solid; }
-      .ob-corner.bl { bottom:9px; left:9px; border-bottom:1.5px solid; border-left:1.5px solid; }
-      .ob-corner.br { bottom:9px; right:9px; border-bottom:1.5px solid; border-right:1.5px solid; }
-      .ob-header { display:flex; align-items:center; justify-content:center; gap:9px;
-        font-family:'JetBrains Mono','Courier New',monospace; font-size:9px; letter-spacing:3px;
-        color:#D4AF37; margin-bottom:5px; position:relative; z-index:1; }
+      .ob-corner { position:absolute; width:28px; height:28px; border-color:#D4AF37; }
+      .ob-corner.tl { top:10px; left:10px; border-top:1.5px solid; border-left:1.5px solid; }
+      .ob-corner.tr { top:10px; right:10px; border-top:1.5px solid; border-right:1.5px solid; }
+      .ob-corner.bl { bottom:10px; left:10px; border-bottom:1.5px solid; border-left:1.5px solid; }
+      .ob-corner.br { bottom:10px; right:10px; border-bottom:1.5px solid; border-right:1.5px solid; }
+      .ob-header { display:flex; align-items:center; justify-content:center; gap:10px;
+        font-family:'JetBrains Mono','Courier New',monospace; font-size:10px; letter-spacing:3px;
+        color:#D4AF37; margin-bottom:6px; position:relative; z-index:1; }
       .ob-dot { width:4px; height:4px; background:#D4AF37; border-radius:50%; display:inline-block; }
-      .ob-emoji-frame { position:relative; width:100px; height:100px; margin:10px auto 7px;
+      .ob-emoji-frame { position:relative; width:110px; height:110px; margin:12px auto 8px;
         display:flex; align-items:center; justify-content:center;
         border:1.5px solid #D4AF37; border-radius:50%; z-index:1; }
-      .ob-emoji-frame::before { content:''; position:absolute; inset:-7px;
+      .ob-emoji-frame::before { content:''; position:absolute; inset:-8px;
         border:1px solid rgba(212,175,55,.3); border-radius:50%; }
-      .ob-frame-glow { position:absolute; inset:4px; border-radius:50;
+      .ob-frame-glow { position:absolute; inset:4px; border-radius:50%;
         background:radial-gradient(circle,color-mix(in oklab,var(--accent) 30%,transparent),transparent 70%);
-        filter:blur(8px); border-radius:50%; }
-      .ob-emoji { font-size:50px; position:relative; z-index:1; line-height:1;
-        filter:drop-shadow(0 0 10px rgba(212,175,55,.4)); }
-      .ob-name-block { text-align:center; margin:3px 0 7px; position:relative; z-index:1; }
-      .ob-rule { height:1px; background:linear-gradient(90deg,transparent,#D4AF37,transparent); margin:5px 0; }
+        filter:blur(8px); }
+      .ob-emoji { font-size:56px; position:relative; z-index:1; line-height:1;
+        filter:drop-shadow(0 0 12px rgba(212,175,55,.4)); }
+      .ob-name-block { text-align:center; margin:4px 0 8px; position:relative; z-index:1; }
+      .ob-rule { height:1px; background:linear-gradient(90deg,transparent,#D4AF37,transparent); margin:6px 0; }
       .ob-name { font-family:'Cormorant Garamond',Georgia,serif; font-weight:600; font-style:italic;
-        font-size:20px; color:#F8E9C8; letter-spacing:.5px; line-height:1.1; }
-      .ob-title { font-family:'JetBrains Mono','Courier New',monospace; font-size:8px;
+        font-size:22px; color:#F8E9C8; letter-spacing:.5px; line-height:1.1; }
+      .ob-title { font-family:'JetBrains Mono','Courier New',monospace; font-size:9px;
         letter-spacing:2.5px; color:rgba(212,175,55,.7); margin-top:4px; text-transform:uppercase; }
       .ob-game { text-align:center; font-family:'Cinzel',Georgia,serif; font-weight:700;
-        font-size:16px; letter-spacing:4px; color:#D4AF37; text-shadow:0 0 10px rgba(212,175,55,.3);
-        margin:5px 0 9px; position:relative; z-index:1; }
-      .ob-meta { display:flex; align-items:center; justify-content:center; gap:16px;
-        margin-top:auto; padding-top:9px; position:relative; z-index:1; }
+        font-size:18px; letter-spacing:4px; color:#D4AF37; text-shadow:0 0 10px rgba(212,175,55,.3);
+        margin:6px 0 10px; position:relative; z-index:1; }
+      .ob-meta { display:flex; align-items:center; justify-content:center; gap:18px;
+        margin-top:auto; padding-top:10px; position:relative; z-index:1; }
       .ob-meta-cell { display:flex; flex-direction:column; align-items:center; gap:2px; }
-      .ob-meta-label { font-family:'JetBrains Mono','Courier New',monospace; font-size:7px;
+      .ob-meta-label { font-family:'JetBrains Mono','Courier New',monospace; font-size:8px;
         letter-spacing:2px; color:rgba(212,175,55,.6); }
       .ob-meta-value { font-family:'Cormorant Garamond',Georgia,serif; font-weight:600;
-        font-size:15px; color:#F8E9C8; }
-      .ob-meta-divider { width:1px; height:22px; background:rgba(212,175,55,.3); }
+        font-size:16px; color:#F8E9C8; }
+      .ob-meta-divider { width:1px; height:24px; background:rgba(212,175,55,.3); }
       .ob-soon { position:absolute; inset:0; background:rgba(5,4,16,.62); border-radius:18px;
         display:flex; align-items:center; justify-content:center; z-index:20; }
       .ob-soon-badge { font-family:'JetBrains Mono','Courier New',monospace; font-size:9px;
         letter-spacing:3px; color:rgba(255,255,255,.45);
         border:1px solid rgba(255,255,255,.18); padding:6px 14px; border-radius:999px; }
 
+      /* === Dos Obsidien === */
+      .ob-back {
+        background: radial-gradient(circle at 50% 50%, #2A1A4A 0%, #0F0A1F 60%, #050410 100%);
+        border: 1px solid rgba(212,175,55,.25);
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+      }
+      .bo-pattern {
+        position: absolute; inset: 0;
+        background-image:
+          repeating-linear-gradient(45deg, rgba(212,175,55,.04) 0 1px, transparent 1px 14px),
+          repeating-linear-gradient(-45deg, rgba(212,175,55,.04) 0 1px, transparent 1px 14px);
+        pointer-events: none;
+      }
+      .bo-pattern::after {
+        content: ''; position: absolute; inset: 30px;
+        border: 1px solid rgba(212,175,55,.2); border-radius: 6px;
+      }
+      .bo-center { text-align: center; position: relative; z-index: 1; }
+      .bo-monogram {
+        display: flex; justify-content: center; align-items: center; gap: 4px;
+        font-family: 'Cinzel', serif; font-weight: 700; font-size: 78px; line-height: 1;
+        filter: drop-shadow(0 2px 12px rgba(212,175,55,.3));
+      }
+      .bo-mono-l, .bo-mono-r {
+        background: linear-gradient(180deg, #F4DC8C 0%, #D4AF37 50%, #8B6914 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .bo-mono-l { transform: translateY(-2px); }
+      .bo-mono-r { transform: translateY(2px); }
+      .bo-rule {
+        height: 1px; width: 140px; margin: 16px auto;
+        background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+      }
+      .bo-tag {
+        font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 5px; color: #D4AF37;
+      }
+      .bo-tag-fr {
+        font-family: 'Cormorant Garamond', serif; font-style: italic;
+        font-size: 11px; letter-spacing: 1.5px; color: rgba(212,175,55,.6); margin-top: 8px;
+      }
+
       /* Nav arrows */
-      .sdl-nav { position:absolute; top:50%; transform:translateY(-50%);
-        width:44px; height:44px; border-radius:50%; border:1px solid rgba(255,255,255,.22);
-        background:rgba(255,255,255,.08); backdrop-filter:blur(16px);
-        color:#fff; font-size:28px; font-weight:300; line-height:1;
-        display:flex; align-items:center; justify-content:center;
-        cursor:pointer; z-index:50; transition:background .2s,border-color .2s; }
-      .sdl-nav:hover { background:rgba(255,255,255,.14); border-color:rgba(212,175,55,.5); }
-      .sdl-nav-prev { left:12px; }
-      .sdl-nav-next { right:12px; }
+      .sdl-nav {
+        position: absolute; top: 50%; transform: translateY(-50%);
+        width: 48px; height: 48px; border-radius: 50%;
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.18);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        color: #fff; font-size: 28px; font-weight: 300; line-height: 1;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; z-index: 50; transition: background .2s, border-color .2s;
+      }
+      .sdl-nav:hover { background: rgba(255,255,255,.12); border-color: rgba(212,175,55,.5); }
+      .sdl-nav-prev { left: 40px; }
+      .sdl-nav-next { right: 40px; }
 
       /* Dots */
-      .sdl-dots { display:flex; align-items:center; justify-content:center; gap:7px; padding:10px 0; }
-      .sdl-dot { height:6px; border-radius:3px; background:rgba(255,255,255,.2);
+      .sdl-dots { display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 0 6px; }
+      .sdl-dot { height:7px; border-radius:4px; background:rgba(255,255,255,.20);
         border:none; cursor:pointer; padding:0; transition:width .3s,background .3s; }
-      .sdl-dot.active { width:22px; box-shadow:0 0 8px var(--accent); }
+      .sdl-dot.active { width:26px; box-shadow:0 0 10px var(--accent,#D4AF37); }
 
-      /* Hint */
-      .sdl-hint { font-family:'JetBrains Mono','Courier New',monospace; font-size:10px;
-        letter-spacing:1.5px; color:rgba(255,255,255,.28); display:block; text-align:center; padding-bottom:8px; }
+      /* Meta */
+      .sdl-meta { display:flex; flex-direction:column; align-items:center; gap:8px; padding-bottom:10px; }
+      .sdl-meta-line {
+        display:flex; align-items:center; gap:12px;
+        font-family:'JetBrains Mono','Courier New',monospace;
+        font-size:11px; letter-spacing:3px;
+      }
+      .sdl-meta-idx { color:rgba(255,255,255,.45); }
+      .sdl-meta-sep { color:rgba(255,255,255,.25); }
+      .sdl-meta-game { font-weight:700; }
+      .sdl-meta-hint {
+        font-family:'JetBrains Mono','Courier New',monospace;
+        font-size:10px; letter-spacing:1.5px; color:rgba(255,255,255,.32);
+      }
+
+      @media (max-width: 768px) {
+        .sdl-nav-prev { left: 8px; }
+        .sdl-nav-next { right: 8px; }
+      }
     `;
     document.head.appendChild(st);
   }
@@ -215,14 +309,13 @@ const STAR_L1 = makeStarLayer(30, 1.5);
 const STAR_L2 = makeStarLayer(18, 2.2);
 const STAR_L3 = makeStarLayer(10, 3.2);
 
-// ── Carte Obsidienne (web, sans flip) ─────────────────────────────────
-function ObsidianCard({ character, idx, onPlay }) {
+// ── Carte Obsidienne — face ────────────────────────────────────────────
+function ObsidianFront({ character, idx }) {
   const n = String(idx + 1).padStart(2, '0');
   return (
     <div
-      className={`ob-front${!character.available ? ' ob-unavailable' : ''}`}
+      className={`ob-front sdl-front${!character.available ? ' ob-unavailable' : ''}`}
       style={{ '--accent': character.color, width: CARD_W, height: CARD_H }}
-      onClick={character.available ? onPlay : undefined}
     >
       <div className="ob-grain" />
       <div className="ob-corner tl" /><div className="ob-corner tr" />
@@ -255,6 +348,30 @@ function ObsidianCard({ character, idx, onPlay }) {
       {!character.available && (
         <div className="ob-soon"><span className="ob-soon-badge">🔒 BIENTÔT</span></div>
       )}
+    </div>
+  );
+}
+
+// ── Carte Obsidienne — dos ────────────────────────────────────────────
+function ObsidianBack({ character }) {
+  return (
+    <div
+      className="ob-back sdl-back-face ob-grain"
+      style={{ '--accent': character.color, width: CARD_W, height: CARD_H }}
+    >
+      <div className="ob-grain" />
+      <div className="bo-pattern" />
+      <div className="ob-corner tl" /><div className="ob-corner tr" />
+      <div className="ob-corner bl" /><div className="ob-corner br" />
+      <div className="bo-center">
+        <div className="bo-monogram">
+          <span className="bo-mono-l">S</span>
+          <span className="bo-mono-r">L</span>
+        </div>
+        <div className="bo-rule" />
+        <div className="bo-tag">LA SOIRÉE DES LÉGENDES</div>
+        <div className="bo-tag-fr">— DOUZE LÉGENDES, UNE SEULE NUIT —</div>
+      </div>
     </div>
   );
 }
@@ -377,40 +494,38 @@ export default function MenuScreen({ navigation }) {
   const starMid    = useRef(new Animated.Value(0)).current;
   const starFast   = useRef(new Animated.Value(0)).current;
 
-  // Rotation du cylindre
   const rotRef       = useRef(0);
   const targetRef    = useRef(0);
   const rafRef       = useRef(null);
-  const dragRafRef   = useRef(null);  // throttle drag sur web
+  const dragRafRef   = useRef(null);
 
-  // DOM refs pour manipulation directe (web uniquement)
   const cardSlotRefs = useRef({});
   const stageRef     = useRef(null);
   const dotsRef      = useRef({});
+  const metaIdxRef   = useRef(null);
+  const metaGameRef  = useRef(null);
 
-  // State minimal : juste l'index actif (pour les dots et les positions natives)
   const [activeIdx, setActiveIdx] = useState(0);
-  const [positions, setPositions] = useState(() => computePositions(0)); // natif seulement
+  const [positions, setPositions] = useState(() => computePositions(0));
+  const [flipped, setFlipped]     = useState({});
 
-  // ── Mise à jour du carousel ────────────────────────────────────────
-  // Sur web : DOM direct → 0 re-render pendant l'animation
-  // Sur natif : setState classique
+  // ── Mise à jour du carousel ───────────────────────────────────────
   const updateCarousel = useCallback((rot) => {
     if (Platform.OS === 'web') {
       characters.forEach((_, i) => {
         const el = cardSlotRefs.current[i];
         if (!el) return;
         const p = cardPos(rot, i);
-        el.style.transform = `translateX(${p.x}px) scale(${p.sc}) rotateY(${p.ry}deg)`;
-        el.style.opacity    = p.op;
-        el.style.zIndex     = p.z;
+        el.style.transform = `translate3d(${p.x}px, 0, ${p.z}px) scale(${p.sc}) rotateY(${p.ry}deg)`;
+        el.style.opacity   = String(p.op);
+        el.style.zIndex    = String(Math.round((p.depth + 1) * 100));
       });
     } else {
       setPositions(computePositions(rot));
     }
   }, []);
 
-  // ── Animation lerp vers la cible ──────────────────────────────────
+  // ── Animation lerp vers la cible ─────────────────────────────────
   const animate = useCallback(() => {
     const diff = targetRef.current - rotRef.current;
     if (Math.abs(diff) < 0.001) {
@@ -437,7 +552,7 @@ export default function MenuScreen({ navigation }) {
     rafRef.current = requestAnimationFrame(animate);
   }, [animate]);
 
-  // ── Gestionnaires pointer (web) ────────────────────────────────────
+  // ── Pointeur (web) ───────────────────────────────────────────────
   const webDrag = useRef({ active: false, startX: 0, startRot: 0, lastX: 0, lastT: 0, vx: 0 });
 
   const onPtrDown = useCallback((e) => {
@@ -452,12 +567,11 @@ export default function MenuScreen({ navigation }) {
     const now = performance.now();
     const dt  = now - webDrag.current.lastT;
     if (dt > 8) {
-      webDrag.current.vx     = (e.clientX - webDrag.current.lastX) / dt;
-      webDrag.current.lastX  = e.clientX;
-      webDrag.current.lastT  = now;
+      webDrag.current.vx    = (e.clientX - webDrag.current.lastX) / dt;
+      webDrag.current.lastX = e.clientX;
+      webDrag.current.lastT = now;
     }
     rotRef.current = webDrag.current.startRot + (e.clientX - webDrag.current.startX) * DRAG_FACTOR;
-    // Throttle: 1 DOM update par frame
     if (!dragRafRef.current) {
       dragRafRef.current = requestAnimationFrame(() => {
         dragRafRef.current = null;
@@ -480,7 +594,7 @@ export default function MenuScreen({ navigation }) {
     snapToNearest(webDrag.current.vx);
   }, [snapToNearest]);
 
-  // ── PanResponder (natif) ──────────────────────────────────────────
+  // ── PanResponder (natif) ─────────────────────────────────────────
   const dragStartRot = useRef(0);
   const panResponder = useRef(
     PanResponder.create({
@@ -499,25 +613,29 @@ export default function MenuScreen({ navigation }) {
     })
   ).current;
 
-  // ── Keyboard (web) ────────────────────────────────────────────────
+  // ── Clavier (web) ────────────────────────────────────────────────
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     const onKey = (e) => {
       if (e.key === 'ArrowLeft')  navigateCard(+1);
       if (e.key === 'ArrowRight') navigateCard(-1);
+      if (e.key === ' ') {
+        e.preventDefault();
+        const frontChar = characters[getFrontIdx(rotRef.current)];
+        if (frontChar) setFlipped(f => ({ ...f, [frontChar.id]: !f[frontChar.id] }));
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [navigateCard]);
 
-  // ── Positions initiales web ───────────────────────────────────────
-  // useLayoutEffect = synchrone avant le premier paint → pas de flash
+  // ── Positions initiales web ──────────────────────────────────────
   useLayoutEffect(() => {
     if (Platform.OS !== 'web') return;
     updateCarousel(0);
   }, [updateCarousel]);
 
-  // ── Démarrage animations ──────────────────────────────────────────
+  // ── Animations ───────────────────────────────────────────────────
   useEffect(() => {
     Animated.timing(headerAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
     const runStar = (anim, dur) =>
@@ -526,14 +644,14 @@ export default function MenuScreen({ navigation }) {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, []);
 
-  // ── Mise à jour dots (couleur) ────────────────────────────────────
+  // ── Dots DOM update ──────────────────────────────────────────────
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     Object.entries(dotsRef.current).forEach(([idx, el]) => {
       if (!el) return;
       const i = Number(idx);
       if (i === activeIdx) {
-        el.style.width      = '22px';
+        el.style.width      = '26px';
         el.style.background = characters[activeIdx]?.color ?? '#D4AF37';
         el.style.setProperty('--accent', characters[activeIdx]?.color ?? '#D4AF37');
         el.classList.add('active');
@@ -543,6 +661,16 @@ export default function MenuScreen({ navigation }) {
         el.classList.remove('active');
       }
     });
+    // Meta DOM update
+    if (metaIdxRef.current) {
+      metaIdxRef.current.textContent =
+        String(activeIdx + 1).padStart(2, '0') + ' / ' + String(N).padStart(2, '0');
+    }
+    if (metaGameRef.current) {
+      const c = characters[activeIdx];
+      metaGameRef.current.textContent = c?.gameName ?? '';
+      metaGameRef.current.style.color = c?.color ?? '#D4AF37';
+    }
   }, [activeIdx]);
 
   const handleSelectGame = (character) => {
@@ -557,18 +685,15 @@ export default function MenuScreen({ navigation }) {
   const handleSelectGameRef = useRef(null);
   handleSelectGameRef.current = handleSelectGame;
 
-  // ── Tri z-order (natif) ───────────────────────────────────────────
   const sortedIndices = Platform.OS !== 'web'
     ? [...Array(N).keys()].sort((a, b) => positions[a].depth - positions[b].depth)
     : [];
 
   const starLayers = [{ stars: STAR_L1, anim: starSlow }, { stars: STAR_L2, anim: starMid }, { stars: STAR_L3, anim: starFast }];
 
-  // ── Render ────────────────────────────────────────────────────────
   return (
     <LinearGradient colors={['#050410', '#0A0820', '#050410']} style={s.container}>
 
-      {/* Nébuleuses web */}
       {Platform.OS === 'web' && (
         <>
           <div className="sdl-nebula sdl-nebula-1" />
@@ -577,7 +702,6 @@ export default function MenuScreen({ navigation }) {
         </>
       )}
 
-      {/* Étoiles */}
       {starLayers.map(({ stars, anim }, li) => (
         <Animated.View key={li} pointerEvents="none"
           style={{ position: 'absolute', top: 0, left: 0, right: 0, height: SH * 2, transform: [{ translateY: anim }] }}
@@ -620,12 +744,14 @@ export default function MenuScreen({ navigation }) {
                 key={char.id}
                 ref={(el) => { cardSlotRefs.current[i] = el; }}
                 className="sdl-slot"
-                style={{
-                  top:  `calc(50% - ${CARD_H / 2}px)`,
-                  left: `calc(50% - ${CARD_W / 2}px)`,
-                }}
               >
-                <ObsidianCard character={char} idx={i} onPlay={() => handleSelectGame(char)} />
+                <div
+                  className={`sdl-flip-card${flipped[char.id] ? ' is-flipped' : ''}`}
+                  style={{ width: CARD_W, height: CARD_H }}
+                >
+                  <ObsidianFront character={char} idx={i} />
+                  {IS_DESKTOP_WEB && <ObsidianBack character={char} />}
+                </div>
               </div>
             ))}
             <button className="sdl-nav sdl-nav-prev" onClick={() => navigateCard(+1)}>‹</button>
@@ -670,7 +796,7 @@ export default function MenuScreen({ navigation }) {
               key={c.id}
               ref={(el) => { dotsRef.current[i] = el; }}
               className={`sdl-dot${i === 0 ? ' active' : ''}`}
-              style={{ width: i === 0 ? 22 : 7, background: i === 0 ? (c.color) : 'rgba(255,255,255,0.20)', '--accent': c.color }}
+              style={{ width: i === 0 ? 26 : 7, background: i === 0 ? (c.color) : 'rgba(255,255,255,0.20)', '--accent': c.color }}
               onClick={() => {
                 targetRef.current = -i * STEP;
                 if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -690,8 +816,26 @@ export default function MenuScreen({ navigation }) {
         </Animated.View>
       )}
 
+      {/* Meta (web) */}
       {Platform.OS === 'web' && (
-        <span className="sdl-hint">cliquer pour jouer · glisser ou ← → pour naviguer</span>
+        <div className="sdl-meta">
+          <div className="sdl-meta-line">
+            <span className="sdl-meta-idx" ref={metaIdxRef}>
+              {String(1).padStart(2, '0')} / {String(N).padStart(2, '0')}
+            </span>
+            <span className="sdl-meta-sep">·</span>
+            <span
+              className="sdl-meta-game"
+              ref={metaGameRef}
+              style={{ color: characters[0]?.color }}
+            >
+              {characters[0]?.gameName}
+            </span>
+          </div>
+          <span className="sdl-meta-hint">
+            cliquer pour jouer · espace pour retourner · ← → pour naviguer
+          </span>
+        </div>
       )}
 
       <AdBanner />
