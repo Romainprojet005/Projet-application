@@ -39,7 +39,7 @@ function cardPos(rot, i) {
   if (IS_DESKTOP_WEB || IS_MOBILE_WEB) {
     return {
       x:     RADIUS * sinA,
-      y:     (IS_DESKTOP_WEB ? -28 : -16) * t,
+      y:     IS_DESKTOP_WEB ? -28 * t : 0,
       z:     RADIUS * (cosA - 1),
       sc:    0.5 + 0.5 * t,
       op:    0.25 + 0.75 * t,
@@ -557,7 +557,7 @@ export default function MenuScreen({ navigation }) {
         const el = cardSlotRefs.current[i];
         if (!el) return;
         const p = cardPos(rot, i);
-        el.style.transform = `translate3d(calc(-50% + ${p.x}px), calc(-50% + ${p.y ?? 0}px), ${p.z}px) scale(${p.sc}) rotateY(${p.ry}deg)`;
+        el.style.transform = `translate3d(${p.x}px, ${p.y ?? 0}px, ${p.z}px) scale(${p.sc}) rotateY(${p.ry}deg)`;
         el.style.opacity   = String(p.op);
         el.style.zIndex    = String(Math.round((p.depth + 1) * 100));
       });
@@ -684,6 +684,14 @@ export default function MenuScreen({ navigation }) {
   // ── Positions initiales web ──────────────────────────────────────
   useLayoutEffect(() => {
     if (Platform.OS !== 'web') return;
+    // Centrage via marges (calc dans translate3d non fiable sur Safari iOS)
+    characters.forEach((_, i) => {
+      const el = cardSlotRefs.current[i];
+      if (el) {
+        el.style.marginLeft = `-${CARD_W / 2}px`;
+        el.style.marginTop  = `-${CARD_H / 2}px`;
+      }
+    });
     updateCarousel(0);
   }, [updateCarousel]);
 
