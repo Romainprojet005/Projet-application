@@ -294,6 +294,24 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       @media (max-width: 600px) {
         .sdl-stage { perspective: 800px; }
         .sdl-meta-hint { display: none; }
+        .sdl-slot { will-change: auto; transition: none; }
+
+        /* ── Perf mobile : suppression des effets GPU lourds ── */
+        .ob-front {
+          background: linear-gradient(180deg, #1A1430 0%, #0A0815 55%, #0F0A1F 100%);
+          box-shadow: 0 6px 20px rgba(0,0,0,.7), 0 0 0 1px rgba(212,175,55,.18);
+          transition: none;
+        }
+        .ob-front:hover {
+          border-color: rgba(212,175,55,.28);
+          box-shadow: 0 6px 20px rgba(0,0,0,.7), 0 0 0 1px rgba(212,175,55,.18);
+        }
+        .ob-grain    { display: none; }
+        .ob-frame-glow { display: none; }
+        .ob-emoji    { filter: none; }
+        .ob-game     { text-shadow: none; }
+        .sdl-nav     { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(0,0,0,.45); }
+        .sdl-nebula  { display: none; }
       }
     `;
     document.head.appendChild(st);
@@ -719,14 +737,16 @@ export default function MenuScreen({ navigation }) {
     ? [...Array(N).keys()].sort((a, b) => positions[a].depth - positions[b].depth).slice(-5)
     : [];
 
-  const starLayers = Platform.OS === 'web'
-    ? [{ stars: STAR_L1, anim: starSlow }, { stars: STAR_L2, anim: starMid }, { stars: STAR_L3, anim: starFast }]
-    : [{ stars: STAR_NATIVE, anim: starSlow }];
+  const starLayers = IS_MOBILE_WEB
+    ? [{ stars: STAR_L1, anim: starSlow }]
+    : Platform.OS === 'web'
+      ? [{ stars: STAR_L1, anim: starSlow }, { stars: STAR_L2, anim: starMid }, { stars: STAR_L3, anim: starFast }]
+      : [{ stars: STAR_NATIVE, anim: starSlow }];
 
   return (
     <LinearGradient colors={['#050410', '#0A0820', '#050410']} style={s.container}>
 
-      {Platform.OS === 'web' && (
+      {IS_DESKTOP_WEB && (
         <>
           <div className="sdl-nebula sdl-nebula-1" />
           <div className="sdl-nebula sdl-nebula-2" />
