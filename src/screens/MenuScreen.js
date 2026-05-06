@@ -354,13 +354,11 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
           line-height: 1.45;
           color: rgba(248,233,200,.55);
           text-align: center;
-          margin-top: 6px;
-          padding-top: 6px;
-          border-top: 1px solid rgba(212,175,55,.12);
+          margin-top: 4px;
         }
 
         /* Meta */
-        .ob-meta { gap: 12px; padding-top: 6px; }
+        .ob-meta { gap: 12px; padding-top: 6px; margin-top: 6px; border-top: 1px solid rgba(212,175,55,.12); }
         .ob-meta-label { font-size: 7px; letter-spacing: 1.5px; }
         .ob-meta-value { font-size: 13px; }
         .ob-meta-divider { height: 18px; }
@@ -414,6 +412,9 @@ function ObsidianFront({ character, idx }) {
         <div className="ob-rule" />
       </div>
       <div className="ob-game">{character.gameName}</div>
+      {character.description && (
+        <div className="ob-desc">{character.description}</div>
+      )}
       <div className="ob-meta">
         <div className="ob-meta-cell">
           <span className="ob-meta-label">JOUEURS</span>
@@ -425,9 +426,6 @@ function ObsidianFront({ character, idx }) {
           <span className="ob-meta-value">{character.time || '15 min'}</span>
         </div>
       </div>
-      {character.description && (
-        <div className="ob-desc">{character.description}</div>
-      )}
       {!character.available && (
         <div className="ob-soon"><span className="ob-soon-badge">🔒 BIENTÔT</span></div>
       )}
