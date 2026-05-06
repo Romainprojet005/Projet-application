@@ -411,22 +411,6 @@ function ObsidianFront({ character, idx }) {
         <div className="ob-rule" />
       </div>
       <div className="ob-game">{character.gameName}</div>
-      {character.stats && (
-        <div className="ob-stats">
-          {Object.entries(character.stats).map(([key, val]) => (
-            <div className="ob-stat-row" key={key}>
-              <span className="ob-stat-name">{key.slice(0, 7)}</span>
-              <div className="ob-stat-bar-bg">
-                <div
-                  className="ob-stat-bar-fill"
-                  style={{ width: `${val}%`, background: character.color }}
-                />
-              </div>
-              <span className="ob-stat-val">{val}</span>
-            </div>
-          ))}
-        </div>
-      )}
       <div className="ob-meta">
         <div className="ob-meta-cell">
           <span className="ob-meta-label">JOUEURS</span>
