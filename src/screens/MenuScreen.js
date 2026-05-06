@@ -94,6 +94,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       /* Slot GPU layer */
       .sdl-slot {
         position: absolute;
+        left: 50%; top: 50%;
         will-change: transform, opacity;
         transform-style: preserve-3d;
         -webkit-transform-style: preserve-3d;
@@ -138,9 +139,14 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
 
       /* === Carte Obsidienne (face) === */
       .ob-front {
-        background: linear-gradient(180deg, #1A1430 0%, #0A0815 55%, #0F0A1F 100%);
+        background:
+          radial-gradient(ellipse at 50% 0%, color-mix(in oklab,var(--accent) 22%,transparent), transparent 62%),
+          linear-gradient(180deg, #14101F 0%, #0A0815 60%, #0F0A1F 100%);
         border: 1px solid rgba(212,175,55,.28);
-        box-shadow: 0 8px 28px rgba(0,0,0,.75), 0 0 0 1px rgba(212,175,55,.18);
+        box-shadow: 0 50px 120px rgba(0,0,0,.9),
+                    0 20px 40px rgba(0,0,0,.6),
+                    0 0 0 1px rgba(212,175,55,.07),
+                    inset 0 1px 0 rgba(255,255,255,.04);
         padding: 22px 20px 18px;
         font-family: 'Cormorant Garamond', Georgia, serif;
         color: #F8E9C8;
@@ -148,12 +154,20 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         border-radius: 18px; overflow: hidden; position: relative;
         -webkit-tap-highlight-color: transparent;
         touch-action: none;
-        transition: border-color .2s ease;
+        transition: border-color .25s ease, box-shadow .25s ease;
       }
-      .ob-front:hover { border-color: rgba(212,175,55,.55); }
+      .ob-front:hover {
+        border-color: rgba(212,175,55,.55);
+        box-shadow: 0 60px 140px rgba(0,0,0,.95), 0 25px 50px rgba(0,0,0,.7),
+                    0 0 0 1px rgba(212,175,55,.2),
+                    0 0 40px rgba(212,175,55,.12), inset 0 1px 0 rgba(255,255,255,.06);
+      }
       .ob-unavailable { opacity:.52; }
 
-      .ob-grain { display: none; }
+      .ob-grain { position:absolute; inset:0; pointer-events:none; opacity:.5;
+        background-image: radial-gradient(circle at 20% 30%,rgba(212,175,55,.08) 1px,transparent 1.5px),
+                          radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 1px,transparent 1.5px);
+        background-size: 40px 40px,60px 60px; }
       .ob-corner { position:absolute; width:28px; height:28px; border-color:#D4AF37; }
       .ob-corner.tl { top:10px; left:10px; border-top:1.5px solid; border-left:1.5px solid; }
       .ob-corner.tr { top:10px; right:10px; border-top:1.5px solid; border-right:1.5px solid; }
@@ -168,8 +182,11 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         border:1.5px solid #D4AF37; border-radius:50%; z-index:1; }
       .ob-emoji-frame::before { content:''; position:absolute; inset:-8px;
         border:1px solid rgba(212,175,55,.3); border-radius:50%; }
-      .ob-frame-glow { display: none; }
-      .ob-emoji { font-size:56px; position:relative; z-index:1; line-height:1; }
+      .ob-frame-glow { position:absolute; inset:4px; border-radius:50%;
+        background:radial-gradient(circle,color-mix(in oklab,var(--accent) 30%,transparent),transparent 70%);
+        filter:blur(8px); }
+      .ob-emoji { font-size:56px; position:relative; z-index:1; line-height:1;
+        filter:drop-shadow(0 0 12px rgba(212,175,55,.4)); }
       .ob-name-block { text-align:center; margin:4px 0 8px; position:relative; z-index:1; }
       .ob-rule { height:1px; background:linear-gradient(90deg,transparent,#D4AF37,transparent); margin:6px 0; }
       .ob-name { font-family:'Cormorant Garamond',Georgia,serif; font-weight:600; font-style:italic;
@@ -177,7 +194,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       .ob-title { font-family:'JetBrains Mono','Courier New',monospace; font-size:9px;
         letter-spacing:2.5px; color:rgba(212,175,55,.7); margin-top:4px; text-transform:uppercase; }
       .ob-game { text-align:center; font-family:'Cinzel',Georgia,serif; font-weight:700;
-        font-size:18px; letter-spacing:4px; color:#D4AF37;
+        font-size:18px; letter-spacing:4px; color:#D4AF37; text-shadow:0 0 10px rgba(212,175,55,.3);
         margin:6px 0 10px; position:relative; z-index:1; }
       .ob-meta { display:flex; align-items:center; justify-content:center; gap:18px;
         margin-top:auto; padding-top:10px; position:relative; z-index:1; }
@@ -280,8 +297,16 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-meta-hint { display: none; }
         .sdl-slot { will-change: auto; transition: none; }
 
-        .ob-front    { transition: none; }
-        .ob-front:hover { border-color: rgba(212,175,55,.28); }
+        .ob-front {
+          background: linear-gradient(180deg, #1A1430 0%, #0A0815 55%, #0F0A1F 100%);
+          box-shadow: 0 6px 20px rgba(0,0,0,.7), 0 0 0 1px rgba(212,175,55,.18);
+          transition: none;
+        }
+        .ob-front:hover { border-color: rgba(212,175,55,.28); box-shadow: 0 6px 20px rgba(0,0,0,.7), 0 0 0 1px rgba(212,175,55,.18); }
+        .ob-grain      { display: none; }
+        .ob-frame-glow { display: none; }
+        .ob-emoji      { filter: none; }
+        .ob-game       { text-shadow: none; }
         .sdl-nav     { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(0,0,0,.45); }
         .sdl-nebula  { display: none; }
       }
@@ -532,7 +557,7 @@ export default function MenuScreen({ navigation }) {
         const el = cardSlotRefs.current[i];
         if (!el) return;
         const p = cardPos(rot, i);
-        el.style.transform = `translate3d(${p.x}px, ${p.y ?? 0}px, ${p.z}px) scale(${p.sc}) rotateY(${p.ry}deg)`;
+        el.style.transform = `translate3d(calc(-50% + ${p.x}px), calc(-50% + ${p.y ?? 0}px), ${p.z}px) scale(${p.sc}) rotateY(${p.ry}deg)`;
         el.style.opacity   = String(p.op);
         el.style.zIndex    = String(Math.round((p.depth + 1) * 100));
       });
