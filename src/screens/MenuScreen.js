@@ -24,7 +24,7 @@ const CARD_H = IS_MOBILE_WEB ? Math.min(Math.round(CARD_W * 1.55), SH - 210)
              : Math.min(Math.round(CARD_W * 1.55), SH - 210);
 
 const RADIUS = IS_MOBILE_WEB ? Math.max(SW * 1.05, 360)
-             : IS_DESKTOP_WEB ? 460
+             : IS_DESKTOP_WEB ? 560
              : CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15;
 
 const STEP = (2 * Math.PI) / N;
