@@ -381,70 +381,89 @@ function ObsidianBack({ character }) {
   );
 }
 
-// ── GameCard natif (mobile Expo) ──────────────────────────────────────
-const GameCardNative = memo(function GameCardNative({ character, onPress }) {
-  const pressScale = useRef(new Animated.Value(1)).current;
+// ── Carte Obsidian native (reproduit fidèlement la version web) ───────
+const OB_GOLD     = '#D4AF37';
+const OB_CREAM    = '#F8E9C8';
+const OB_BORDER   = 'rgba(212,175,55,0.28)';
+const OB_GOLD_DIM = 'rgba(212,175,55,0.6)';
+const MONO        = Platform.OS === 'ios' ? 'Courier New' : 'monospace';
+const SERIF       = Platform.OS === 'ios' ? 'Georgia' : 'serif';
 
-  const nameChars    = character.gameName.replace(/\s+/g, '').length;
-  const gameNameSize = nameChars <= 5 ? 34 : nameChars <= 9 ? 28 : nameChars <= 13 ? 23 : 19;
+const GameCardNative = memo(function GameCardNative({ character, idx, onPress }) {
+  const pressScale = useRef(new Animated.Value(1)).current;
+  const n = String(idx + 1).padStart(2, '0');
 
   return (
     <Animated.View style={{ transform: [{ scale: pressScale }] }}>
-      {character.available && (
-        <View style={[cd.shadow, { shadowColor: character.color, backgroundColor: character.color + '22' }]} />
-      )}
       <TouchableOpacity
         onPress={() => character.available && onPress(character)}
         onPressIn={() => { if (character.available) Animated.spring(pressScale, { toValue: 0.97, useNativeDriver: true }).start(); }}
         onPressOut={() => Animated.spring(pressScale, { toValue: 1, useNativeDriver: true }).start()}
-        activeOpacity={character.available ? 0.92 : 1}
+        activeOpacity={1}
         disabled={!character.available}
       >
         <LinearGradient
-          colors={['#0C0C22', character.color + '40', character.color + '20', '#07050E']}
+          colors={['#14101F', '#0A0815', '#0F0A1F']}
           start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}
-          style={[cd.card, {
-            borderColor: character.available ? character.color + '70' : 'rgba(255,255,255,0.08)',
-            opacity: character.available ? 1 : 0.55,
-          }]}
+          style={[ob.card, { width: CARD_W, height: CARD_H, opacity: character.available ? 1 : 0.52 }]}
         >
-          <LinearGradient colors={['rgba(255,255,255,0.13)', 'rgba(255,255,255,0)']} start={{ x: 0.15, y: 0 }} end={{ x: 0.85, y: 0.35 }} style={StyleSheet.absoluteFill} pointerEvents="none" />
-          <View style={cd.topRow}>
-            {character.available ? (
-              <LinearGradient colors={['#10B981EE', '#059669BB']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={cd.statusBadge}>
-                <Text style={cd.statusText}>✦  DISPONIBLE</Text>
-              </LinearGradient>
-            ) : (
-              <View style={[cd.statusBadge, { backgroundColor: 'rgba(255,255,255,0.07)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' }]}>
-                <Text style={[cd.statusText, { color: colors.textMuted }]}>🔒  BIENTÔT</Text>
-              </View>
-            )}
+          {/* Halo de couleur accent en haut */}
+          <View style={[ob.accentGlow, { backgroundColor: character.color }]} />
+
+          {/* Coins dorés */}
+          <View style={[ob.corner, ob.cTL]} />
+          <View style={[ob.corner, ob.cTR]} />
+          <View style={[ob.corner, ob.cBL]} />
+          <View style={[ob.corner, ob.cBR]} />
+
+          {/* En-tête N° XX · LÉGENDE */}
+          <View style={ob.header}>
+            <Text style={ob.headerTxt}>N° {n}</Text>
+            <View style={ob.headerDot} />
+            <Text style={ob.headerTxt}>LÉGENDE</Text>
           </View>
-          <View style={cd.emojiWrap}>
-            <View style={[cd.halo, { backgroundColor: character.color + '15' }]} />
-            <View style={[cd.ringOuter, { borderColor: character.color + '50' }]} />
-            <View style={[cd.ringInner, { borderColor: character.color + '80' }]} />
-            <LinearGradient colors={[character.color + '55', character.color + '25']} style={[cd.avatar, { borderColor: character.color + '90' }]}>
-              <Text style={cd.emoji}>{character.emoji}</Text>
-            </LinearGradient>
-          </View>
-          <View style={[cd.divider, { backgroundColor: character.color + '90' }]} />
-          <Text style={[cd.gameName, { color: character.color, fontSize: gameNameSize, lineHeight: gameNameSize * 1.25 }]} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.45}>
-            {character.gameName}
-          </Text>
-          <View style={[cd.divider, { backgroundColor: character.color + '90' }]} />
-          <Text style={[cd.charName, { color: character.color }]}>{character.name}</Text>
-          <Text style={cd.charTitle}>{character.title.toUpperCase()}</Text>
-          <Text style={cd.catchphrase} numberOfLines={2}>{character.catchphrase}</Text>
-          {character.available ? (
-            <View style={cd.playBtnWrap}>
-              <LinearGradient colors={[character.color + 'FF', character.color + 'CC']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={cd.playBtn}>
-                <Text style={cd.playBtnText}>⚡  JOUER  ⚡</Text>
-              </LinearGradient>
+
+          {/* Cadre emoji circulaire */}
+          <View style={ob.emojiOuter}>
+            <View style={ob.emojiInner}>
+              <View style={[ob.emojiGlow, { backgroundColor: character.color }]} />
+              <Text style={ob.emojiTxt}>{character.emoji}</Text>
             </View>
-          ) : (
-            <View style={[cd.playBtn, { backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' }]}>
-              <Text style={[cd.playBtnText, { color: colors.textMuted }]}>🚧  Bientôt</Text>
+          </View>
+
+          {/* Bloc nom avec filets dorés */}
+          <View style={ob.nameBlock}>
+            <LinearGradient colors={['transparent', OB_GOLD_DIM, 'transparent']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={ob.rule} />
+            <Text style={ob.charName}>{character.name}</Text>
+            <Text style={ob.charTitle}>{character.title.toUpperCase()}</Text>
+            <LinearGradient colors={['transparent', OB_GOLD_DIM, 'transparent']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={ob.rule} />
+          </View>
+
+          {/* Nom du jeu */}
+          <Text style={ob.gameName}>{character.gameName}</Text>
+
+          {/* Espace flexible pour pousser la meta en bas */}
+          <View style={{ flex: 1 }} />
+
+          {/* Meta JOUEURS · DURÉE */}
+          <View style={ob.meta}>
+            <View style={ob.metaCell}>
+              <Text style={ob.metaLabel}>JOUEURS</Text>
+              <Text style={ob.metaVal}>{character.players || '2–12'}</Text>
+            </View>
+            <View style={ob.metaSep} />
+            <View style={ob.metaCell}>
+              <Text style={ob.metaLabel}>DURÉE</Text>
+              <Text style={ob.metaVal}>{character.time || '15 min'}</Text>
+            </View>
+          </View>
+
+          {/* Overlay "Bientôt" */}
+          {!character.available && (
+            <View style={ob.soonWrap}>
+              <View style={ob.soonBadge}>
+                <Text style={ob.soonTxt}>🔒  BIENTÔT</Text>
+              </View>
             </View>
           )}
         </LinearGradient>
@@ -453,26 +472,38 @@ const GameCardNative = memo(function GameCardNative({ character, onPress }) {
   );
 });
 
-const cd = StyleSheet.create({
-  shadow:      { position: 'absolute', top: 8, left: 8, right: 8, bottom: -14, borderRadius: 24, shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.85, shadowRadius: 36, elevation: 24 },
-  card:        { width: CARD_W, borderRadius: 24, borderWidth: 1.5, paddingHorizontal: spacing.md, paddingTop: spacing.xs, paddingBottom: spacing.sm, overflow: 'hidden', flexDirection: 'column' },
-  topRow:      { alignItems: 'center', marginBottom: 6 },
-  statusBadge: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: radius.full },
-  statusText:  { fontSize: 9, fontWeight: '900', color: '#fff', letterSpacing: 1.5 },
-  emojiWrap:   { alignItems: 'center', justifyContent: 'center', height: 88, marginBottom: 6 },
-  halo:        { position: 'absolute', width: 88, height: 88, borderRadius: 44 },
-  ringOuter:   { position: 'absolute', width: 80, height: 80, borderRadius: 40, borderWidth: 1.5 },
-  ringInner:   { position: 'absolute', width: 62, height: 62, borderRadius: 31, borderWidth: 1 },
-  avatar:      { width: 52, height: 52, borderRadius: 26, borderWidth: 2.5, alignItems: 'center', justifyContent: 'center' },
-  emoji:       { fontSize: 26 },
-  divider:     { height: 2, borderRadius: 1, marginVertical: 4 },
-  gameName:    { fontWeight: '900', letterSpacing: 1.5, textAlign: 'center' },
-  charName:    { fontSize: 13, fontWeight: '800', textAlign: 'center', marginTop: 6, marginBottom: 1 },
-  charTitle:   { fontSize: 8, fontWeight: '700', letterSpacing: 2, color: colors.textMuted, textAlign: 'center', marginBottom: 6 },
-  catchphrase: { fontSize: 11, color: colors.textSecondary, textAlign: 'center', fontStyle: 'italic', lineHeight: 16, marginBottom: 4 },
-  playBtnWrap: { marginTop: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.45, shadowRadius: 10, elevation: 8 },
-  playBtn:     { paddingVertical: 10, borderRadius: radius.full, alignItems: 'center' },
-  playBtnText: { fontSize: 12, fontWeight: '900', color: '#fff', letterSpacing: 2 },
+const ob = StyleSheet.create({
+  card: {
+    borderRadius: 18, borderWidth: 1, borderColor: OB_BORDER, overflow: 'hidden',
+    paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16, flexDirection: 'column',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 24 }, shadowOpacity: 0.85, shadowRadius: 36, elevation: 18,
+  },
+  accentGlow: { position: 'absolute', top: -24, left: '18%', right: '18%', height: 72, borderRadius: 36, opacity: 0.16 },
+  corner:     { position: 'absolute', width: 26, height: 26 },
+  cTL: { top: 10, left: 10, borderTopWidth: 1.5, borderLeftWidth: 1.5, borderColor: OB_GOLD },
+  cTR: { top: 10, right: 10, borderTopWidth: 1.5, borderRightWidth: 1.5, borderColor: OB_GOLD },
+  cBL: { bottom: 10, left: 10, borderBottomWidth: 1.5, borderLeftWidth: 1.5, borderColor: OB_GOLD },
+  cBR: { bottom: 10, right: 10, borderBottomWidth: 1.5, borderRightWidth: 1.5, borderColor: OB_GOLD },
+  header:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 8 },
+  headerTxt: { fontFamily: MONO, fontSize: 10, letterSpacing: 3, color: OB_GOLD },
+  headerDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: OB_GOLD },
+  emojiOuter:{ alignItems: 'center', marginTop: 6, marginBottom: 8 },
+  emojiInner:{ width: 108, height: 108, borderRadius: 54, borderWidth: 1.5, borderColor: OB_GOLD, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  emojiGlow: { ...StyleSheet.absoluteFillObject, opacity: 0.25 },
+  emojiTxt:  { fontSize: 46 },
+  nameBlock: { alignItems: 'center', marginBottom: 8 },
+  rule:      { height: 1, alignSelf: 'stretch', marginVertical: 5 },
+  charName:  { fontFamily: SERIF, fontWeight: '600', fontStyle: 'italic', fontSize: 20, color: OB_CREAM, letterSpacing: 0.5, textAlign: 'center', lineHeight: 24 },
+  charTitle: { fontFamily: MONO, fontSize: 9, letterSpacing: 2.5, color: 'rgba(212,175,55,0.7)', textAlign: 'center', marginTop: 3 },
+  gameName:  { fontWeight: '900', fontSize: 15, letterSpacing: 4, color: OB_GOLD, textAlign: 'center' },
+  meta:      { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(212,175,55,0.15)' },
+  metaCell:  { alignItems: 'center', gap: 2 },
+  metaLabel: { fontFamily: MONO, fontSize: 8, letterSpacing: 2, color: 'rgba(212,175,55,0.6)' },
+  metaVal:   { fontFamily: SERIF, fontWeight: '600', fontSize: 14, color: OB_CREAM },
+  metaSep:   { width: 1, height: 24, backgroundColor: 'rgba(212,175,55,0.3)' },
+  soonWrap:  { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(5,4,16,0.65)', borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  soonBadge: { borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 999 },
+  soonTxt:   { fontFamily: MONO, fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,0.45)' },
 });
 
 // ── MenuScreen ────────────────────────────────────────────────────────
@@ -766,7 +797,7 @@ export default function MenuScreen({ navigation }) {
                   transform: [{ perspective: 900 }, { translateX: pos.x }, { scale: pos.sc }, { rotateY: `${pos.ry}deg` }],
                   opacity: pos.op, zIndex: Math.round((pos.depth + 1) * 50),
                 }]}>
-                  <GameCardNative character={char} onPress={handleSelectGame} />
+                  <GameCardNative character={char} idx={i} onPress={handleSelectGame} />
                 </View>
               );
             })}
