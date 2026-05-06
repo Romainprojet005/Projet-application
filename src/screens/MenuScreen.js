@@ -79,7 +79,6 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       /* === Carousel stage === */
       .sdl-stage {
         position: absolute; inset: 0;
-        display: flex; align-items: center; justify-content: center;
         overflow: hidden;
         cursor: grab; user-select: none; -webkit-user-select: none;
         perspective: 900px;
@@ -89,8 +88,6 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       /* Slot GPU layer — will-change garantit un layer dédié */
       .sdl-slot {
         position: absolute;
-        top: 50%;
-        left: 50%;
         will-change: transform, opacity;
         transform-style: preserve-3d;
         -webkit-transform-style: preserve-3d;
@@ -623,14 +620,17 @@ export default function MenuScreen({ navigation }) {
                 key={char.id}
                 ref={(el) => { cardSlotRefs.current[i] = el; }}
                 className="sdl-slot"
-                style={{ marginLeft: -CARD_W / 2, marginTop: -CARD_H / 2 }}
+                style={{
+                  top:  `calc(50% - ${CARD_H / 2}px)`,
+                  left: `calc(50% - ${CARD_W / 2}px)`,
+                }}
               >
                 <ObsidianCard character={char} idx={i} onPlay={() => handleSelectGame(char)} />
               </div>
             ))}
+            <button className="sdl-nav sdl-nav-prev" onClick={() => navigateCard(+1)}>‹</button>
+            <button className="sdl-nav sdl-nav-next" onClick={() => navigateCard(-1)}>›</button>
           </div>
-          <button className="sdl-nav sdl-nav-prev" onClick={() => navigateCard(+1)}>‹</button>
-          <button className="sdl-nav sdl-nav-next" onClick={() => navigateCard(-1)}>›</button>
         </div>
       )}
 
