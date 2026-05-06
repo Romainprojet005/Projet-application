@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 
 const SCREEN_W = Dimensions.get('window').width;
 const PC_IMG_W = Platform.OS === 'web' ? Math.min(380, SCREEN_W - 48) : undefined;
@@ -40,7 +41,7 @@ function maxErrors(len) {
 const ORANGE = '#F97316';
 const ORANGE_DARK = '#C2410C';
 const ORANGE_LIGHT = '#FED7AA';
-const BG = ['#1A0A00', '#2D1500', '#1A0A00'];
+const BG = OB_BG;
 
 // Blur (css filter) applied to a wrapper View on web — 3 levels + clear at step 4
 const blurStyle = (step) => {
@@ -85,7 +86,7 @@ function TilesMask({ revealedTiles, source, imgError }) {
                 resizeMode="cover"
               />
             ) : (
-              <View style={{ flex: 1, backgroundColor: '#1A0A00' }} />
+              <View style={{ flex: 1, backgroundColor: '#0F0A1F' }} />
             )}
           </View>
         );
@@ -588,7 +589,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1A0A00',
+    backgroundColor: '#0F0A1F',
   },
   imgFallbackEmoji: { fontSize: 48 },
   imgFallbackText: { fontSize: 12, color: colors.textMuted, marginTop: spacing.sm },

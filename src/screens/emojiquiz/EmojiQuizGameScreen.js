@@ -5,12 +5,13 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 import { EMOJI_QUIZ_ITEMS } from '../../data/emojiQuizData';
 
 const AMB       = '#F59E0B';
 const AMB_DARK  = '#B45309';
 const AMB_LIGHT = '#FDE68A';
-const BG = ['#1A0F00', '#2D1A00', '#1A0F00'];
+const BG = OB_BG;
 
 function shuffle(arr) {
   const a = [...arr];

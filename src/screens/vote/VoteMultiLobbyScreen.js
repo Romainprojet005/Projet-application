@@ -5,13 +5,14 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 import { selectQuestions } from '../../data/voteData';
 
 const VOTE_COLOR = '#6366F1';
 const VOTE_DARK  = '#4F46E5';
 const VOTE_LIGHT = '#A5B4FC';
-const BG = ['#080818', '#0C0A24', '#080818'];
+const BG = OB_BG;
 
 export default function VoteMultiLobbyScreen({ navigation, route }) {
   const { roomId, playerId, isHost } = route.params;

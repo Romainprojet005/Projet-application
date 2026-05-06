@@ -10,11 +10,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 
 const ROSE = '#F43F5E';
 const ROSE_DARK = '#881337';
 const ROSE_LIGHT = '#FDA4AF';
-const BG = ['#1A0008', '#2D0010', '#1A0A12'];
+const BG = OB_BG;
 
 function buildRounds(players, questions) {
   const pairs = [];

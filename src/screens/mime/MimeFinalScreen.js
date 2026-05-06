@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 
 const PINK = '#C026D3';
 const PINK_DARK = '#86198F';
 const PINK_LIGHT = '#E879F9';
-const BG = ['#1A0028', '#0A0A1B'];
+const BG = OB_BG;
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 export default function MimeFinalScreen({ navigation, route }) {

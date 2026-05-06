@@ -6,7 +6,9 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { selectQuestions } from '../../data/voteData';
+import { OB_BG } from '../../theme/obsidian';
 
+const BG         = OB_BG;
 const VOTE_COLOR = '#6366F1';
 const VOTE_DARK  = '#4F46E5';
 const VOTE_LIGHT = '#A5B4FC';
@@ -108,7 +110,7 @@ export default function VoteGameScreen({ route, navigation }) {
   // ── player_ready ──────────────────────────────────────────────────────
   if (phase === 'player_ready') {
     return (
-      <LinearGradient colors={['#080818', '#0C0A24', '#080818']} style={styles.container}>
+      <LinearGradient colors={BG} style={styles.container}>
         {progressBar}
         <Animated.View style={[styles.centered, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <Text style={styles.turnLabel}>C'est ton tour !</Text>
@@ -130,7 +132,7 @@ export default function VoteGameScreen({ route, navigation }) {
   // ── player_voting ─────────────────────────────────────────────────────
   if (phase === 'player_voting') {
     return (
-      <LinearGradient colors={['#080818', '#0C0A24', '#080818']} style={styles.container}>
+      <LinearGradient colors={BG} style={styles.container}>
         {progressBar}
         <Animated.View style={[styles.votingWrapper, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <Text style={styles.voterTag}>{currentPlayer}</Text>
@@ -158,7 +160,7 @@ export default function VoteGameScreen({ route, navigation }) {
   if (phase === 'player_voted') {
     const nextPlayer = playerNames[currentVoterIdx];
     return (
-      <LinearGradient colors={['#080818', '#0C0A24', '#080818']} style={styles.container}>
+      <LinearGradient colors={BG} style={styles.container}>
         {progressBar}
         <Animated.View style={[styles.centered, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <Text style={styles.bigIcon}>✅</Text>
@@ -180,7 +182,7 @@ export default function VoteGameScreen({ route, navigation }) {
   // ── voting_complete ───────────────────────────────────────────────────
   if (phase === 'voting_complete') {
     return (
-      <LinearGradient colors={['#080818', '#0C0A24', '#080818']} style={styles.container}>
+      <LinearGradient colors={BG} style={styles.container}>
         {progressBar}
         <Animated.View style={[styles.centered, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <Text style={styles.bigIcon}>🗳️</Text>
@@ -216,7 +218,7 @@ export default function VoteGameScreen({ route, navigation }) {
     });
 
     return (
-      <LinearGradient colors={['#080818', '#0C0A24', '#080818']} style={styles.container}>
+      <LinearGradient colors={BG} style={styles.container}>
         <View style={[styles.progressWrap, { marginBottom: 0 }]}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.quitBtn}>
             <Text style={styles.quitText}>✕</Text>
@@ -307,7 +309,7 @@ export default function VoteGameScreen({ route, navigation }) {
     const sorted = [...playerNames].sort((a, b) => (scores[b] || 0) - (scores[a] || 0));
     const medals = ['🥇', '🥈', '🥉'];
     return (
-      <LinearGradient colors={['#080818', '#0C0A24', '#080818']} style={styles.container}>
+      <LinearGradient colors={BG} style={styles.container}>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={false}>
           <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 

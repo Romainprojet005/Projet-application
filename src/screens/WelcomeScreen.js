@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { spacing, radius } from '../theme';
+import { OB_BG } from '../theme/obsidian';
 
 // Web: inject fonts (partagé avec MenuScreen via même id)
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -158,7 +159,7 @@ export default function WelcomeScreen({ navigation }) {
   }, []);
 
   return (
-    <LinearGradient colors={['#050410', '#0A0820', '#050410']} style={st.container}>
+    <LinearGradient colors={OB_BG} style={st.container}>
 
       {/* Nébuleuses (web) */}
       {Platform.OS === 'web' && (

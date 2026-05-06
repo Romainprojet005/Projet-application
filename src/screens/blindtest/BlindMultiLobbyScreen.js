@@ -5,13 +5,14 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 import { selectSongs } from '../../data/blindTestSongs';
 
 const BEAT       = '#10B981';
 const BEAT_DARK  = '#059669';
 const BEAT_LIGHT = '#6EE7B7';
-const BG = ['#001A0F', '#00110A', '#001A0F'];
+const BG = OB_BG;
 
 export default function BlindMultiLobbyScreen({ navigation, route }) {
   const { roomId, playerId, isHost } = route.params;

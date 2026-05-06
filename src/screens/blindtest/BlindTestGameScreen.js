@@ -6,7 +6,9 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { selectSongs } from '../../data/blindTestSongs';
+import { OB_BG } from '../../theme/obsidian';
 
+const BG         = OB_BG;
 const BEAT       = '#10B981';
 const BEAT_DARK  = '#059669';
 const BEAT_LIGHT = '#6EE7B7';
@@ -244,7 +246,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
     const pct        = Math.round((totalPts / Math.max(maxPts, 1)) * 100);
 
     return (
-      <LinearGradient colors={['#001A0F', '#00110A', '#001A0F']} style={styles.container}>
+      <LinearGradient colors={BG} style={styles.container}>
         <ScrollView
           contentContainerStyle={styles.finalScroll}
           showsVerticalScrollIndicator={false}
@@ -312,7 +314,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
 
   // ── Game screen ────────────────────────────────────────────────────────────
   return (
-    <LinearGradient colors={['#001A0F', '#00110A', '#001A0F']} style={styles.container}>
+    <LinearGradient colors={BG} style={styles.container}>
 
       {/* Progress */}
       <View style={styles.progressTrack}>
@@ -431,7 +433,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
               </TouchableOpacity>
             </View>
             <TouchableOpacity onPress={handleReveal} style={styles.skipBtn} activeOpacity={0.8}>
-              <LinearGradient colors={['#001A0F', '#002D1A']} style={styles.skipBtnInner}>
+              <LinearGradient colors={['#0F0A1F', '#14101F']} style={styles.skipBtnInner}>
                 <Text style={styles.skipBtnText}>❓  Je ne sais pas</Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -448,7 +450,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
       {/* Answer card */}
       {(phase === 'reveal') && (
         <Animated.View style={[styles.answerOverlay, { opacity: answerOpacity, transform: [{ translateY: answerSlide }] }]}>
-          <LinearGradient colors={['#001A0F', '#000D07']} style={styles.answerCard}>
+          <LinearGradient colors={['#0F0A1F', '#07050E']} style={styles.answerCard}>
             {results[results.length - 1]?.points > 0 ? (
               <>
                 <Text style={styles.answerResult}>🎉 Trouvé !</Text>
@@ -523,7 +525,7 @@ const styles = StyleSheet.create({
     height: Platform.select({ web: '52vh', default: 280 }),
     borderRadius: radius.xl,
     overflow: 'hidden',
-    backgroundColor: '#001A0F',
+    backgroundColor: '#0F0A1F',
     borderWidth: 1,
     borderColor: `${BEAT}40`,
     marginBottom: spacing.md,
@@ -597,7 +599,7 @@ const styles = StyleSheet.create({
   answerLabel:  { fontSize: 11, color: colors.textMuted, letterSpacing: 1.5, marginBottom: 4 },
   answerTitle:  { fontSize: 22, fontWeight: '900', color: colors.text, textAlign: 'center' },
   answerArtist: { fontSize: 14, color: BEAT_LIGHT, fontWeight: '700', marginTop: 2, marginBottom: spacing.md },
-  thumbWrap:    { width: 200, height: 112, borderRadius: 12, overflow: 'hidden', marginBottom: spacing.lg, backgroundColor: '#001A0F' },
+  thumbWrap:    { width: 200, height: 112, borderRadius: 12, overflow: 'hidden', marginBottom: spacing.lg, backgroundColor: '#0F0A1F' },
 
   nextBtn:     { borderRadius: radius.full, overflow: 'hidden', width: '100%', shadowColor: BEAT, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 8 },
   nextGradient:{ paddingVertical: spacing.md + 4, alignItems: 'center' },

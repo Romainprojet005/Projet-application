@@ -12,8 +12,10 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 import { selectFilms } from '../../data/movieClues';
 
+const BG        = OB_BG;
 const CIN       = '#DC2626';
 const CIN_DARK  = '#991B1B';
 const CIN_LIGHT = '#FCA5A5';
@@ -214,7 +216,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
     const pct        = Math.round((totalPts / Math.max(maxPts, 1)) * 100);
 
     return (
-      <LinearGradient colors={['#0D0000', '#1A0500', '#0D0000']} style={styles.container}>
+      <LinearGradient colors={BG} style={styles.container}>
         <ScrollView
           contentContainerStyle={styles.finalScroll}
           showsVerticalScrollIndicator={false}
@@ -294,7 +296,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
 
   // ── Écran de jeu ───────────────────────────────────────────────────────────
   return (
-    <LinearGradient colors={['#0D0000', '#1A0500', '#0D0000']} style={styles.container}>
+    <LinearGradient colors={BG} style={styles.container}>
       {/* Barre de progression */}
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${(filmIdx / films.length) * 100}%` }]} />
@@ -407,7 +409,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
               disabled={phase !== 'playing'}
             >
               <LinearGradient
-                colors={['#1A0000', '#2D0000']}
+                colors={['#0F0A1F', '#14101F']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.skipBtnInner}
@@ -428,7 +430,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
         <Animated.View
           style={[styles.answerOverlay, { opacity: answerOpacity, transform: [{ translateY: answerSlide }] }]}
         >
-          <LinearGradient colors={['#1A0000', '#0D0000']} style={styles.answerCard}>
+          <LinearGradient colors={['#0F0A1F', '#07050E']} style={styles.answerCard}>
             {foundAtIdx !== null ? (
               <>
                 <Text style={styles.answerResult}>🎉 Trouvé !</Text>
@@ -515,11 +517,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: `${CIN}40`,
-    backgroundColor: '#1A0000',
+    backgroundColor: '#0F0A1F',
     marginBottom: spacing.sm,
     position: 'relative',
   },
-  imgPlaceholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#1A0000', gap: spacing.sm },
+  imgPlaceholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#0F0A1F', gap: spacing.sm },
   imgPlaceholderEmoji: { fontSize: 48 },
   imgPlaceholderText:  { fontSize: 13, color: colors.textMuted },
 
@@ -626,7 +628,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     overflow: 'hidden',
     marginBottom: spacing.lg,
-    backgroundColor: '#1A0000',
+    backgroundColor: '#0F0A1F',
   },
   nextFilmBtn: {
     borderRadius: radius.full,

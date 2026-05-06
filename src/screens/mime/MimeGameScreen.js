@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 import { pickWord } from '../../data/mimeWords';
 
@@ -12,7 +13,7 @@ const PINK = '#C026D3';
 const PINK_LIGHT = '#E879F9';
 const GREEN = '#10B981';
 const AMBER = '#F59E0B';
-const BG = ['#1A0028', '#0A0A1B'];
+const BG = OB_BG;
 const ROUND_DURATION = 60;
 
 function normalize(s) {
@@ -261,7 +262,7 @@ export default function MimeGameScreen({ navigation, route }) {
   }
 
   return (
-    <LinearGradient colors={isMime ? ['#2D0040', '#1A0028'] : BG} style={styles.container}>
+    <LinearGradient colors={isMime ? ['#1F1035', '#14101F'] : BG} style={styles.container}>
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: timerColor }]} />
       </View>

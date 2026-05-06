@@ -12,7 +12,9 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 
+const BG = OB_BG;
 const ZAPCOLOR = '#6366F1';
 const TIME_LIMIT = 15;
 const POINTS_CORRECT = 100;
@@ -161,7 +163,7 @@ function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
   const medals = ['🥇', '🥈', '🥉'];
 
   return (
-    <LinearGradient colors={['#0A0A1B', '#001A2E']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
       <ScrollView contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={true} style={Platform.OS === 'web' && { flex: 1, height: '100vh' }}>
         <Animated.View style={{ opacity: podiumAnim, transform: [{ scale: podiumAnim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }] }}>
           <Text style={styles.finalEmoji}>✨</Text>
@@ -339,7 +341,7 @@ export default function QuizGameScreen({ navigation, route }) {
   // --- INTRO phase ---
   if (phase === 'intro') {
     return (
-      <LinearGradient colors={['#05050E', '#0C0A2C', '#05050E']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+      <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
         <Animated.View
           style={[styles.introBox, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
         >
@@ -416,7 +418,7 @@ export default function QuizGameScreen({ navigation, route }) {
   const wasTimeout = selected === -1;
 
   return (
-    <LinearGradient colors={['#05050E', '#0C0A2C', '#05050E']} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
       {/* Timer bar */}
       <View style={styles.topBar}>
         <Text style={styles.topBarPlayer}>{players[currentPlayer]}</Text>

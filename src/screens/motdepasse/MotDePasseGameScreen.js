@@ -5,11 +5,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 
 const CYAN       = '#06B6D4';
 const CYAN_DARK  = '#0E7490';
 const CYAN_LIGHT = '#A5F3FC';
-const BG         = ['#001218', '#002030', '#001218'];
+const BG         = OB_BG;
 
 // ── Final leaderboard ──────────────────────────────────────────────
 function FinalScreen({ players, scores, onPlayAgain, onMenu }) {

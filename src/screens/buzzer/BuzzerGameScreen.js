@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 import { PLAYER_COLORS } from './BuzzerSetupScreen';
 import { BUZZER_MODES, getShuffledQuestions } from '../../data/buzzerQuestions';
 
@@ -135,7 +136,7 @@ export default function BuzzerGameScreen({ navigation, route }) {
   if (isFinal) {
     return (
       <View style={styles.container}>
-        <LinearGradient colors={['#1A0000', '#0A0000']} style={StyleSheet.absoluteFill} />
+        <LinearGradient colors={OB_BG} style={StyleSheet.absoluteFill} />
         <View style={styles.finalContainer}>
           <Text style={styles.finalTitle}>⚡ Résultats</Text>
           <Text style={styles.finalSub}>{totalQ} questions — {playerNames.length} joueurs</Text>
@@ -334,7 +335,7 @@ export default function BuzzerGameScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#090909' },
+  container: { flex: 1, backgroundColor: '#0A0815' },
 
   header: {
     flexDirection: 'row', alignItems: 'center',

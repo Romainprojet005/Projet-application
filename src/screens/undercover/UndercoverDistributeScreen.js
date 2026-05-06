@@ -11,7 +11,10 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 import characterImages from '../../data/characterImages';
+
+const BG = OB_BG;
 
 // Small helper: shows a character image, or nothing if URL is missing / fails to load
 function CharacterImage({ name, style }) {
@@ -105,7 +108,7 @@ function GameBoardScreen({ roles, onBackToMenu }) {
   const modalCfg = modalRole ? ROLE_CONFIG[modalRole.type] : null;
 
   return (
-    <LinearGradient colors={['#0A0600', '#1C0C00', '#0A0600']} style={styles.container}>
+    <LinearGradient colors={BG} style={styles.container}>
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={styles.gbContent}
@@ -243,7 +246,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
   const isLast = currentPlayer === playerCount - 1;
 
   return (
-    <LinearGradient colors={['#0A0600', '#1C0C00', '#0A0600']} style={styles.container}>
+    <LinearGradient colors={BG} style={styles.container}>
       <Animated.View style={[styles.content, { opacity: screenFade }]}>
 
         {/* Header row */}

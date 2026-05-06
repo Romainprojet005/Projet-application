@@ -5,12 +5,13 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
+import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 
 const BEAT       = '#10B981';
 const BEAT_DARK  = '#059669';
 const BEAT_LIGHT = '#6EE7B7';
-const BG = ['#001A0F', '#00110A', '#001A0F'];
+const BG = OB_BG;
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 const isMobileWeb = Platform.OS === 'web' &&
@@ -478,7 +479,7 @@ const styles = StyleSheet.create({
   scoreChipText:{ fontSize: 12, fontWeight: '700', color: BEAT_LIGHT },
 
   mainZone: {
-    backgroundColor: '#001A0F', borderRadius: radius.xl, borderWidth: 1, borderColor: BEAT + '40',
+    backgroundColor: '#0F0A1F', borderRadius: radius.xl, borderWidth: 1, borderColor: BEAT + '40',
     minHeight: 280, justifyContent: 'center', alignItems: 'center',
     marginBottom: spacing.md, overflow: 'hidden', padding: spacing.xl,
   },
@@ -515,7 +516,7 @@ const styles = StyleSheet.create({
   songRevealLabel:{ fontSize: 11, color: colors.textMuted, letterSpacing: 1.5 },
   songTitle:      { fontSize: 20, fontWeight: '900', color: colors.text, textAlign: 'center' },
   songArtist:     { fontSize: 14, fontWeight: '700', color: BEAT_LIGHT },
-  thumbWrap:      { width: 200, height: 112, borderRadius: 12, overflow: 'hidden', backgroundColor: '#001A0F' },
+  thumbWrap:      { width: 200, height: 112, borderRadius: 12, overflow: 'hidden', backgroundColor: '#0F0A1F' },
   nextBtnWrap:    { width: '100%', borderRadius: radius.full, overflow: 'hidden', shadowColor: BEAT, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 8 },
   nextBtnGrad:    { paddingVertical: spacing.md + 4, alignItems: 'center' },
   nextBtnText:    { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 1.5 },
