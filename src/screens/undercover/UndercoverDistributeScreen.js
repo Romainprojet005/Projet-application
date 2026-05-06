@@ -242,7 +242,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
   }
 
   const role = roles[currentPlayer];
-  const cfg = ROLE_CONFIG[role.type];
+  const cfg = ROLE_CONFIG[role.type === 'undercover' ? 'civilian' : role.type];
   const isLast = currentPlayer === playerCount - 1;
 
   return (
