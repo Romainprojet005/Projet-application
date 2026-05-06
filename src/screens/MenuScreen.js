@@ -19,7 +19,7 @@ const IS_DESKTOP_WEB = Platform.OS === 'web' && !IS_MOBILE_WEB;
 const CARD_W = IS_MOBILE_WEB ? Math.min(SW * 0.44, 175)
              : IS_DESKTOP_WEB ? 280
              : Math.min(SW * 0.75, 300);
-const CARD_H = IS_MOBILE_WEB ? Math.min(Math.round(CARD_W * 1.55), SH - 210)
+const CARD_H = IS_MOBILE_WEB ? Math.min(Math.round(CARD_W * 1.75), SH - 190)
              : IS_DESKTOP_WEB ? 420
              : Math.min(Math.round(CARD_W * 1.55), SH - 210);
 
@@ -260,7 +260,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         color: #fff; font-size: 28px; font-weight: 300; line-height: 1;
         display: flex; align-items: center; justify-content: center;
-        cursor: pointer; z-index: 50; transition: background .2s, border-color .2s;
+        cursor: pointer; z-index: 500; transition: background .2s, border-color .2s;
       }
       .sdl-nav:hover { background: rgba(255,255,255,.12); border-color: rgba(212,175,55,.5); }
       .sdl-nav-prev { left: 40px; }
@@ -602,7 +602,6 @@ export default function MenuScreen({ navigation }) {
   const onPtrDown = useCallback((e) => {
     webDrag.current = { active: true, startX: e.clientX, startRot: rotRef.current, lastX: e.clientX, lastT: performance.now(), vx: 0 };
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    stageRef.current?.setPointerCapture?.(e.pointerId);
     stageRef.current?.classList.add('grabbing');
   }, []);
 
@@ -627,7 +626,6 @@ export default function MenuScreen({ navigation }) {
   const onPtrUp = useCallback((e) => {
     if (!webDrag.current.active) return;
     webDrag.current.active = false;
-    stageRef.current?.releasePointerCapture?.(e.pointerId);
     stageRef.current?.classList.remove('grabbing');
     const dx = Math.abs(e.clientX - webDrag.current.startX);
     if (dx < 6) {
@@ -672,6 +670,19 @@ export default function MenuScreen({ navigation }) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [navigateCard]);
+
+  // ── Drag souris global (évite les conflits pointer capture / React) ──
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    window.addEventListener('pointermove', onPtrMove);
+    window.addEventListener('pointerup',   onPtrUp);
+    window.addEventListener('pointercancel', onPtrUp);
+    return () => {
+      window.removeEventListener('pointermove', onPtrMove);
+      window.removeEventListener('pointerup',   onPtrUp);
+      window.removeEventListener('pointercancel', onPtrUp);
+    };
+  }, [onPtrMove, onPtrUp]);
 
   // ── Positions initiales web ──────────────────────────────────────
   useLayoutEffect(() => {
@@ -787,9 +798,6 @@ export default function MenuScreen({ navigation }) {
             ref={stageRef}
             className="sdl-stage"
             onPointerDown={onPtrDown}
-            onPointerMove={onPtrMove}
-            onPointerUp={onPtrUp}
-            onPointerCancel={onPtrUp}
           >
             {characters.map((char, i) => (
               <div
@@ -806,9 +814,9 @@ export default function MenuScreen({ navigation }) {
                 </div>
               </div>
             ))}
-            <button className="sdl-nav sdl-nav-prev" onClick={() => navigateCard(+1)}>‹</button>
-            <button className="sdl-nav sdl-nav-next" onClick={() => navigateCard(-1)}>›</button>
           </div>
+          <button className="sdl-nav sdl-nav-prev" onClick={() => navigateCard(+1)}>‹</button>
+          <button className="sdl-nav sdl-nav-next" onClick={() => navigateCard(-1)}>›</button>
         </div>
       )}
 
