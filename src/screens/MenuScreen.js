@@ -210,15 +210,8 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         letter-spacing:3px; color:rgba(255,255,255,.45);
         border:1px solid rgba(255,255,255,.18); padding:6px 14px; border-radius:999px; }
 
-      /* Stats (affichées uniquement sur mobile via media query) */
-      .ob-stats { display:none; }
-      .ob-stat-row { display:flex; align-items:center; gap:5px; }
-      .ob-stat-name { font-family:'JetBrains Mono','Courier New',monospace; font-size:7px;
-        letter-spacing:1px; color:rgba(212,175,55,.55); width:44px; flex-shrink:0; text-transform:uppercase; }
-      .ob-stat-bar-bg { flex:1; height:2px; background:rgba(255,255,255,.08); border-radius:2px; overflow:hidden; }
-      .ob-stat-bar-fill { height:100%; border-radius:2px; }
-      .ob-stat-val { font-family:'JetBrains Mono','Courier New',monospace;
-        font-size:7px; color:rgba(212,175,55,.45); width:16px; text-align:right; flex-shrink:0; }
+      /* Description courte (affichée uniquement sur mobile via media query) */
+      .ob-desc { display:none; }
 
       /* === Dos Obsidien === */
       .ob-back {
@@ -349,10 +342,20 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         /* Nom du jeu */
         .ob-game { font-size: 12px; letter-spacing: 2.5px; text-shadow: 0 0 8px rgba(212,175,55,.28); margin: 3px 0 5px; }
 
-        /* Stats */
-        .ob-stats {
-          display: flex; flex-direction: column; gap: 4px;
-          padding: 4px 0 2px;
+        /* Description */
+        .ob-desc {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-style: italic;
+          font-size: 9.5px;
+          line-height: 1.45;
+          color: rgba(248,233,200,.55);
+          text-align: center;
+          margin-top: 6px;
+          padding-top: 6px;
           border-top: 1px solid rgba(212,175,55,.12);
         }
 
@@ -422,6 +425,9 @@ function ObsidianFront({ character, idx }) {
           <span className="ob-meta-value">{character.time || '15 min'}</span>
         </div>
       </div>
+      {character.description && (
+        <div className="ob-desc">{character.description}</div>
+      )}
       {!character.available && (
         <div className="ob-soon"><span className="ob-soon-badge">🔒 BIENTÔT</span></div>
       )}
