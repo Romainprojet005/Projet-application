@@ -298,15 +298,19 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-slot { will-change: auto; transition: none; }
 
         .ob-front {
-          background: linear-gradient(180deg, #1A1430 0%, #0A0815 55%, #0F0A1F 100%);
-          box-shadow: 0 6px 20px rgba(0,0,0,.7), 0 0 0 1px rgba(212,175,55,.18);
+          background:
+            radial-gradient(ellipse at 50% 0%, rgba(212,175,55,.10), transparent 58%),
+            linear-gradient(180deg, #1A1430 0%, #0A0815 55%, #0F0A1F 100%);
+          box-shadow: 0 8px 28px rgba(0,0,0,.75),
+                      0 0 0 1px rgba(212,175,55,.22),
+                      inset 0 1px 0 rgba(255,255,255,.05);
           transition: none;
         }
-        .ob-front:hover { border-color: rgba(212,175,55,.28); box-shadow: 0 6px 20px rgba(0,0,0,.7), 0 0 0 1px rgba(212,175,55,.18); }
+        .ob-front:hover { border-color: rgba(212,175,55,.45); }
         .ob-grain      { display: none; }
-        .ob-frame-glow { display: none; }
-        .ob-emoji      { filter: none; }
-        .ob-game       { text-shadow: none; }
+        .ob-frame-glow { filter: none; }
+        .ob-emoji      { filter: drop-shadow(0 0 8px rgba(212,175,55,.32)); }
+        .ob-game       { text-shadow: 0 0 8px rgba(212,175,55,.28); }
         .sdl-nav     { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(0,0,0,.45); }
         .sdl-nebula  { display: none; }
       }
