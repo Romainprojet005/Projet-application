@@ -231,6 +231,27 @@ export const characters = [
     },
   },
   {
+    id: 'qui_est_le_plus',
+    name: 'Le Peuple',
+    emoji: '👆',
+    title: 'Juge Suprême',
+    description:
+      'Le peuple a toujours raison ! Désignez celui qui est le plus susceptible de faire la chose la plus folle. Celui qui récolte le plus de votes… boit !',
+    catchphrase: '"Le groupe a parlé !"',
+    color: '#F97316',
+    gradientColors: ['#2D0F00', '#4A1A00'],
+    game: 'quiestleplus',
+    gameName: 'QUI EST LE PLUS',
+    players: '3–10',
+    time: '15 min',
+    available: true,
+    stats: {
+      Jugement: 99,
+      Honte: 95,
+      Alcool: 88,
+    },
+  },
+  {
     id: 'cyrano',
     name: 'Cyrano de Bergerac',
     emoji: '🎭',

@@ -692,7 +692,7 @@ export default function MenuScreen({ navigation }) {
     characters.forEach((_, i) => {
       const el = cardSlotRefs.current[i];
       if (el) {
-        el.style.marginLeft = `-${CARD_W / 2}px`;
+        el.style.marginLeft = `-${CARD_W / 2 + (IS_MOBILE_WEB ? 18 : 0)}px`;
         el.style.marginTop  = `-${CARD_H / 2}px`;
       }
     });
@@ -747,6 +747,7 @@ export default function MenuScreen({ navigation }) {
       personality: 'PersonalitySetup', cineflash: 'CineFlashSetup', emojiquiz: 'EmojiQuizSetup',
       motdepasse: 'MotDePasseSetup', blindtest: 'BlindTestSetup', vote: 'VoteSetup',
       mime: 'MimeSetup', buzzer: 'BuzzerSetup', tribunal: 'TribunalSetup',
+      quiestleplus: 'QuiEstLePlusSetup',
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };

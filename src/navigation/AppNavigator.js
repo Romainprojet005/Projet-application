@@ -38,6 +38,8 @@ import BuzzerGameScreen from '../screens/buzzer/BuzzerGameScreen';
 import TribunalSetupScreen from '../screens/tribunal/TribunalSetupScreen';
 import TribunalLobbyScreen from '../screens/tribunal/TribunalLobbyScreen';
 import TribunalGameScreen from '../screens/tribunal/TribunalGameScreen';
+import QuiEstLePlusSetupScreen from '../screens/quiestleplus/QuiEstLePlusSetupScreen';
+import QuiEstLePlusGameScreen from '../screens/quiestleplus/QuiEstLePlusGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -86,6 +88,8 @@ const linking = {
       TribunalSetup: 'tribunal',
       TribunalLobby: 'tribunal/lobby',
       TribunalGame: 'tribunal/game',
+      QuiEstLePlusSetup: 'quiestleplus',
+      QuiEstLePlusGame: 'quiestleplus/game',
     },
   },
 };
@@ -136,6 +140,8 @@ export default function AppNavigator() {
         <Stack.Screen name="TribunalSetup" component={TribunalSetupScreen} />
         <Stack.Screen name="TribunalLobby" component={TribunalLobbyScreen} />
         <Stack.Screen name="TribunalGame" component={TribunalGameScreen} />
+        <Stack.Screen name="QuiEstLePlusSetup" component={QuiEstLePlusSetupScreen} />
+        <Stack.Screen name="QuiEstLePlusGame" component={QuiEstLePlusGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
