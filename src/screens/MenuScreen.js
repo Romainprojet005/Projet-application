@@ -16,15 +16,15 @@ const N = characters.length;
 const IS_MOBILE_WEB = Platform.OS === 'web' && SW < 600;
 const IS_DESKTOP_WEB = Platform.OS === 'web' && !IS_MOBILE_WEB;
 
-const CARD_W = IS_MOBILE_WEB ? Math.min(SW * 0.52, 210)
+const CARD_W = IS_MOBILE_WEB ? Math.min(SW * 0.44, 175)
              : IS_DESKTOP_WEB ? 280
              : Math.min(SW * 0.75, 300);
 const CARD_H = IS_MOBILE_WEB ? Math.min(Math.round(CARD_W * 1.55), SH - 210)
              : IS_DESKTOP_WEB ? 420
              : Math.min(Math.round(CARD_W * 1.55), SH - 210);
 
-const RADIUS = IS_MOBILE_WEB ? 300
-             : IS_DESKTOP_WEB ? 560
+const RADIUS = IS_MOBILE_WEB ? 360
+             : IS_DESKTOP_WEB ? 640
              : CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15;
 
 const STEP = (2 * Math.PI) / N;
