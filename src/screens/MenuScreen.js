@@ -296,9 +296,10 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-nav-next { right: 8px; }
       }
       @media (max-width: 600px) {
-        .sdl-stage { perspective: 800px; }
+        /* Supprimer la 3D — carousel plat, beaucoup plus léger sur mobile */
+        .sdl-stage { perspective: none !important; }
+        .sdl-slot { will-change: auto; transition: none; transform-style: flat; -webkit-transform-style: flat; }
         .sdl-meta-hint { display: none; }
-        .sdl-slot { will-change: auto; transition: none; }
 
         /* Carte compacte mobile */
         .ob-front {
@@ -616,9 +617,16 @@ export default function MenuScreen({ navigation }) {
         const el = cardSlotRefs.current[i];
         if (!el) return;
         const p = cardPos(rot, i);
-        el.style.transform = `translate3d(${p.x}px, ${p.y ?? 0}px, ${p.z}px) scale(${p.sc}) rotateY(${p.ry}deg)`;
-        el.style.opacity   = String(p.op);
-        el.style.zIndex    = String(Math.round((p.depth + 1) * 100));
+        if (IS_MOBILE_WEB) {
+          // Transforms 2D uniquement : pas de rotateY ni de couche GPU 3D
+          el.style.transform = `translateX(${p.x}px) scale(${p.sc})`;
+          el.style.opacity   = p.op < 0.5 ? '0' : String(p.op);
+          el.style.zIndex    = String(Math.round((p.depth + 1) * 100));
+        } else {
+          el.style.transform = `translate3d(${p.x}px, ${p.y ?? 0}px, ${p.z}px) scale(${p.sc}) rotateY(${p.ry}deg)`;
+          el.style.opacity   = String(p.op);
+          el.style.zIndex    = String(Math.round((p.depth + 1) * 100));
+        }
       });
     } else {
       setPositions(computePositions(rot));
