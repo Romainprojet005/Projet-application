@@ -309,7 +309,8 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
 
       /* Eco mode — désactive les effets lourds sur mobile */
       body.sdl-eco .sdl-nebula { display: none !important; }
-      body.sdl-eco .sdl-slot { transition: none !important; will-change: auto !important; }
+      body.sdl-eco .sdl-stage { perspective: none !important; }
+      body.sdl-eco .sdl-slot { transition: none !important; will-change: auto !important; transform-style: flat !important; -webkit-transform-style: flat !important; }
       body.sdl-eco .ob-front {
         background: linear-gradient(180deg, #1A1430 0%, #0A0815 55%, #0F0A1F 100%) !important;
         box-shadow: 0 4px 16px rgba(0,0,0,0.7), 0 0 0 1px rgba(212,175,55,0.22) !important;
@@ -320,9 +321,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       body.sdl-eco .sdl-nav { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
       body.sdl-eco .sdl-dot { transition: none !important; box-shadow: none !important; }
       @media (max-width: 600px) {
-        /* Supprimer la 3D — carousel plat, beaucoup plus léger sur mobile */
-        .sdl-stage { perspective: none !important; }
-        .sdl-slot { will-change: auto; transition: none; transform-style: flat; -webkit-transform-style: flat; }
+        .sdl-stage { perspective: 900px; }
         .sdl-meta-hint { display: none; }
 
         /* Carte compacte mobile */
@@ -638,9 +637,11 @@ export default function MenuScreen({ navigation }) {
     if (Platform.OS !== 'web') return false;
     try { return localStorage.getItem('sdl-eco') === '1'; } catch { return false; }
   });
+  const ecoRef = useRef(ecoMode);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
+    ecoRef.current = ecoMode;
     document.body.classList.toggle('sdl-eco', ecoMode);
   }, [ecoMode]);
 
@@ -657,8 +658,8 @@ export default function MenuScreen({ navigation }) {
         const el = cardSlotRefs.current[i];
         if (!el) return;
         const p = cardPos(rot, i);
-        if (IS_MOBILE_WEB) {
-          // Transforms 2D uniquement : pas de rotateY ni de couche GPU 3D
+        if (IS_MOBILE_WEB && ecoRef.current) {
+          // Eco mode : 2D plat, léger
           el.style.transform = `translateX(${p.x}px) scale(${p.sc})`;
           el.style.opacity   = p.op < 0.5 ? '0' : String(p.op);
           el.style.zIndex    = String(Math.round((p.depth + 1) * 100));
@@ -672,6 +673,10 @@ export default function MenuScreen({ navigation }) {
       setPositions(computePositions(rot));
     }
   }, []);
+
+  useEffect(() => {
+    if (Platform.OS === 'web') updateCarousel(rotRef.current);
+  }, [ecoMode, updateCarousel]);
 
   // ── Animation lerp vers la cible ─────────────────────────────────
   const animate = useCallback(() => {
