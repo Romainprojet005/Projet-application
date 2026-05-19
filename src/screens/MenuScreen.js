@@ -295,6 +295,30 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-nav-prev { left: 8px; }
         .sdl-nav-next { right: 8px; }
       }
+
+      /* Bouton éco (injecté ici aussi pour le cas sans WelcomeScreen) */
+      .sdl-eco-btn {
+        position: fixed; bottom: 14px; right: 14px;
+        width: 32px; height: 32px; border-radius: 16px;
+        background: rgba(0,0,0,0.40); border: 1px solid rgba(255,255,255,0.15);
+        font-size: 14px; cursor: pointer; z-index: 9999;
+        display: flex; align-items: center; justify-content: center; padding: 0;
+        transition: background .2s, border-color .2s;
+      }
+      .sdl-eco-btn.active { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.4); }
+
+      /* Eco mode — désactive les effets lourds sur mobile */
+      body.sdl-eco .sdl-nebula { display: none !important; }
+      body.sdl-eco .sdl-slot { transition: none !important; will-change: auto !important; }
+      body.sdl-eco .ob-front {
+        background: linear-gradient(180deg, #1A1430 0%, #0A0815 55%, #0F0A1F 100%) !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.7), 0 0 0 1px rgba(212,175,55,0.22) !important;
+        transition: none !important;
+      }
+      body.sdl-eco .ob-frame-glow { display: none !important; }
+      body.sdl-eco .ob-grain { display: none !important; }
+      body.sdl-eco .sdl-nav { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+      body.sdl-eco .sdl-dot { transition: none !important; box-shadow: none !important; }
       @media (max-width: 600px) {
         /* Supprimer la 3D — carousel plat, beaucoup plus léger sur mobile */
         .sdl-stage { perspective: none !important; }
@@ -610,6 +634,22 @@ export default function MenuScreen({ navigation }) {
   const [positions, setPositions] = useState(() => computePositions(0));
   const [flipped, setFlipped]     = useState({});
 
+  const [ecoMode, setEcoMode] = useState(() => {
+    if (Platform.OS !== 'web') return false;
+    try { return localStorage.getItem('sdl-eco') === '1'; } catch { return false; }
+  });
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    document.body.classList.toggle('sdl-eco', ecoMode);
+  }, [ecoMode]);
+
+  const toggleEco = useCallback(() => setEcoMode(v => {
+    const next = !v;
+    try { localStorage.setItem('sdl-eco', next ? '1' : '0'); } catch {}
+    return next;
+  }), []);
+
   // ── Mise à jour du carousel ───────────────────────────────────────
   const updateCarousel = useCallback((rot) => {
     if (Platform.OS === 'web') {
@@ -765,12 +805,14 @@ export default function MenuScreen({ navigation }) {
   // ── Animations ───────────────────────────────────────────────────
   useEffect(() => {
     Animated.timing(headerAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
-    const runStar = (anim, dur) =>
-      Animated.loop(Animated.timing(anim, { toValue: -SH, duration: dur, useNativeDriver: true, easing: Easing.linear })).start();
-    if (Platform.OS === 'web') {
-      runStar(starSlow, 30000); runStar(starMid, 18000); runStar(starFast, 9000);
-    } else {
-      runStar(starSlow, 30000);
+    if (!ecoMode) {
+      const runStar = (anim, dur) =>
+        Animated.loop(Animated.timing(anim, { toValue: -SH, duration: dur, useNativeDriver: true, easing: Easing.linear })).start();
+      if (Platform.OS === 'web') {
+        runStar(starSlow, 30000); runStar(starMid, 18000); runStar(starFast, 9000);
+      } else {
+        runStar(starSlow, 30000);
+      }
     }
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, []);
@@ -838,7 +880,7 @@ export default function MenuScreen({ navigation }) {
         </>
       )}
 
-      {starLayers.map(({ stars, anim }, li) => (
+      {!ecoMode && starLayers.map(({ stars, anim }, li) => (
         <Animated.View key={li} pointerEvents="none"
           style={{ position: 'absolute', top: 0, left: 0, right: 0, height: SH * 2, transform: [{ translateY: anim }] }}
         >
@@ -969,6 +1011,16 @@ export default function MenuScreen({ navigation }) {
             cliquer pour jouer · espace pour retourner · ← → pour naviguer
           </span>
         </div>
+      )}
+
+      {Platform.OS === 'web' && IS_MOBILE_WEB && (
+        <button
+          onClick={toggleEco}
+          className={`sdl-eco-btn${ecoMode ? ' active' : ''}`}
+          title={ecoMode ? 'Mode éco actif — appuyer pour désactiver' : 'Activer le mode éco'}
+        >
+          {ecoMode ? '🌿' : '🔋'}
+        </button>
       )}
 
       <AdBanner />

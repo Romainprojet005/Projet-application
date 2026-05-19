@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, StyleSheet, Animated,
   TouchableOpacity, Platform,
@@ -60,6 +60,18 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         color: rgba(212,175,55,0.45);
       }
 
+      /* Eco mode */
+      body.sdl-eco .sdl-w-nebula { display: none !important; }
+      .sdl-eco-btn {
+        position: fixed; bottom: 14px; right: 14px;
+        width: 32px; height: 32px; border-radius: 16px;
+        background: rgba(0,0,0,0.40); border: 1px solid rgba(255,255,255,0.15);
+        font-size: 14px; cursor: pointer; z-index: 9999;
+        display: flex; align-items: center; justify-content: center; padding: 0;
+        transition: background .2s, border-color .2s;
+      }
+      .sdl-eco-btn.active { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.4); }
+
       /* Nébuleuses welcome */
       .sdl-w-nebula { position:absolute; border-radius:50%; filter:blur(90px); pointer-events:none; }
       .sdl-w-nebula-1 { top:2%;  left:-18%; width:380px; height:380px; background:#7C3AED; opacity:0.13; animation:sdl-drift 35s ease-in-out infinite alternate; }
@@ -70,6 +82,9 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
     document.head.appendChild(st);
   }
 }
+
+const IS_MOBILE_WEB = Platform.OS === 'web' &&
+  (typeof window !== 'undefined' ? window.innerWidth < 600 : false);
 
 // ── Étoiles ───────────────────────────────────────────────────────────
 const STARS = Array.from({ length: 60 }, (_, i) => ({
@@ -129,6 +144,22 @@ function ShootingStar() {
 
 // ── WelcomeScreen ─────────────────────────────────────────────────────
 export default function WelcomeScreen({ navigation }) {
+  const [ecoMode, setEcoMode] = useState(() => {
+    if (Platform.OS !== 'web') return false;
+    try { return localStorage.getItem('sdl-eco') === '1'; } catch { return false; }
+  });
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    document.body.classList.toggle('sdl-eco', ecoMode);
+  }, [ecoMode]);
+
+  const toggleEco = () => setEcoMode(v => {
+    const next = !v;
+    try { localStorage.setItem('sdl-eco', next ? '1' : '0'); } catch {}
+    return next;
+  });
+
   const bgOpacity   = useRef(new Animated.Value(0)).current;
   const logoY       = useRef(new Animated.Value(-60)).current;
   const logoScale   = useRef(new Animated.Value(0.4)).current;
@@ -171,11 +202,13 @@ export default function WelcomeScreen({ navigation }) {
       )}
 
       {/* Étoiles */}
-      <Animated.View style={[StyleSheet.absoluteFill, { opacity: bgOpacity }]}>
-        {STARS.map(s => <Star key={s.id} data={s} />)}
-      </Animated.View>
+      {!ecoMode && (
+        <Animated.View style={[StyleSheet.absoluteFill, { opacity: bgOpacity }]}>
+          {STARS.map(s => <Star key={s.id} data={s} />)}
+        </Animated.View>
+      )}
 
-      <ShootingStar />
+      {!ecoMode && <ShootingStar />}
 
       {/* Planète avec anneau */}
       <View pointerEvents="none" style={{ position: 'absolute', top: '10%', right: '6%' }}>
@@ -272,6 +305,16 @@ export default function WelcomeScreen({ navigation }) {
           )}
         </Animated.View>
       </View>
+
+      {Platform.OS === 'web' && IS_MOBILE_WEB && (
+        <button
+          onClick={toggleEco}
+          className={`sdl-eco-btn${ecoMode ? ' active' : ''}`}
+          title={ecoMode ? 'Mode éco actif — appuyer pour désactiver' : 'Activer le mode éco'}
+        >
+          {ecoMode ? '🌿' : '🔋'}
+        </button>
+      )}
 
     </LinearGradient>
   );
