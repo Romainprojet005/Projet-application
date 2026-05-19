@@ -8,7 +8,7 @@ export const isSupabaseConfigured = true;
 const customFetch = async (url, options = {}) => {
   const headers = new Headers(options.headers || {});
   headers.set('apikey', SUPABASE_KEY);
-  headers.delete('Authorization');
+  headers.set('Authorization', `Bearer ${SUPABASE_KEY}`);
   return fetch(url, { ...options, headers });
 };
 

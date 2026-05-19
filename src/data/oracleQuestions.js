@@ -4,6 +4,7 @@ export const ORACLE_CATEGORIES = [
   { id: 'perso',   name: 'Perso',    emoji: '💭', color: '#EC4899' },
   { id: 'profond', name: 'Profond',  emoji: '🌊', color: '#0EA5E9' },
   { id: 'creatif', name: 'Créatif',  emoji: '🎨', color: '#10B981' },
+  { id: 'adulte',  name: 'Adulte',   emoji: '🔞', color: '#EF4444' },
 ];
 
 const ALL_QUESTIONS = [
@@ -74,6 +75,43 @@ const ALL_QUESTIONS = [
   { id: 58, text: 'Quel serait le nom de ta religion si tu en fondais une, et quelle en serait la règle principale ?', cat: 'creatif' },
   { id: 59, text: 'Décris l\'amour en une métaphore complètement farfelue.', cat: 'creatif' },
   { id: 60, text: 'Si ton groupe d\'amis était une équipe de super-héros, quel serait le nom du groupe et quel serait ton pouvoir ?', cat: 'creatif' },
+
+  // ADULTE
+  { id: 61, text: 'Quel est ton plus grand red flag que tu assumes complètement ?', cat: 'adulte' },
+  { id: 62, text: 'Quelle est la chose la plus osée que tu aies faite en soirée ?', cat: 'adulte' },
+  { id: 63, text: 'C\'est quoi ta honte la plus inavouable que tu vas quand même raconter ce soir ?', cat: 'adulte' },
+  { id: 64, text: 'Quel ex tu rappellerais à 3h du mat si tu avais suffisamment bu ?', cat: 'adulte' },
+  { id: 65, text: 'Quelle est la chose la plus stupide que tu aies faite pour plaire à quelqu\'un ?', cat: 'adulte' },
+  { id: 66, text: 'Si tu devais embrasser quelqu\'un dans cette pièce, qui ce serait et pourquoi ?', cat: 'adulte' },
+  { id: 67, text: 'C\'est quoi ton fantasme le plus innocent (ou pas) ?', cat: 'adulte' },
+  { id: 68, text: 'Quelle est la chose la plus louche que t\'aies faite sans que personne le sache ?', cat: 'adulte' },
+  { id: 69, text: 'Décris ton type parfait en 3 adjectifs sans te censurer.', cat: 'adulte' },
+  { id: 70, text: 'Quelle est la pire excuse que t\'aies donnée pour ne pas revoir quelqu\'un ?', cat: 'adulte' },
+  { id: 71, text: 'C\'est quoi le pire texto que t\'aies envoyé (ou reçu) ? Résume-le.', cat: 'adulte' },
+  { id: 72, text: 'Si on lisait tes messages privés à voix haute ce soir, tu survivrais ?', cat: 'adulte' },
+  { id: 73, text: 'Quelle est ta théorie secrète sur quelqu\'un dans ce groupe ?', cat: 'adulte' },
+  { id: 74, text: 'C\'est quoi la chose la plus honteuse sur ton historique de recherche ?', cat: 'adulte' },
+  { id: 75, text: 'Quel est le mensonge le plus convaincant que tu aies raconté à quelqu\'un qui te plaît ?', cat: 'adulte' },
+  { id: 76, text: 'C\'est quoi ton deal-breaker absolu chez un(e) partenaire ?', cat: 'adulte' },
+  { id: 77, text: 'Quelle est la chose que tu ferais si tu savais que tout le monde ici l\'oublierait demain matin ?', cat: 'adulte' },
+  { id: 78, text: 'C\'est quoi la chose la plus cringe que t\'aies faite devant un crush ?', cat: 'adulte' },
+  { id: 79, text: 'Si quelqu\'un cherchait ton pire côté, qu\'est-ce qu\'il trouverait en premier ?', cat: 'adulte' },
+  { id: 80, text: 'Si tu pouvais lire les pensées de quelqu\'un dans ce groupe pendant 5 minutes, qui choisirais-tu ?', cat: 'adulte' },
+  { id: 81, text: 'Quelle est la pire chose que tu aies faite à un(e) ex (ou qu\'un(e) ex t\'ait faite) ?', cat: 'adulte' },
+  { id: 82, text: 'C\'est quoi le comportement le plus immature que tu as encore parfois et que tu assumes ?', cat: 'adulte' },
+  { id: 83, text: 'Décris ton pire date en une phrase sans épargner les détails.', cat: 'adulte' },
+  { id: 84, text: 'C\'est quoi ton opinion la plus controversée sur les relations amoureuses ?', cat: 'adulte' },
+  { id: 85, text: 'Quelle est la chose la plus irrationnelle que la jalousie t\'ait fait faire ?', cat: 'adulte' },
+  { id: 86, text: 'Quelle est la pire rumeur que tu aies entendue sur toi-même ? Elle était vraie ?', cat: 'adulte' },
+  { id: 87, text: 'Si tu pouvais tout recommencer avec quelqu\'un que tu connais ici, ce serait qui ?', cat: 'adulte' },
+  { id: 88, text: 'C\'est quoi le secret que tu gardes depuis le plus longtemps et que personne ici ne sait ?', cat: 'adulte' },
+  { id: 89, text: 'Si tu devais aller en prison pour une raison, ce serait laquelle (soyons honnêtes) ?', cat: 'adulte' },
+  { id: 90, text: 'Quelle est la chose que tu ne ferais jamais en public mais que tu fais seul(e) sans honte ?', cat: 'adulte' },
+  { id: 91, text: 'Quel personnage fictif (film, série, jeu…) trouves-tu le plus attirant et pourquoi ?', cat: 'adulte' },
+  { id: 92, text: 'C\'est quoi ton "type" exact, avec tous les détails gênants ?', cat: 'adulte' },
+  { id: 93, text: 'Quelle est la chose la plus courageuse (ou imprudente) que tu aies faite sous le coup d\'une émotion ?', cat: 'adulte' },
+  { id: 94, text: 'Si tu devais décrire ta vie amoureuse comme un genre de film, ce serait lequel ?', cat: 'adulte' },
+  { id: 95, text: 'C\'est quoi la première chose que tu remarques chez quelqu\'un qui te plaît ? Sois précis(e).', cat: 'adulte' },
 ];
 
 let _used = new Set();

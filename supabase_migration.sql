@@ -73,3 +73,22 @@ alter publication supabase_realtime add table tribunal_writings;
 create or replace function cleanup_old_tribunal_rooms() returns void language sql as $$
   delete from tribunal_rooms where created_at < now() - interval '4 hours';
 $$;
+
+-- ============================================================
+-- ACCÈS ANON - obligatoire pour que les jeux fonctionnent
+-- (aucune donnée sensible, jeux de soirée en local)
+-- ============================================================
+
+-- Mime : désactiver RLS + accès anon
+alter table mime_rooms    disable row level security;
+alter table mime_players  disable row level security;
+grant select, insert, update, delete on mime_rooms   to anon;
+grant select, insert, update, delete on mime_players to anon;
+
+-- Tribunal : désactiver RLS + accès anon
+alter table tribunal_rooms    disable row level security;
+alter table tribunal_players  disable row level security;
+alter table tribunal_writings disable row level security;
+grant select, insert, update, delete on tribunal_rooms    to anon;
+grant select, insert, update, delete on tribunal_players  to anon;
+grant select, insert, update, delete on tribunal_writings to anon;

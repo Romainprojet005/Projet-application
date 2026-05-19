@@ -19,6 +19,7 @@ export default function TribunalSetupScreen({ navigation }) {
   const [name,     setName]     = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [loading,  setLoading]  = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   if (!isSupabaseConfigured) {
     return (
@@ -42,6 +43,7 @@ export default function TribunalSetupScreen({ navigation }) {
 
   const handleCreate = async () => {
     if (!name.trim()) return;
+    setErrorMsg('');
     setLoading(true);
     try {
       const code = generateCode();
@@ -54,12 +56,15 @@ export default function TribunalSetupScreen({ navigation }) {
         .select().single();
       if (pErr) throw pErr;
       navigation.replace('TribunalLobby', { roomId: room.id, playerId: player.id, isHost: true });
-    } catch (e) { Alert.alert('Erreur', e.message); }
+    } catch (e) {
+      setErrorMsg(e.message || 'Erreur de connexion. Réessaie.');
+    }
     finally { setLoading(false); }
   };
 
   const handleJoin = async () => {
     if (!name.trim() || joinCode.length < 4) return;
+    setErrorMsg('');
     setLoading(true);
     try {
       const { data: room, error: rErr } = await supabase
@@ -72,7 +77,9 @@ export default function TribunalSetupScreen({ navigation }) {
         .select().single();
       if (pErr) throw pErr;
       navigation.replace('TribunalLobby', { roomId: room.id, playerId: player.id, isHost: false });
-    } catch (e) { Alert.alert('Erreur', e.message); }
+    } catch (e) {
+      setErrorMsg(e.message || 'Erreur de connexion. Réessaie.');
+    }
     finally { setLoading(false); }
   };
 
@@ -133,6 +140,12 @@ export default function TribunalSetupScreen({ navigation }) {
           </View>
         )}
 
+        {!!errorMsg && (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>⚠️ {errorMsg}</Text>
+          </View>
+        )}
+
         <TouchableOpacity
           style={[styles.mainBtn, (!canProceed || loading) && styles.mainBtnDisabled]}
           onPress={tab === 'create' ? handleCreate : handleJoin}
@@ -183,6 +196,11 @@ const styles = StyleSheet.create({
     fontSize: 16, fontWeight: '700', color: colors.text,
   },
   codeInput: { fontSize: 28, fontWeight: '900', textAlign: 'center', letterSpacing: 8 },
+  errorBox: {
+    backgroundColor: '#EF444420', borderRadius: radius.md, borderWidth: 1, borderColor: '#EF4444',
+    padding: spacing.md, marginBottom: spacing.md,
+  },
+  errorText: { color: '#FCA5A5', fontSize: 13, fontWeight: '600', textAlign: 'center' },
   mainBtn: { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.xl },
   mainBtnDisabled: { opacity: 0.4 },
   mainBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
