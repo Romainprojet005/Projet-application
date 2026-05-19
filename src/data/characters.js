@@ -252,6 +252,27 @@ export const characters = [
     },
   },
   {
+    id: 'oracle',
+    name: 'Merlin',
+    emoji: '🔮',
+    title: 'Gardien des Réponses',
+    description:
+      'Le vieux mage de Camelot pose des questions mystérieuses. Chaque joueur écrit sa réponse en secret, puis les réponses sont révélées et on vote pour la meilleure. L\'éloquence prime !',
+    catchphrase: '"La vérité est dans les réponses…"',
+    color: '#8B5CF6',
+    gradientColors: ['#0F0A2B', '#1A1045'],
+    game: 'oracle',
+    gameName: 'ORACLE',
+    players: '3–10',
+    time: '20 min',
+    available: true,
+    stats: {
+      Créativité: 99,
+      Éloquence: 95,
+      Mystère: 92,
+    },
+  },
+  {
     id: 'cyrano',
     name: 'Cyrano de Bergerac',
     emoji: '🎭',

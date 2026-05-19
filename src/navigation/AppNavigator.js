@@ -40,6 +40,8 @@ import TribunalLobbyScreen from '../screens/tribunal/TribunalLobbyScreen';
 import TribunalGameScreen from '../screens/tribunal/TribunalGameScreen';
 import QuiEstLePlusSetupScreen from '../screens/quiestleplus/QuiEstLePlusSetupScreen';
 import QuiEstLePlusGameScreen from '../screens/quiestleplus/QuiEstLePlusGameScreen';
+import OracleSetupScreen from '../screens/oracle/OracleSetupScreen';
+import OracleGameScreen from '../screens/oracle/OracleGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -90,6 +92,8 @@ const linking = {
       TribunalGame: 'tribunal/game',
       QuiEstLePlusSetup: 'quiestleplus',
       QuiEstLePlusGame: 'quiestleplus/game',
+      OracleSetup: 'oracle',
+      OracleGame: 'oracle/game',
     },
   },
 };
@@ -142,6 +146,8 @@ export default function AppNavigator() {
         <Stack.Screen name="TribunalGame" component={TribunalGameScreen} />
         <Stack.Screen name="QuiEstLePlusSetup" component={QuiEstLePlusSetupScreen} />
         <Stack.Screen name="QuiEstLePlusGame" component={QuiEstLePlusGameScreen} />
+        <Stack.Screen name="OracleSetup" component={OracleSetupScreen} />
+        <Stack.Screen name="OracleGame" component={OracleGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
