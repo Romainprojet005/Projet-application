@@ -150,6 +150,97 @@ export const MOT_DE_PASSE_CARDS = [
   { word: 'PICASSO',            forbidden: ['Peintre', 'Art', 'Tableau', 'Cubisme', 'Espagne'] },
   { word: 'SHAKESPEARE',        forbidden: ['Écrivain', 'Roméo', 'Anglais', 'Théâtre', 'Hamlet'] },
 
+  // ── ANIMAUX (suite) ──────────────────────────────────────────────────
+  { word: 'ZÈBRE',              forbidden: ['Rayures', 'Noir', 'Blanc', 'Afrique', 'Cheval'] },
+  { word: 'GORILLE',            forbidden: ['Singe', 'Grand', 'Forêt', 'Fort', 'Afrique'] },
+  { word: 'CHAUVE-SOURIS',      forbidden: ['Nuit', 'Voler', 'Vampire', 'Cave', 'Aile'] },
+  { word: 'TORTUE',             forbidden: ['Lent', 'Carapace', 'Mer', 'Coquille', 'Long'] },
+  { word: 'LOUP',               forbidden: ['Forêt', 'Hurler', 'Meute', 'Chaperon', 'Dents'] },
+  { word: 'KANGOUROU',          forbidden: ['Australie', 'Poche', 'Sauter', 'Marsupial', 'Queue'] },
+  { word: 'PANDA',              forbidden: ['Chine', 'Noir', 'Blanc', 'Bambou', 'Rare'] },
+  { word: 'SERPENT',            forbidden: ['Reptile', 'Venin', 'Ramper', 'Siffler', 'Peau'] },
+  { word: 'MANCHOT',            forbidden: ['Pingouin', 'Froid', 'Nager', 'Voler', 'Banquise'] },
+
+  // ── ALIMENTS (suite) ─────────────────────────────────────────────────
+  { word: 'RACLETTE',           forbidden: ['Fromage', 'Montagne', 'Pomme de terre', 'Hiver', 'Fondu'] },
+  { word: 'KEBAB',              forbidden: ['Viande', 'Turquie', 'Sauce', 'Broche', 'Snack'] },
+  { word: 'MACARON',            forbidden: ['Pâtisserie', 'Coloré', 'Sucré', 'Meringue', 'Paris'] },
+  { word: 'TIRAMISU',           forbidden: ['Italie', 'Café', 'Mascarpone', 'Dessert', 'Cacao'] },
+  { word: 'AVOCAT',             forbidden: ['Fruit', 'Vert', 'Guacamole', 'Gras', 'Tropical'] },
+  { word: 'SAUCISSON',          forbidden: ['Charcuterie', 'Porc', 'Trancher', 'Apéro', 'Sec'] },
+  { word: 'NUTELLA',            forbidden: ['Chocolat', 'Noisette', 'Tartiner', 'Pot', 'Sucré'] },
+  { word: 'MIEL',               forbidden: ['Abeille', 'Sucré', 'Doré', 'Ruche', 'Naturel'] },
+  { word: 'CORNICHON',          forbidden: ['Petit', 'Vert', 'Vinaigre', 'Burger', 'Croquant'] },
+  { word: 'TARTIFLETTE',        forbidden: ['Fromage', 'Reblochon', 'Montagne', 'Pomme de terre', 'Gratiné'] },
+  { word: 'GUACAMOLE',          forbidden: ['Avocat', 'Mexique', 'Vert', 'Citron', 'Sauce'] },
+  { word: 'CHOUCROUTE',         forbidden: ['Alsace', 'Chou', 'Saucisse', 'France', 'Fermenté'] },
+  { word: 'BRIOCHE',            forbidden: ['Pain', 'Beurre', 'Sucré', 'Moelleux', 'Boulangerie'] },
+
+  // ── LIEUX (suite) ────────────────────────────────────────────────────
+  { word: 'CASINO',             forbidden: ['Jeu', 'Argent', 'Roulette', 'Las Vegas', 'Jackpot'] },
+  { word: 'ZOO',                forbidden: ['Animaux', 'Cage', 'Visiter', 'Enfants', 'Parc'] },
+  { word: 'CIMETIÈRE',          forbidden: ['Mort', 'Tombe', 'Enterrer', 'Pierre', 'Fantôme'] },
+  { word: 'PHARE',              forbidden: ['Mer', 'Lumière', 'Côte', 'Bateau', 'Signal'] },
+  { word: 'AÉROPORT',           forbidden: ['Avion', 'Valise', 'Voyage', 'Décollage', 'Terminal'] },
+  { word: 'PATINOIRE',          forbidden: ['Glace', 'Patins', 'Glisser', 'Tourner', 'Froid'] },
+  { word: 'CIRQUE',             forbidden: ['Acrobate', 'Clown', 'Chapiteau', 'Spectacle', 'Animal'] },
+  { word: 'MARCHÉ',             forbidden: ['Fruits', 'Légumes', 'Vendeur', 'Acheter', 'Stand'] },
+  { word: 'MANÈGE',             forbidden: ['Enfants', 'Tourner', 'Fête foraine', 'Cheval', 'Ride'] },
+
+  // ── OBJETS (suite) ───────────────────────────────────────────────────
+  { word: 'ASPIRATEUR',         forbidden: ['Nettoyer', 'Sol', 'Aspirer', 'Poussière', 'Maison'] },
+  { word: 'RÉVEIL',             forbidden: ['Matin', 'Sonner', 'Dormir', 'Heure', 'Se lever'] },
+  { word: 'JUMELLES',           forbidden: ['Voir', 'Loin', 'Optique', 'Deux', 'Observer'] },
+  { word: 'CALCULATRICE',       forbidden: ['Calculer', 'Chiffres', 'École', 'Maths', 'Résultat'] },
+  { word: 'THERMOS',            forbidden: ['Chaud', 'Bouteille', 'Garder', 'Café', 'Thé'] },
+  { word: 'PERRUQUE',           forbidden: ['Cheveux', 'Faux', 'Porter', 'Déguisement', 'Tête'] },
+  { word: 'VALISE',             forbidden: ['Voyage', 'Bagages', 'Roulettes', 'Aéroport', 'Remplir'] },
+  { word: 'LOUPE',              forbidden: ['Grossir', 'Voir', 'Lentille', 'Détective', 'Verre'] },
+  { word: 'SABLIER',            forbidden: ['Temps', 'Sable', 'Minute', 'Renverser', 'Mesurer'] },
+  { word: 'TENTE',              forbidden: ['Camping', 'Dormir', 'Monter', 'Dehors', 'Nature'] },
+
+  // ── POP CULTURE (suite) ──────────────────────────────────────────────
+  { word: 'HARRY POTTER',       forbidden: ['Magie', 'Sorcier', 'Poudlard', 'Baguette', 'Hermione'] },
+  { word: 'TIKTOK',             forbidden: ['Vidéo', 'Danse', 'Réseau', 'Court', 'Tendance'] },
+  { word: 'STRANGER THINGS',    forbidden: ['Netflix', 'Série', 'Monstre', 'Enfants', 'Surnaturel'] },
+  { word: 'SQUID GAME',         forbidden: ['Corée', 'Jeu', 'Mort', 'Série', 'Netflix'] },
+  { word: 'FORTNITE',           forbidden: ['Jeu', 'Battle royale', 'Danser', 'Construire', 'Shoot'] },
+  { word: 'AMONG US',           forbidden: ['Imposteur', 'Vaisseau', 'Tuer', 'Vote', 'Jeu'] },
+  { word: 'BINGE-WATCHING',     forbidden: ['Série', 'Regarder', 'Canapé', 'Épisodes', 'Netflix'] },
+
+  // ── NATURE / SCIENCE (suite) ─────────────────────────────────────────
+  { word: 'TSUNAMI',            forbidden: ['Vague', 'Mer', 'Catastrophe', 'Japon', 'Eau'] },
+  { word: 'AURORE BORÉALE',     forbidden: ['Lumière', 'Ciel', 'Nordique', 'Couleur', 'Polaire'] },
+  { word: 'TREMBLEMENT DE TERRE', forbidden: ['Séisme', 'Secousse', 'Sol', 'Magnitude', 'Détruire'] },
+  { word: 'TROU NOIR',          forbidden: ['Espace', 'Aspirer', 'Lumière', 'Galaxie', 'Gravité'] },
+
+  // ── MOTS ABSTRAITS (suite) ───────────────────────────────────────────
+  { word: 'SARCASME',           forbidden: ['Moquerie', 'Humour', 'Ironique', 'Méchant', 'Remarque'] },
+  { word: 'MÉLANCOLIE',         forbidden: ['Tristesse', 'Sentiment', 'Passé', 'Nostalgique', 'Sombre'] },
+  { word: 'IRONIE',             forbidden: ['Contraire', 'Humour', 'Situation', 'Attendre', 'Dire'] },
+  { word: 'ADRÉNALINE',         forbidden: ['Frisson', 'Peur', 'Sport', 'Hormone', 'Rush'] },
+  { word: 'CHAOS',              forbidden: ['Désordre', 'Bazar', 'Incontrôlable', 'Agité', 'Pagaille'] },
+
+  // ── DIVERS ───────────────────────────────────────────────────────────
+  { word: 'TATOUAGE',           forbidden: ['Peau', 'Encre', 'Dessin', 'Permanent', 'Aiguille'] },
+  { word: 'BARBECUE',           forbidden: ['Griller', 'Feu', 'Viande', 'Charbon', 'Été'] },
+  { word: 'SAUNA',              forbidden: ['Chaud', 'Vapeur', 'Finlande', 'Transpirer', 'Bois'] },
+  { word: 'ESCAPE GAME',        forbidden: ['Fuir', 'Énigme', 'Clé', 'Serrure', 'Équipe'] },
+  { word: 'MOUSTACHE',          forbidden: ['Lèvre', 'Poils', 'Visage', 'Homme', 'Raser'] },
+  { word: 'BROCANTE',           forbidden: ['Vieux', 'Objets', 'Marché', 'Vendre', 'Occasion'] },
+  { word: 'HOROSCOPE',          forbidden: ['Signe', 'Étoiles', 'Astrologie', 'Avenir', 'Zodiaque'] },
+  { word: 'SIESTE',             forbidden: ['Dormir', 'Après-midi', 'Court', 'Repos', 'Espagne'] },
+  { word: 'GUEULE DE BOIS',     forbidden: ['Alcool', 'Lendemain', 'Mal', 'Tête', 'Boire'] },
+  { word: 'SUPERSTITION',       forbidden: ['Croire', 'Chance', 'Porte-bonheur', 'Chiffre', 'Hasard'] },
+  { word: 'FLASH MOB',          forbidden: ['Surprise', 'Foule', 'Danser', 'Public', 'Organisé'] },
+  { word: 'BRUNCH',             forbidden: ['Petit-déjeuner', 'Déjeuner', 'Week-end', 'Restaurant', 'Tardif'] },
+  { word: 'GHOSTING',           forbidden: ['Disparaître', 'Répondre', 'Message', 'Laisser', 'Fantôme'] },
+  { word: 'DÉTOX',              forbidden: ['Corps', 'Nettoyer', 'Alcool', 'Arrêter', 'Purifier'] },
+  { word: 'BURN-OUT',           forbidden: ['Travail', 'Épuisement', 'Stress', 'Fatigue', 'Arrêt'] },
+  { word: 'FOMO',               forbidden: ['Manquer', 'Peur', 'Sortie', 'Soirée', 'Regret'] },
+  { word: 'PROCRASTINER',       forbidden: ['Reporter', 'Plus tard', 'Travail', 'Flemme', 'Demain'] },
+  { word: 'COVOITURAGE',        forbidden: ['Voiture', 'Partager', 'Trajet', 'Conducteur', 'Passager'] },
+
   // ── ADULTE 🔞 ────────────────────────────────────────────────────
   { category: 'adult', word: 'KAMA-SUTRA',        forbidden: ['Livre', 'Inde', 'Positions', 'Corps', 'Couple'] },
   { category: 'adult', word: 'STRIP-POKER',        forbidden: ['Cartes', 'Jeu', 'Déshabiller', 'Enjeu', 'Pari'] },
