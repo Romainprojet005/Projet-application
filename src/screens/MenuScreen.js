@@ -859,6 +859,8 @@ export default function MenuScreen({ navigation }) {
       mime: 'MimeSetup', buzzer: 'BuzzerSetup', tribunal: 'TribunalSetup',
       quiestleplus: 'QuiEstLePlusSetup', oracle: 'OracleSetup',
       trouveLaRegle: 'TrouveLaRegleSetup',
+      confessions: 'ConfessionsSetup',
+      defis: 'DefisSetup',
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };

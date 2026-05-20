@@ -44,6 +44,10 @@ import OracleSetupScreen from '../screens/oracle/OracleSetupScreen';
 import OracleGameScreen from '../screens/oracle/OracleGameScreen';
 import TrouveLaRegleSetupScreen from '../screens/trouveLaRegle/TrouveLaRegleSetupScreen';
 import TrouveLaRegleGameScreen from '../screens/trouveLaRegle/TrouveLaRegleGameScreen';
+import ConfessionsSetupScreen from '../screens/confessions/ConfessionsSetupScreen';
+import ConfessionsGameScreen from '../screens/confessions/ConfessionsGameScreen';
+import DefisSetupScreen from '../screens/defis/DefisSetupScreen';
+import DefisGameScreen from '../screens/defis/DefisGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -98,6 +102,10 @@ const linking = {
       OracleGame: 'oracle/game',
       TrouveLaRegleSetup: 'trouvelaregle',
       TrouveLaRegleGame: 'trouvelaregle/game',
+      ConfessionsSetup: 'confessions',
+      ConfessionsGame: 'confessions/game',
+      DefisSetup: 'defis',
+      DefisGame: 'defis/game',
     },
   },
 };
@@ -154,6 +162,10 @@ export default function AppNavigator() {
         <Stack.Screen name="OracleGame" component={OracleGameScreen} />
         <Stack.Screen name="TrouveLaRegleSetup" component={TrouveLaRegleSetupScreen} />
         <Stack.Screen name="TrouveLaRegleGame" component={TrouveLaRegleGameScreen} />
+        <Stack.Screen name="ConfessionsSetup" component={ConfessionsSetupScreen} />
+        <Stack.Screen name="ConfessionsGame" component={ConfessionsGameScreen} />
+        <Stack.Screen name="DefisSetup" component={DefisSetupScreen} />
+        <Stack.Screen name="DefisGame" component={DefisGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
