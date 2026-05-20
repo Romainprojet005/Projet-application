@@ -42,6 +42,8 @@ import QuiEstLePlusSetupScreen from '../screens/quiestleplus/QuiEstLePlusSetupSc
 import QuiEstLePlusGameScreen from '../screens/quiestleplus/QuiEstLePlusGameScreen';
 import OracleSetupScreen from '../screens/oracle/OracleSetupScreen';
 import OracleGameScreen from '../screens/oracle/OracleGameScreen';
+import TrouveLaRegleSetupScreen from '../screens/trouveLaRegle/TrouveLaRegleSetupScreen';
+import TrouveLaRegleGameScreen from '../screens/trouveLaRegle/TrouveLaRegleGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -94,6 +96,8 @@ const linking = {
       QuiEstLePlusGame: 'quiestleplus/game',
       OracleSetup: 'oracle',
       OracleGame: 'oracle/game',
+      TrouveLaRegleSetup: 'trouvelaregle',
+      TrouveLaRegleGame: 'trouvelaregle/game',
     },
   },
 };
@@ -148,6 +152,8 @@ export default function AppNavigator() {
         <Stack.Screen name="QuiEstLePlusGame" component={QuiEstLePlusGameScreen} />
         <Stack.Screen name="OracleSetup" component={OracleSetupScreen} />
         <Stack.Screen name="OracleGame" component={OracleGameScreen} />
+        <Stack.Screen name="TrouveLaRegleSetup" component={TrouveLaRegleSetupScreen} />
+        <Stack.Screen name="TrouveLaRegleGame" component={TrouveLaRegleGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -273,6 +273,27 @@ export const characters = [
     },
   },
   {
+    id: 'trouve_la_regle',
+    name: 'Columbo',
+    emoji: '🕵️',
+    title: 'Maître des Indices',
+    description:
+      'L\'inspecteur en imperméable froissé observe tout et ne rate jamais un détail. Mais cette fois, c\'est lui qui doit deviner la règle secrète que les autres lui cachent !',
+    catchphrase: '"Il y a juste une dernière chose…"',
+    color: '#F59E0B',
+    gradientColors: ['#1A0F00', '#2D1A00'],
+    game: 'trouveLaRegle',
+    gameName: 'TROUVE LA RÈGLE',
+    players: '3–8',
+    time: '20 min',
+    available: true,
+    stats: {
+      Déduction: 99,
+      Observation: 97,
+      Patience: 88,
+    },
+  },
+  {
     id: 'cyrano',
     name: 'Cyrano de Bergerac',
     emoji: '🎭',
