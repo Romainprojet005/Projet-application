@@ -84,7 +84,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
 
   const [songs]      = useState(() => selectSongs(songCount, categoryId));
   const [songIdx,    setSongIdx]    = useState(0);
-  const [phase,      setPhase]      = useState('idle'); // idle|playing|found|reveal|final
+  const [phase,      setPhase]      = useState('idle'); // idle|playing|found|blocked|reveal|final
   const [scores,     setScores]     = useState(() => Object.fromEntries(playerNames.map(n => [n, 0])));
   const [results,    setResults]    = useState([]);
   const [inputText,  setInputText]  = useState('');
@@ -133,6 +133,27 @@ export default function BlindTestGameScreen({ navigation, route }) {
 
   useEffect(() => () => stopTimer(), []);
 
+  // ── YouTube embedding error detection ─────────────────────────────────────
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const onMsg = (e) => {
+      if (!e.data) return;
+      try {
+        const d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+        // codes 101 et 150 = vidéo non autorisée en lecture intégrée
+        if (d?.event === 'error' && (d?.info === 101 || d?.info === 150)) {
+          if (phaseRef.current === 'playing') {
+            stopTimer();
+            phaseRef.current = 'blocked';
+            setPhase('blocked');
+          }
+        }
+      } catch {}
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
   // ── Answer card animation ──────────────────────────────────────────────────
   const openAnswerCard = () => {
     Animated.parallel([
@@ -166,7 +187,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
       // Manipulation DOM synchrone dans le gestionnaire de clic = le navigateur mobile
       // reconnaît le geste utilisateur et autorise l'autoplay dans l'iframe caché
       if (iframeRef.current) {
-        iframeRef.current.src = `https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
+        iframeRef.current.src = `https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1`;
       }
     } else {
       Linking.openURL(`https://www.youtube.com/watch?v=${song.videoId}`);
@@ -259,7 +280,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
               <Text style={styles.compatTitle}>des chansons trouvées</Text>
               <View style={styles.compatDivider} />
               <Text style={styles.compatLabel}>
-                {pct >= 70 ? 'Oreille d\'or ! Véritable expert rock !' : pct >= 40 ? 'Pas mal ! Quelques classiques bien connus…' : 'Les riffs vous ont résisté !'}
+                {pct >= 70 ? 'Oreille d\'or ! Tu connais tes classiques !' : pct >= 40 ? 'Pas mal ! Quelques tubes bien connus…' : 'Ces chansons vous ont résisté !'}
               </Text>
             </LinearGradient>
           </View>
@@ -399,6 +420,25 @@ export default function BlindTestGameScreen({ navigation, route }) {
                   </View>
                 </TouchableOpacity>
               </View>
+            </View>
+          )}
+          {phase === 'blocked' && (
+            <View style={styles.blockedContent}>
+              <Text style={styles.blockedIcon}>🚫</Text>
+              <Text style={styles.blockedTitle}>Vidéo non disponible</Text>
+              <Text style={styles.blockedSub}>Cette vidéo ne peut pas être lue ici.{'\n'}Ouvrez-la sur YouTube pour écouter !</Text>
+              <TouchableOpacity
+                onPress={() => openYoutube(song)}
+                style={styles.ytOpenBtn}
+                activeOpacity={0.85}
+              >
+                <LinearGradient colors={['#FF0000', '#CC0000']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.ytOpenBtnInner}>
+                  <Text style={styles.ytOpenBtnText}>▶  Ouvrir sur YouTube</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleReveal} style={styles.blockedSkip} activeOpacity={0.8}>
+                <Text style={styles.blockedSkipText}>Révéler la réponse →</Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -553,6 +593,16 @@ const styles = StyleSheet.create({
   },
   timerNum:   { fontSize: 36, fontWeight: '900' },
   timerLabel: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
+
+  blockedContent: { alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.xl, width: '100%' },
+  blockedIcon:    { fontSize: 40 },
+  blockedTitle:   { fontSize: 18, fontWeight: '900', color: colors.text },
+  blockedSub:     { fontSize: 13, color: colors.textSecondary, textAlign: 'center', lineHeight: 20 },
+  ytOpenBtn:      { borderRadius: radius.full, overflow: 'hidden', width: '100%' },
+  ytOpenBtnInner: { paddingVertical: spacing.md, alignItems: 'center', borderRadius: radius.full },
+  ytOpenBtnText:  { fontSize: 14, fontWeight: '800', color: '#fff', letterSpacing: 1 },
+  blockedSkip:    { paddingVertical: spacing.sm },
+  blockedSkipText:{ fontSize: 13, color: colors.textMuted, textDecorationLine: 'underline' },
 
   foundContent: { alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, width: '100%' },
   foundBadge:   { overflow: 'hidden', borderRadius: radius.lg },
