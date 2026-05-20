@@ -189,8 +189,9 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         filter:drop-shadow(0 0 12px rgba(212,175,55,.4)); }
       .ob-name-block { text-align:center; margin:4px 0 8px; position:relative; z-index:1; }
       .ob-rule { height:1px; background:linear-gradient(90deg,transparent,#D4AF37,transparent); margin:6px 0; }
-      .ob-name { font-family:'Cormorant Garamond',Georgia,serif; font-weight:600; font-style:italic;
-        font-size:22px; color:#F8E9C8; letter-spacing:.5px; line-height:1.1; }
+      .ob-name { font-family:'Cinzel',Georgia,serif; font-weight:700;
+        font-size:18px; color:#D4AF37; letter-spacing:3px; line-height:1.2;
+        text-shadow:0 0 10px rgba(212,175,55,.3); }
       .ob-title { font-family:'JetBrains Mono','Courier New',monospace; font-size:9px;
         letter-spacing:2.5px; color:rgba(212,175,55,.7); margin-top:4px; text-transform:uppercase; }
       .ob-game { text-align:center; font-family:'Cinzel',Georgia,serif; font-weight:700;
@@ -210,8 +211,21 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         letter-spacing:3px; color:rgba(255,255,255,.45);
         border:1px solid rgba(255,255,255,.18); padding:6px 14px; border-radius:999px; }
 
-      /* Description courte (affichée uniquement sur mobile via media query) */
-      .ob-desc { display:none; }
+      /* Description courte du jeu */
+      .ob-desc {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-style: italic;
+        font-size: 11px;
+        line-height: 1.45;
+        color: rgba(248,233,200,.5);
+        text-align: center;
+        margin-top: 6px;
+        padding: 0 4px;
+      }
 
       /* === Dos Obsidien === */
       .ob-back {
@@ -360,7 +374,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         /* Nom + titre */
         .ob-name-block { margin-bottom: 3px; }
         .ob-rule { margin: 3px 0; }
-        .ob-name { font-size: 15px; }
+        .ob-name { font-size: 13px; letter-spacing: 2px; }
         .ob-title { font-size: 7.5px; letter-spacing: 2px; margin-top: 2px; }
 
         /* Nom du jeu */
@@ -368,16 +382,8 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
 
         /* Description */
         .ob-desc {
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-style: italic;
-          font-size: 9.5px;
-          line-height: 1.45;
-          color: rgba(248,233,200,.55);
-          text-align: center;
+          font-size: 9px;
+          -webkit-line-clamp: 2;
           margin-top: 4px;
         }
 
@@ -431,11 +437,10 @@ function ObsidianFront({ character, idx }) {
       </div>
       <div className="ob-name-block">
         <div className="ob-rule" />
-        <div className="ob-name">{character.name}</div>
+        <div className="ob-name">{character.gameName}</div>
         <div className="ob-title">{character.title}</div>
         <div className="ob-rule" />
       </div>
-      <div className="ob-game">{character.gameName}</div>
       {character.description && (
         <div className="ob-desc">{character.description}</div>
       )}
@@ -538,13 +543,15 @@ const GameCardNative = memo(function GameCardNative({ character, idx, onPress })
           {/* Bloc nom avec filets dorés */}
           <View style={ob.nameBlock}>
             <LinearGradient colors={['transparent', OB_GOLD_DIM, 'transparent']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={ob.rule} />
-            <Text style={ob.charName}>{character.name}</Text>
+            <Text style={ob.charName}>{character.gameName}</Text>
             <Text style={ob.charTitle}>{character.title.toUpperCase()}</Text>
             <LinearGradient colors={['transparent', OB_GOLD_DIM, 'transparent']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={ob.rule} />
           </View>
 
-          {/* Nom du jeu */}
-          <Text style={ob.gameName}>{character.gameName}</Text>
+          {/* Description courte */}
+          {character.description && (
+            <Text style={ob.descTxt} numberOfLines={2}>{character.description}</Text>
+          )}
 
           {/* Espace flexible pour pousser la meta en bas */}
           <View style={{ flex: 1 }} />
@@ -598,9 +605,10 @@ const ob = StyleSheet.create({
   emojiTxt:    { fontSize: 52, lineHeight: 60 },
   nameBlock:   { alignItems: 'center', marginBottom: 6 },
   rule:        { height: 1, alignSelf: 'stretch', marginVertical: 6 },
-  charName:    { fontFamily: SERIF, fontSize: 22, color: OB_CREAM, letterSpacing: 0.5, textAlign: 'center', lineHeight: 26 },
+  charName:    { fontFamily: CINZEL, fontSize: 16, color: OB_GOLD, letterSpacing: 3, textAlign: 'center', lineHeight: 22 },
   charTitle:   { fontFamily: MONO, fontSize: 9, letterSpacing: 2.5, color: 'rgba(212,175,55,0.7)', textAlign: 'center', marginTop: 4 },
   gameName:    { fontFamily: CINZEL, fontSize: 17, letterSpacing: 4, color: OB_GOLD, textAlign: 'center' },
+  descTxt:     { fontFamily: SERIF, fontSize: 9, color: 'rgba(248,233,200,0.5)', textAlign: 'center', lineHeight: 13, marginTop: 6, paddingHorizontal: 4 },
   meta:        { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(212,175,55,0.15)' },
   metaCell:    { alignItems: 'center', gap: 2 },
   metaLabel:   { fontFamily: MONO, fontSize: 8, letterSpacing: 2, color: 'rgba(212,175,55,0.6)' },
