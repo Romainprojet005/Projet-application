@@ -57,7 +57,12 @@ export default function TribunalSetupScreen({ navigation }) {
       if (pErr) throw pErr;
       navigation.replace('TribunalLobby', { roomId: room.id, playerId: player.id, isHost: true });
     } catch (e) {
-      setErrorMsg(e.message || 'Erreur de connexion. Réessaie.');
+      const msg = e.message || '';
+      setErrorMsg(
+        msg.includes('fetch') || msg.includes('network') || msg.includes('ECONN')
+          ? '🔌 Serveur inaccessible. Le projet Supabase est en pause — va sur app.supabase.com et clique "Restore project".'
+          : msg || 'Erreur de connexion. Réessaie.'
+      );
     }
     finally { setLoading(false); }
   };
@@ -78,7 +83,12 @@ export default function TribunalSetupScreen({ navigation }) {
       if (pErr) throw pErr;
       navigation.replace('TribunalLobby', { roomId: room.id, playerId: player.id, isHost: false });
     } catch (e) {
-      setErrorMsg(e.message || 'Erreur de connexion. Réessaie.');
+      const msg = e.message || '';
+      setErrorMsg(
+        msg.includes('fetch') || msg.includes('network') || msg.includes('ECONN')
+          ? '🔌 Serveur inaccessible. Le projet Supabase est en pause — va sur app.supabase.com et clique "Restore project".'
+          : msg || 'Erreur de connexion. Réessaie.'
+      );
     }
     finally { setLoading(false); }
   };
