@@ -112,8 +112,8 @@ export default function TribunalGameScreen({ navigation, route }) {
       const myPlayer = players.find(p => p.id === playerId);
       if (!myPlayer) return;
       await supabase.from('tribunal_writings').insert({
-        room_id: roomId, writer_id: playerId,
-        about_id: myPlayer.target_id, text: myWritingText.trim(),
+        room_id: roomId, author_id: playerId,
+        target_id: myPlayer.target_id, content: myWritingText.trim(),
       });
       await supabase.from('tribunal_players').update({ has_written: true }).eq('id', playerId);
     } finally { setSubmitting(false); }
@@ -137,8 +137,8 @@ export default function TribunalGameScreen({ navigation, route }) {
     const accused = ps.find(p => p.turn_order === room.current_accused_idx);
     if (!accused) return;
     const voters      = ps.filter(p => p.id !== accused.id);
-    const trueVotes   = voters.filter(p => p.vote === 'true').length;
-    const falseVotes  = voters.filter(p => p.vote === 'false').length;
+    const trueVotes   = voters.filter(p => p.vote === 'vrai').length;
+    const falseVotes  = voters.filter(p => p.vote === 'faux').length;
     const accusedWins = falseVotes > trueVotes;
     const nextIdx     = room.current_accused_idx + 1;
     const isLast      = nextIdx >= ps.length;
@@ -178,8 +178,8 @@ export default function TribunalGameScreen({ navigation, route }) {
   const byTurn        = [...players].sort((a, b) => a.turn_order - b.turn_order);
   const currentAccused = byTurn[room.current_accused_idx];
   const amAccused     = currentAccused?.id === playerId;
-  const accusation    = writings.find(w => w.about_id === currentAccused?.id);
-  const realAuthor    = players.find(p => p.id === accusation?.writer_id);
+  const accusation    = writings.find(w => w.target_id === currentAccused?.id);
+  const realAuthor    = players.find(p => p.id === accusation?.author_id);
   const nonAccused    = players.filter(p => p.id !== currentAccused?.id);
   const voters        = players.filter(p => p.id !== currentAccused?.id);
 
@@ -281,7 +281,7 @@ export default function TribunalGameScreen({ navigation, route }) {
 
           <View style={styles.accusationCard}>
             <Text style={styles.accusationLabel}>L'ACCUSATION</Text>
-            <Text style={styles.accusationText}>« {accusation?.text ?? '…'} »</Text>
+            <Text style={styles.accusationText}>« {accusation?.content ?? '…'} »</Text>
           </View>
 
           {amAccused ? (
@@ -359,14 +359,14 @@ export default function TribunalGameScreen({ navigation, route }) {
 
           <View style={styles.accusationCard}>
             <Text style={styles.accusationLabel}>L'ACCUSATION</Text>
-            <Text style={styles.accusationText}>« {accusation?.text ?? '…'} »</Text>
+            <Text style={styles.accusationText}>« {accusation?.content ?? '…'} »</Text>
           </View>
 
           {myVote ? (
             <View style={styles.votedBox}>
-              <Text style={styles.bigEmoji}>{myVote === 'false' ? '❌' : '✅'}</Text>
+              <Text style={styles.bigEmoji}>{myVote === 'faux' ? '❌' : '✅'}</Text>
               <Text style={styles.votedText}>
-                Tu as voté : {myVote === 'false' ? '"C\'est faux !"' : '"C\'est vrai !"'}
+                Tu as voté : {myVote === 'faux' ? '"C\'est faux !"' : '"C\'est vrai !"'}
               </Text>
               <Text style={styles.phaseSub}>En attente des autres jurés…</Text>
             </View>
@@ -376,7 +376,7 @@ export default function TribunalGameScreen({ navigation, route }) {
               <View style={styles.voteRow}>
                 <TouchableOpacity
                   style={[styles.voteBtn, { borderColor: GREEN + '88', backgroundColor: GREEN + '1A' }]}
-                  onPress={() => handleVote('false')}
+                  onPress={() => handleVote('faux')}
                   activeOpacity={0.8}
                 >
                   <Text style={styles.voteBtnEmoji}>❌</Text>
@@ -385,7 +385,7 @@ export default function TribunalGameScreen({ navigation, route }) {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.voteBtn, { borderColor: CRIMSON + '88', backgroundColor: CRIMSON + '1A' }]}
-                  onPress={() => handleVote('true')}
+                  onPress={() => handleVote('vrai')}
                   activeOpacity={0.8}
                 >
                   <Text style={styles.voteBtnEmoji}>✅</Text>
@@ -402,8 +402,8 @@ export default function TribunalGameScreen({ navigation, route }) {
 
   // ── REVEAL ────────────────────────────────────────────────────────
   if (room.status === 'trial' && room.trial_phase === 'reveal') {
-    const trueVotes   = voters.filter(p => p.vote === 'true').length;
-    const falseVotes  = voters.filter(p => p.vote === 'false').length;
+    const trueVotes   = voters.filter(p => p.vote === 'vrai').length;
+    const falseVotes  = voters.filter(p => p.vote === 'faux').length;
     const accusedWins = falseVotes > trueVotes;
     const isTie       = trueVotes === falseVotes;
     const verdictColor = isTie ? GOLD : accusedWins ? GREEN : CRIMSON;
@@ -450,8 +450,8 @@ export default function TribunalGameScreen({ navigation, route }) {
             {voters.map(p => (
               <View key={p.id} style={styles.voteDetailRow}>
                 <Text style={styles.voteDetailName}>{p.name}</Text>
-                <Text style={[styles.voteDetailVal, { color: p.vote === 'false' ? GREEN : CRIMSON }]}>
-                  {p.vote === 'false' ? '❌ C\'est faux' : '✅ C\'est vrai'}
+                <Text style={[styles.voteDetailVal, { color: p.vote === 'faux' ? GREEN : CRIMSON }]}>
+                  {p.vote === 'faux' ? '❌ C\'est faux !' : '✅ C\'est vrai !'}
                 </Text>
               </View>
             ))}
