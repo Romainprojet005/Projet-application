@@ -297,7 +297,7 @@ function GameBoardScreen({ roles, onBackToMenu }) {
       )}
 
       <View style={styles.lilouWrap} pointerEvents="none">
-        <Text style={styles.lilouText}>LILOU</Text>
+        <Text style={styles.lilouText}>LILOUTRE</Text>
       </View>
     </LinearGradient>
   );
@@ -469,7 +469,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
       </Animated.View>
 
       <View style={styles.lilouWrap} pointerEvents="none">
-        <Text style={styles.lilouText}>LILOU</Text>
+        <Text style={styles.lilouText}>LILOUTRE</Text>
       </View>
     </LinearGradient>
   );
@@ -851,7 +851,7 @@ const styles = StyleSheet.create({
   winnerTitle: { fontSize: 24, fontWeight: '900', color: colors.text, textAlign: 'center', marginBottom: spacing.sm },
   winnerSub: { fontSize: 14, color: 'rgba(255,255,255,0.7)', textAlign: 'center', lineHeight: 22, marginBottom: spacing.xl },
 
-  // LILOU signature
+  // LILOUTRE signature
   lilouWrap: {
     position: 'absolute',
     bottom: 14,

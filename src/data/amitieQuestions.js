@@ -59,8 +59,41 @@ export const coupleQuestions = [
   { id: 25, question: "En une phrase, comment {nom} vous présenterait à des inconnus ?" },
 ];
 
+export const adulteQuestions = [
+  { id: 1, question: "Quelle est la chose la plus hot que {nom} ait jamais faite lors d'une soirée ?" },
+  { id: 2, question: "Si {nom} pouvait passer une nuit avec n'importe quelle célébrité, qui choisirait-il/elle ?" },
+  { id: 3, question: "Quel est le fantasme inavouable de {nom} ?" },
+  { id: 4, question: "Quelle partie du corps de l'autre {nom} trouve-t-il/elle la plus excitante ?" },
+  { id: 5, question: "Quel est le dernier message coquin envoyé par {nom} ?" },
+  { id: 6, question: "Quel endroit insolite {nom} rêverait d'utiliser pour des moments torrides ?" },
+  { id: 7, question: "À quelle fréquence {nom} regarde-t-il/elle du contenu pour adultes ?" },
+  { id: 8, question: "Quel est le one-night stand le plus mémorable de {nom} ?" },
+  { id: 9, question: "Si {nom} devait décrire son type idéal au lit, ce serait comment ?" },
+  { id: 10, question: "Quelle chose {nom} n'a jamais osé demander mais en rêve ?" },
+  { id: 11, question: "Quel jouet coquin {nom} possède ou aimerait posséder ?" },
+  { id: 12, question: "Quel kink de {nom} personne ici ne soupçonne ?" },
+  { id: 13, question: "Combien de personnes {nom} a-t-il/elle embrassées en une seule soirée ?" },
+  { id: 14, question: "Quel est le pire plan cul de {nom} ?" },
+  { id: 15, question: "Si {nom} devait écrire sa biographie érotique, quel serait le titre ?" },
+  { id: 16, question: "Quelle personne dans son entourage {nom} trouve-t-il/elle secrètement attirante ?" },
+  { id: 17, question: "Quel est le lieu le plus bizarre où {nom} a embrassé quelqu'un ?" },
+  { id: 18, question: "Si {nom} devait faire un strip-tease, quelle chanson choisirait-il/elle ?" },
+  { id: 19, question: "Quel objet du quotidien {nom} a déjà détourné à des fins créatives ?" },
+  { id: 20, question: "Si {nom} recevait un message d'un(e) ex à 2h du matin, que répondrait-il/elle ?" },
+  { id: 21, question: "Quelle tenue portée par l'autre rendrait {nom} complètement fou/folle ?" },
+  { id: 22, question: "Si {nom} devait choisir entre une nuit torride ou une semaine de câlins, laquelle ?" },
+  { id: 23, question: "Quelle chose {nom} fait semblant d'aimer au lit mais déteste en vrai ?" },
+  { id: 24, question: "Quel est le truc le plus coquin que {nom} ait imaginé faire avec quelqu'un dans cette pièce ?" },
+  { id: 25, question: "Si {nom} pouvait avoir un super-pouvoir érotique, lequel choisirait-il/elle ?" },
+  { id: 26, question: "Quelle est la chose la plus osée que {nom} ait faite sous l'eau ou sous la douche ?" },
+  { id: 27, question: "Quel est le plus long sexting que {nom} ait jamais envoyé ?" },
+  { id: 28, question: "Si {nom} devait rejouer une scène de film X dans sa vie, laquelle ?" },
+  { id: 29, question: "Quelle position {nom} n'a jamais osé essayer mais qui l'intrigue ?" },
+  { id: 30, question: "Si {nom} organisait une soirée 'mouillée', comment ça se passerait ?" },
+];
+
 export function getQuestions(mode, count) {
-  const pool = mode === 'couple' ? coupleQuestions : amitieQuestions;
+  const pool = mode === 'couple' ? coupleQuestions : mode === 'adulte' ? adulteQuestions : amitieQuestions;
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, Math.min(count, shuffled.length));
 }

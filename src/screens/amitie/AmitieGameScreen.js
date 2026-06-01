@@ -172,10 +172,12 @@ export default function AmitieGameScreen({ navigation, route }) {
           ]}
         >
           <LinearGradient
-            colors={['#2D001A', '#1A000F']}
+            colors={mode === 'adulte' ? ['#3D0A00', '#1A0400'] : ['#2D001A', '#1A000F']}
             style={styles.questionCardInner}
           >
-            <Text style={styles.questionEmoji}>{mode === 'couple' ? '💑' : '🤝'}</Text>
+            <Text style={styles.questionEmoji}>
+              {mode === 'couple' ? '💑' : mode === 'adulte' ? '🔥' : '🤝'}
+            </Text>
             <Text style={styles.questionText}>{questionText}</Text>
           </LinearGradient>
         </Animated.View>
@@ -247,6 +249,10 @@ export default function AmitieGameScreen({ navigation, route }) {
             )}
           </View>
         )}
+      </View>
+
+      <View style={styles.lilouWrap} pointerEvents="none">
+        <Text style={styles.lilouText}>LILOUTRE</Text>
       </View>
     </LinearGradient>
   );
@@ -352,6 +358,10 @@ function ResultsScreen({ players, scores, rounds, mode, navigation, route }) {
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>
+
+      <View style={styles.lilouWrap} pointerEvents="none">
+        <Text style={styles.lilouText}>LILOUTRE</Text>
+      </View>
     </LinearGradient>
   );
 }
@@ -590,4 +600,20 @@ const styles = StyleSheet.create({
   },
   menuBtn: { alignItems: 'center', paddingVertical: spacing.md },
   menuBtnText: { fontSize: 14, color: ROSE_LIGHT, fontWeight: '600' },
+
+  lilouWrap: {
+    position: 'absolute',
+    bottom: 14,
+    right: 18,
+    zIndex: 10,
+  },
+  lilouText: {
+    fontSize: 15,
+    fontWeight: '900',
+    letterSpacing: 4,
+    color: '#FFD700',
+    textShadowColor: 'rgba(255, 215, 0, 0.55)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
+  },
 });

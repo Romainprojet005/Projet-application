@@ -157,6 +157,19 @@ export default function AmitieSetupScreen({ navigation }) {
                   </Text>
                   <Text style={styles.modeDesc}>En amoureux</Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.modeBtn,
+                    mode === 'adulte' && { borderColor: '#FF4500', backgroundColor: '#FF450022' },
+                  ]}
+                  onPress={() => setMode('adulte')}
+                >
+                  <Text style={styles.modeEmoji}>🔥</Text>
+                  <Text style={[styles.modeName, mode === 'adulte' && { color: '#FF6B35' }]}>
+                    Adulte
+                  </Text>
+                  <Text style={styles.modeDesc}>18+ hot</Text>
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -190,8 +203,8 @@ export default function AmitieSetupScreen({ navigation }) {
               <SummaryRow label="Joueurs" value={`${players.length} participants`} color={ROSE_LIGHT} />
               <SummaryRow
                 label="Mode"
-                value={mode === 'amitie' ? '🤝 Amitié' : '💑 Couple'}
-                color={ROSE_LIGHT}
+                value={mode === 'amitie' ? '🤝 Amitié' : mode === 'couple' ? '💑 Couple' : '🔥 Adulte'}
+                color={mode === 'adulte' ? '#FF6B35' : ROSE_LIGHT}
               />
               <SummaryRow label="Questions" value={`${questionsCount} questions`} color={ROSE_LIGHT} />
             </View>
