@@ -5,12 +5,9 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
-import { OB_BG } from '../../theme/obsidian';
+import { GOLD, GOLD_DARK, GOLD_LIGHT, OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 
-const GOLD       = '#F59E0B';
-const GOLD_DARK  = '#D97706';
-const GOLD_LIGHT = '#FDE68A';
 const BG = OB_BG;
 const MIN_PLAYERS = 3;
 

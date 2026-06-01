@@ -5,11 +5,11 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
-import { OB_BG } from '../../theme/obsidian';
+import { GOLD, GOLD_DARK, GOLD_LIGHT, OB_BG } from '../../theme/obsidian';
 
-const CYAN       = '#06B6D4';
-const CYAN_DARK  = '#0E7490';
-const CYAN_LIGHT = '#A5F3FC';
+const CYAN       = GOLD;
+const CYAN_DARK  = GOLD_DARK;
+const CYAN_LIGHT = GOLD_LIGHT;
 const BG         = OB_BG;
 
 // ── Final leaderboard ──────────────────────────────────────────────
@@ -46,7 +46,7 @@ function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
               transform: [{ translateX: rowAnims[i].interpolate({ inputRange: [0, 1], outputRange: [60, 0] }) }],
             }}>
               <LinearGradient
-                colors={i === 0 ? ['#001A1A', '#002828'] : ['#141414', '#1A1A1A']}
+                colors={i === 0 ? ['#1A1400', '#252000'] : ['#141414', '#1A1A1A']}
                 style={[styles.rankRow, i === 0 && styles.rankRowFirst]}
               >
                 <Text style={styles.rankMedal}>{medals[i] || `#${i + 1}`}</Text>

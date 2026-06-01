@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
-import { OB_BG } from '../../theme/obsidian';
+import { GOLD, GOLD_DARK, GOLD_LIGHT, OB_BG } from '../../theme/obsidian';
 
 const SCREEN_W = Dimensions.get('window').width;
 const PC_IMG_W = Platform.OS === 'web' ? Math.min(380, SCREEN_W - 48) : undefined;
@@ -38,9 +38,9 @@ function maxErrors(len) {
   return 0;
 }
 
-const ORANGE = '#F97316';
-const ORANGE_DARK = '#C2410C';
-const ORANGE_LIGHT = '#FED7AA';
+const ORANGE       = GOLD;
+const ORANGE_DARK  = GOLD_DARK;
+const ORANGE_LIGHT = GOLD_LIGHT;
 const BG = OB_BG;
 
 // Blur (css filter) applied to a wrapper View on web — 3 levels + clear at step 4
