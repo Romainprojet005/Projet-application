@@ -1,3 +1,13 @@
+// Distribue les cartes en mains + retourne le deck restant
+export function initCards(playerCount, answers) {
+  const pool = [...answers.map(a => a.id)].sort(() => Math.random() - 0.5);
+  const hands = {};
+  for (let i = 0; i < playerCount; i++) {
+    hands[i] = pool.splice(0, 7);
+  }
+  return { hands, deck: pool };
+}
+
 // Questions (cartes noires) — ___ marque le trou à remplir
 export const QUESTIONS = {
   classique: [

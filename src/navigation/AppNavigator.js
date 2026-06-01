@@ -50,6 +50,10 @@ import DefisSetupScreen from '../screens/defis/DefisSetupScreen';
 import DefisGameScreen from '../screens/defis/DefisGameScreen';
 import BlancSetupScreen from '../screens/blanc/BlancSetupScreen';
 import BlancGameScreen from '../screens/blanc/BlancGameScreen';
+import BlancMultiSetupScreen from '../screens/blanc/BlancMultiSetupScreen';
+import BlancMultiLobbyScreen from '../screens/blanc/BlancMultiLobbyScreen';
+import BlancMultiGameScreen from '../screens/blanc/BlancMultiGameScreen';
+import BlancMultiFinalScreen from '../screens/blanc/BlancMultiFinalScreen';
 
 const Stack = createStackNavigator();
 
@@ -110,6 +114,10 @@ const linking = {
       DefisGame: 'defis/game',
       BlancSetup: 'blanc',
       BlancGame: 'blanc/game',
+      BlancMultiSetup: 'blanc/multi',
+      BlancMultiLobby: 'blanc/multi/lobby',
+      BlancMultiGame: 'blanc/multi/game',
+      BlancMultiFinal: 'blanc/multi/final',
     },
   },
 };
@@ -172,6 +180,10 @@ export default function AppNavigator() {
         <Stack.Screen name="DefisGame" component={DefisGameScreen} />
         <Stack.Screen name="BlancSetup" component={BlancSetupScreen} />
         <Stack.Screen name="BlancGame" component={BlancGameScreen} />
+        <Stack.Screen name="BlancMultiSetup" component={BlancMultiSetupScreen} />
+        <Stack.Screen name="BlancMultiLobby" component={BlancMultiLobbyScreen} />
+        <Stack.Screen name="BlancMultiGame" component={BlancMultiGameScreen} />
+        <Stack.Screen name="BlancMultiFinal" component={BlancMultiFinalScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

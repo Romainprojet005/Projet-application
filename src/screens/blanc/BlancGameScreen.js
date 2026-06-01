@@ -6,20 +6,11 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG, GOLD, GOLD_LIGHT, GOLD_DARK, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-import { ANSWERS } from '../../data/blancMangerData';
+import { ANSWERS, initCards } from '../../data/blancMangerData';
 
 const PRP       = colors.primary;
 const PRP_LIGHT = colors.primaryLight;
 const PRP_DARK  = colors.primaryDark;
-
-function initCards(playerCount, answers) {
-  const pool = [...answers.map(a => a.id)].sort(() => Math.random() - 0.5);
-  const hands = {};
-  for (let i = 0; i < playerCount; i++) {
-    hands[i] = pool.splice(0, 7);
-  }
-  return { hands, deck: pool };
-}
 
 export default function BlancGameScreen({ navigation, route }) {
   const { players, category, totalRounds, questions } = route.params;

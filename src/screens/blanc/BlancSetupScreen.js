@@ -166,6 +166,20 @@ export default function BlancSetupScreen({ navigation }) {
               </LinearGradient>
             </TouchableOpacity>
 
+            <TouchableOpacity
+              onPress={() => navigation.navigate('BlancMultiSetup')}
+              style={{ marginBottom: spacing.xxl }}
+            >
+              <LinearGradient
+                colors={['#1A0D3D', '#0E0820']}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                style={[styles.launchBtn, { borderWidth: 1, borderColor: colors.primary + '66' }]}
+              >
+                <Text style={[styles.launchTxt, { color: colors.primaryLight }]}>
+                  🌐 MODE MULTI-APPAREILS
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
           </Animated.View>
         </PageScroll>
       </KeyboardAvoidingView>
