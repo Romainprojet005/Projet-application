@@ -5,29 +5,17 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal",
-      "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "REMPLACE_PAR_TA_VALEUR",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "REMPLACE_PAR_TA_VALEUR"
-      }
+      "distribution": "internal"
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      },
-      "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "REMPLACE_PAR_TA_VALEUR",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "REMPLACE_PAR_TA_VALEUR"
       }
     },
     "production": {
       "android": {
         "buildType": "app-bundle"
-      },
-      "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "REMPLACE_PAR_TA_VALEUR",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "REMPLACE_PAR_TA_VALEUR"
       }
     }
   },
