@@ -1,0 +1,47 @@
+{
+  "cli": {
+    "version": ">= 10.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "REMPLACE_PAR_TA_VALEUR",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "REMPLACE_PAR_TA_VALEUR"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "REMPLACE_PAR_TA_VALEUR",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "REMPLACE_PAR_TA_VALEUR"
+      }
+    },
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "REMPLACE_PAR_TA_VALEUR",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "REMPLACE_PAR_TA_VALEUR"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "internal"
+      },
+      "ios": {
+        "appleId": "TON_APPLE_ID@email.com",
+        "ascAppId": "TON_APP_STORE_CONNECT_APP_ID",
+        "appleTeamId": "TON_TEAM_ID"
+      }
+    }
+  }
+}
