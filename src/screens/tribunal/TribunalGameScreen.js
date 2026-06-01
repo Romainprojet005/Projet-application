@@ -43,6 +43,11 @@ export default function TribunalGameScreen({ navigation, route }) {
         ({ new: r }) => {
           setRoom(r);
           roomRef.current = r;
+          if (r.status === 'lobby') {
+            const me = playersRef.current.find(p => p.id === playerId);
+            navigation.replace('TribunalLobby', { roomId, playerId, isHost: me?.is_host ?? false });
+            return;
+          }
           if ((r.status === 'trial' || r.status === 'finished') && writingsRef.current.length === 0) {
             loadWritings();
           }
@@ -129,6 +134,16 @@ export default function TribunalGameScreen({ navigation, route }) {
     await supabase.from('tribunal_players')
       .update({ vote: voteVal, has_voted: true })
       .eq('id', playerId);
+  };
+
+  const handleReplay = async () => {
+    await supabase.from('tribunal_writings').delete().eq('room_id', roomId);
+    await supabase.from('tribunal_players')
+      .update({ has_written: false, malus: 0, vote: null, has_voted: false })
+      .eq('room_id', roomId);
+    await supabase.from('tribunal_rooms')
+      .update({ status: 'lobby', trial_phase: null, current_accused_idx: 0 })
+      .eq('id', roomId);
   };
 
   const handleContinue = async () => {
@@ -536,7 +551,7 @@ export default function TribunalGameScreen({ navigation, route }) {
 
           <TouchableOpacity
             style={[styles.mainBtn, { marginBottom: spacing.sm }]}
-            onPress={() => navigation.navigate('TribunalSetup')}
+            onPress={handleReplay}
             activeOpacity={0.8}
           >
             <LinearGradient colors={[GOLD, GOLD_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
