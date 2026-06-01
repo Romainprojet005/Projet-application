@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, Animated, Platform,
+  ScrollView, Animated, Platform, TextInput, KeyboardAvoidingView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
@@ -45,11 +45,15 @@ export default function BlancGameScreen({ navigation, route }) {
   const [scores, setScores] = useState(
     Object.fromEntries(players.map((_, i) => [i, 0]))
   );
+  const [customAnswers, setCustomAnswers] = useState({});
+  const [rareDraft, setRareDraft]         = useState('');
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const pickers = players.map((_, i) => i).filter(i => i !== judgeIdx);
   const currentQuestion = questions[round];
+  const rareSet = useMemo(() => new Set(answers.filter(a => a.rare).map(a => a.id)), [answers]);
+  const getAnswerText = (id) => customAnswers[id] || answerMap[id];
 
   const go = (callback) => {
     Animated.timing(fadeAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => {
@@ -68,7 +72,12 @@ export default function BlancGameScreen({ navigation, route }) {
 
   const handlePickerSubmit = () => {
     if (selectedCard === null) return;
+    if (rareSet.has(selectedCard) && !rareDraft.trim()) return;
     const playerIdx = pickers[pickerStep];
+
+    if (rareSet.has(selectedCard)) {
+      setCustomAnswers(prev => ({ ...prev, [selectedCard]: rareDraft.trim() }));
+    }
 
     setGameCards(prev => {
       const newHand = prev.hands[playerIdx].filter(id => id !== selectedCard);
@@ -79,6 +88,7 @@ export default function BlancGameScreen({ navigation, route }) {
     setSubmissions(prev => ({ ...prev, [playerIdx]: selectedCard }));
 
     go(() => {
+      setRareDraft('');
       if (pickerStep < pickers.length - 1) {
         setPickerStep(s => s + 1);
         setSelectedCard(null);
@@ -244,36 +254,73 @@ export default function BlancGameScreen({ navigation, route }) {
         {phase === 'picker_active' && (() => {
           const playerIdx = pickers[pickerStep];
           const hand = gameCards.hands[playerIdx] || [];
+          const selectedIsRare = selectedCard !== null && rareSet.has(selectedCard);
+          const canSubmit = selectedCard !== null && (!selectedIsRare || rareDraft.trim().length > 0);
           return (
-            <ScrollView contentContainerStyle={styles.phaseContent} showsVerticalScrollIndicator={false}>
-              <Text style={styles.phaseLabel}>✋ {players[playerIdx]}, choisis ta carte !</Text>
-              {renderQuestionCard(false)}
-              <Text style={styles.instruction}>Laquelle fera le plus rire le jury ?</Text>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+              <ScrollView contentContainerStyle={styles.phaseContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                <Text style={styles.phaseLabel}>✋ {players[playerIdx]}, choisis ta carte !</Text>
+                {renderQuestionCard(false)}
+                <Text style={styles.instruction}>Laquelle fera le plus rire le jury ?</Text>
 
-              <View style={styles.handGrid}>
-                {hand.map(cardId => (
-                  <TouchableOpacity
-                    key={cardId}
-                    onPress={() => handleCardSelect(cardId)}
-                    style={[styles.whiteCard, selectedCard === cardId && styles.whiteCardSelected]}
-                    activeOpacity={0.75}
-                  >
-                    {selectedCard === cardId && <Text style={styles.checkMark}>✓</Text>}
-                    <Text style={[styles.whiteCardText, selectedCard === cardId && styles.whiteCardTextSel]}>
-                      {answerMap[cardId]}
-                    </Text>
+                <View style={styles.handGrid}>
+                  {hand.map(cardId => {
+                    const isRare = rareSet.has(cardId);
+                    const isSelected = selectedCard === cardId;
+                    return (
+                      <TouchableOpacity
+                        key={cardId}
+                        onPress={() => { handleCardSelect(cardId); if (!isRare) setRareDraft(''); }}
+                        style={[
+                          styles.whiteCard,
+                          isRare && styles.whiteCardRare,
+                          isSelected && !isRare && styles.whiteCardSelected,
+                          isSelected && isRare && styles.whiteCardRareSelected,
+                        ]}
+                        activeOpacity={0.75}
+                      >
+                        {isSelected && <Text style={styles.checkMark}>{isRare ? '✨' : '✓'}</Text>}
+                        {isRare ? (
+                          <>
+                            <Text style={styles.rareLabel}>✨ CARTE RARE</Text>
+                            <Text style={styles.rareSubLabel}>Écris ta propre réponse !</Text>
+                          </>
+                        ) : (
+                          <Text style={[styles.whiteCardText, isSelected && styles.whiteCardTextSel]}>
+                            {answerMap[cardId]}
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                {selectedIsRare && (
+                  <View style={styles.rareInputWrap}>
+                    <Text style={styles.rareInputLabel}>✨ Ta réponse libre :</Text>
+                    <TextInput
+                      value={rareDraft}
+                      onChangeText={setRareDraft}
+                      placeholder="Écris quelque chose d'hilarant..."
+                      placeholderTextColor={colors.textMuted}
+                      style={styles.rareInput}
+                      multiline
+                      autoFocus
+                    />
+                  </View>
+                )}
+
+                {canSubmit && (
+                  <TouchableOpacity onPress={handlePickerSubmit} style={[styles.mainBtn, { marginTop: spacing.md }]}>
+                    <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
+                      <Text style={styles.mainBtnText}>
+                        {selectedIsRare ? 'Jouer ma réponse ✨' : 'Choisir cette carte ✓'}
+                      </Text>
+                    </LinearGradient>
                   </TouchableOpacity>
-                ))}
-              </View>
-
-              {selectedCard !== null && (
-                <TouchableOpacity onPress={handlePickerSubmit} style={[styles.mainBtn, { marginTop: spacing.md }]}>
-                  <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                    <Text style={styles.mainBtnText}>Choisir cette carte ✓</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              )}
-            </ScrollView>
+                )}
+              </ScrollView>
+            </KeyboardAvoidingView>
           );
         })()}
 
@@ -313,7 +360,7 @@ export default function BlancGameScreen({ navigation, route }) {
                 >
                   {judgeSelected === cardId && <Text style={styles.checkMark}>👑</Text>}
                   <Text style={[styles.whiteCardText, judgeSelected === cardId && styles.whiteCardTextGold]}>
-                    {answerMap[cardId]}
+                    {getAnswerText(cardId)}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -333,7 +380,7 @@ export default function BlancGameScreen({ navigation, route }) {
         {phase === 'reveal' && (() => {
           const winnerName = players[winnerIdx];
           const winnerCard = submissions[winnerIdx];
-          const winnerText = answerMap[winnerCard];
+          const winnerText = getAnswerText(winnerCard);
           const parts = currentQuestion.split('___');
           return (
             <ScrollView contentContainerStyle={styles.phaseContent} showsVerticalScrollIndicator={false}>
@@ -571,4 +618,61 @@ const styles = StyleSheet.create({
   resultRank:  { fontSize: 22, width: 36 },
   resultName:  { flex: 1, fontSize: 16, fontWeight: '800', color: colors.text },
   resultScore: { fontSize: 18, fontWeight: '900', color: colors.textSecondary },
+
+  // Carte rare
+  whiteCardRare: {
+    borderColor: GOLD,
+    backgroundColor: '#1A1200',
+    shadowColor: GOLD,
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  whiteCardRareSelected: {
+    borderColor: GOLD_LIGHT,
+    backgroundColor: '#2A1E00',
+    shadowColor: GOLD_LIGHT,
+    shadowOpacity: 0.7,
+    shadowRadius: 14,
+    elevation: 10,
+  },
+  rareLabel: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: GOLD_LIGHT,
+    letterSpacing: 1,
+    marginBottom: 2,
+  },
+  rareSubLabel: {
+    fontSize: 11,
+    color: GOLD,
+    fontStyle: 'italic',
+  },
+
+  // Input carte rare
+  rareInputWrap: {
+    backgroundColor: '#1A1200',
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: GOLD + '88',
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  rareInputLabel: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: GOLD_LIGHT,
+    letterSpacing: 1,
+    marginBottom: spacing.sm,
+  },
+  rareInput: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '600',
+    minHeight: 60,
+    textAlignVertical: 'top',
+    borderBottomWidth: 1,
+    borderBottomColor: GOLD + '55',
+    paddingBottom: spacing.sm,
+  },
 });

@@ -266,4 +266,10 @@ export const ANSWERS = [
   { id: 157, text: "La culpabilité d'un binge-watch au lieu de faire l'amour", adulte: true },
   { id: 158, text: "Des captures d'écran envoyées au mauvais contact", adulte: true },
   { id: 159, text: "Un profil 'cherche âme sœur' avec 47 kinks listés", adulte: true },
+  // ── Cartes rares — le joueur écrit sa propre réponse ──────────────────────
+  { id: 200, text: "✨ CARTE RARE", rare: true },
+  { id: 201, text: "✨ CARTE RARE", rare: true },
+  { id: 202, text: "✨ CARTE RARE", rare: true },
+  { id: 203, text: "✨ CARTE RARE", rare: true },
+  { id: 204, text: "✨ CARTE RARE", rare: true },
 ];
