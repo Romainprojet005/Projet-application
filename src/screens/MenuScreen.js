@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../theme';
+import { OB_BG } from '../theme/obsidian';
 import { characters } from '../data/characters';
 import AdBanner from '../components/AdBanner';
 
@@ -886,7 +887,7 @@ export default function MenuScreen({ navigation }) {
       : [{ stars: STAR_NATIVE, anim: starSlow }];
 
   return (
-    <LinearGradient colors={['#050410', '#0A0820', '#050410']} style={s.container}>
+    <LinearGradient colors={OB_BG} style={s.container}>
 
       {IS_DESKTOP_WEB && (
         <>
