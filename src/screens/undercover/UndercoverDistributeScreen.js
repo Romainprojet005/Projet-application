@@ -78,7 +78,10 @@ function distributeRoles(playerCount, wordPair, undercoverCount, hasMrWhite) {
 // --- Game board screen ---
 function GameBoardScreen({ roles, onBackToMenu }) {
   const [eliminated, setEliminated] = useState(new Set());
-  const [modalIdx, setModalIdx] = useState(null);
+  const [modalIdx, setModalIdx]     = useState(null);
+  const [winner, setWinner]         = useState(null); // null | 'spies' | 'civilians'
+  const [peekPlayer, setPeekPlayer] = useState(null); // null | -1 (selecting) | number
+  const [peekRevealed, setPeekRevealed] = useState(false);
   const modalAnim = useRef(new Animated.Value(0)).current;
 
   const openModal = (idx) => {
@@ -96,16 +99,30 @@ function GameBoardScreen({ roles, onBackToMenu }) {
     const idx = modalIdx;
     closeModal();
     setTimeout(() => {
-      setEliminated(prev => {
-        const next = new Set(prev);
-        next.add(idx);
-        return next;
-      });
+      const next = new Set(eliminated);
+      next.add(idx);
+      setEliminated(next);
+
+      const aliveRoles     = roles.filter((_, i) => !next.has(i));
+      const aliveCivilians = aliveRoles.filter(r => r.type === 'civilian').length;
+      const aliveSpies     = aliveRoles.filter(r => r.type === 'undercover' || r.type === 'mrwhite').length;
+
+      if (aliveCivilians === 0 || aliveSpies >= aliveCivilians) {
+        setWinner('spies');
+      } else if (aliveSpies === 0) {
+        setWinner('civilians');
+      }
     }, 190);
   };
 
+  const openPeek       = () => { setPeekPlayer(-1); setPeekRevealed(false); };
+  const selectPeek     = (idx) => { setPeekPlayer(idx); setPeekRevealed(false); };
+  const closePeek      = () => { setPeekPlayer(null); setPeekRevealed(false); };
+
   const modalRole = modalIdx !== null ? roles[modalIdx] : null;
-  const modalCfg = modalRole ? ROLE_CONFIG[modalRole.type] : null;
+  const modalCfg  = modalRole ? ROLE_CONFIG[modalRole.type] : null;
+  const peekRole  = (peekPlayer !== null && peekPlayer >= 0) ? roles[peekPlayer] : null;
+  const peekCfg   = peekRole ? ROLE_CONFIG[peekRole.type] : null;
 
   return (
     <LinearGradient colors={BG} style={styles.container}>
@@ -117,6 +134,9 @@ function GameBoardScreen({ roles, onBackToMenu }) {
         <View style={styles.gbHeader}>
           <Text style={styles.gbTitle}>⚔️  PARTIE EN COURS</Text>
           <Text style={styles.gbSub}>Appuyez sur un joueur pour révéler sa carte et l'éliminer</Text>
+          <TouchableOpacity style={styles.peekBtn} onPress={openPeek}>
+            <Text style={styles.peekBtnText}>👁️  Revoir mon mot</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.gbGrid}>
@@ -158,7 +178,7 @@ function GameBoardScreen({ roles, onBackToMenu }) {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Reveal modal */}
+      {/* Elimination reveal modal */}
       {modalIdx !== null && modalRole && modalCfg && (
         <View style={styles.gbOverlay}>
           <Animated.View
@@ -172,12 +192,10 @@ function GameBoardScreen({ roles, onBackToMenu }) {
           >
             <LinearGradient colors={modalCfg.gradient} style={styles.gbModalGrad}>
               <Text style={styles.gbModalPlayerLabel}>JOUEUR {modalIdx + 1}</Text>
-
               <View style={[styles.roleBadge, { borderColor: modalCfg.color + '60' }]}>
                 <Text style={styles.roleBadgeEmoji}>{modalCfg.emoji}</Text>
                 <Text style={[styles.roleBadgeLabel, { color: modalCfg.color }]}>{modalCfg.label}</Text>
               </View>
-
               <TouchableOpacity onPress={handleEliminate} style={styles.gbConfirmBtn} activeOpacity={0.85}>
                 <Text style={styles.gbConfirmBtnText}>💀  Confirmer l'élimination</Text>
               </TouchableOpacity>
@@ -186,6 +204,95 @@ function GameBoardScreen({ roles, onBackToMenu }) {
               </TouchableOpacity>
             </LinearGradient>
           </Animated.View>
+        </View>
+      )}
+
+      {/* Peek modal — revoir son mot */}
+      {peekPlayer !== null && (
+        <View style={styles.gbOverlay}>
+          <View style={styles.gbModalBox}>
+            {peekPlayer === -1 ? (
+              // Step 1 : player selection
+              <View style={styles.peekSelectBox}>
+                <Text style={styles.peekSelectTitle}>👁️  Quel est ton numéro ?</Text>
+                <Text style={styles.peekSelectSub}>Assure-toi d'être seul à regarder</Text>
+                <View style={styles.peekSelectGrid}>
+                  {roles.map((_, idx) =>
+                    !eliminated.has(idx) && (
+                      <TouchableOpacity key={idx} style={styles.peekPlayerBtn} onPress={() => selectPeek(idx)} activeOpacity={0.8}>
+                        <Text style={styles.peekPlayerBtnText}>{idx + 1}</Text>
+                      </TouchableOpacity>
+                    )
+                  )}
+                </View>
+                <TouchableOpacity onPress={closePeek} style={styles.gbCancelBtn}>
+                  <Text style={styles.gbCancelBtnText}>Annuler</Text>
+                </TouchableOpacity>
+              </View>
+            ) : !peekRevealed ? (
+              // Step 2 : privacy lock
+              <TouchableOpacity onPress={() => setPeekRevealed(true)} activeOpacity={0.92} style={{ width: '100%' }}>
+                <LinearGradient colors={['#1A1A35', '#141428']} style={styles.peekLockGrad}>
+                  <Text style={styles.lockEmoji}>🔒</Text>
+                  <Text style={styles.lockTitle}>JOUEUR {peekPlayer + 1}</Text>
+                  <Text style={styles.lockSub}>
+                    Assure-toi que personne ne regarde,{'\n'}puis appuie pour voir ton mot
+                  </Text>
+                  <TouchableOpacity onPress={closePeek} style={[styles.gbCancelBtn, { marginTop: 24 }]} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                    <Text style={styles.gbCancelBtnText}>Annuler</Text>
+                  </TouchableOpacity>
+                </LinearGradient>
+              </TouchableOpacity>
+            ) : (
+              // Step 3 : word revealed
+              <LinearGradient colors={peekCfg.gradient} style={styles.peekRevealGrad}>
+                <Text style={styles.gbModalPlayerLabel}>JOUEUR {peekPlayer + 1}</Text>
+                <View style={[styles.roleBadge, { borderColor: peekCfg.color + '60' }]}>
+                  <Text style={styles.roleBadgeEmoji}>{peekCfg.emoji}</Text>
+                  <Text style={[styles.roleBadgeLabel, { color: peekCfg.color }]}>{peekCfg.label}</Text>
+                </View>
+                {peekRole.type !== 'mrwhite' && <CharacterImage name={peekRole.word} />}
+                <View style={styles.wordBox}>
+                  <Text style={styles.wordLabel}>TON MOT</Text>
+                  <Text style={styles.wordText}>
+                    {peekRole.type !== 'mrwhite' ? peekRole.word : '???'}
+                  </Text>
+                </View>
+                <TouchableOpacity onPress={closePeek} style={styles.gbCancelBtn}>
+                  <Text style={[styles.gbCancelBtnText, { color: peekCfg.color }]}>✕  Fermer</Text>
+                </TouchableOpacity>
+              </LinearGradient>
+            )}
+          </View>
+        </View>
+      )}
+
+      {/* Winner overlay */}
+      {winner && (
+        <View style={styles.gbOverlay}>
+          <View style={styles.gbModalBox}>
+            <LinearGradient
+              colors={winner === 'spies' ? ['#450A0A', '#7F1D1D'] : ['#052e16', '#14532d']}
+              style={styles.gbModalGrad}
+            >
+              <Text style={styles.winnerEmoji}>{winner === 'spies' ? '🕵️' : '🏘️'}</Text>
+              <Text style={styles.winnerTitle}>
+                {winner === 'spies' ? 'Les espions gagnent !' : 'Les villageois gagnent !'}
+              </Text>
+              <Text style={styles.winnerSub}>
+                {winner === 'spies'
+                  ? 'Les espions sont en majorité — la mission est compromise !'
+                  : 'Tous les espions ont été démasqués !'}
+              </Text>
+              <TouchableOpacity
+                onPress={onBackToMenu}
+                style={[styles.gbConfirmBtn, winner === 'civilians' && { backgroundColor: '#16A34A', shadowColor: '#16A34A' }]}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.gbConfirmBtnText}>🏠  Retour au menu</Text>
+              </TouchableOpacity>
+            </LinearGradient>
+          </View>
         </View>
       )}
     </LinearGradient>
@@ -701,4 +808,38 @@ const styles = StyleSheet.create({
   gbConfirmBtnText: { fontSize: 14, fontWeight: '800', color: colors.text },
   gbCancelBtn: { marginTop: spacing.md, paddingVertical: spacing.sm },
   gbCancelBtnText: { fontSize: 13, color: colors.textMuted },
+
+  // Peek button
+  peekBtn: {
+    marginTop: spacing.md,
+    alignSelf: 'center',
+    backgroundColor: AMB + '22',
+    borderRadius: radius.full,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderWidth: 1,
+    borderColor: AMB + '55',
+  },
+  peekBtnText: { fontSize: 13, fontWeight: '700', color: AMB_LIGHT },
+
+  // Peek selection
+  peekSelectBox: { padding: spacing.xl, alignItems: 'center', backgroundColor: '#0F0F1A' },
+  peekSelectTitle: { fontSize: 18, fontWeight: '900', color: colors.text, textAlign: 'center', marginBottom: spacing.xs },
+  peekSelectSub: { fontSize: 12, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.lg },
+  peekSelectGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center', marginBottom: spacing.md },
+  peekPlayerBtn: {
+    width: 54, height: 54, borderRadius: 27,
+    backgroundColor: AMB + '22', borderWidth: 1, borderColor: AMB + '66',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  peekPlayerBtnText: { fontSize: 20, fontWeight: '900', color: AMB_LIGHT },
+
+  // Peek lock / reveal
+  peekLockGrad: { padding: spacing.xl, alignItems: 'center', minHeight: 300, justifyContent: 'center' },
+  peekRevealGrad: { padding: spacing.xl, alignItems: 'center' },
+
+  // Winner overlay
+  winnerEmoji: { fontSize: 64, marginBottom: spacing.md },
+  winnerTitle: { fontSize: 24, fontWeight: '900', color: colors.text, textAlign: 'center', marginBottom: spacing.sm },
+  winnerSub: { fontSize: 14, color: 'rgba(255,255,255,0.7)', textAlign: 'center', lineHeight: 22, marginBottom: spacing.xl },
 });
