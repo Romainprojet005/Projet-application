@@ -252,7 +252,7 @@ export default function AmitieGameScreen({ navigation, route }) {
       </View>
 
       <View style={styles.lilouWrap} pointerEvents="none">
-        <Text style={styles.lilouText}>LILOUTRE</Text>
+        <Text style={styles.lilouText}>𝓛𝓘𝓛𝓞𝓤𝓣𝓡𝓔</Text>
       </View>
     </LinearGradient>
   );
@@ -360,7 +360,7 @@ function ResultsScreen({ players, scores, rounds, mode, navigation, route }) {
       </ScrollView>
 
       <View style={styles.lilouWrap} pointerEvents="none">
-        <Text style={styles.lilouText}>LILOUTRE</Text>
+        <Text style={styles.lilouText}>𝓛𝓘𝓛𝓞𝓤𝓣𝓡𝓔</Text>
       </View>
     </LinearGradient>
   );
@@ -608,12 +608,10 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   lilouText: {
-    fontSize: 15,
-    fontWeight: '900',
-    letterSpacing: 4,
+    fontSize: 20,
     color: '#FFD700',
-    textShadowColor: 'rgba(255, 215, 0, 0.55)',
+    textShadowColor: 'rgba(255, 215, 0, 0.6)',
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
+    textShadowRadius: 12,
   },
 });

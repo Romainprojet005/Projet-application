@@ -296,9 +296,6 @@ function GameBoardScreen({ roles, onBackToMenu }) {
         </View>
       )}
 
-      <View style={styles.lilouWrap} pointerEvents="none">
-        <Text style={styles.lilouText}>LILOUTRE</Text>
-      </View>
     </LinearGradient>
   );
 }
@@ -467,10 +464,6 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
           </TouchableOpacity>
         </Animated.View>
       </Animated.View>
-
-      <View style={styles.lilouWrap} pointerEvents="none">
-        <Text style={styles.lilouText}>LILOUTRE</Text>
-      </View>
     </LinearGradient>
   );
 }
@@ -851,20 +844,4 @@ const styles = StyleSheet.create({
   winnerTitle: { fontSize: 24, fontWeight: '900', color: colors.text, textAlign: 'center', marginBottom: spacing.sm },
   winnerSub: { fontSize: 14, color: 'rgba(255,255,255,0.7)', textAlign: 'center', lineHeight: 22, marginBottom: spacing.xl },
 
-  // LILOUTRE signature
-  lilouWrap: {
-    position: 'absolute',
-    bottom: 14,
-    right: 18,
-    zIndex: 10,
-  },
-  lilouText: {
-    fontSize: 15,
-    fontWeight: '900',
-    letterSpacing: 4,
-    color: '#FFD700',
-    textShadowColor: 'rgba(255, 215, 0, 0.55)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
-  },
 });
