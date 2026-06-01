@@ -356,4 +356,25 @@ export const characters = [
       Charisme: 91,
     },
   },
+  {
+    id: 'blanc_manger',
+    name: 'Coco',
+    emoji: '🃏',
+    title: 'Maître du Non-Sens',
+    description:
+      'Des phrases à trous, des réponses absurdes ! Chacun joue une carte, le jury désigne la plus drôle. Inspiré de Blanc Manger Coco.',
+    catchphrase: '"Plus c\'est absurde, plus c\'est drôle !"',
+    color: '#7C3AED',
+    gradientColors: ['#1A0D3D', '#0E0820'],
+    game: 'blanc_manger',
+    gameName: 'REMPLIS LE BLANC',
+    players: '3–10',
+    time: '20 min',
+    available: true,
+    stats: {
+      Humour: 99,
+      Absurdité: 97,
+      Créativité: 93,
+    },
+  },
 ];

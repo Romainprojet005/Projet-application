@@ -48,6 +48,8 @@ import ConfessionsSetupScreen from '../screens/confessions/ConfessionsSetupScree
 import ConfessionsGameScreen from '../screens/confessions/ConfessionsGameScreen';
 import DefisSetupScreen from '../screens/defis/DefisSetupScreen';
 import DefisGameScreen from '../screens/defis/DefisGameScreen';
+import BlancSetupScreen from '../screens/blanc/BlancSetupScreen';
+import BlancGameScreen from '../screens/blanc/BlancGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -106,6 +108,8 @@ const linking = {
       ConfessionsGame: 'confessions/game',
       DefisSetup: 'defis',
       DefisGame: 'defis/game',
+      BlancSetup: 'blanc',
+      BlancGame: 'blanc/game',
     },
   },
 };
@@ -166,6 +170,8 @@ export default function AppNavigator() {
         <Stack.Screen name="ConfessionsGame" component={ConfessionsGameScreen} />
         <Stack.Screen name="DefisSetup" component={DefisSetupScreen} />
         <Stack.Screen name="DefisGame" component={DefisGameScreen} />
+        <Stack.Screen name="BlancSetup" component={BlancSetupScreen} />
+        <Stack.Screen name="BlancGame" component={BlancGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

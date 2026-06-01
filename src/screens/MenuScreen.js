@@ -870,6 +870,7 @@ export default function MenuScreen({ navigation }) {
       trouveLaRegle: 'TrouveLaRegleSetup',
       confessions: 'ConfessionsSetup',
       defis: 'DefisSetup',
+      blanc_manger: 'BlancSetup',
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };
