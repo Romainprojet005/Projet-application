@@ -35,6 +35,7 @@ export default function MimeSetupScreen({ navigation }) {
   const [name, setName] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [rounds, setRounds] = useState(5);
+  const [category, setCategory] = useState('classique');
   const [loading, setLoading] = useState(false);
 
   if (!isSupabaseConfigured) {
@@ -63,7 +64,7 @@ export default function MimeSetupScreen({ navigation }) {
       const code = generateCode();
       const { data: room, error: rErr } = await supabase
         .from('mime_rooms')
-        .insert({ code, max_rounds: rounds })
+        .insert({ code, max_rounds: rounds, category })
         .select()
         .single();
       if (rErr) throw rErr;
@@ -171,6 +172,29 @@ export default function MimeSetupScreen({ navigation }) {
                 ))}
               </View>
             </View>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>MODE DE JEU</Text>
+              <View style={styles.modeRow}>
+                <TouchableOpacity
+                  style={[styles.modeBtn, category === 'classique' && styles.modeBtnActive]}
+                  onPress={() => setCategory('classique')}
+                >
+                  <Text style={styles.modeEmoji}>🎭</Text>
+                  <Text style={[styles.modeBtnLabel, category === 'classique' && styles.modeBtnLabelActive]}>Classique</Text>
+                  <Text style={styles.modeDesc}>Tout public</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modeBtn, styles.modeBtnAdulte, category === 'adulte' && styles.modeBtnAdulteActive]}
+                  onPress={() => setCategory('adulte')}
+                >
+                  <Text style={styles.modeEmoji}>🔞</Text>
+                  <Text style={[styles.modeBtnLabel, category === 'adulte' && { color: '#FF6B6B' }]}>Adulte</Text>
+                  <Text style={styles.modeDesc}>18+ sans filtre</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             <TouchableOpacity
               style={[styles.mainBtn, (!name.trim() || loading) && styles.mainBtnDisabled]}
               onPress={handleCreate}
@@ -249,6 +273,20 @@ const styles = StyleSheet.create({
   roundBtnActive: { backgroundColor: PINK + '33', borderColor: PINK },
   roundBtnText: { fontSize: 20, fontWeight: '900', color: colors.textMuted },
   roundBtnTextActive: { color: PINK_LIGHT },
+  modeRow: { flexDirection: 'row', gap: spacing.sm },
+  modeBtn: {
+    flex: 1, alignItems: 'center', paddingVertical: spacing.md,
+    borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border,
+    backgroundColor: colors.card, gap: 2,
+  },
+  modeBtnActive: { borderColor: PINK, backgroundColor: PINK + '22' },
+  modeBtnAdulte: { borderColor: colors.border },
+  modeBtnAdulteActive: { borderColor: '#FF6B6B', backgroundColor: '#FF6B6B22' },
+  modeEmoji: { fontSize: 28, marginBottom: 2 },
+  modeBtnLabel: { fontSize: 14, fontWeight: '800', color: colors.textMuted },
+  modeBtnLabelActive: { color: PINK_LIGHT },
+  modeDesc: { fontSize: 10, color: colors.textMuted, letterSpacing: 0.5 },
+
   mainBtn: { borderRadius: radius.full, overflow: 'hidden', marginTop: spacing.md },
   mainBtnDisabled: { opacity: 0.4 },
   mainBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },

@@ -4,6 +4,7 @@ create table if not exists mime_rooms (
   code char(4) unique not null,
   status text default 'lobby' check (status in ('lobby', 'playing', 'finished')),
   max_rounds int default 5,
+  category text default 'classique',
   round_number int default 0,
   current_mime_player_id uuid,
   current_word text,
