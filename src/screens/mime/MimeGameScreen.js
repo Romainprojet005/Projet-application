@@ -196,7 +196,7 @@ export default function MimeGameScreen({ navigation, route }) {
       await supabase.from('mime_rooms').update({
         round_number: nextRound,
         current_mime_player_id: nextMime.id,
-        current_word: pickWord(),
+        current_word: pickWord(r?.category),
         round_started_at: new Date().toISOString(),
       }).eq('id', r.id).eq('round_number', r.round_number);
     }
@@ -279,6 +279,11 @@ export default function MimeGameScreen({ navigation, route }) {
           </View>
           <Text style={styles.scoreLabel}>{myScore} pts</Text>
         </View>
+        {room.category === 'adulte' && (
+          <View style={styles.adultBadge}>
+            <Text style={styles.adultBadgeText}>🔞 Mode Adulte</Text>
+          </View>
+        )}
 
         {isMime ? (
           <View style={styles.mimeView}>
@@ -464,6 +469,12 @@ const styles = StyleSheet.create({
   scoreName: { fontSize: 14, fontWeight: '700', color: colors.text },
   scoreVal: { fontSize: 13, fontWeight: '700', color: PINK_LIGHT },
 
+  adultBadge: {
+    alignSelf: 'center', borderRadius: radius.full, borderWidth: 1,
+    borderColor: '#FF6B6B88', backgroundColor: '#FF6B6B18',
+    paddingVertical: 4, paddingHorizontal: spacing.md, marginBottom: spacing.md,
+  },
+  adultBadgeText: { fontSize: 11, fontWeight: '800', color: '#FF6B6B', letterSpacing: 1 },
   resultOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.xl },
   resultCard: {
     backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1, borderColor: PINK + '55',

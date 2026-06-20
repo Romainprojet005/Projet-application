@@ -74,7 +74,7 @@ export default function MimeLobbyScreen({ navigation, route }) {
         status: 'playing',
         round_number: 1,
         current_mime_player_id: firstMime.id,
-        current_word: pickWord(),
+        current_word: pickWord(room?.category),
         round_started_at: new Date().toISOString(),
       }).eq('id', roomId);
     } catch (e) {
@@ -98,6 +98,15 @@ export default function MimeLobbyScreen({ navigation, route }) {
           <Text style={styles.code}>{room?.code ?? '…'}</Text>
           <Text style={styles.codeHint}>Partage ce code avec tes amis</Text>
         </View>
+
+        {/* Mode badge */}
+        {room && (
+          <View style={[styles.modeBadge, room.category === 'adulte' && styles.modeBadgeAdulte]}>
+            <Text style={styles.modeBadgeText}>
+              {room.category === 'adulte' ? '🔞 MODE ADULTE — 18+ sans filtre' : '🎭 MODE CLASSIQUE — Tout public'}
+            </Text>
+          </View>
+        )}
 
         {/* Players list */}
         <View style={styles.section}>
@@ -213,4 +222,11 @@ const styles = StyleSheet.create({
   waitBannerText: { color: colors.textSecondary, fontSize: 14 },
   leaveBtn: { alignItems: 'center', paddingVertical: spacing.md },
   leaveBtnText: { color: colors.textMuted, fontSize: 13 },
+  modeBadge: {
+    borderRadius: radius.full, borderWidth: 1, borderColor: PINK + '55',
+    backgroundColor: PINK + '18', paddingVertical: spacing.sm, paddingHorizontal: spacing.lg,
+    alignItems: 'center', marginBottom: spacing.xl,
+  },
+  modeBadgeAdulte: { borderColor: '#FF6B6B88', backgroundColor: '#FF6B6B18' },
+  modeBadgeText: { fontSize: 12, fontWeight: '800', color: PINK_LIGHT, letterSpacing: 1 },
 });
