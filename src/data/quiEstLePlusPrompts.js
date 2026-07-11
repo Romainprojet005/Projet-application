@@ -3,6 +3,7 @@ export const QUELPLUS_CATEGORIES = [
   { id: 'soiree', name: 'Soirée', emoji: '🍺', color: '#F59E0B' },
   { id: 'perso', name: 'Perso', emoji: '😏', color: '#EC4899' },
   { id: 'courage', name: 'Courage', emoji: '🔥', color: '#EF4444' },
+  { id: 'hot', name: 'Hot 🔞', emoji: '🌶️', color: '#DC2626' },
 ];
 
 export const QUELPLUS_PROMPTS = [
@@ -82,6 +83,38 @@ export const QUELPLUS_PROMPTS = [
   { id: 68, text: 'capable de réciter un poème improvisé en moins de 30 secondes', category: 'courage' },
   { id: 69, text: 'susceptible de demander le numéro d\'un inconnu juste pour prouver qu\'il peut', category: 'courage' },
   { id: 70, text: 'capable de faire une entrée remarquée dans n\'importe quelle pièce', category: 'courage' },
+
+  // Hot 🔞
+  { id: 72, text: 'le plus susceptible de draguer quelqu\'un dans cette pièce ce soir', category: 'hot' },
+  { id: 73, text: 'susceptible d\'avoir déjà eu un coup de cœur pour un(e) ami(e) du groupe', category: 'hot' },
+  { id: 74, text: 'le plus susceptible de swiper à droite sur tout le monde par flemme', category: 'hot' },
+  { id: 75, text: 'susceptible d\'avoir envoyé un texto coquin à la mauvaise personne', category: 'hot' },
+  { id: 76, text: 'le plus susceptible de proposer un jeu à gages qui finit mal', category: 'hot' },
+  { id: 77, text: 'susceptible d\'avoir déjà menti sur son nombre de partenaires', category: 'hot' },
+  { id: 78, text: 'le plus susceptible de recraquer sur son ex après trois verres', category: 'hot' },
+  { id: 79, text: 'susceptible d\'avoir un fantasme qu\'il n\'assumerait jamais devant ses parents', category: 'hot' },
+  { id: 80, text: 'le plus susceptible d\'embrasser quelqu\'un pour un défi', category: 'hot' },
+  { id: 81, text: 'susceptible d\'avoir déjà simulé un coup de foudre pour éviter d\'être seul(e)', category: 'hot' },
+  { id: 82, text: 'le plus susceptible de garder une conversation coquine dans ses messages', category: 'hot' },
+  { id: 83, text: 'susceptible de proposer un strip-poker si personne ne l\'arrête', category: 'hot' },
+  { id: 84, text: 'le plus susceptible d\'avoir un plan cul régulier sans l\'assumer', category: 'hot' },
+  { id: 85, text: 'susceptible de charmer n\'importe qui pour obtenir une tournée gratuite', category: 'hot' },
+  { id: 86, text: 'le plus susceptible d\'avoir déjà trompé quelqu\'un ou d\'y avoir pensé sérieusement', category: 'hot' },
+  { id: 87, text: 'susceptible de raconter ses histoires de cul sans aucune gêne', category: 'hot' },
+  { id: 88, text: 'le plus susceptible de coucher le premier soir sans hésiter', category: 'hot' },
+  { id: 89, text: 'susceptible d\'avoir déjà eu un plan à trois ou d\'y avoir pensé', category: 'hot' },
+  { id: 90, text: 'le plus susceptible de flirter avec quelqu\'un du groupe ce soir', category: 'hot' },
+  { id: 91, text: 'susceptible d\'avoir le compte de rencontre le plus actif', category: 'hot' },
+  { id: 92, text: 'le plus susceptible de faire durer un date juste pour l\'addition offerte', category: 'hot' },
+  { id: 93, text: 'susceptible d\'avoir déjà eu une aventure d\'un soir dont il/elle ne regrette rien', category: 'hot' },
+  { id: 94, text: 'le plus susceptible de proposer un jeu où il faut se déshabiller', category: 'hot' },
+  { id: 95, text: 'susceptible d\'avoir un dossier photos qu\'il/elle ne montrerait jamais', category: 'hot' },
+  { id: 96, text: 'le plus susceptible de séduire pour gagner un pari stupide', category: 'hot' },
+  { id: 97, text: 'susceptible d\'avoir déjà couché avec quelqu\'un pour de mauvaises raisons', category: 'hot' },
+  { id: 98, text: 'le plus susceptible de rougir si on lisait ses messages à voix haute', category: 'hot' },
+  { id: 99, text: 'susceptible d\'avoir un crush actuel qu\'il/elle cache à tout le monde', category: 'hot' },
+  { id: 100, text: 'le plus susceptible de proposer un french kiss pour un gage', category: 'hot' },
+  { id: 101, text: 'susceptible d\'avoir déjà trahi un secret intime d\'un(e) ex par vengeance', category: 'hot' },
 ];
 
 export function selectPrompts(count, categoryId) {
