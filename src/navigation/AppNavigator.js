@@ -54,6 +54,8 @@ import BlancMultiSetupScreen from '../screens/blanc/BlancMultiSetupScreen';
 import BlancMultiLobbyScreen from '../screens/blanc/BlancMultiLobbyScreen';
 import BlancMultiGameScreen from '../screens/blanc/BlancMultiGameScreen';
 import BlancMultiFinalScreen from '../screens/blanc/BlancMultiFinalScreen';
+import TriPotesSetupScreen from '../screens/tripotes/TriPotesSetupScreen';
+import TriPotesGameScreen from '../screens/tripotes/TriPotesGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -118,6 +120,8 @@ const linking = {
       BlancMultiLobby: 'blanc/multi/lobby',
       BlancMultiGame: 'blanc/multi/game',
       BlancMultiFinal: 'blanc/multi/final',
+      TriPotesSetup: 'tripotes',
+      TriPotesGame: 'tripotes/game',
     },
   },
 };
@@ -184,6 +188,8 @@ export default function AppNavigator() {
         <Stack.Screen name="BlancMultiLobby" component={BlancMultiLobbyScreen} />
         <Stack.Screen name="BlancMultiGame" component={BlancMultiGameScreen} />
         <Stack.Screen name="BlancMultiFinal" component={BlancMultiFinalScreen} />
+        <Stack.Screen name="TriPotesSetup" component={TriPotesSetupScreen} />
+        <Stack.Screen name="TriPotesGame" component={TriPotesGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

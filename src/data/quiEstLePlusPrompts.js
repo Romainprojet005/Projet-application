@@ -97,3 +97,26 @@ export function selectPrompts(count, categoryId) {
 
   return filtered.slice(0, count);
 }
+
+let _tripotesUsedIds = new Set();
+
+export function pickPromptAndDecoys(categoryId = 'all') {
+  const pool = categoryId === 'all'
+    ? QUELPLUS_PROMPTS
+    : QUELPLUS_PROMPTS.filter(p => p.category === categoryId);
+
+  let available = pool.filter(p => !_tripotesUsedIds.has(p.id));
+  if (available.length === 0) {
+    _tripotesUsedIds = new Set();
+    available = [...pool];
+  }
+
+  const prompt = available[Math.floor(Math.random() * available.length)];
+  _tripotesUsedIds.add(prompt.id);
+
+  const sameCat = pool.filter(p => p.category === prompt.category && p.id !== prompt.id);
+  const decoys  = [...sameCat].sort(() => Math.random() - 0.5).slice(0, 3);
+  const options = [prompt, ...decoys].sort(() => Math.random() - 0.5);
+
+  return { prompt, options };
+}

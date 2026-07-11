@@ -871,6 +871,7 @@ export default function MenuScreen({ navigation }) {
       confessions: 'ConfessionsSetup',
       defis: 'DefisSetup',
       blanc_manger: 'BlancSetup',
+      tripotes: 'TriPotesSetup',
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };

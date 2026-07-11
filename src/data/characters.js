@@ -377,4 +377,25 @@ export const characters = [
       Créativité: 93,
     },
   },
+  {
+    id: 'tripotes',
+    name: 'La Marquise',
+    emoji: '🎭',
+    title: 'Maîtresse du Classement',
+    description:
+      'La Marquise connaît tous les secrets de la soirée ! Le juge découvre une question mystère et classe ses potes selon elle. Au groupe de deviner la vraie question parmi 4 propositions.',
+    catchphrase: '"Le classement ne ment jamais…"',
+    color: '#EC4899',
+    gradientColors: ['#2D0018', '#4A002B'],
+    game: 'tripotes',
+    gameName: 'TRIPOTES',
+    players: '3–10',
+    time: '15 min',
+    available: true,
+    stats: {
+      Intuition: 97,
+      Bluff: 95,
+      Observation: 90,
+    },
+  },
 ];
