@@ -57,6 +57,7 @@ export const QUELPLUS_PROMPTS = [
   { id: 46, text: 'le plus susceptible de liker accidentellement une vieille photo d\'un inconnu', category: 'perso' },
   { id: 47, text: 'susceptible de tout remettre au lendemain sans exception', category: 'perso' },
   { id: 48, text: 'le plus susceptible d\'avoir un crush sur un personnage fictif', category: 'perso' },
+  { id: 71, text: 'celui qui aurait la meilleure tête s\'il était chauve', category: 'perso' },
 
   // Courage
   { id: 49, text: 'susceptible de parler à un inconnu dans la rue pour rigoler', category: 'courage' },

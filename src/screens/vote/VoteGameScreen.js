@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { selectQuestions } from '../../data/voteData';
 import { OB_BG } from '../../theme/obsidian';
+import PageScroll from '../../components/PageScroll';
 
 const BG         = OB_BG;
 const VOTE_COLOR = '#6366F1';
@@ -310,7 +311,7 @@ export default function VoteGameScreen({ route, navigation }) {
     const medals = ['🥇', '🥈', '🥉'];
     return (
       <LinearGradient colors={BG} style={styles.container}>
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={false}>
+        <PageScroll contentContainerStyle={styles.finalScroll}>
           <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 
             <Text style={styles.finalTitle}>🏆  Résultats finaux</Text>
@@ -346,7 +347,7 @@ export default function VoteGameScreen({ route, navigation }) {
             </TouchableOpacity>
 
           </Animated.View>
-        </ScrollView>
+        </PageScroll>
       </LinearGradient>
     );
   }

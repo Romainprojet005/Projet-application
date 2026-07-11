@@ -14,7 +14,7 @@ const VOTE_DARK  = GOLD_DARK;
 const VOTE_LIGHT = GOLD_LIGHT;
 
 const ROUND_OPTIONS = [5, 10, 15, 20];
-const MAX_PLAYERS   = 8;
+const MAX_PLAYERS   = 20;
 
 export default function VoteSetupScreen({ navigation }) {
   const [categoryId, setCategoryId]     = useState('all');
