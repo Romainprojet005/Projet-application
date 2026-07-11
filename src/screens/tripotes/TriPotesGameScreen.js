@@ -287,6 +287,17 @@ export default function TriPotesGameScreen({ navigation, route }) {
                 Regardez le classement et choisissez la vraie question.{'\n'}{judge} : ne dites rien !
               </Text>
 
+              <View style={styles.rankingRecap}>
+                {ranking.map((name, i) => (
+                  <View key={name} style={styles.rankingRecapItem}>
+                    <View style={styles.rankingRecapBadge}>
+                      <Text style={styles.rankingRecapBadgeText}>{i + 1}</Text>
+                    </View>
+                    <Text style={styles.rankingRecapName} numberOfLines={1}>{name}</Text>
+                  </View>
+                ))}
+              </View>
+
               <View style={styles.optionsList}>
                 {options.map((opt, i) => {
                   const letter = ['A', 'B', 'C', 'D'][i];
@@ -435,6 +446,17 @@ const styles = StyleSheet.create({
     fontSize: 13, color: colors.textSecondary, textAlign: 'center',
     lineHeight: 20, marginBottom: spacing.xs,
   },
+  rankingRecap: {
+    width: '100%', backgroundColor: colors.card, borderRadius: radius.lg,
+    borderWidth: 1, borderColor: `${ACCENT}44`, padding: spacing.md, gap: spacing.xs,
+  },
+  rankingRecapItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  rankingRecapBadge: {
+    width: 22, height: 22, borderRadius: 11, backgroundColor: ACCENT,
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  rankingRecapBadgeText: { fontSize: 11, fontWeight: '900', color: '#000' },
+  rankingRecapName: { fontSize: 13, fontWeight: '700', color: colors.text },
   optionsList: { width: '100%', gap: spacing.sm },
   optionBtn: {
     flexDirection: 'row', alignItems: 'center', gap: spacing.md,
