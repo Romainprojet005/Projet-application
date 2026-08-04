@@ -1172,6 +1172,7 @@ export default function MenuScreen({ navigation }) {
       defis: 'DefisSetup',
       blanc_manger: 'BlancSetup',
       tripotes: 'TriPotesSetup',
+      verre: 'VerreSetup',
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };

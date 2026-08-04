@@ -398,4 +398,25 @@ export const characters = [
       Observation: 90,
     },
   },
+  {
+    id: 'verre_maudit',
+    name: 'Le Croupier',
+    emoji: '🥂',
+    title: 'Maître du Bluff',
+    description:
+      'Chacun reçoit une carte secrète entre 1 et 20. Bois le verre, passe, ou challenge un adversaire en pariant plus haute ou plus basse. Le perdant boit double — bluffe bien, bois peu !',
+    catchphrase: '"Boire ou tenter le sort ?"',
+    color: '#BE123C',
+    gradientColors: ['#1A0008', '#2D0012'],
+    game: 'verre',
+    gameName: 'LE VERRE MAUDIT',
+    players: '2–10',
+    time: '20 min',
+    available: true,
+    stats: {
+      Bluff: 99,
+      Audace: 95,
+      Chance: 90,
+    },
+  },
 ];
