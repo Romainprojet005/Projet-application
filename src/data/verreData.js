@@ -1,5 +1,5 @@
-export const MIN_MANCHES  = 8;
-export const MAX_MANCHES  = 16;
+export const MIN_MANCHES  = 1;
+export const MAX_MANCHES  = 10;
 export const START_GLASS  = 1;
 export const FILL_STEP    = 1;
 export const CARD_MIN     = 1;
