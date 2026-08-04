@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
-import { MIN_MANCHES, MAX_MANCHES } from '../../data/verreData';
+import { MIN_TOURS, MAX_TOURS } from '../../data/verreData';
 
 const ACCENT       = '#BE123C';
 const ACCENT_LIGHT = '#FDA4AF';
@@ -67,9 +67,10 @@ export default function VerreSetupScreen({ navigation }) {
             <Text style={styles.rulesLine}>🍷  Le verre commence avec <Text style={styles.rulesAccent}>1 gorgée</Text></Text>
             <Text style={styles.rulesLine}>👉  À ton tour : <Text style={styles.rulesAccent}>bois le verre</Text>, <Text style={styles.rulesAccent}>passe</Text>, ou <Text style={styles.rulesAccent}>challenge</Text> un joueur</Text>
             <Text style={styles.rulesLine}>⚔️  Si tu challenges, parie que ta carte est <Text style={styles.rulesAccent}>plus haute</Text> ou <Text style={styles.rulesAccent}>plus basse</Text></Text>
-            <Text style={styles.rulesLine}>❌  Le perdant du duel boit <Text style={styles.rulesAccent}>le double</Text> du verre</Text>
+            <Text style={styles.rulesLine}>🍺  Si un joueur boit (ou perd un duel), <Text style={styles.rulesAccent}>la manche se termine</Text> et de nouvelles cartes sont distribuées</Text>
             <Text style={styles.rulesLine}>🔄  Si tout le monde passe, le verre <Text style={styles.rulesAccent}>se remplit encore un peu</Text></Text>
-            <Text style={styles.rulesLine}>🎲  Le nombre de manches est <Text style={styles.rulesAccent}>tiré au sort</Text> ({MIN_MANCHES}-{MAX_MANCHES})</Text>
+            <Text style={styles.rulesLine}>🎲  Un nombre de tours est <Text style={styles.rulesAccent}>tiré au sort</Text> à chaque manche ({MIN_TOURS}-{MAX_TOURS})</Text>
+            <Text style={styles.rulesLine}>🃏  Si personne n'a bu au bout de ces tours, les cartes sont <Text style={styles.rulesAccent}>révélées</Text> et la <Text style={styles.rulesAccent}>plus petite carte boit le verre</Text></Text>
             <Text style={styles.rulesLine}>🏆  À la fin, celui qui a <Text style={styles.rulesAccent}>bu le moins</Text> gagne !</Text>
           </View>
 

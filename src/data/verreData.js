@@ -1,15 +1,15 @@
-export const MIN_MANCHES   = 1;
-export const MAX_MANCHES   = 10;
-export const START_GLASS   = 1;
-export const FILL_STEP     = 1;
-export const CARD_MIN      = 1;
-export const CARD_MAX      = 20;
-export const HOT_MIN       = 7;
-export const HOT_MAX       = 13;
-export const HOT_WEIGHT    = 3;
+export const MIN_TOURS      = 1;
+export const MAX_TOURS      = 10;
+export const START_GLASS    = 1;
+export const FILL_STEP      = 1;
+export const CARD_MIN       = 1;
+export const CARD_MAX       = 20;
+export const HOT_MIN        = 7;
+export const HOT_MAX        = 13;
+export const HOT_WEIGHT     = 3;
 
-export function randomManches() {
-  return MIN_MANCHES + Math.floor(Math.random() * (MAX_MANCHES - MIN_MANCHES + 1));
+export function randomTours() {
+  return MIN_TOURS + Math.floor(Math.random() * (MAX_TOURS - MIN_TOURS + 1));
 }
 
 function cardWeight(value) {

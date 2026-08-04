@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
-import { randomManches, dealCards, START_GLASS, FILL_STEP } from '../../data/verreData';
+import { randomTours, dealCards, START_GLASS, FILL_STEP } from '../../data/verreData';
 
 const ACCENT       = '#BE123C';
 const ACCENT_LIGHT = '#FDA4AF';
@@ -21,30 +21,25 @@ export default function VerreGameScreen({ route, navigation }) {
   const { playerNames } = route.params;
   const n = playerNames.length;
 
-  const [roundsMax]   = useState(() => randomManches());
-  const [mancheIdx,    setMancheIdx]    = useState(1);
-  const [cards,        setCards]        = useState(() => dealCards(n));
-  const [glass,        setGlass]        = useState(START_GLASS);
-  const [totalSips,    setTotalSips]    = useState(
+  const [mancheIdx,     setMancheIdx]     = useState(1);
+  const [toursMax,      setToursMax]      = useState(() => randomTours());
+  const [cards,         setCards]         = useState(() => dealCards(n));
+  const [glass,         setGlass]         = useState(START_GLASS);
+  const [totalSips,     setTotalSips]     = useState(
     Object.fromEntries(playerNames.map(name => [name, 0]))
   );
-  const [turnOrder,    setTurnOrder]    = useState(() => rotate([...playerNames.keys()], 0));
-  const [turnPos,      setTurnPos]      = useState(0);
-  const [passesInLap,  setPassesInLap]  = useState(0);
+  const [turnOrder,     setTurnOrder]     = useState(() => rotate([...playerNames.keys()], 0));
+  const [turnPos,       setTurnPos]       = useState(0);
+  const [passesThisLap, setPassesThisLap] = useState(0);
+  const [lapsCompleted, setLapsCompleted] = useState(0);
 
-  const [phase,        setPhase]        = useState('distribute'); // distribute | table | challengeTarget | challengeCall | resolve | drink | final
+  const [phase,        setPhase]        = useState('distribute'); // distribute | table | challengeTarget | challengeCall | resolve | drink | revealFinal | final
   const [peekIdx,       setPeekIdx]       = useState(0);
   const [peekRevealed,  setPeekRevealed]  = useState(false);
   const [challengeTarget, setChallengeTarget] = useState(null);
   const [pendingResult, setPendingResult] = useState(null);
 
-  const cardAnim = useRef(new Animated.Value(0)).current;
   const revealAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    cardAnim.setValue(0);
-    Animated.spring(cardAnim, { toValue: 1, tension: 55, friction: 10, useNativeDriver: true }).start();
-  }, [phase]);
 
   const activePlayerIdx = turnOrder[turnPos];
   const activePlayer = playerNames[activePlayerIdx];
@@ -77,14 +72,34 @@ export default function VerreGameScreen({ route, navigation }) {
   };
 
   const handlePass = () => {
-    const nextPasses = passesInLap + 1;
-    if (nextPasses >= turnOrder.length) {
-      setGlass(g => g + FILL_STEP);
-      setPassesInLap(0);
-    } else {
-      setPassesInLap(nextPasses);
+    const nextPasses  = passesThisLap + 1;
+    const nextTurnPos = (turnPos + 1) % turnOrder.length;
+
+    if (nextTurnPos !== 0) {
+      setPassesThisLap(nextPasses);
+      setTurnPos(nextTurnPos);
+      return;
     }
-    setTurnPos(p => (p + 1) % turnOrder.length);
+
+    // Un tour complet vient de se terminer
+    const lapFilled       = nextPasses === turnOrder.length;
+    const newGlass        = lapFilled ? glass + FILL_STEP : glass;
+    const newLapsCompleted = lapsCompleted + 1;
+
+    if (newLapsCompleted >= toursMax) {
+      let minIdx = 0;
+      for (let i = 1; i < cards.length; i++) if (cards[i] < cards[minIdx]) minIdx = i;
+      addSips(minIdx, newGlass);
+      setGlass(newGlass);
+      setPendingResult({ type: 'reveal', cards: [...cards], drinkerIdx: minIdx, amount: newGlass });
+      setPhase('revealFinal');
+      return;
+    }
+
+    setGlass(newGlass);
+    setLapsCompleted(newLapsCompleted);
+    setPassesThisLap(0);
+    setTurnPos(0);
   };
 
   const openChallenge = () => {
@@ -115,15 +130,13 @@ export default function VerreGameScreen({ route, navigation }) {
   };
 
   const advanceManche = () => {
-    if (mancheIdx >= roundsMax) {
-      setPhase('final');
-      return;
-    }
     const nextManche = mancheIdx + 1;
     setMancheIdx(nextManche);
+    setToursMax(randomTours());
     setCards(dealCards(n));
     setGlass(START_GLASS);
-    setPassesInLap(0);
+    setPassesThisLap(0);
+    setLapsCompleted(0);
     setTurnPos(0);
     setTurnOrder(rotate([...playerNames.keys()], (nextManche - 1) % n));
     setPeekIdx(0);
@@ -133,12 +146,14 @@ export default function VerreGameScreen({ route, navigation }) {
     setPhase('distribute');
   };
 
+  const endGame = () => setPhase('final');
+
   // ── DISTRIBUTE ────────────────────────────────────────────────────────
   if (phase === 'distribute') {
     const peekName = playerNames[peekIdx];
     return (
       <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={styles.roundBadge}>Manche {mancheIdx} / {roundsMax}</Text>
+        <Text style={styles.roundBadge}>Manche {mancheIdx} · {toursMax} tour{toursMax > 1 ? 's' : ''} max</Text>
         <Text style={styles.peekInstruction}>Passe le téléphone à</Text>
         <Text style={styles.peekName}>{peekName}</Text>
 
@@ -172,7 +187,7 @@ export default function VerreGameScreen({ route, navigation }) {
   if (phase === 'table') {
     return (
       <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={styles.roundBadge}>Manche {mancheIdx} / {roundsMax}</Text>
+        <Text style={styles.roundBadge}>Manche {mancheIdx} · Tour {Math.min(lapsCompleted + 1, toursMax)}/{toursMax}</Text>
 
         <View style={styles.glassZone}>
           <Text style={styles.glassEmoji}>🥂</Text>
@@ -203,7 +218,12 @@ export default function VerreGameScreen({ route, navigation }) {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.lapHint}>{passesInLap} / {turnOrder.length} joueurs ont passé ce tour-ci</Text>
+        <Text style={styles.lapHint}>{passesThisLap} / {turnOrder.length} joueurs ont passé ce tour-ci</Text>
+        <Text style={styles.warnHint}>🍺 Boire (ou perdre un duel) termine la manche — nouvelles cartes ensuite</Text>
+
+        <TouchableOpacity onPress={endGame} style={styles.endGameLink}>
+          <Text style={styles.endGameLinkText}>🏆 Terminer la partie</Text>
+        </TouchableOpacity>
       </LinearGradient>
     );
   }
@@ -212,7 +232,7 @@ export default function VerreGameScreen({ route, navigation }) {
   if (phase === 'challengeTarget') {
     return (
       <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={styles.roundBadge}>Manche {mancheIdx} / {roundsMax}</Text>
+        <Text style={styles.roundBadge}>Manche {mancheIdx} · Tour {Math.min(lapsCompleted + 1, toursMax)}/{toursMax}</Text>
         <Text style={styles.turnLabel}>{activePlayer} challenge qui ?</Text>
 
         <View style={styles.targetList}>
@@ -236,7 +256,7 @@ export default function VerreGameScreen({ route, navigation }) {
   if (phase === 'challengeCall') {
     return (
       <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={styles.roundBadge}>Manche {mancheIdx} / {roundsMax}</Text>
+        <Text style={styles.roundBadge}>Manche {mancheIdx} · Tour {Math.min(lapsCompleted + 1, toursMax)}/{toursMax}</Text>
         <Text style={styles.turnLabel}>{activePlayer} parie contre {playerNames[challengeTarget]}</Text>
         <Text style={styles.callQuestion}>Ta carte est plus haute ou plus basse que la sienne ?</Text>
 
@@ -284,15 +304,19 @@ export default function VerreGameScreen({ route, navigation }) {
         <View style={[styles.consequenceCard, { borderColor: '#EF444450' }]}>
           <Text style={styles.consequenceLabel}>Conséquence :</Text>
           <Text style={styles.consequenceText}>{playerNames[r.drinkerIdx]} boit {r.amount} gorgées !</Text>
+          <Text style={styles.consequenceSub}>La manche se termine, nouvelles cartes…</Text>
         </View>
 
-        <TouchableOpacity onPress={advanceManche} style={styles.nextBtn} activeOpacity={0.85}>
-          <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
-            <Text style={styles.nextBtnText}>
-              {mancheIdx >= roundsMax ? '🏆 Voir les résultats' : 'Manche suivante →'}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        <View style={styles.continueRow}>
+          <TouchableOpacity onPress={advanceManche} style={styles.nextBtn} activeOpacity={0.85}>
+            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
+              <Text style={styles.nextBtnText}>Manche suivante →</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={endGame} style={styles.endGameLink}>
+            <Text style={styles.endGameLinkText}>🏆 Terminer la partie</Text>
+          </TouchableOpacity>
+        </View>
       </LinearGradient>
     );
   }
@@ -306,14 +330,54 @@ export default function VerreGameScreen({ route, navigation }) {
         <View style={[styles.consequenceCard, { borderColor: ACCENT + '50' }]}>
           <Text style={styles.consequenceLabel}>{playerNames[r.drinkerIdx]}</Text>
           <Text style={styles.consequenceText}>boit {r.amount} gorgée{r.amount > 1 ? 's' : ''} !</Text>
+          <Text style={styles.consequenceSub}>La manche se termine, nouvelles cartes…</Text>
         </View>
-        <TouchableOpacity onPress={advanceManche} style={styles.nextBtn} activeOpacity={0.85}>
-          <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
-            <Text style={styles.nextBtnText}>
-              {mancheIdx >= roundsMax ? '🏆 Voir les résultats' : 'Manche suivante →'}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        <View style={styles.continueRow}>
+          <TouchableOpacity onPress={advanceManche} style={styles.nextBtn} activeOpacity={0.85}>
+            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
+              <Text style={styles.nextBtnText}>Manche suivante →</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={endGame} style={styles.endGameLink}>
+            <Text style={styles.endGameLinkText}>🏆 Terminer la partie</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+    );
+  }
+
+  // ── REVEAL FINAL (personne n'a bu, on révèle les cartes) ─────────────
+  if (phase === 'revealFinal' && pendingResult?.type === 'reveal') {
+    const r = pendingResult;
+    return (
+      <LinearGradient colors={OB_BG} style={styles.fullCenter}>
+        <Text style={styles.resultTitle}>🃏 Révélation !</Text>
+        <Text style={styles.revealSub}>Personne n'a bu en {toursMax} tour{toursMax > 1 ? 's' : ''} — les cartes parlent</Text>
+
+        <ScrollView style={styles.revealScroll} contentContainerStyle={styles.revealGrid}>
+          {playerNames.map((name, idx) => (
+            <View key={idx} style={[styles.revealCard, idx === r.drinkerIdx && styles.revealCardLowest]}>
+              <Text style={styles.revealName}>{name}</Text>
+              <Text style={[styles.revealValue, idx === r.drinkerIdx && { color: '#FCA5A5' }]}>{r.cards[idx]}</Text>
+            </View>
+          ))}
+        </ScrollView>
+
+        <View style={[styles.consequenceCard, { borderColor: '#EF444450' }]}>
+          <Text style={styles.consequenceLabel}>Carte la plus basse :</Text>
+          <Text style={styles.consequenceText}>{playerNames[r.drinkerIdx]} boit {r.amount} gorgées !</Text>
+        </View>
+
+        <View style={styles.continueRow}>
+          <TouchableOpacity onPress={advanceManche} style={styles.nextBtn} activeOpacity={0.85}>
+            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
+              <Text style={styles.nextBtnText}>Manche suivante →</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={endGame} style={styles.endGameLink}>
+            <Text style={styles.endGameLinkText}>🏆 Terminer la partie</Text>
+          </TouchableOpacity>
+        </View>
       </LinearGradient>
     );
   }
@@ -326,7 +390,7 @@ export default function VerreGameScreen({ route, navigation }) {
     <LinearGradient colors={OB_BG} style={styles.container}>
       <ScrollView contentContainerStyle={styles.finalScroll}>
         <Text style={styles.finalTitle}>🏆 Résultats finaux</Text>
-        <Text style={styles.finalSub}>{roundsMax} manches jouées · moins tu as bu, mieux c'est !</Text>
+        <Text style={styles.finalSub}>{mancheIdx} manche{mancheIdx > 1 ? 's' : ''} jouée{mancheIdx > 1 ? 's' : ''} · moins tu as bu, mieux c'est !</Text>
 
         {sorted.map((name, idx) => (
           <View key={name} style={[styles.finalRow, idx === 0 && styles.finalRowFirst]}>
@@ -358,7 +422,7 @@ const styles = StyleSheet.create({
 
   roundBadge: {
     position: 'absolute', top: Platform.OS === 'ios' ? 60 : 40, right: spacing.xl,
-    fontSize: 13, fontWeight: '700', color: ACCENT_LIGHT,
+    fontSize: 12, fontWeight: '700', color: ACCENT_LIGHT,
     backgroundColor: ACCENT + '22', paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs, borderRadius: radius.full, borderWidth: 1, borderColor: ACCENT + '40',
   },
@@ -407,6 +471,9 @@ const styles = StyleSheet.create({
   passBtnText: { color: colors.text, fontSize: 15, fontWeight: '700' },
 
   lapHint: { fontSize: 12, color: colors.textMuted, marginTop: spacing.lg, fontStyle: 'italic' },
+  warnHint: { fontSize: 11, color: colors.textMuted, marginTop: spacing.xs, textAlign: 'center', maxWidth: 300 },
+  endGameLink: { marginTop: spacing.lg, paddingVertical: spacing.sm },
+  endGameLinkText: { color: colors.textMuted, fontSize: 12, fontWeight: '600', textDecorationLine: 'underline' },
 
   // CHALLENGE TARGET
   targetList: { width: '100%', maxWidth: 340, gap: spacing.sm, marginBottom: spacing.lg },
@@ -425,8 +492,9 @@ const styles = StyleSheet.create({
   callInner: { paddingVertical: spacing.xl, alignItems: 'center' },
   callBtnText: { color: '#fff', fontSize: 15, fontWeight: '900', textAlign: 'center', letterSpacing: 1 },
 
-  // RESOLVE
+  // RESOLVE / DRINK / REVEAL
   resultTitle: { fontSize: 26, fontWeight: '900', color: colors.text, marginBottom: spacing.lg, textAlign: 'center' },
+  revealSub: { fontSize: 12, color: colors.textMuted, marginBottom: spacing.lg, textAlign: 'center', maxWidth: 300 },
   duelRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.lg },
   duelCard: {
     width: 110, alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.lg,
@@ -436,14 +504,27 @@ const styles = StyleSheet.create({
   duelValue: { fontSize: 32, fontWeight: '900', color: colors.text },
   duelVs: { fontSize: 14, fontWeight: '800', color: colors.textMuted },
 
+  revealScroll: { width: '100%', maxWidth: 360, maxHeight: 220, marginBottom: spacing.lg },
+  revealGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center' },
+  revealCard: {
+    width: 84, alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.md,
+    paddingVertical: spacing.sm, borderWidth: 1, borderColor: colors.border,
+  },
+  revealCardLowest: { borderColor: '#EF4444', backgroundColor: '#EF444415' },
+  revealName: { fontSize: 11, color: colors.textSecondary, marginBottom: 2, textAlign: 'center' },
+  revealValue: { fontSize: 22, fontWeight: '900', color: colors.text },
+
   consequenceCard: {
     width: '100%', maxWidth: 340, backgroundColor: '#EF444415',
     borderRadius: radius.xl, borderWidth: 1, padding: spacing.xl,
-    marginBottom: spacing.xl, alignItems: 'center',
+    marginBottom: spacing.lg, alignItems: 'center',
   },
   consequenceLabel: { fontSize: 13, color: colors.textMuted, marginBottom: spacing.sm },
   consequenceText:  { fontSize: 20, fontWeight: '800', color: '#FCA5A5', textAlign: 'center' },
-  nextBtn:    { width: '100%', maxWidth: 340, borderRadius: radius.full, overflow: 'hidden' },
+  consequenceSub:   { fontSize: 11, color: colors.textMuted, marginTop: spacing.sm, fontStyle: 'italic' },
+
+  continueRow: { width: '100%', maxWidth: 340, gap: spacing.sm, alignItems: 'center' },
+  nextBtn:    { width: '100%', borderRadius: radius.full, overflow: 'hidden' },
   nextInner:  { paddingVertical: spacing.md + 4, alignItems: 'center' },
   nextBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
 
