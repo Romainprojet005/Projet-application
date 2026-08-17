@@ -1173,6 +1173,7 @@ export default function MenuScreen({ navigation }) {
       blanc_manger: 'BlancSetup',
       tripotes: 'TriPotesSetup',
       verre: 'VerreSetup',
+      lolselect: 'LolSelectSetup',
     };
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };

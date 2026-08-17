@@ -419,4 +419,25 @@ export const characters = [
       Chance: 90,
     },
   },
+  {
+    id: 'le_selectionneur',
+    name: 'Le Sélectionneur',
+    emoji: '🎮',
+    title: 'Maître du Draft',
+    description:
+      'Draftez votre équipe de légendes League of Legends parmi 15 pros réels, à coups de relances stratégiques. Puis regardez le récit du tournoi trancher, sans aucun hasard.',
+    catchphrase: '"Composez la légende."',
+    color: '#C89B3C',
+    gradientColors: ['#1A1400', '#2D2200'],
+    game: 'lolselect',
+    gameName: 'LE SÉLECTIONNEUR',
+    players: '1+',
+    time: '15 min',
+    available: true,
+    stats: {
+      Stratégie: 97,
+      Culture: 93,
+      Analyse: 95,
+    },
+  },
 ];

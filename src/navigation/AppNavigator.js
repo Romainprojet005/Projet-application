@@ -58,6 +58,9 @@ import TriPotesSetupScreen from '../screens/tripotes/TriPotesSetupScreen';
 import TriPotesGameScreen from '../screens/tripotes/TriPotesGameScreen';
 import VerreSetupScreen from '../screens/verre/VerreSetupScreen';
 import VerreGameScreen from '../screens/verre/VerreGameScreen';
+import LolSelectSetupScreen from '../screens/lolselect/LolSelectSetupScreen';
+import LolSelectDraftScreen from '../screens/lolselect/LolSelectDraftScreen';
+import LolSelectTournamentScreen from '../screens/lolselect/LolSelectTournamentScreen';
 
 const Stack = createStackNavigator();
 
@@ -126,6 +129,9 @@ const linking = {
       TriPotesGame: 'tripotes/game',
       VerreSetup: 'verre',
       VerreGame: 'verre/game',
+      LolSelectSetup: 'lolselect',
+      LolSelectDraft: 'lolselect/draft',
+      LolSelectTournament: 'lolselect/tournament',
     },
   },
 };
@@ -196,6 +202,9 @@ export default function AppNavigator() {
         <Stack.Screen name="TriPotesGame" component={TriPotesGameScreen} />
         <Stack.Screen name="VerreSetup" component={VerreSetupScreen} />
         <Stack.Screen name="VerreGame" component={VerreGameScreen} />
+        <Stack.Screen name="LolSelectSetup" component={LolSelectSetupScreen} />
+        <Stack.Screen name="LolSelectDraft" component={LolSelectDraftScreen} />
+        <Stack.Screen name="LolSelectTournament" component={LolSelectTournamentScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
