@@ -61,6 +61,10 @@ import VerreGameScreen from '../screens/verre/VerreGameScreen';
 import LolSelectSetupScreen from '../screens/lolselect/LolSelectSetupScreen';
 import LolSelectDraftScreen from '../screens/lolselect/LolSelectDraftScreen';
 import LolSelectTournamentScreen from '../screens/lolselect/LolSelectTournamentScreen';
+import LolSelectMultiSetupScreen from '../screens/lolselect/LolSelectMultiSetupScreen';
+import LolSelectMultiLobbyScreen from '../screens/lolselect/LolSelectMultiLobbyScreen';
+import LolSelectMultiWaitScreen from '../screens/lolselect/LolSelectMultiWaitScreen';
+import LolSelectMultiTournamentScreen from '../screens/lolselect/LolSelectMultiTournamentScreen';
 
 const Stack = createStackNavigator();
 
@@ -132,6 +136,10 @@ const linking = {
       LolSelectSetup: 'lolselect',
       LolSelectDraft: 'lolselect/draft',
       LolSelectTournament: 'lolselect/tournament',
+      LolSelectMultiSetup: 'lolselect/multi',
+      LolSelectMultiLobby: 'lolselect/multi/lobby',
+      LolSelectMultiWait: 'lolselect/multi/wait',
+      LolSelectMultiTournament: 'lolselect/multi/tournament',
     },
   },
 };
@@ -205,6 +213,10 @@ export default function AppNavigator() {
         <Stack.Screen name="LolSelectSetup" component={LolSelectSetupScreen} />
         <Stack.Screen name="LolSelectDraft" component={LolSelectDraftScreen} />
         <Stack.Screen name="LolSelectTournament" component={LolSelectTournamentScreen} />
+        <Stack.Screen name="LolSelectMultiSetup" component={LolSelectMultiSetupScreen} />
+        <Stack.Screen name="LolSelectMultiLobby" component={LolSelectMultiLobbyScreen} />
+        <Stack.Screen name="LolSelectMultiWait" component={LolSelectMultiWaitScreen} />
+        <Stack.Screen name="LolSelectMultiTournament" component={LolSelectMultiTournamentScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

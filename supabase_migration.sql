@@ -93,3 +93,40 @@ alter table tribunal_writings disable row level security;
 grant select, insert, update, delete on tribunal_rooms    to anon;
 grant select, insert, update, delete on tribunal_players  to anon;
 grant select, insert, update, delete on tribunal_writings to anon;
+
+-- ============================================================
+-- Tables pour LE SÉLECTIONNEUR (draft LoL à distance)
+-- ============================================================
+create table if not exists lolselect_rooms (
+  id uuid default gen_random_uuid() primary key,
+  code char(4) unique not null,
+  status text default 'lobby' check (status in ('lobby', 'drafting', 'finished')),
+  result_json jsonb,
+  created_at timestamptz default now()
+);
+
+create table if not exists lolselect_players (
+  id uuid default gen_random_uuid() primary key,
+  room_id uuid references lolselect_rooms(id) on delete cascade,
+  device_id text,
+  name text not null,
+  is_host boolean default false,
+  team_json jsonb,
+  ready boolean default false,
+  created_at timestamptz default now()
+);
+
+-- Activer le realtime
+alter publication supabase_realtime add table lolselect_rooms;
+alter publication supabase_realtime add table lolselect_players;
+
+-- Nettoyage auto des vieilles salles (+ de 3h)
+create or replace function cleanup_old_lolselect_rooms() returns void language sql as $$
+  delete from lolselect_rooms where created_at < now() - interval '3 hours';
+$$;
+
+-- LE SÉLECTIONNEUR : désactiver RLS + accès anon
+alter table lolselect_rooms   disable row level security;
+alter table lolselect_players disable row level security;
+grant select, insert, update, delete on lolselect_rooms   to anon;
+grant select, insert, update, delete on lolselect_players to anon;

@@ -10,6 +10,7 @@ import { ROLE_META, ROLE_ORDER, LOL_PLAYERS_BY_ID } from '../../data/lolPlayers'
 import {
   createDraftState, pickPlayer, rerollWindow, getShownPlayers,
 } from '../../data/lolDraftEngine';
+import { supabase } from '../../services/supabase';
 
 const ACCENT       = '#C89B3C';
 const ACCENT_LIGHT = '#F0D68C';
@@ -61,7 +62,10 @@ function PlayerCard({ player, onPick }) {
   );
 }
 
-export default function LolSelectDraftScreen({ navigation }) {
+export default function LolSelectDraftScreen({ navigation, route }) {
+  const { roomId, playerId } = route?.params || {};
+  const isMultiplayer = !!(roomId && playerId);
+
   const [state, setState] = useState(createDraftState);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -71,7 +75,13 @@ export default function LolSelectDraftScreen({ navigation }) {
   }, [state.shownIds.join(',')]);
 
   useEffect(() => {
-    if (state.finished) {
+    if (!state.finished) return;
+    if (isMultiplayer) {
+      supabase.from('lolselect_players')
+        .update({ team_json: state.team, ready: true })
+        .eq('id', playerId)
+        .then(() => navigation.replace('LolSelectMultiWait', { roomId, playerId }));
+    } else {
       navigation.replace('LolSelectTournament', { team: state.team });
     }
   }, [state.finished]);

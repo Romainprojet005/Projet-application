@@ -76,7 +76,7 @@ export default function LolSelectSetupScreen({ navigation }) {
 
         </Animated.View>
 
-        <Animated.View style={{ opacity: fadeIn, paddingHorizontal: spacing.xl, paddingBottom: 48 }}>
+        <Animated.View style={{ opacity: fadeIn, paddingHorizontal: spacing.xl, paddingBottom: 48, gap: spacing.md }}>
           <TouchableOpacity
             onPress={() => navigation.navigate('LolSelectDraft')}
             style={styles.launchBtn}
@@ -87,8 +87,17 @@ export default function LolSelectSetupScreen({ navigation }) {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>🎮  COMMENCER LE DRAFT</Text>
+              <Text style={styles.launchText}>🎮  DRAFT SOLO (VS IA)</Text>
             </LinearGradient>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('LolSelectMultiSetup')}
+            style={styles.multiBtn}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.multiBtnText}>🌐  JOUER À DISTANCE (2 JOUEURS)</Text>
+            <Text style={styles.multiBtnHint}>Chacun draft sur son propre ordinateur / téléphone</Text>
           </TouchableOpacity>
         </Animated.View>
 
@@ -152,4 +161,11 @@ const styles = StyleSheet.create({
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
   launchText: { fontSize: 15, fontWeight: '800', color: '#0A0815', letterSpacing: 2 },
+
+  multiBtn: {
+    borderRadius: radius.lg, borderWidth: 1, borderColor: `${HEXTECH}50`,
+    backgroundColor: `${HEXTECH}12`, paddingVertical: spacing.md, alignItems: 'center', gap: 2,
+  },
+  multiBtnText: { fontSize: 13, fontWeight: '800', color: HEXTECH, letterSpacing: 1 },
+  multiBtnHint: { fontSize: 11, color: colors.textMuted, fontStyle: 'italic' },
 });
