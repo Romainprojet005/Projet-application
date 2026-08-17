@@ -44,13 +44,13 @@ export const LOL_PLAYERS = [
     weakness: "un excès de confiance qui peut coûter très cher",
   },
   {
-    id: 'theshy_2024', personId: 'theshy', name: 'TheShy', realName: 'Kang Seung-lok',
-    role: 'TOP', team: 'JD Gaming', year: 2024, region: 'LPL', flag: '🇨🇳',
-    power: 90,
+    id: 'theshy_2023', personId: 'theshy', name: 'TheShy', realName: 'Kang Seung-lok',
+    role: 'TOP', team: 'Weibo Gaming', year: 2023, region: 'LPL', flag: '🇨🇳',
+    power: 89,
     image: null,
-    bio: 'Nouveau sacre mondial en 2024 avec JD Gaming, toujours aussi dangereux en solo-kill.',
+    bio: 'Finaliste des Worlds 2023 avec Weibo Gaming après quatre ans loin de la scène internationale.',
     signature: "un solo-kill qui peut tomber à n'importe quel moment",
-    weakness: "des jambes un peu moins fraîches qu'à ses débuts",
+    weakness: "une finale où il a été dominé de bout en bout par un rival plus jeune",
   },
   {
     id: 'khan_2021', personId: 'khan', name: 'Khan', realName: 'Kim Dong-ha',
@@ -80,11 +80,20 @@ export const LOL_PLAYERS = [
     weakness: "un style parfois trop passif si le jungler ne vient pas",
   },
   {
-    id: 'bin_2021', personId: 'bin', name: 'Bin', realName: 'Chen Ze-Bin',
-    role: 'TOP', team: 'EDward Gaming', year: 2021, region: 'LPL', flag: '🇨🇳',
-    power: 87,
+    id: 'bin_2020', personId: 'bin', name: 'Bin', realName: 'Chen Ze-Bin',
+    role: 'TOP', team: 'Suning', year: 2020, region: 'LPL', flag: '🇨🇳',
+    power: 88,
     image: null,
-    bio: 'Champion du monde 2021 avec EDG, style flamboyant hérité de l\'école chinoise du top lane.',
+    bio: 'Finaliste des Worlds 2020 avec Suning, auteur de l\'unique Pentakill de l\'histoire en finale mondiale.',
+    signature: "un Pentakill resté unique dans l'histoire des finales mondiales",
+    weakness: "une équipe outsider qui a fini par manquer de profondeur",
+  },
+  {
+    id: 'flandre_2021', personId: 'flandre', name: 'Flandre', realName: 'Li Xuan-Jun',
+    role: 'TOP', team: 'EDward Gaming', year: 2021, region: 'LPL', flag: '🇨🇳',
+    power: 86,
+    image: null,
+    bio: 'Champion du monde 2021 avec EDG, artisan discret du sweep surprise contre les tenants du titre.',
     signature: "un flamboyant sens du timing en side lane",
     weakness: "une prise de risque qui peut isoler son équipe",
   },
@@ -208,7 +217,7 @@ export const LOL_PLAYERS = [
     weakness: "une préférence pour jouer collectif plutôt que solo",
   },
   {
-    id: 'tian_2021', personId: 'tian', name: 'Tian', realName: 'Gao Tian-Liang',
+    id: 'jiejie_2021', personId: 'jiejie', name: 'Jiejie', realName: 'Zhao Li-Jie',
     role: 'JGL', team: 'EDward Gaming', year: 2021, region: 'LPL', flag: '🇨🇳',
     power: 88,
     image: null,
@@ -235,11 +244,11 @@ export const LOL_PLAYERS = [
     weakness: "un profil qui a besoin d'une équipe soudée autour de lui",
   },
   {
-    id: 'kanavi_2024', personId: 'kanavi', name: 'Kanavi', realName: 'Seo Jin-hyeok',
-    role: 'JGL', team: 'JD Gaming', year: 2024, region: 'LPL', flag: '🇰🇷',
+    id: 'kanavi_2023', personId: 'kanavi', name: 'Kanavi', realName: 'Seo Jin-hyeok',
+    role: 'JGL', team: 'JD Gaming', year: 2023, region: 'LPL', flag: '🇰🇷',
     power: 89,
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Kanavi_2020_interview.jpg/250px-Kanavi_2020_interview.jpg',
-    bio: 'Champion du monde 2024 avec JD Gaming, déjà titré au MSI avec RNG en 2018.',
+    bio: 'Champion du MSI 2023 et demi-finaliste des Worlds avec JD Gaming, franchise player devenu légende de la LPL.',
     signature: "une expérience de la scène chinoise inégalée",
     weakness: "un rythme parfois freiné par une early game trop prudente",
   },
@@ -345,13 +354,22 @@ export const LOL_PLAYERS = [
     weakness: "un style qui dépend beaucoup du tempo donné par sa jungle",
   },
   {
-    id: 'knight_2021', personId: 'knight', name: 'Knight', realName: 'Zhuo Ding',
-    role: 'MID', team: 'EDward Gaming', year: 2021, region: 'LPL', flag: '🇨🇳',
+    id: 'scout_2021', personId: 'scout', name: 'Scout', realName: 'Lee Ye-chan',
+    role: 'MID', team: 'EDward Gaming', year: 2021, region: 'LPL', flag: '🇰🇷',
     power: 90,
     image: null,
-    bio: 'Champion du monde 2021 avec EDG, l\'un des mids les plus complets de la LPL.',
+    bio: 'Champion du monde 2021 avec EDG, mid coréen expatrié parmi les plus complets de la LPL.',
     signature: "une adaptabilité totale à n'importe quel champion",
     weakness: "un jeu parfois trop mesuré qui laisse passer l'occasion",
+  },
+  {
+    id: 'knight_2023', personId: 'knight', name: 'Knight', realName: 'Zhuo Ding',
+    role: 'MID', team: 'JD Gaming', year: 2023, region: 'LPL', flag: '🇨🇳',
+    power: 91,
+    image: null,
+    bio: 'Triple couronne LPL/MSI 2023 avec JD Gaming, demi-finaliste des Worlds, l\'un des mids les plus titrés de la LPL.',
+    signature: "une constance qui a fait tomber tous les titres domestiques",
+    weakness: "une finale mondiale qui lui échappe encore",
   },
   {
     id: 'zeka_2022', personId: 'zeka', name: 'Zeka', realName: 'Kim Geon-woo',
@@ -453,6 +471,15 @@ export const LOL_PLAYERS = [
     bio: 'Meilleur ADC LCK 2022, positionnement chirurgical en combat d\'équipe.',
     signature: "un positionnement en combat d'équipe chirurgical",
     weakness: "une dépendance à une jungle qui doit le protéger",
+  },
+  {
+    id: 'ruler_2023', personId: 'ruler', name: 'Ruler', realName: 'Park Jae-hyuk',
+    role: 'ADC', team: 'JD Gaming', year: 2023, region: 'LPL', flag: '🇰🇷',
+    power: 91,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Ruler_interview_2022.jpg/250px-Ruler_interview_2022.jpg',
+    bio: 'Passé en LPL en 2023, MVP des finales LPL et champion du MSI avec JD Gaming.',
+    signature: "un carry hyper-scaling que personne n'arrête en fin de partie",
+    weakness: "une adaptation à un nouveau championnat, une nouvelle langue",
   },
   {
     id: 'deft_2022', personId: 'deft', name: 'Deft', realName: 'Kim Hyuk-kyu',
@@ -659,6 +686,51 @@ export const LOL_PLAYERS = [
 export const LOL_PLAYERS_BY_ID = Object.fromEntries(LOL_PLAYERS.map(p => [p.id, p]));
 
 // ─────────────────────────────────────────────────────────────────────────
+// NOTORIÉTÉ — indépendante du niveau de jeu (`power`) : reflète à quel point
+// un nom est connu même en dehors des suiveurs assidus de la scène esport.
+// Sert au filtre « niveau de connaissance » du draft (100/75/50/25 %), pour
+// que les moins familiers de la scène puissent jouer avec un vivier réduit
+// aux noms les plus incontournables. Clé par `personId` (une légende garde
+// la même notoriété quelle que soit l'année choisie).
+// ─────────────────────────────────────────────────────────────────────────
+const FAME_S = 95; // Icônes connues même au-delà des suiveurs réguliers de la scène
+const FAME_A = 78; // Grands noms bien connus des amateurs d'esport
+const FAME_B = 58; // Légendes réelles, mais plus confidentielles hors des passionnés
+
+const FAME_TIERS = {
+  faker: FAME_S, uzi: FAME_S, caps: FAME_S, theshy: FAME_S, canyon: FAME_S,
+  chovy: FAME_S, doinb: FAME_S, ruler: FAME_S,
+
+  zeus: FAME_A, oner: FAME_A, gumayusi: FAME_A, keria: FAME_A, deft: FAME_A,
+  rekkles: FAME_A, jankos: FAME_A, perkz: FAME_A, wunder: FAME_A, mikyx: FAME_A,
+  showmaker: FAME_A, khan: FAME_A, marin: FAME_A, wolf: FAME_A, ning: FAME_A,
+  jackeylove: FAME_A, rookie: FAME_A, kanavi: FAME_A, knight: FAME_A,
+  viper: FAME_A, meiko: FAME_A,
+};
+
+export function fameOf(player) {
+  return FAME_TIERS[player.personId] ?? FAME_B;
+}
+
+// Retourne le vivier de joueurs à utiliser pour le draft : à 100%, tout le
+// monde ; en dessous, ne garde que les `familiarity`% les plus connus de
+// CHAQUE poste (donc toujours au moins 3 par poste, jamais un poste vidé).
+export function getFilteredPool(familiarity = 100) {
+  if (familiarity >= 100) return LOL_PLAYERS;
+  const byRole = {};
+  ROLE_ORDER.forEach(r => { byRole[r] = []; });
+  LOL_PLAYERS.forEach(p => byRole[p.role].push(p));
+
+  const result = [];
+  ROLE_ORDER.forEach(role => {
+    const sorted = [...byRole[role]].sort((a, b) => (fameOf(b) * 1000 + b.power) - (fameOf(a) * 1000 + a.power));
+    const keepCount = Math.max(3, Math.round(sorted.length * familiarity / 100));
+    result.push(...sorted.slice(0, keepCount));
+  });
+  return result;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // RELATIONS — coéquipiers réels (même club, même année) et anciens
 // coéquipiers / même écurie à une autre époque. Utilisées pour la synergie
 // d'équipe et pour enrichir le récit du tournoi.
@@ -699,7 +771,8 @@ const STRONG_GROUPS = [
   ['kingen_2022', 'pyosik_2022', 'zeka_2022', 'deft_2022', 'beryl_2022'],     // DRX 2022 — Champions du monde (run miracle)
   ['zeus_2023', 'oner_2023', 'faker_2023', 'gumayusi_2023', 'keria_2023'],    // T1 2023 — Champions du monde
   ['theshy_2018', 'rookie_2018', 'jackeylove_2018', 'baolan_2018', 'ning_2018'], // Invictus Gaming 2018 — Champions du monde, roster complet
-  ['bin_2021', 'tian_2021', 'knight_2021', 'viper_2021', 'meiko_2021'],       // EDward Gaming 2021 — Champions du monde
+  ['flandre_2021', 'jiejie_2021', 'scout_2021', 'viper_2021', 'meiko_2021'],  // EDward Gaming 2021 — Champions du monde
+  ['kanavi_2023', 'knight_2023', 'ruler_2023'],                              // JD Gaming 2023 — Champions du MSI, demi-finalistes Worlds
   ['wunder_2019', 'jankos_2019', 'caps_2019', 'perkz_2019', 'mikyx_2019'],    // G2 Esports 2019 — Champions du MSI, finalistes Worlds
   ['ruler_2017', 'corejj_2017', 'cuvee_2017', 'ambition_2017', 'crown_2017'], // Samsung Galaxy 2017 — Champions du monde, roster complet
   ['letme_2018', 'karsa_2018', 'xiaohu_2018', 'uzi_2018', 'ming_2018'],       // Royal Never Give Up 2018 — Champions du MSI
@@ -724,7 +797,7 @@ const DWG_DRX_LINEAGE = [
   'canyon_2020', 'khan_2021', 'canyon_2021', 'beryl_2020', 'beryl_2022',
 ];
 const IG_LPL_LINEAGE = [
-  'theshy_2018', 'rookie_2018', 'jackeylove_2018', 'baolan_2018', 'ning_2018', 'theshy_2024',
+  'theshy_2018', 'rookie_2018', 'jackeylove_2018', 'baolan_2018', 'ning_2018', 'theshy_2023',
 ];
 
 export const TEAMMATES_MILD = [
@@ -763,5 +836,17 @@ export const RIVALRIES = [
   {
     pair: ['ruler_2017', 'faker_2015'],
     story: "L'histoire se souvient encore du sweep : en 2017, la Samsung Galaxy de Ruler avait stoppé net la dynastie SKT T1 en finale des Worlds, 3-0.",
+  },
+  {
+    pair: ['zeus_2023', 'theshy_2023'],
+    story: "Un remake exact de la finale des Worlds 2023 : Zeus (Finals MVP) avait totalement dominé TheShy en top lane lors du sweep 3-0 de T1 sur Weibo Gaming.",
+  },
+  {
+    pair: ['bin_2020', 'showmaker_2020'],
+    story: "La revanche d'une finale mondiale complètement folle : en 2020, le DAMWON Gaming de ShowMaker avait fini par dompter l'outsider Suning de Bin, auteur au passage de l'unique Pentakill de l'histoire en finale des Worlds.",
+  },
+  {
+    pair: ['knight_2023', 'faker_2023'],
+    story: "Un remake de la demi-finale des Worlds 2023 : le T1 de Faker avait sorti sans appel le JD Gaming de Knight, 3-0.",
   },
 ];

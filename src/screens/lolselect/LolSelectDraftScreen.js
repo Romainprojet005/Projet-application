@@ -17,6 +17,43 @@ const ACCENT_LIGHT = '#F0D68C';
 const ACCENT_DARK  = '#8B6914';
 const HEXTECH      = '#0AC8B9';
 
+const FAMILIARITY_OPTIONS = [
+  { value: 100, label: '100%', hint: 'Tout le monde — la scène complète, sans filtre' },
+  { value: 75,  label: '75%',  hint: 'Les 3/4 les plus connus de chaque poste' },
+  { value: 50,  label: '50%',  hint: 'La moitié la plus connue — un bon compromis' },
+  { value: 25,  label: '25%',  hint: 'Seulement les incontournables — idéal débutant' },
+];
+
+function FamiliarityPicker({ onChoose }) {
+  return (
+    <LinearGradient colors={OB_BG} style={styles.container}>
+      <PageScroll contentContainerStyle={styles.familiarityScroll}>
+        <Text style={styles.title}>🎯 NIVEAU DE CONNAISSANCE</Text>
+        <Text style={styles.familiaritySub}>
+          Moins familier de la scène League of Legends ? Réduisez le vivier de départ aux joueurs les plus connus de chaque poste.
+        </Text>
+        {FAMILIARITY_OPTIONS.map(opt => (
+          <TouchableOpacity
+            key={opt.value}
+            onPress={() => onChoose(opt.value)}
+            style={styles.familiarityBtn}
+            activeOpacity={0.85}
+          >
+            <LinearGradient
+              colors={opt.value === 100 ? [ACCENT_LIGHT, ACCENT, ACCENT_DARK] : ['transparent', 'transparent']}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+              style={[styles.familiarityBtnGrad, opt.value !== 100 && styles.familiarityBtnOutline]}
+            >
+              <Text style={[styles.familiarityBtnLabel, opt.value !== 100 && { color: ACCENT_LIGHT }]}>{opt.label}</Text>
+              <Text style={[styles.familiarityBtnHint, opt.value === 100 && { color: '#0A0815AA' }]}>{opt.hint}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        ))}
+      </PageScroll>
+    </LinearGradient>
+  );
+}
+
 function PlayerCard({ player, onPick }) {
   const scale = useRef(new Animated.Value(1)).current;
   const meta = ROLE_META[player.role];
@@ -71,16 +108,17 @@ export default function LolSelectDraftScreen({ navigation, route }) {
   const { roomId, playerId } = route?.params || {};
   const isMultiplayer = !!(roomId && playerId);
 
-  const [state, setState] = useState(createDraftState);
+  const [state, setState] = useState(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    if (!state) return;
     fadeAnim.setValue(0);
     Animated.timing(fadeAnim, { toValue: 1, duration: 350, useNativeDriver: true }).start();
-  }, [JSON.stringify(state.trios)]);
+  }, [state && JSON.stringify(state.trios)]);
 
   useEffect(() => {
-    if (!state.finished) return;
+    if (!state?.finished) return;
     if (isMultiplayer) {
       supabase.from('lolselect_players')
         .update({ team_json: state.team, ready: true })
@@ -89,7 +127,7 @@ export default function LolSelectDraftScreen({ navigation, route }) {
     } else {
       navigation.replace('LolSelectTournament', { team: state.team });
     }
-  }, [state.finished]);
+  }, [state?.finished]);
 
   const handlePick = useCallback((playerId2) => {
     setState(s => pickPlayer(s, playerId2));
@@ -98,6 +136,10 @@ export default function LolSelectDraftScreen({ navigation, route }) {
   const handleReroll = useCallback(() => {
     setState(s => rerollAll(s));
   }, []);
+
+  if (!state) {
+    return <FamiliarityPicker onChoose={(pct) => setState(createDraftState(pct))} />;
+  }
 
   const shownCount = getShownCount(state);
   const rerollPossible = canReroll(state);
@@ -166,6 +208,14 @@ const styles = StyleSheet.create({
   rerollBadgeText: { fontSize: 12, fontWeight: '800', color: HEXTECH },
 
   title: { fontSize: 22, fontWeight: '900', color: colors.text, letterSpacing: 1.5, textAlign: 'center', marginBottom: spacing.md },
+
+  familiarityScroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.xxl, gap: spacing.md },
+  familiaritySub: { fontSize: 13, color: colors.textSecondary, textAlign: 'center', lineHeight: 20, marginBottom: spacing.lg },
+  familiarityBtn: { borderRadius: radius.lg, overflow: 'hidden' },
+  familiarityBtnGrad: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, alignItems: 'center' },
+  familiarityBtnOutline: { borderWidth: 1, borderColor: `${ACCENT}45`, backgroundColor: colors.card },
+  familiarityBtnLabel: { fontSize: 20, fontWeight: '900', color: '#0A0815', letterSpacing: 1 },
+  familiarityBtnHint: { fontSize: 11, color: colors.textSecondary, marginTop: 2, textAlign: 'center' },
 
   roleTracker: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, justifyContent: 'center', marginBottom: spacing.sm },
   trackerSlot: {

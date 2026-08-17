@@ -51,6 +51,7 @@ export default function LolSelectSetupScreen({ navigation }) {
             <Text style={styles.rulesLine}>📉  La vitrine passe ainsi de <Text style={styles.rulesAccent}>15 → 12 → 9 → 6 → 3</Text> joueurs à chaque poste verrouillé</Text>
             <Text style={styles.rulesLine}>🔄  En plus, {MAX_REROLLS} relances manuelles au total — chacune rafraîchit <Text style={styles.rulesAccent}>tous les postes encore ouverts</Text> en une fois, un joueur écarté n'est jamais reproposé</Text>
             <Text style={styles.rulesLine}>🔒  Une fois les 5 postes remplis, <Text style={styles.rulesAccent}>impossible de revenir en arrière</Text> — place au tournoi !</Text>
+            <Text style={styles.rulesLine}>🎯  Moins familier de la scène ? Un <Text style={styles.rulesAccent}>niveau de connaissance</Text> (100/75/50/25 %) réduit le vivier aux joueurs les plus connus, à choisir juste avant le draft</Text>
           </View>
 
           <View style={styles.card}>

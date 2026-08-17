@@ -15,9 +15,13 @@
 //   tous les postes encore ouverts par 3 nouveaux joueurs chacun.
 // - Un joueur affiché n'est jamais reproposé une fois écarté (choix,
 //   relance ou remplacé).
+// - Niveau de connaissance (`familiarity` : 100/75/50/25) : restreint le
+//   vivier de départ aux joueurs les plus connus de chaque poste, pour les
+//   joueurs moins familiers de la scène esport. Toujours au moins 3 par
+//   poste (le mécanisme de trio reste inchangé).
 // ─────────────────────────────────────────────────────────────────────────
 
-import { LOL_PLAYERS, LOL_PLAYERS_BY_ID, ROLE_ORDER } from './lolPlayers';
+import { LOL_PLAYERS, LOL_PLAYERS_BY_ID, ROLE_ORDER, getFilteredPool } from './lolPlayers';
 
 export const TRIO_SIZE    = 3;
 export const MAX_REROLLS  = 3;
@@ -31,24 +35,24 @@ function shuffle(arr) {
   return a;
 }
 
-function drawTrio(role, burnedSet) {
-  const pool = LOL_PLAYERS.filter(p => p.role === role && !burnedSet.has(p.id));
-  return shuffle(pool).slice(0, TRIO_SIZE).map(p => p.id);
+function drawTrio(pool, role, burnedSet) {
+  const candidates = pool.filter(p => p.role === role && !burnedSet.has(p.id));
+  return shuffle(candidates).slice(0, TRIO_SIZE).map(p => p.id);
 }
 
 // Rafraîchit le trio de chaque poste listé dans `roles` : les 3 candidats
 // actuellement affichés sont brûlés (jamais reproposés) et remplacés par 3
-// nouveaux, tirés du reste du vivier. Si un poste n'a plus assez de
+// nouveaux, tirés du reste du vivier `pool`. Si un poste n'a plus assez de
 // candidats frais, son trio est simplement laissé tel quel. Mute `trios`
 // (copie) et `burnedSet` (Set) fournis en paramètres.
-function refreshTrios(trios, burnedSet, roles) {
+function refreshTrios(pool, trios, burnedSet, roles) {
   roles.forEach(role => {
     const currentTrio = trios[role];
     if (!currentTrio) return;
     const tentativeBurned = new Set(burnedSet);
     currentTrio.forEach(id => tentativeBurned.add(id));
 
-    const freshPool = LOL_PLAYERS.filter(p => p.role === role && !tentativeBurned.has(p.id));
+    const freshPool = pool.filter(p => p.role === role && !tentativeBurned.has(p.id));
     if (freshPool.length >= TRIO_SIZE) {
       currentTrio.forEach(id => burnedSet.add(id));
       trios[role] = shuffle(freshPool).slice(0, TRIO_SIZE).map(p => p.id);
@@ -56,11 +60,19 @@ function refreshTrios(trios, burnedSet, roles) {
   });
 }
 
-export function createDraftState() {
+// Reconstruit le vivier de la partie (figé au lancement du draft) à partir
+// des ids mémorisés dans le state.
+function poolFromState(state) {
+  const idSet = new Set(state.poolIds);
+  return LOL_PLAYERS.filter(p => idSet.has(p.id));
+}
+
+export function createDraftState(familiarity = 100) {
+  const pool = getFilteredPool(familiarity);
   const team = { TOP: null, JGL: null, MID: null, ADC: null, SUP: null };
   const burnedSet = new Set();
   const trios = {};
-  ROLE_ORDER.forEach(role => { trios[role] = drawTrio(role, burnedSet); });
+  ROLE_ORDER.forEach(role => { trios[role] = drawTrio(pool, role, burnedSet); });
 
   return {
     team,
@@ -69,6 +81,8 @@ export function createDraftState() {
     rerollsLeft: MAX_REROLLS,
     picksMade: 0,
     finished: false,
+    familiarity,
+    poolIds: pool.map(p => p.id),
   };
 }
 
@@ -87,7 +101,7 @@ export function pickPlayer(state, playerId) {
   delete trios[role];
 
   // Un choix relance automatiquement tous les autres postes encore ouverts.
-  refreshTrios(trios, burnedSet, Object.keys(trios));
+  refreshTrios(poolFromState(state), trios, burnedSet, Object.keys(trios));
 
   const picksMade = state.picksMade + 1;
   const finished = ROLE_ORDER.every(r => team[r]);
@@ -108,7 +122,7 @@ export function rerollAll(state) {
 
   const burnedSet = new Set(state.burned);
   const trios = { ...state.trios };
-  refreshTrios(trios, burnedSet, Object.keys(trios));
+  refreshTrios(poolFromState(state), trios, burnedSet, Object.keys(trios));
 
   return { ...state, trios, burned: [...burnedSet], rerollsLeft: state.rerollsLeft - 1 };
 }
