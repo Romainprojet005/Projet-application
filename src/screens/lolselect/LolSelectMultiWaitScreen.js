@@ -5,7 +5,7 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
-import { simulateMatch } from '../../data/lolSimulation';
+import { simulateBo3 } from '../../data/lolSimulation';
 
 const ACCENT       = '#C89B3C';
 const ACCENT_LIGHT = '#F0D68C';
@@ -47,7 +47,7 @@ export default function LolSelectMultiWaitScreen({ navigation, route }) {
     computingRef.current = true;
     const host  = ps.find(p => p.is_host);
     const guest = ps.find(p => !p.is_host);
-    const result = simulateMatch(host.team_json, guest.team_json, host.name, guest.name);
+    const result = simulateBo3(host.team_json, guest.team_json, host.name, guest.name);
     await supabase.from('lolselect_rooms').update({
       status: 'finished',
       result_json: { result, hostTeam: host.team_json, guestTeam: guest.team_json, hostName: host.name, guestName: guest.name },

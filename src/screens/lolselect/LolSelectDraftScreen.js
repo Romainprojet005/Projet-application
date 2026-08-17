@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Image, Platform, Animated,
 } from 'react-native';
@@ -8,7 +8,7 @@ import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 import { ROLE_META, ROLE_ORDER, LOL_PLAYERS_BY_ID } from '../../data/lolPlayers';
 import {
-  createDraftState, pickPlayer, rerollWindow, getShownPlayers,
+  createDraftState, pickPlayer, rerollRole, canRerollRole, getTrioPlayers, getShownCount,
 } from '../../data/lolDraftEngine';
 import { supabase } from '../../services/supabase';
 
@@ -35,10 +35,7 @@ function PlayerCard({ player, onPick }) {
         onPress={() => onPick(player.id)}
       >
         <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardRole}>{meta.emoji} {meta.label.toUpperCase()}</Text>
-            <Text style={styles.cardFlag}>{player.flag}</Text>
-          </View>
+          <Text style={styles.cardFlag}>{player.flag}</Text>
 
           <View style={styles.photoWrap}>
             {player.image
@@ -62,6 +59,31 @@ function PlayerCard({ player, onPick }) {
   );
 }
 
+function RoleLane({ role, state, onPick, onReroll }) {
+  const trio = getTrioPlayers(state, role);
+  if (!trio.length) return null;
+  const meta = ROLE_META[role];
+  const canReroll = canRerollRole(state, role);
+
+  return (
+    <View style={styles.lane}>
+      <View style={styles.laneHeader}>
+        <Text style={styles.laneTitle}>{meta.emoji}  {meta.label.toUpperCase()}</Text>
+        <TouchableOpacity
+          onPress={() => onReroll(role)}
+          disabled={!canReroll}
+          style={[styles.laneRerollBtn, !canReroll && styles.laneRerollBtnDisabled]}
+        >
+          <Text style={styles.laneRerollText}>🔄 Relancer ce poste</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.laneCards}>
+        {trio.map(player => <PlayerCard key={player.id} player={player} onPick={onPick} />)}
+      </View>
+    </View>
+  );
+}
+
 export default function LolSelectDraftScreen({ navigation, route }) {
   const { roomId, playerId } = route?.params || {};
   const isMultiplayer = !!(roomId && playerId);
@@ -72,7 +94,7 @@ export default function LolSelectDraftScreen({ navigation, route }) {
   useEffect(() => {
     fadeAnim.setValue(0);
     Animated.timing(fadeAnim, { toValue: 1, duration: 350, useNativeDriver: true }).start();
-  }, [state.shownIds.join(',')]);
+  }, [JSON.stringify(state.trios)]);
 
   useEffect(() => {
     if (!state.finished) return;
@@ -86,15 +108,15 @@ export default function LolSelectDraftScreen({ navigation, route }) {
     }
   }, [state.finished]);
 
-  const shown = useMemo(() => getShownPlayers(state), [state.shownIds]);
-
-  const handlePick = useCallback((playerId) => {
-    setState(s => pickPlayer(s, playerId));
+  const handlePick = useCallback((playerId2) => {
+    setState(s => pickPlayer(s, playerId2));
   }, []);
 
-  const handleReroll = useCallback(() => {
-    setState(s => rerollWindow(s));
+  const handleReroll = useCallback((role) => {
+    setState(s => rerollRole(s, role));
   }, []);
+
+  const shownCount = getShownCount(state);
 
   return (
     <LinearGradient colors={OB_BG} style={styles.container}>
@@ -104,13 +126,9 @@ export default function LolSelectDraftScreen({ navigation, route }) {
           <TouchableOpacity onPress={() => navigation.navigate('Menu')}>
             <Text style={styles.quitText}>✕ Quitter</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleReroll}
-            disabled={state.rerollsLeft <= 0}
-            style={[styles.rerollBtn, state.rerollsLeft <= 0 && styles.rerollBtnDisabled]}
-          >
-            <Text style={styles.rerollBtnText}>🔄  Relance ({state.rerollsLeft}/3)</Text>
-          </TouchableOpacity>
+          <View style={styles.rerollBadge}>
+            <Text style={styles.rerollBadgeText}>🔄  {state.rerollsLeft}/3 relances</Text>
+          </View>
         </View>
 
         <Text style={styles.title}>COMPOSEZ VOTRE ÉQUIPE</Text>
@@ -132,12 +150,12 @@ export default function LolSelectDraftScreen({ navigation, route }) {
         </View>
 
         <Text style={styles.hint}>
-          {shown.length} carte{shown.length > 1 ? 's' : ''} proposée{shown.length > 1 ? 's' : ''} · choisissez ou relancez — chaque action est définitive
+          {shownCount} joueurs proposés · un choix (ou une relance) écarte définitivement les cartes concernées
         </Text>
 
-        <Animated.View style={[styles.grid, { opacity: fadeAnim }]}>
-          {shown.map(player => (
-            <PlayerCard key={player.id} player={player} onPick={handlePick} />
+        <Animated.View style={{ opacity: fadeAnim }}>
+          {ROLE_ORDER.map(role => (
+            <RoleLane key={role} role={role} state={state} onPick={handlePick} onReroll={handleReroll} />
           ))}
         </Animated.View>
 
@@ -152,12 +170,11 @@ const styles = StyleSheet.create({
 
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
   quitText: { fontSize: 13, color: colors.textMuted },
-  rerollBtn: {
+  rerollBadge: {
     paddingHorizontal: spacing.md, paddingVertical: spacing.xs + 2, borderRadius: radius.full,
     backgroundColor: `${HEXTECH}20`, borderWidth: 1, borderColor: `${HEXTECH}50`,
   },
-  rerollBtnDisabled: { opacity: 0.35 },
-  rerollBtnText: { fontSize: 12, fontWeight: '800', color: HEXTECH },
+  rerollBadgeText: { fontSize: 12, fontWeight: '800', color: HEXTECH },
 
   title: { fontSize: 22, fontWeight: '900', color: colors.text, letterSpacing: 1.5, textAlign: 'center', marginBottom: spacing.md },
 
@@ -172,24 +189,32 @@ const styles = StyleSheet.create({
   trackerName: { fontSize: 10, color: ACCENT_LIGHT, fontWeight: '800', marginTop: 2 },
   trackerEmpty: { fontSize: 10, color: colors.textMuted, marginTop: 2 },
 
-  hint: { fontSize: 11, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.md, fontStyle: 'italic' },
+  hint: { fontSize: 11, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.lg, fontStyle: 'italic' },
 
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing.sm },
-  cardWrap: { width: 168 },
+  lane: { marginBottom: spacing.lg },
+  laneHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
+  laneTitle: { fontSize: 14, fontWeight: '900', color: ACCENT_LIGHT, letterSpacing: 1 },
+  laneRerollBtn: {
+    paddingHorizontal: spacing.sm + 2, paddingVertical: 4, borderRadius: radius.full,
+    backgroundColor: `${HEXTECH}18`, borderWidth: 1, borderColor: `${HEXTECH}45`,
+  },
+  laneRerollBtnDisabled: { opacity: 0.3 },
+  laneRerollText: { fontSize: 10, fontWeight: '700', color: HEXTECH },
+
+  laneCards: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing.sm },
+  cardWrap: { width: 158 },
   card: {
     backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border,
     padding: spacing.sm + 2, alignItems: 'center',
   },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignSelf: 'stretch', marginBottom: spacing.xs },
-  cardRole: { fontSize: 10, fontWeight: '800', color: ACCENT_LIGHT, letterSpacing: 0.5 },
-  cardFlag: { fontSize: 13 },
+  cardFlag: { alignSelf: 'flex-end', fontSize: 13, marginBottom: 2 },
 
   photoWrap: { marginBottom: spacing.xs },
-  photo: { width: 84, height: 84, borderRadius: 42, borderWidth: 2, borderColor: ACCENT },
+  photo: { width: 76, height: 76, borderRadius: 38, borderWidth: 2, borderColor: ACCENT },
   photoFallback: { backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
-  photoFallbackEmoji: { fontSize: 34 },
+  photoFallbackEmoji: { fontSize: 30 },
 
-  cardName: { fontSize: 15, fontWeight: '900', color: colors.text },
+  cardName: { fontSize: 14, fontWeight: '900', color: colors.text },
   cardTeam: { fontSize: 10, color: colors.textSecondary, marginTop: 2 },
   cardStars: { fontSize: 12, color: ACCENT_LIGHT, marginTop: 4, letterSpacing: 1 },
   cardBio: { fontSize: 10, color: colors.textMuted, textAlign: 'center', marginTop: 6, lineHeight: 14, minHeight: 28 },

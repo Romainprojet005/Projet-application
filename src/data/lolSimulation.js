@@ -45,11 +45,11 @@ function teamSynergy(teamIds) {
   return { bonus, strongPairs, mildPairs };
 }
 
-function teamTotal(team) {
+function teamTotal(team, bonus = 0) {
   const ids = ROLE_ORDER.map(r => team[r]);
   const powerSum = ids.reduce((s, id) => s + LOL_PLAYERS_BY_ID[id].power, 0);
   const synergy = teamSynergy(ids);
-  return { total: Math.round((powerSum + synergy.bonus) * 10) / 10, powerSum, synergy };
+  return { total: Math.round((powerSum + synergy.bonus + bonus) * 10) / 10, powerSum, synergy, adjustBonus: bonus };
 }
 
 // ── Gabarits de récit (variantes cosmétiques, tirées au hasard) ─────────
@@ -106,13 +106,15 @@ function findRivalryLine(teamA, teamB) {
   return null;
 }
 
-// ── Simulation complète ──────────────────────────────────────────────────
+// ── Simulation d'une manche ───────────────────────────────────────────────
 // teamA / teamB : { TOP: playerId, JGL: playerId, ... }
 // labelA / labelB : noms affichés dans le récit (ex. "Votre équipe" / "L'équipe adverse",
 // ou en multijoueur les prénoms des deux joueurs).
-export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "L'équipe adverse") {
-  const statsA = teamTotal(teamA);
-  const statsB = teamTotal(teamB);
+// bonusA / bonusB : ajustement stratégique optionnel (utilisé en BO3 par l'équipe
+// battue à la manche précédente) — reste 100% déterministe, aucun tirage aléatoire.
+export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "L'équipe adverse", bonusA = 0, bonusB = 0) {
+  const statsA = teamTotal(teamA, bonusA);
+  const statsB = teamTotal(teamB, bonusB);
 
   const lanes = ROLE_ORDER.map(role => {
     const playerA = LOL_PLAYERS_BY_ID[teamA[role]];
@@ -133,6 +135,10 @@ export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "
                      : (laneWinsA >= laneWinsB ? 'A' : 'B');
 
   const lines = [];
+
+  if (bonusA > 0) lines.push(`🔁 Battue la manche précédente, ${labelA} a ajusté sa préparation — draft retravaillé, plan de jeu affûté.`);
+  if (bonusB > 0) lines.push(`🔁 Battue la manche précédente, ${labelB} a ajusté sa préparation — draft retravaillé, plan de jeu affûté.`);
+
   lines.push(...lanes.map(l => l.line));
 
   const synA = synergyLine(labelA, statsA.synergy);
@@ -155,7 +161,7 @@ export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "
     lines.push(`📊 Résultat logique : ${winnerLabel} domine aussi les duels individuels, ${winnerLaneCount}-${loserLaneCount}.`);
   }
 
-  lines.push(`🏆 ${winnerLabel} remporte le tournoi ! Indice de force final : ${statsA.total.toFixed(1)} — ${statsB.total.toFixed(1)}.`);
+  lines.push(`🏆 ${winnerLabel} remporte la manche ! Indice de force : ${statsA.total.toFixed(1)} — ${statsB.total.toFixed(1)}.`);
 
   return {
     lanes,
@@ -166,4 +172,33 @@ export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "
     laneWinsB,
     winner: overallWinner,
   };
+}
+
+// ── Série complète en Best-of-3 ───────────────────────────────────────────
+// Enchaîne jusqu'à 3 manches (première équipe à 2 victoires remporte la
+// série). Reste déterministe : la manche 1 se joue sur les forces brutes,
+// l'équipe battue reçoit un bonus d'adaptation pour la manche suivante
+// (illustre un vrai ajustement stratégique — pas un tirage au sort), ce qui
+// peut suffire à renverser des séries serrées sans jamais rendre le résultat
+// arbitraire.
+const ADAPT_BONUS = 5;
+
+export function simulateBo3(teamA, teamB, labelA = 'Votre équipe', labelB = "L'équipe adverse") {
+  const games = [];
+  let scoreA = 0;
+  let scoreB = 0;
+  let bonusA = 0;
+  let bonusB = 0;
+
+  while (scoreA < 2 && scoreB < 2) {
+    const result = simulateMatch(teamA, teamB, labelA, labelB, bonusA, bonusB);
+    games.push(result);
+    if (result.winner === 'A') scoreA++; else scoreB++;
+
+    bonusA = result.winner === 'B' ? ADAPT_BONUS : 0;
+    bonusB = result.winner === 'A' ? ADAPT_BONUS : 0;
+  }
+
+  const seriesWinner = scoreA > scoreB ? 'A' : 'B';
+  return { games, scoreA, scoreB, seriesWinner };
 }

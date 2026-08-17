@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { generateRivalTeam, simulateMatch } from '../../data/lolSimulation';
+import { generateRivalTeam, simulateBo3 } from '../../data/lolSimulation';
 import LolTournamentView from './LolTournamentView';
 
 export default function LolSelectTournamentScreen({ route, navigation }) {
   const { team } = route.params || {};
   const [rivalTeam] = useState(() => generateRivalTeam(team));
-  const [result]    = useState(() => simulateMatch(team, rivalTeam, 'Votre équipe', "L'équipe adverse"));
+  const [result]    = useState(() => simulateBo3(team, rivalTeam, 'Votre équipe', "L'équipe adverse"));
 
   return (
     <LolTournamentView

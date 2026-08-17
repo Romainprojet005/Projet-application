@@ -5,7 +5,7 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 import { ROLE_META, ROLE_ORDER } from '../../data/lolPlayers';
-import { MAX_REROLLS, INITIAL_WINDOW_SIZE } from '../../data/lolDraftEngine';
+import { MAX_REROLLS, TRIO_SIZE } from '../../data/lolDraftEngine';
 
 const ACCENT      = '#C89B3C';
 const ACCENT_LIGHT= '#F0D68C';
@@ -46,11 +46,10 @@ export default function LolSelectSetupScreen({ navigation }) {
 
           <View style={[styles.rulesCard, { borderColor: ACCENT + '35', backgroundColor: ACCENT + '15' }]}>
             <Text style={styles.rulesTitle}>🎮  Comment jouer</Text>
-            <Text style={styles.rulesLine}>🃏  {INITIAL_WINDOW_SIZE} joueurs pros vous sont présentés sous forme de cartes</Text>
-            <Text style={styles.rulesLine}>🎯  Choisissez une carte pour verrouiller ce poste dans votre équipe</Text>
-            <Text style={styles.rulesLine}>🔄  Vous disposez de <Text style={styles.rulesAccent}>{MAX_REROLLS} relances</Text> pour changer les propositions</Text>
-            <Text style={styles.rulesLine}>⚠️  Chaque choix (ou relance) fait disparaître définitivement les cartes affichées — un joueur n'est jamais reproposé</Text>
-            <Text style={styles.rulesLine}>📉  Chaque choix réduit de 3 le nombre de cartes proposées ensuite</Text>
+            <Text style={styles.rulesLine}>🃏  Les 5 postes s'affichent en parallèle, chacun avec un trio de {TRIO_SIZE} cartes — <Text style={styles.rulesAccent}>15 joueurs</Text> au départ</Text>
+            <Text style={styles.rulesLine}>🎯  Choisir une carte verrouille son poste : les {TRIO_SIZE} joueurs de ce trio disparaissent (les 2 autres sont écartés)</Text>
+            <Text style={styles.rulesLine}>📉  La vitrine passe ainsi de <Text style={styles.rulesAccent}>15 → 12 → 9 → 6 → 3</Text> joueurs à chaque poste verrouillé</Text>
+            <Text style={styles.rulesLine}>🔄  {MAX_REROLLS} relances au total, à dépenser poste par poste — un joueur écarté n'est jamais reproposé</Text>
             <Text style={styles.rulesLine}>🔒  Une fois les 5 postes remplis, <Text style={styles.rulesAccent}>impossible de revenir en arrière</Text> — place au tournoi !</Text>
           </View>
 
@@ -64,14 +63,15 @@ export default function LolSelectSetupScreen({ navigation }) {
                 </View>
               ))}
             </View>
-            <Text style={styles.hint}>15 vraies légendes de l'esport, à des années différentes de leur carrière — leur niveau reflète leur domination réelle cette année-là.</Text>
+            <Text style={styles.hint}>Des dizaines de vraies légendes de l'esport (LCK, LEC, LPL), certaines à plusieurs années différentes de leur carrière — leur niveau reflète leur domination réelle cette année-là.</Text>
           </View>
 
           <View style={[styles.rulesCard, { borderColor: HEXTECH + '35', backgroundColor: HEXTECH + '12' }]}>
-            <Text style={[styles.rulesTitle, { color: HEXTECH }]}>🏆  Le tournoi</Text>
-            <Text style={styles.rulesLine}>⚔️  Votre équipe affronte une équipe rivale générée avec les joueurs restants</Text>
-            <Text style={styles.rulesLine}>📊  Le vainqueur est déterminé par le niveau des joueurs et la <Text style={styles.rulesAccent}>alchimie</Text> entre coéquipiers ayant réellement joué ensemble</Text>
-            <Text style={styles.rulesLine}>📝  Le récit du match change à chaque partie, mais jamais le résultat : il ne doit rien au hasard</Text>
+            <Text style={[styles.rulesTitle, { color: HEXTECH }]}>🏆  Le tournoi (BO3)</Text>
+            <Text style={styles.rulesLine}>⚔️  Votre équipe affronte une équipe rivale en <Text style={styles.rulesAccent}>Best-of-3</Text> — la première à 2 manches gagne la série</Text>
+            <Text style={styles.rulesLine}>📊  Chaque manche est déterminée par le niveau des joueurs et la <Text style={styles.rulesAccent}>alchimie</Text> entre coéquipiers ayant réellement joué ensemble</Text>
+            <Text style={styles.rulesLine}>🔁  L'équipe battue ajuste sa stratégie pour la manche suivante — de vrais retournements sont possibles</Text>
+            <Text style={styles.rulesLine}>📝  Le récit change à chaque partie, mais jamais sans raison : il ne doit rien au hasard des lignes de texte</Text>
           </View>
 
         </Animated.View>
