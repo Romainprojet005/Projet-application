@@ -1,11 +1,13 @@
 // ─────────────────────────────────────────────────────────────────────────
 // LE SÉLECTIONNEUR — données des joueurs professionnels League of Legends
-// Plusieurs joueurs par poste (TOP / JGL / MID / ADC / SUP), venus de LCK
-// (Corée), LEC (Europe) et LPL (Chine), à des années différentes de leur
-// carrière. Certaines légendes apparaissent PLUSIEURS FOIS, à des années
-// différentes (`personId` commun) — ex. Faker 2015 (pic de forme) est plus
-// fort que Faker 2023, bien que tous deux soient d'authentiques champions
-// du monde. La force (`power`) reflète leur niveau de domination réelle
+// Près de 70 joueurs, une douzaine par poste (TOP / JGL / MID / ADC / SUP),
+// venus de LCK (Corée), LEC (Europe) et LPL (Chine), à des années
+// différentes de leur carrière — de la toute première dynastie SKT T1
+// (2013) jusqu'aux sacres les plus récents. De nombreuses légendes
+// apparaissent PLUSIEURS FOIS, à des années différentes (`personId`
+// commun) — ex. Faker 2013 (révélation), 2015 (pic de forme absolu) et
+// 2023 (retour au sommet) : trois versions bien réelles, mais pas d'égale
+// domination. La force (`power`) reflète le niveau de domination réelle
 // CETTE année-là. Photos : Wikimedia Commons (licence libre). Quand aucune
 // photo Wikipédia fiable n'a été trouvée, `image` vaut null → le poste
 // s'affiche sans photo.
@@ -104,6 +106,69 @@ export const LOL_PLAYERS = [
     signature: "un pool de champions si large qu'il en devient imprévisible",
     weakness: "une dépendance à un draft favorable pour exploser",
   },
+  {
+    id: 'impact_2013', personId: 'impact', name: 'Impact', realName: 'Jung Eon-yeong',
+    role: 'TOP', team: 'SK Telecom T1', year: 2013, region: 'LCK', flag: '🇰🇷',
+    power: 88,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Impact_interview_2019.jpg/250px-Impact_interview_2019.jpg',
+    bio: 'Champion du monde 2013 avec SKT T1, pilier fondateur de la toute première dynastie coréenne.',
+    signature: "une solidité de top laner qui a posé les bases de toute une dynastie",
+    weakness: "un style plus conservateur que les tops modernes",
+  },
+  {
+    id: 'duke_2016', personId: 'duke', name: 'Duke', realName: 'Lee Ho-seong',
+    role: 'TOP', team: 'SK Telecom T1', year: 2016, region: 'LCK', flag: '🇰🇷',
+    power: 86,
+    image: null,
+    bio: 'Troisième titre mondial de SKT T1 en 2016, top laner polyvalent au service du collectif.',
+    signature: "une polyvalence qui s'efface au profit du collectif",
+    weakness: "un profil moins individuellement spectaculaire",
+  },
+  {
+    id: 'cuvee_2017', personId: 'cuvee', name: 'CuVee', realName: 'Lee Seong-jin',
+    role: 'TOP', team: 'Samsung Galaxy', year: 2017, region: 'LCK', flag: '🇰🇷',
+    power: 87,
+    image: null,
+    bio: 'Champion du monde 2017 avec Samsung Galaxy, artisan du sweep historique contre SKT T1.',
+    signature: "une expérience du meta top qui déjoue tous les pièges",
+    weakness: "un style moins flamboyant que les carries purs",
+  },
+  {
+    id: 'doran_2022', personId: 'doran', name: 'Doran', realName: 'Choi Hyeon-joon',
+    role: 'TOP', team: 'Gen.G', year: 2022, region: 'LCK', flag: '🇰🇷',
+    power: 86,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Doran_2025.jpg/250px-Doran_2025.jpg',
+    bio: 'Pilier de Gen.G 2022, top laner solide et régulier de la LCK.',
+    signature: "une régularité qui ne craque jamais sous la pression",
+    weakness: "un profil plus discret face aux top laners créatifs",
+  },
+  {
+    id: 'gimgoon_2019', personId: 'gimgoon', name: 'GimGoon', realName: 'Kim Han-saem',
+    role: 'TOP', team: 'FunPlus Phoenix', year: 2019, region: 'LPL', flag: '🇰🇷',
+    power: 85,
+    image: null,
+    bio: 'Champion du monde 2019 avec FunPlus Phoenix, top laner clé du sweep en finale.',
+    signature: "un sang-froid retrouvé au meilleur moment de la saison",
+    weakness: "une carrière plus discrète en dehors de ce sacre",
+  },
+  {
+    id: 'bwipo_2018', personId: 'bwipo', name: 'Bwipo', realName: 'Gabriël Rau',
+    role: 'TOP', team: 'Fnatic', year: 2018, region: 'LEC', flag: '🇧🇪',
+    power: 84,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Bwipo_at_Worlds_2025.jpg/250px-Bwipo_at_Worlds_2025.jpg',
+    bio: 'Finaliste des Worlds 2018 avec Fnatic, top laner polyvalent capable de jouer plusieurs postes.',
+    signature: "une polyvalence rare, prêt à changer de poste à tout moment",
+    weakness: "un manque d'expérience internationale à ce stade de carrière",
+  },
+  {
+    id: 'letme_2018', personId: 'letme', name: 'Letme', realName: 'Cheng Zhi-Zheng',
+    role: 'TOP', team: 'Royal Never Give Up', year: 2018, region: 'LPL', flag: '🇨🇳',
+    power: 87,
+    image: null,
+    bio: 'Champion du MSI 2018 avec RNG, top laner increvable au style de tank increvable.',
+    signature: "un style de tank increvable qui absorbe toute la pression",
+    weakness: "un profil plus défensif qu'offensif",
+  },
 
   // ── JUNGLE ────────────────────────────────────────────────────────────
   {
@@ -177,6 +242,60 @@ export const LOL_PLAYERS = [
     bio: 'Champion du monde 2024 avec JD Gaming, déjà titré au MSI avec RNG en 2018.',
     signature: "une expérience de la scène chinoise inégalée",
     weakness: "un rythme parfois freiné par une early game trop prudente",
+  },
+  {
+    id: 'bengi_2013', personId: 'bengi', name: 'Bengi', realName: 'Bae Seong-ung',
+    role: 'JGL', team: 'SK Telecom T1', year: 2013, region: 'LCK', flag: '🇰🇷',
+    power: 87,
+    image: null,
+    bio: 'Champion du monde 2013 avec SKT T1, jungler qui a défini le rôle de support de carte moderne.',
+    signature: "un contrôle de carte qui a inventé le rôle moderne de jungler",
+    weakness: "un impact plus discret individuellement",
+  },
+  {
+    id: 'ambition_2017', personId: 'ambition', name: 'Ambition', realName: 'Kang Chan-yong',
+    role: 'JGL', team: 'Samsung Galaxy', year: 2017, region: 'LCK', flag: '🇰🇷',
+    power: 86,
+    image: null,
+    bio: 'Champion du monde 2017 avec Samsung Galaxy, jungler vétéran au sang-froid exemplaire.',
+    signature: "un sang-froid de vétéran dans les moments qui comptent",
+    weakness: "un tempo plus lent que les junglers hyper-agressifs",
+  },
+  {
+    id: 'ning_2018', personId: 'ning', name: 'Ning', realName: 'Xu Zhen-Ning',
+    role: 'JGL', team: 'Invictus Gaming', year: 2018, region: 'LPL', flag: '🇨🇳',
+    power: 91,
+    image: null,
+    bio: 'Finals MVP des Worlds 2018 avec Invictus Gaming, l\'un des junglers les plus dominants de sa génération.',
+    signature: "un impact de jungle qui lui a valu le titre de MVP des Worlds",
+    weakness: "une prise de risque qui peut parfois se retourner contre lui",
+  },
+  {
+    id: 'karsa_2018', personId: 'karsa', name: 'Karsa', realName: 'Hung Hau-Hsuan',
+    role: 'JGL', team: 'Royal Never Give Up', year: 2018, region: 'LPL', flag: '🇹🇼',
+    power: 88,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Karsa_%28cropped%29.jpg/250px-Karsa_%28cropped%29.jpg',
+    bio: 'Champion du MSI 2018 avec RNG, considéré comme l\'un des meilleurs junglers de sa génération.',
+    signature: "une explosivité de early game qui écrase la concurrence",
+    weakness: "un jeu qui dépend beaucoup du tempo qu'on lui laisse prendre",
+  },
+  {
+    id: 'broxah_2018', personId: 'broxah', name: 'Broxah', realName: 'Mads Brock-Pedersen',
+    role: 'JGL', team: 'Fnatic', year: 2018, region: 'LEC', flag: '🇩🇰',
+    power: 85,
+    image: null,
+    bio: 'Finaliste des Worlds 2018 avec Fnatic, jungler discret à l\'impact décisif.',
+    signature: "un impact discret mais décisif dans les moments clés",
+    weakness: "un profil moins médiatique que ses coéquipiers stars",
+  },
+  {
+    id: 'tian_2019', personId: 'tian', name: 'Tian', realName: 'Gao Tian-Liang',
+    role: 'JGL', team: 'FunPlus Phoenix', year: 2019, region: 'LPL', flag: '🇨🇳',
+    power: 90,
+    image: null,
+    bio: 'Champion du monde 2019 avec FunPlus Phoenix, Finals MVP lors du sweep en finale contre G2.',
+    signature: "un tempo de early game qui a valu le titre de Finals MVP",
+    weakness: "un style encore en construction à cette étape de carrière",
   },
 
   // ── MID ───────────────────────────────────────────────────────────────
@@ -261,6 +380,51 @@ export const LOL_PLAYERS = [
     signature: "un contrôle de wave qui étouffe la lane adverse",
     weakness: "un style qui a besoin d'une jungle proactive pour exploser",
   },
+  {
+    id: 'faker_2013', personId: 'faker', name: 'Faker', realName: 'Lee Sang-hyeok',
+    role: 'MID', team: 'SK Telecom T1', year: 2013, region: 'LCK', flag: '🇰🇷',
+    power: 95,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Faker_2020_interview.jpg',
+    bio: 'Champion du monde dès sa toute première année pro en 2013, le phénomène qui allait changer l\'histoire du jeu.',
+    signature: "un talent brut qui allait redéfinir tout un rôle",
+    weakness: "une inexpérience de la scène internationale à ce stade",
+  },
+  {
+    id: 'crown_2017', personId: 'crown', name: 'Crown', realName: 'Lee Min-ho',
+    role: 'MID', team: 'Samsung Galaxy', year: 2017, region: 'LCK', flag: '🇰🇷',
+    power: 87,
+    image: null,
+    bio: 'Champion du monde 2017 avec Samsung Galaxy, mid laner au style élégant et sans excès.',
+    signature: "une élégance de jeu qui ne laisse jamais rien au hasard",
+    weakness: "un style plus mesuré que les mids hyper-agressifs",
+  },
+  {
+    id: 'xiaohu_2018', personId: 'xiaohu', name: 'Xiaohu', realName: 'Li Yuan-Hao',
+    role: 'MID', team: 'Royal Never Give Up', year: 2018, region: 'LPL', flag: '🇨🇳',
+    power: 86,
+    image: null,
+    bio: 'Champion du MSI 2018 avec RNG, vétéran respecté de la scène chinoise.',
+    signature: "une expérience de vétéran qui rassure tout un roster",
+    weakness: "un profil plus classique face aux mids les plus créatifs",
+  },
+  {
+    id: 'doinb_2019', personId: 'doinb', name: 'Doinb', realName: 'Kim Tae-sang',
+    role: 'MID', team: 'FunPlus Phoenix', year: 2019, region: 'LPL', flag: '🇰🇷',
+    power: 90,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Doinb_in_Journey_to_the_Top_-_2022_LPL_Spring_Split.jpg/250px-Doinb_in_Journey_to_the_Top_-_2022_LPL_Spring_Split.jpg',
+    bio: 'Champion du monde 2019 avec FunPlus Phoenix, génie tactique aux picks improbables.',
+    signature: "des picks improbables qui retournent des parties entières",
+    weakness: "un style si atypique qu'il peut aussi se faire punir",
+  },
+  {
+    id: 'caps_2018', personId: 'caps', name: 'Caps', realName: 'Rasmus Winther',
+    role: 'MID', team: 'Fnatic', year: 2018, region: 'LEC', flag: '🇩🇰',
+    power: 88,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Caps_2025.jpg/250px-Caps_2025.jpg',
+    bio: 'Finaliste des Worlds 2018 avec Fnatic à seulement 18 ans, surnommé « Baby Faker ».',
+    signature: "une précocité qui lui vaut déjà le surnom de Baby Faker",
+    weakness: "une jeunesse qui peut parfois manquer de patience",
+  },
 
   // ── ADC ───────────────────────────────────────────────────────────────
   {
@@ -344,6 +508,33 @@ export const LOL_PLAYERS = [
     signature: "une discrétion trompeuse jusqu'à l'explosion en teamfight",
     weakness: "un profil qui laisse peu de place à l'individualité",
   },
+  {
+    id: 'piglet_2013', personId: 'piglet', name: 'Piglet', realName: 'Chae Gwang-jin',
+    role: 'ADC', team: 'SK Telecom T1', year: 2013, region: 'LCK', flag: '🇰🇷',
+    power: 87,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Piglet_at_the_NA_LCS_Spring_2016_playoffs.jpg/250px-Piglet_at_the_NA_LCS_Spring_2016_playoffs.jpg',
+    bio: 'Champion du monde 2013 avec SKT T1, ADC précoce au mécanique déjà redoutable.',
+    signature: "un mécanique précoce qui impressionne déjà toute la scène",
+    weakness: "une gestion du risque encore en construction",
+  },
+  {
+    id: 'bang_2016', personId: 'bang', name: 'Bang', realName: 'Bae Jun-sik',
+    role: 'ADC', team: 'SK Telecom T1', year: 2016, region: 'LCK', flag: '🇰🇷',
+    power: 88,
+    image: null,
+    bio: 'Champion du monde 2016 avec SKT T1, ADC increvable au style sans faille.',
+    signature: "un style sans faille qui ne laisse aucune ouverture",
+    weakness: "un profil plus discret que les ADC hyper-agressifs",
+  },
+  {
+    id: 'lwx_2019', personId: 'lwx', name: 'Lwx', realName: 'Lin Wei-Xiang',
+    role: 'ADC', team: 'FunPlus Phoenix', year: 2019, region: 'LPL', flag: '🇨🇳',
+    power: 89,
+    image: null,
+    bio: 'Champion du monde 2019 avec FunPlus Phoenix, seul joueur de l\'histoire à finir une finale sans la moindre mort.',
+    signature: "une propreté d'exécution jamais vue en finale des Worlds",
+    weakness: "un style plus prudent que les hyper-carries",
+  },
 
   // ── SUPPORT ───────────────────────────────────────────────────────────
   {
@@ -365,7 +556,7 @@ export const LOL_PLAYERS = [
     weakness: "un style plus posé, moins flashy que la concurrence",
   },
   {
-    id: 'baolan_2018', personId: 'baolan', name: 'Baolan', realName: 'Shi Sen-Ming',
+    id: 'baolan_2018', personId: 'baolan', name: 'Baolan', realName: 'Wang Liu-yi',
     role: 'SUP', team: 'Invictus Gaming', year: 2018, region: 'LPL', flag: '🇨🇳',
     power: 86,
     image: null,
@@ -418,6 +609,51 @@ export const LOL_PLAYERS = [
     signature: "un playmaking hors norme, capable de tout retourner",
     weakness: "un style si créatif qu'il peut parfois se faire punir",
   },
+  {
+    id: 'poohmandu_2013', personId: 'poohmandu', name: 'PoohManDu', realName: 'Lee Jeong-hyeon',
+    role: 'SUP', team: 'SK Telecom T1', year: 2013, region: 'LCK', flag: '🇰🇷',
+    power: 83,
+    image: null,
+    bio: 'Champion du monde 2013 avec SKT T1, support vétéran et architecte du premier titre mondial coréen.',
+    signature: "une expérience de vétéran qui structure toute l'équipe",
+    weakness: "un style plus classique que les supports playmakers modernes",
+  },
+  {
+    id: 'ming_2018', personId: 'ming', name: 'Ming', realName: 'Shi Sen-Ming',
+    role: 'SUP', team: 'Royal Never Give Up', year: 2018, region: 'LPL', flag: '🇨🇳',
+    power: 84,
+    image: null,
+    bio: 'Champion du MSI 2018 avec RNG, support increvable au service de son ADC star.',
+    signature: "un dévouement total au service de son ADC",
+    weakness: "un profil qui s'efface volontairement derrière ses coéquipiers",
+  },
+  {
+    id: 'lehends_2022', personId: 'lehends', name: 'Lehends', realName: 'Son Si-woo',
+    role: 'SUP', team: 'Gen.G', year: 2022, region: 'LCK', flag: '🇰🇷',
+    power: 85,
+    image: null,
+    bio: 'Pilier de Gen.G 2022, support créatif et vocal de la LCK.',
+    signature: "une communication et une créativité qui portent tout le roster",
+    weakness: "une prise de risque qui peut parfois isoler son ADC",
+  },
+  {
+    id: 'hylissang_2018', personId: 'hylissang', name: 'Hylissang', realName: 'Zdravets Galabov',
+    role: 'SUP', team: 'Fnatic', year: 2018, region: 'LEC', flag: '🇧🇬',
+    power: 83,
+    image: null,
+    bio: 'Finaliste des Worlds 2018 avec Fnatic, support engageant au tempérament de feu.',
+    signature: "un engage tout terrain qui ne recule devant rien",
+    weakness: "une impulsivité qui peut parfois coûter cher",
+  },
+  {
+    id: 'crisp_2019', personId: 'crisp', name: 'Crisp', realName: 'Liu Qing-Song',
+    role: 'SUP', team: 'FunPlus Phoenix', year: 2019, region: 'LPL', flag: '🇨🇳',
+    power: 84,
+    image: null,
+    bio: 'Champion du monde 2019 avec FunPlus Phoenix, dernier rempart d\'un roster ultra-dominant.',
+    signature: "une protection sans faille de ses coéquipiers stars",
+    weakness: "un profil qui reste dans l'ombre des stars de son équipe",
+  },
 ];
 
 export const LOL_PLAYERS_BY_ID = Object.fromEntries(LOL_PLAYERS.map(p => [p.id, p]));
@@ -455,29 +691,47 @@ function crossPairs(a, b) {
 // Coéquipiers directs, même club ET même année → forte synergie
 const STRONG_GROUPS = [
   ['marin_2015', 'faker_2015', 'wolf_2015'],                                  // SKT T1 2015 — Champions du monde
-  ['peanut_2022', 'chovy_2022', 'ruler_2022'],                                // Gen.G 2022
+  ['impact_2013', 'bengi_2013', 'faker_2013', 'piglet_2013', 'poohmandu_2013'], // SKT T1 2013 — Champions du monde (Season 3)
+  ['duke_2016', 'bang_2016'],                                                 // SKT T1 2016 — Champions du monde (+ Bengi/Faker/Wolf déjà présents à d'autres années)
+  ['peanut_2022', 'chovy_2022', 'ruler_2022', 'doran_2022', 'lehends_2022'],  // Gen.G 2022 — roster complet
   ['khan_2021', 'canyon_2021'],                                               // DWG KIA 2021 — Finalistes Worlds
   ['nuguri_2020', 'canyon_2020', 'showmaker_2020', 'ghost_2020', 'beryl_2020'], // DAMWON Gaming 2020 — Champions du monde
   ['kingen_2022', 'pyosik_2022', 'zeka_2022', 'deft_2022', 'beryl_2022'],     // DRX 2022 — Champions du monde (run miracle)
   ['zeus_2023', 'oner_2023', 'faker_2023', 'gumayusi_2023', 'keria_2023'],    // T1 2023 — Champions du monde
-  ['theshy_2018', 'rookie_2018', 'jackeylove_2018', 'baolan_2018'],           // Invictus Gaming 2018 — Champions du monde
+  ['theshy_2018', 'rookie_2018', 'jackeylove_2018', 'baolan_2018', 'ning_2018'], // Invictus Gaming 2018 — Champions du monde, roster complet
   ['bin_2021', 'tian_2021', 'knight_2021', 'viper_2021', 'meiko_2021'],       // EDward Gaming 2021 — Champions du monde
   ['wunder_2019', 'jankos_2019', 'caps_2019', 'perkz_2019', 'mikyx_2019'],    // G2 Esports 2019 — Champions du MSI, finalistes Worlds
-  ['ruler_2017', 'corejj_2017'],                                             // Samsung Galaxy 2017 — Champions du monde
+  ['ruler_2017', 'corejj_2017', 'cuvee_2017', 'ambition_2017', 'crown_2017'], // Samsung Galaxy 2017 — Champions du monde, roster complet
+  ['letme_2018', 'karsa_2018', 'xiaohu_2018', 'uzi_2018', 'ming_2018'],       // Royal Never Give Up 2018 — Champions du MSI
+  ['gimgoon_2019', 'tian_2019', 'doinb_2019', 'lwx_2019', 'crisp_2019'],      // FunPlus Phoenix 2019 — Champions du monde
+  ['bwipo_2018', 'broxah_2018', 'caps_2018', 'rekkles_2018', 'hylissang_2018'], // Fnatic 2018 — Finalistes Worlds
 ];
 
 export const TEAMMATES_STRONG = STRONG_GROUPS.flatMap(withinPairs);
 
 // Même écurie/maison à une autre époque (académie, culture commune) → synergie légère
+const SKT_T1_LINEAGE = [
+  'impact_2013', 'bengi_2013', 'faker_2013', 'piglet_2013', 'poohmandu_2013',
+  'marin_2015', 'faker_2015', 'wolf_2015',
+  'duke_2016', 'bang_2016',
+  'zeus_2023', 'oner_2023', 'faker_2023', 'gumayusi_2023', 'keria_2023',
+];
+const SAMSUNG_GENG_LINEAGE = [
+  'cuvee_2017', 'ambition_2017', 'crown_2017', 'ruler_2017', 'corejj_2017',
+  'peanut_2022', 'chovy_2022', 'ruler_2022', 'doran_2022', 'lehends_2022',
+];
+const DWG_DRX_LINEAGE = [
+  'canyon_2020', 'khan_2021', 'canyon_2021', 'beryl_2020', 'beryl_2022',
+];
+const IG_LPL_LINEAGE = [
+  'theshy_2018', 'rookie_2018', 'jackeylove_2018', 'baolan_2018', 'ning_2018', 'theshy_2024',
+];
+
 export const TEAMMATES_MILD = [
-  ...crossPairs(['khan_2021', 'canyon_2021'], ['beryl_2022', 'beryl_2020']), // alumni DWG KIA
-  ...crossPairs(['canyon_2020'], ['khan_2021']),
-  // Lignée SKT T1 → T1
-  ...crossPairs(['marin_2015', 'faker_2015', 'wolf_2015'], ['zeus_2023', 'oner_2023', 'gumayusi_2023', 'keria_2023', 'faker_2023']),
-  // Lignée Samsung Galaxy → Gen.G (même écurie renommée)
-  ...crossPairs(['ruler_2017', 'corejj_2017'], ['peanut_2022', 'chovy_2022', 'ruler_2022']),
-  // Lignée Invictus Gaming 2018 → autres générations LPL
-  ...crossPairs(['theshy_2018', 'rookie_2018', 'jackeylove_2018', 'baolan_2018'], ['theshy_2024']),
+  ...withinPairs(SKT_T1_LINEAGE),
+  ...withinPairs(SAMSUNG_GENG_LINEAGE),
+  ...withinPairs(DWG_DRX_LINEAGE),
+  ...withinPairs(IG_LPL_LINEAGE),
 ];
 
 function pairKey(a, b) { return [a, b].sort().join('__'); }
@@ -501,5 +755,13 @@ export const RIVALRIES = [
   {
     pair: ['jackeylove_2018', 'rekkles_2018'],
     story: "La revanche d'une finale mondiale : en 2018, l'Invictus Gaming de JackeyLove avait balayé le Fnatic de Rekkles 3-0 en finale des Worlds.",
+  },
+  {
+    pair: ['doinb_2019', 'caps_2019'],
+    story: "Un remake de la finale des Worlds 2019 : le FunPlus Phoenix de Doinb avait balayé le G2 Esports de Caps 3-0 en finale mondiale.",
+  },
+  {
+    pair: ['ruler_2017', 'faker_2015'],
+    story: "L'histoire se souvient encore du sweep : en 2017, la Samsung Galaxy de Ruler avait stoppé net la dynastie SKT T1 en finale des Worlds, 3-0.",
   },
 ];
