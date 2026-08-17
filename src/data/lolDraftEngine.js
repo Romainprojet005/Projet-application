@@ -8,9 +8,9 @@
 //   disparaissent (le choisi rejoint l'équipe, les 2 autres sont écartés)
 //   — les trios des autres postes ne bougent pas. La vitrine passe ainsi
 //   de 15 à 12, puis 9, 6 et enfin 3 joueurs, à chaque sélection.
-// - 3 relances au total sur toute la partie, à dépenser poste par poste :
-//   relancer un trio le remplace par 3 nouveaux joueurs (les 3 précédents
-//   ne sont plus jamais proposés), sans toucher aux autres trios affichés.
+// - 3 relances au total sur toute la partie. Une relance remplace EN UNE
+//   FOIS les trios de tous les postes encore ouverts par 3 nouveaux joueurs
+//   chacun (les précédents ne sont plus jamais proposés).
 // - Un joueur affiché n'est jamais reproposé une fois écarté (choix,
 //   relance ou remplacé).
 // ─────────────────────────────────────────────────────────────────────────
@@ -70,24 +70,31 @@ export function pickPlayer(state, playerId) {
   return { ...state, team, trios, burned: [...burnedSet], picksMade, finished };
 }
 
-export function canRerollRole(state, role) {
-  if (state.finished || state.rerollsLeft <= 0) return false;
-  if (state.team[role] || !state.trios[role]) return false;
-  const burnedSet = new Set(state.burned);
-  state.trios[role].forEach(id => burnedSet.add(id));
-  const freshPool = LOL_PLAYERS.filter(p => p.role === role && !burnedSet.has(p.id));
-  return freshPool.length >= TRIO_SIZE;
+export function canReroll(state) {
+  return !state.finished && state.rerollsLeft > 0 && Object.keys(state.trios).length > 0;
 }
 
-export function rerollRole(state, role) {
-  if (!canRerollRole(state, role)) return state;
+// Relance globale : rafraîchit le trio de CHAQUE poste encore ouvert en une
+// seule relance. Si un poste n'a plus assez de candidats frais, son trio
+// est simplement laissé tel quel (rien n'est brûlé pour lui) — les autres
+// postes sont tout de même relancés et la relance est consommée.
+export function rerollAll(state) {
+  if (!canReroll(state)) return state;
 
   const burnedSet = new Set(state.burned);
-  state.trios[role].forEach(id => burnedSet.add(id));
+  const trios = { ...state.trios };
 
-  const freshPool = LOL_PLAYERS.filter(p => p.role === role && !burnedSet.has(p.id));
-  const newTrio = shuffle(freshPool).slice(0, TRIO_SIZE).map(p => p.id);
-  const trios = { ...state.trios, [role]: newTrio };
+  Object.keys(state.trios).forEach(role => {
+    const currentTrio = state.trios[role];
+    const tentativeBurned = new Set(state.burned);
+    currentTrio.forEach(id => tentativeBurned.add(id));
+
+    const freshPool = LOL_PLAYERS.filter(p => p.role === role && !tentativeBurned.has(p.id));
+    if (freshPool.length >= TRIO_SIZE) {
+      currentTrio.forEach(id => burnedSet.add(id));
+      trios[role] = shuffle(freshPool).slice(0, TRIO_SIZE).map(p => p.id);
+    }
+  });
 
   return { ...state, trios, burned: [...burnedSet], rerollsLeft: state.rerollsLeft - 1 };
 }

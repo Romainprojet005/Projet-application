@@ -49,7 +49,7 @@ export default function LolSelectSetupScreen({ navigation }) {
             <Text style={styles.rulesLine}>🃏  Les 5 postes s'affichent en parallèle, chacun avec un trio de {TRIO_SIZE} cartes — <Text style={styles.rulesAccent}>15 joueurs</Text> au départ</Text>
             <Text style={styles.rulesLine}>🎯  Choisir une carte verrouille son poste : les {TRIO_SIZE} joueurs de ce trio disparaissent (les 2 autres sont écartés)</Text>
             <Text style={styles.rulesLine}>📉  La vitrine passe ainsi de <Text style={styles.rulesAccent}>15 → 12 → 9 → 6 → 3</Text> joueurs à chaque poste verrouillé</Text>
-            <Text style={styles.rulesLine}>🔄  {MAX_REROLLS} relances au total, à dépenser poste par poste — un joueur écarté n'est jamais reproposé</Text>
+            <Text style={styles.rulesLine}>🔄  {MAX_REROLLS} relances au total — chacune rafraîchit <Text style={styles.rulesAccent}>tous les postes encore ouverts</Text> en une fois, un joueur écarté n'est jamais reproposé</Text>
             <Text style={styles.rulesLine}>🔒  Une fois les 5 postes remplis, <Text style={styles.rulesAccent}>impossible de revenir en arrière</Text> — place au tournoi !</Text>
           </View>
 
