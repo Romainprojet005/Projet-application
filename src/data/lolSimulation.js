@@ -95,6 +95,30 @@ function synergyLine(teamLabel, synergy) {
     : `🤝 ${a.name} et ${b.name} ne se sont jamais affrontés en match officiel, mais partagent la même culture d'écurie — ${teamLabel} en tire un léger avantage collectif.`;
 }
 
+// ── Score imaginé et durée de manche (habillage narratif) ────────────────
+// N'influence jamais le vainqueur (déjà tranché avant d'être appelé) :
+// un plus grand écart de force donne un score plus large et une manche
+// plus courte (l'équipe dominante conclut vite) ; une manche serrée dure
+// plus longtemps et le score de kills reste proche, comme une vraie partie.
+function formatDuration(totalSeconds) {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function generateGameFlavor(gap) {
+  const margin = Math.max(0, Math.min(40, gap)) / 40; // 0 (serré) → 1 (écrasant)
+
+  const durationMinutes = 34 - margin * 12 + (Math.random() * 6 - 3);
+  const durationSeconds = Math.max(19 * 60, Math.min(47 * 60,
+    Math.round(durationMinutes * 60 + Math.random() * 59)));
+
+  const loserKills = Math.round(8 + Math.random() * 6);
+  const winnerKills = loserKills + Math.round(4 + margin * 18 + Math.random() * 4);
+
+  return { duration: formatDuration(durationSeconds), winnerKills, loserKills };
+}
+
 function findRivalryLine(teamA, teamB) {
   for (const { pair, story } of RIVALRIES) {
     const [a, b] = pair;
@@ -161,7 +185,11 @@ export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "
     lines.push(`📊 Résultat logique : ${winnerLabel} domine aussi les duels individuels, ${winnerLaneCount}-${loserLaneCount}.`);
   }
 
-  lines.push(`🏆 ${winnerLabel} remporte la manche ! Indice de force : ${statsA.total.toFixed(1)} — ${statsB.total.toFixed(1)}.`);
+  const flavor = generateGameFlavor(Math.abs(statsA.total - statsB.total));
+  const killsA = overallWinner === 'A' ? flavor.winnerKills : flavor.loserKills;
+  const killsB = overallWinner === 'A' ? flavor.loserKills : flavor.winnerKills;
+
+  lines.push(`🏆 ${winnerLabel} remporte la manche ${flavor.winnerKills}-${flavor.loserKills} en ${flavor.duration} ! Indice de force : ${statsA.total.toFixed(1)} — ${statsB.total.toFixed(1)}.`);
 
   return {
     lanes,
@@ -171,6 +199,9 @@ export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "
     laneWinsA,
     laneWinsB,
     winner: overallWinner,
+    killsA,
+    killsB,
+    duration: flavor.duration,
   };
 }
 

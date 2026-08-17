@@ -168,6 +168,12 @@ export default function LolTournamentView({
               </View>
             </View>
 
+            <View style={styles.matchStatsRow}>
+              <Text style={styles.matchStatsText}>⚔️  {currentGame.killsA} – {currentGame.killsB}</Text>
+              <Text style={styles.matchStatsSep}>·</Text>
+              <Text style={styles.matchStatsText}>⏱️  {currentGame.duration}</Text>
+            </View>
+
             <TouchableOpacity onPress={nextGame} style={styles.homeBtn} activeOpacity={0.85}>
               <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.homeBtnGrad}>
                 <Text style={styles.homeBtnText}>
@@ -198,9 +204,12 @@ export default function LolTournamentView({
               const gWinnerIsA = g.winner === 'A';
               return (
                 <View key={i} style={styles.recapRow}>
-                  <Text style={styles.recapLabel}>Manche {i + 1}</Text>
-                  <Text style={styles.recapWinner}>{gWinnerIsA ? labelA : labelB}</Text>
-                  <Text style={styles.recapScore}>{g.statsA.total.toFixed(1)} – {g.statsB.total.toFixed(1)}</Text>
+                  <View style={styles.recapTopRow}>
+                    <Text style={styles.recapLabel}>Manche {i + 1}</Text>
+                    <Text style={styles.recapWinner}>{gWinnerIsA ? labelA : labelB}</Text>
+                    <Text style={styles.recapScore}>{g.statsA.total.toFixed(1)} – {g.statsB.total.toFixed(1)}</Text>
+                  </View>
+                  <Text style={styles.recapMatchStats}>⚔️  {g.killsA}-{g.killsB}  ·  ⏱️  {g.duration}</Text>
                 </View>
               );
             })}
@@ -287,15 +296,23 @@ const styles = StyleSheet.create({
   scoreSub: { fontSize: 10, color: colors.textMuted, marginTop: 2 },
   scoreSep: { fontSize: 20, color: colors.textMuted },
 
+  matchStatsRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  matchStatsText: { fontSize: 12, color: colors.textSecondary, fontWeight: '700' },
+  matchStatsSep: { fontSize: 12, color: colors.textMuted },
+
   recapList: { alignSelf: 'stretch', gap: spacing.xs, marginBottom: spacing.lg },
   recapRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     backgroundColor: colors.surface, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border,
-    paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md, paddingVertical: spacing.sm, gap: 2,
   },
+  recapTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   recapLabel: { fontSize: 11, color: colors.textMuted, fontWeight: '700', width: 70 },
   recapWinner: { fontSize: 12, color: ACCENT_LIGHT, fontWeight: '800', flex: 1, textAlign: 'center' },
   recapScore: { fontSize: 11, color: colors.textMuted },
+  recapMatchStats: { fontSize: 10, color: colors.textMuted, textAlign: 'center' },
 
   homeBtn: { alignSelf: 'stretch', borderRadius: radius.full, overflow: 'hidden', marginTop: spacing.sm },
   homeBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
