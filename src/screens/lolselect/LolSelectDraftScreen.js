@@ -138,7 +138,7 @@ export default function LolSelectDraftScreen({ navigation, route }) {
         </View>
 
         <Text style={styles.hint}>
-          {shownCount} joueurs proposés · un choix écarte définitivement son trio · une relance rafraîchit tous les postes ouverts
+          {shownCount} joueurs proposés · un choix verrouille son poste et relance tous les autres · une relance manuelle rafraîchit tout
         </Text>
 
         <Animated.View style={{ opacity: fadeAnim }}>

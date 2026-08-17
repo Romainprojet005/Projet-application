@@ -163,6 +163,10 @@ export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "
   if (bonusA > 0) lines.push(`🔁 Battue la manche précédente, ${labelA} a ajusté sa préparation — draft retravaillé, plan de jeu affûté.`);
   if (bonusB > 0) lines.push(`🔁 Battue la manche précédente, ${labelB} a ajusté sa préparation — draft retravaillé, plan de jeu affûté.`);
 
+  // Index où commencent les 5 lignes de duels (une par poste, dans l'ordre
+  // TOP/JGL/MID/ADC/SUP) — utilisé côté UI pour dévoiler la composition
+  // adverse poste par poste, au même rythme que le récit.
+  const laneLineStartIndex = lines.length;
   lines.push(...lanes.map(l => l.line));
 
   const synA = synergyLine(labelA, statsA.synergy);
@@ -202,6 +206,7 @@ export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "
     killsA,
     killsB,
     duration: flavor.duration,
+    laneLineStartIndex,
   };
 }
 

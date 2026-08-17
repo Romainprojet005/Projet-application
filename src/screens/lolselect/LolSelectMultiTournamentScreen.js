@@ -21,11 +21,24 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
       .channel(`lolselect_result:${roomId}`)
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'lolselect_rooms', filter: `id=eq.${roomId}` },
-        ({ new: r }) => { if (r.result_json) setPayload(r.result_json); }
+        ({ new: r }) => {
+          // L'un des deux joueurs a relancé une partie dans la même salle :
+          // les deux écrans repartent directement sur un nouveau draft.
+          if (r.status === 'drafting') { navigation.replace('LolSelectDraft', { roomId, playerId }); return; }
+          if (r.result_json) setPayload(r.result_json);
+        }
       )
       .subscribe();
     return () => { supabase.removeChannel(channelRef.current); };
   }, []);
+
+  // Ne navigue pas directement : le changement de statut de la salle est
+  // capté par l'abonnement realtime ci-dessus, sur CE client comme sur
+  // celui de l'adversaire, pour que les deux repartent en même temps.
+  const handleReplay = async () => {
+    await supabase.from('lolselect_players').update({ team_json: null, ready: false }).eq('room_id', roomId);
+    await supabase.from('lolselect_rooms').update({ status: 'drafting', result_json: null }).eq('id', roomId);
+  };
 
   const load = async () => {
     const [{ data: room }, { data: me }] = await Promise.all([
@@ -59,8 +72,8 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
       result={result}
       youSide={youSide}
       onHome={() => navigation.navigate('Menu')}
-      onReplay={() => navigation.navigate('LolSelectMultiSetup')}
-      replayLabel="🔄  Nouvelle partie à distance"
+      onReplay={handleReplay}
+      replayLabel="🔄  Rejouer dans cette salle"
     />
   );
 }

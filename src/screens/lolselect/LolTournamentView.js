@@ -17,26 +17,65 @@ const ACCENT_LIGHT = '#F0D68C';
 const ACCENT_DARK  = '#8B6914';
 const HEXTECH      = '#0AC8B9';
 
-function RosterColumn({ title, team, highlight }) {
+// `revealedRoles` : si fourni, seuls ces postes montrent le vrai joueur —
+// les autres affichent un mystère (composition adverse à découvrir).
+// undefined = tout est connu (utilisé pour votre propre équipe).
+function RosterColumn({ title, team, highlight, revealedRoles }) {
   return (
     <View style={[styles.rosterCol, highlight && styles.rosterColHighlight]}>
       <Text style={styles.rosterTitle} numberOfLines={1}>{title}</Text>
       {ROLE_ORDER.map(r => {
-        const p = LOL_PLAYERS_BY_ID[team[r]];
-        if (!p) return null;
+        const known = !revealedRoles || revealedRoles.includes(r);
+        const p = known ? LOL_PLAYERS_BY_ID[team[r]] : null;
+        if (known && !p) return null;
         return (
           <View key={r} style={styles.rosterRow}>
             <Text style={styles.rosterEmoji}>{ROLE_META[r].emoji}</Text>
-            {p.image
-              ? <Image source={{ uri: p.image }} style={styles.rosterPhoto} />
-              : <View style={[styles.rosterPhoto, styles.rosterPhotoFallback]}><Text style={{ fontSize: 12 }}>{p.flag}</Text></View>}
+            {known
+              ? (p.image
+                  ? <Image source={{ uri: p.image }} style={styles.rosterPhoto} />
+                  : <View style={[styles.rosterPhoto, styles.rosterPhotoFallback]}><Text style={{ fontSize: 12 }}>{p.flag}</Text></View>)
+              : <View style={[styles.rosterPhoto, styles.rosterPhotoMystery]}><Text style={styles.rosterMysteryMark}>❓</Text></View>}
             <View style={{ flex: 1 }}>
-              <Text style={styles.rosterName} numberOfLines={1}>{p.name}</Text>
-              <Text style={styles.rosterSub} numberOfLines={1}>{p.team} · {p.year}</Text>
+              {known ? (
+                <>
+                  <Text style={styles.rosterName} numberOfLines={1}>{p.name}</Text>
+                  <Text style={styles.rosterSub} numberOfLines={1}>{p.team} · {p.year}</Text>
+                </>
+              ) : (
+                <Text style={styles.rosterMysterySub}>À dévoiler…</Text>
+              )}
             </View>
           </View>
         );
       })}
+    </View>
+  );
+}
+
+// Bandeau compact affiché pendant le récit d'une manche : dévoile la
+// composition adverse poste par poste, au même rythme que les lignes.
+function OpponentStrip({ label, team, revealedRoles }) {
+  return (
+    <View style={styles.oppStrip}>
+      <Text style={styles.oppStripLabel}>🔎  {label}</Text>
+      <View style={styles.oppStripRow}>
+        {ROLE_ORDER.map(r => {
+          const known = revealedRoles.includes(r);
+          const p = known ? LOL_PLAYERS_BY_ID[team[r]] : null;
+          return (
+            <View key={r} style={styles.oppSlot}>
+              {known
+                ? (p.image
+                    ? <Image source={{ uri: p.image }} style={styles.oppSlotPhoto} />
+                    : <View style={[styles.oppSlotPhoto, styles.oppSlotFallback]}><Text style={{ fontSize: 14 }}>{p.flag}</Text></View>)
+                : <View style={[styles.oppSlotPhoto, styles.oppSlotMystery]}><Text style={styles.oppSlotMysteryMark}>❓</Text></View>}
+              <Text style={styles.oppSlotRole}>{ROLE_META[r].emoji}</Text>
+              <Text style={styles.oppSlotName} numberOfLines={1}>{known ? p.name : '???'}</Text>
+            </View>
+          );
+        })}
+      </View>
     </View>
   );
 }
@@ -65,6 +104,10 @@ export default function LolTournamentView({
 
   const { games } = result;
   const currentGame = games[gameIdx];
+  // Le "côté adverse" est celui qui n'est pas vous — utilisé pour dévoiler
+  // sa composition progressivement. Si on ne sait pas qui est "vous"
+  // (spectateur), tout reste affiché normalement, sans mystère.
+  const opponentSide = youSide === 'A' ? 'B' : youSide === 'B' ? 'A' : null;
 
   const startTournament = useCallback(() => { setPhase('reveal'); setGameIdx(0); setLineIdx(1); }, []);
 
@@ -92,10 +135,19 @@ export default function LolTournamentView({
             <Text style={styles.vsSub}>{labelA} affronte {labelB} · première équipe à 2 manches gagne la série</Text>
 
             <View style={styles.rosterRow2}>
-              <RosterColumn title={`🛡️ ${labelA.toUpperCase()}`} team={teamA} highlight={youSide !== 'B'} />
+              <RosterColumn
+                title={`🛡️ ${labelA.toUpperCase()}`} team={teamA} highlight={youSide !== 'B'}
+                revealedRoles={opponentSide === 'A' ? [] : undefined}
+              />
               <View style={styles.vsBadge}><Text style={styles.vsBadgeText}>VS</Text></View>
-              <RosterColumn title={`🔥 ${labelB.toUpperCase()}`} team={teamB} highlight={youSide === 'B'} />
+              <RosterColumn
+                title={`🔥 ${labelB.toUpperCase()}`} team={teamB} highlight={youSide === 'B'}
+                revealedRoles={opponentSide === 'B' ? [] : undefined}
+              />
             </View>
+            {opponentSide && (
+              <Text style={styles.mysteryHint}>🔎 La composition adverse sera dévoilée poste par poste au fil du récit de la manche 1.</Text>
+            )}
 
             <TouchableOpacity onPress={startTournament} style={styles.launchBtn} activeOpacity={0.88}>
               <LinearGradient colors={[ACCENT_LIGHT, ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.launchGradient}>
@@ -111,6 +163,10 @@ export default function LolTournamentView({
   if (phase === 'reveal') {
     const linesToShow = currentGame.lines.slice(0, lineIdx);
     const scoreBefore = gameIdx === 0 ? { a: 0, b: 0 } : seriesScoreThrough(games, gameIdx - 1);
+    const revealedLaneCount = gameIdx === 0
+      ? Math.max(0, Math.min(5, lineIdx - currentGame.laneLineStartIndex))
+      : 5;
+    const opponentRevealedRoles = ROLE_ORDER.slice(0, revealedLaneCount);
     return (
       <LinearGradient colors={OB_BG} style={styles.container}>
         <PageScroll contentContainerStyle={styles.scroll}>
@@ -120,6 +176,13 @@ export default function LolTournamentView({
               <Text style={styles.seriesBadgeText}>{scoreBefore.a} – {scoreBefore.b}</Text>
             </View>
           </View>
+          {opponentSide && (
+            <OpponentStrip
+              label={opponentSide === 'A' ? labelA : labelB}
+              team={opponentSide === 'A' ? teamA : teamB}
+              revealedRoles={opponentRevealedRoles}
+            />
+          )}
           <Text style={styles.vsTitleSmall}>📝  RÉCIT DE LA MANCHE</Text>
           <View style={styles.narrativeBox}>
             {linesToShow.map((line, i) => (
@@ -257,6 +320,10 @@ const styles = StyleSheet.create({
   rosterPhotoFallback: { backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   rosterName: { fontSize: 11, fontWeight: '800', color: colors.text },
   rosterSub: { fontSize: 8, color: colors.textMuted },
+  rosterPhotoMystery: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  rosterMysteryMark: { fontSize: 13 },
+  rosterMysterySub: { fontSize: 9, color: colors.textMuted, fontStyle: 'italic' },
+  mysteryHint: { fontSize: 11, color: colors.textMuted, textAlign: 'center', fontStyle: 'italic', marginBottom: spacing.lg },
   vsBadge: {
     width: 34, height: 34, borderRadius: 17, backgroundColor: `${HEXTECH}20`,
     alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: `${HEXTECH}50`,
@@ -269,6 +336,20 @@ const styles = StyleSheet.create({
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
   launchText: { fontSize: 15, fontWeight: '800', color: '#0A0815', letterSpacing: 2 },
+
+  oppStrip: {
+    backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border,
+    padding: spacing.sm + 2, marginBottom: spacing.md,
+  },
+  oppStripLabel: { fontSize: 11, fontWeight: '800', color: ACCENT_LIGHT, marginBottom: spacing.xs },
+  oppStripRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  oppSlot: { alignItems: 'center', width: 58 },
+  oppSlotPhoto: { width: 40, height: 40, borderRadius: 20, borderWidth: 1.5, borderColor: ACCENT },
+  oppSlotFallback: { backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
+  oppSlotMystery: { backgroundColor: colors.surface, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  oppSlotMysteryMark: { fontSize: 16 },
+  oppSlotRole: { fontSize: 10, marginTop: 2 },
+  oppSlotName: { fontSize: 9, color: colors.textSecondary, fontWeight: '700', marginTop: 1 },
 
   narrativeBox: {
     backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border,
