@@ -51,7 +51,15 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
   // celui de l'adversaire, pour que les deux repartent en même temps.
   const handleReplay = async () => {
     await supabase.from('lolselect_players').update({ team_json: null, ready: false }).eq('room_id', roomId);
-    await supabase.from('lolselect_rooms').update({ status: 'drafting', result_json: null, reveal_json: null }).eq('id', roomId);
+    const { error } = await supabase.from('lolselect_rooms')
+      .update({ status: 'drafting', result_json: null, reveal_json: null }).eq('id', roomId);
+    if (error) {
+      // Compat : la colonne reveal_json n'existe peut-être pas encore côté
+      // Supabase — sans elle, tout l'update échoue (voir même remarque dans
+      // LolSelectMultiWaitScreen). On retente sans elle pour ne jamais
+      // bloquer un « Rejouer ».
+      await supabase.from('lolselect_rooms').update({ status: 'drafting', result_json: null }).eq('id', roomId);
+    }
   };
 
   const load = async () => {

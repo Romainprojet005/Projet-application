@@ -53,11 +53,23 @@ export default function LolSelectMultiWaitScreen({ navigation, route }) {
     const host  = ps.find(p => p.is_host);
     const guest = ps.find(p => !p.is_host);
     const result = simulateBo3(game, host.team_json, guest.team_json, host.name, guest.name);
-    await supabase.from('lolselect_rooms').update({
+    const payload = {
       status: 'finished',
       result_json: { result, hostTeam: host.team_json, guestTeam: guest.team_json, hostName: host.name, guestName: guest.name },
       reveal_json: { phase: 'lineup', gameIdx: 0, lineIdx: 0 },
-    }).eq('id', roomId);
+    };
+    const { error } = await supabase.from('lolselect_rooms').update(payload).eq('id', roomId);
+    if (error) {
+      // Compat : la colonne reveal_json n'existe peut-être pas encore côté
+      // Supabase (migration SQL pas encore collée) — sur Postgres, une seule
+      // colonne inconnue fait échouer TOUT l'update (status compris), ce qui
+      // bloquait la partie en boucle sur cet écran. On retente sans elle
+      // pour ne jamais bloquer une partie : le récit ne sera simplement pas
+      // synchronisé côté invité tant que la colonne n'a pas été ajoutée.
+      const { reveal_json, ...withoutReveal } = payload;
+      const retry = await supabase.from('lolselect_rooms').update(withoutReveal).eq('id', roomId);
+      if (retry.error) computingRef.current = false; // permet de retenter au prochain déclenchement
+    }
   };
 
   const opponent = players.find(p => p.id !== playerId);
