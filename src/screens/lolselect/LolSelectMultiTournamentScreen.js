@@ -35,14 +35,24 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
           if (r.reveal_json) setRevealState(r.reveal_json);
         }
       )
+      // Diffusion en direct du pointeur de récit (voir handleSyncChange) :
+      // un message "broadcast" Supabase Realtime, éphémère, ne dépend
+      // d'AUCUNE colonne côté base — contrairement à reveal_json (gardé en
+      // solo de secours ci-dessus pour un invité qui recharge la page en
+      // cours de route), c'est le mécanisme fiable à 100% qui ne demande
+      // aucune migration SQL préalable pour fonctionner.
+      .on('broadcast', { event: 'reveal' }, ({ payload }) => setRevealState(payload))
       .subscribe();
     return () => { supabase.removeChannel(channelRef.current); };
   }, []);
 
-  // Seul l'hôte pilote le récit : chaque avancée locale est écrite dans la
-  // salle, ce qui la diffuse à l'invité via l'abonnement realtime ci-dessus.
+  // Seul l'hôte pilote le récit : chaque avancée locale est diffusée en
+  // direct à l'invité via broadcast (fiable, sans dépendance base de
+  // données), et écrite en base en best-effort pour qu'un invité qui
+  // recharge la page en cours de manche retrouve le bon endroit.
   const handleSyncChange = (next) => {
     if (!isHost) return;
+    channelRef.current?.send({ type: 'broadcast', event: 'reveal', payload: next });
     supabase.from('lolselect_rooms').update({ reveal_json: next }).eq('id', roomId);
   };
 
