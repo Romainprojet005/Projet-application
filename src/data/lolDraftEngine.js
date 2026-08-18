@@ -25,8 +25,9 @@
 //   vivier de départ aux joueurs les plus connus, via `game.getFilteredPool`.
 // ─────────────────────────────────────────────────────────────────────────
 
-export const TRIO_SIZE    = 3;
-export const MAX_REROLLS  = 3;
+export const TRIO_SIZE      = 3;
+export const DEFAULT_REROLLS = 3;
+export const REROLL_OPTIONS  = [0, 1, 3, 5];
 
 function shuffle(arr) {
   const a = [...arr];
@@ -79,7 +80,7 @@ function poolFromState(game, state) {
   return game.players.filter(p => idSet.has(p.id));
 }
 
-export function createDraftState(game, familiarity = 100) {
+export function createDraftState(game, familiarity = 100, rerollBudget = DEFAULT_REROLLS) {
   const pool = game.getFilteredPool(familiarity);
   const team = {};
   game.slots.forEach(slot => { team[slot] = null; });
@@ -98,7 +99,8 @@ export function createDraftState(game, familiarity = 100) {
     team,
     trios,               // { slot: [id,id,id] } — seulement les slots encore ouverts
     burned: [...burnedSet],
-    rerollsLeft: MAX_REROLLS,
+    rerollBudget,         // figé au lancement, pour affichage ("X/rerollBudget")
+    rerollsLeft: rerollBudget,
     picksMade: 0,
     finished: false,
     familiarity,

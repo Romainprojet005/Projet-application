@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
-import { MAX_REROLLS, TRIO_SIZE } from '../../data/lolDraftEngine';
+import { TRIO_SIZE } from '../../data/lolDraftEngine';
 import { GAME_LIST, getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 
 const HEXTECH = '#0AC8B9';
@@ -75,7 +75,7 @@ export default function LolSelectSetupScreen({ navigation }) {
             <Text style={styles.rulesLine}>🃏  Les {game.squadSize} slots s'affichent en parallèle, chacun avec un trio de {TRIO_SIZE} cartes — <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>{game.squadSize * TRIO_SIZE} joueurs</Text> au départ</Text>
             <Text style={styles.rulesLine}>🎯  Choisir une carte verrouille son slot : les {TRIO_SIZE} joueurs de ce trio disparaissent (les 2 autres sont écartés), et <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>tous les autres slots ouverts sont automatiquement relancés</Text></Text>
             <Text style={styles.rulesLine}>📉  La vitrine se réduit ainsi à chaque slot verrouillé, jusqu'aux 3 derniers joueurs</Text>
-            <Text style={styles.rulesLine}>🔄  En plus, {MAX_REROLLS} relances manuelles au total — chacune rafraîchit <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>tous les slots encore ouverts</Text> en une fois, un joueur écarté n'est jamais reproposé</Text>
+            <Text style={styles.rulesLine}>🔄  En plus, un nombre de relances manuelles <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>à choisir avant le draft</Text> (0 à 5) — chacune rafraîchit <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>tous les slots encore ouverts</Text> en une fois, un joueur écarté n'est jamais reproposé</Text>
             <Text style={styles.rulesLine}>🔒  Une fois les {game.squadSize} slots remplis, <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>impossible de revenir en arrière</Text> — place au tournoi !</Text>
             <Text style={styles.rulesLine}>🎯  Moins familier de la scène ? Un <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>niveau de connaissance</Text> (100/75/50/25 %) réduit le vivier aux joueurs les plus connus, à choisir juste avant le draft</Text>
           </View>

@@ -138,3 +138,11 @@ grant select, insert, update, delete on lolselect_players to anon;
 -- choisi par l'hôte à la création. Les anciennes salles (déjà 'lol' par
 -- défaut) continuent de fonctionner sans y toucher.
 alter table lolselect_rooms add column if not exists game text default 'lol';
+
+-- ============================================================
+-- LE SÉLECTIONNEUR — récit du tournoi piloté par l'hôte uniquement
+-- ============================================================
+-- Pointeur de récit partagé { phase, gameIdx, lineIdx } : seul l'hôte peut
+-- faire avancer le récit (boutons actifs uniquement de son côté) ; l'invité
+-- observe la même progression, synchronisée via cette colonne.
+alter table lolselect_rooms add column if not exists reveal_json jsonb;

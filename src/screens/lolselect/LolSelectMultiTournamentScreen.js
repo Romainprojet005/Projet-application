@@ -15,6 +15,10 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
   const [payload, setPayload] = useState(null); // { result, hostTeam, guestTeam, hostName, guestName }
   const [isHost, setIsHost]   = useState(null);
   const [roomGameId, setRoomGameId] = useState(gameId || DEFAULT_GAME_ID);
+  // Pointeur de récit partagé { phase, gameIdx, lineIdx } — écrit par
+  // l'hôte à chaque avancée, lu par l'invité pour rester au même endroit
+  // du récit (seul l'hôte a des boutons actifs, voir LolTournamentView).
+  const [revealState, setRevealState] = useState(null);
   const channelRef = useRef(null);
 
   useEffect(() => {
@@ -28,18 +32,26 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
           // les deux écrans repartent directement sur un nouveau draft.
           if (r.status === 'drafting') { navigation.replace('LolSelectDraft', { roomId, playerId, gameId: r.game || gameId }); return; }
           if (r.result_json) setPayload(r.result_json);
+          if (r.reveal_json) setRevealState(r.reveal_json);
         }
       )
       .subscribe();
     return () => { supabase.removeChannel(channelRef.current); };
   }, []);
 
+  // Seul l'hôte pilote le récit : chaque avancée locale est écrite dans la
+  // salle, ce qui la diffuse à l'invité via l'abonnement realtime ci-dessus.
+  const handleSyncChange = (next) => {
+    if (!isHost) return;
+    supabase.from('lolselect_rooms').update({ reveal_json: next }).eq('id', roomId);
+  };
+
   // Ne navigue pas directement : le changement de statut de la salle est
   // capté par l'abonnement realtime ci-dessus, sur CE client comme sur
   // celui de l'adversaire, pour que les deux repartent en même temps.
   const handleReplay = async () => {
     await supabase.from('lolselect_players').update({ team_json: null, ready: false }).eq('room_id', roomId);
-    await supabase.from('lolselect_rooms').update({ status: 'drafting', result_json: null }).eq('id', roomId);
+    await supabase.from('lolselect_rooms').update({ status: 'drafting', result_json: null, reveal_json: null }).eq('id', roomId);
   };
 
   const load = async () => {
@@ -48,6 +60,7 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
       supabase.from('lolselect_players').select().eq('id', playerId).single(),
     ]);
     if (room?.result_json) setPayload(room.result_json);
+    if (room?.reveal_json) setRevealState(room.reveal_json);
     if (room?.game) setRoomGameId(room.game);
     if (me) setIsHost(!!me.is_host);
   };
@@ -75,6 +88,9 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
       teamB={guestTeam}
       result={result}
       youSide={youSide}
+      canControl={!!isHost}
+      syncState={revealState}
+      onSyncChange={handleSyncChange}
       onHome={() => navigation.navigate('Menu')}
       onReplay={handleReplay}
       replayLabel="🔄  Rejouer dans cette salle"

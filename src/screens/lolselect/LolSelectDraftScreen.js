@@ -9,6 +9,7 @@ import { OB_BG } from '../../theme/obsidian';
 import { getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 import {
   createDraftState, pickPlayer, rerollAll, canReroll, getTrioPlayers, getShownCount,
+  DEFAULT_REROLLS, REROLL_OPTIONS,
 } from '../../data/lolDraftEngine';
 import { supabase } from '../../services/supabase';
 
@@ -20,6 +21,13 @@ const FAMILIARITY_OPTIONS = [
   { value: 50,  label: '50%',  hint: 'La moitié la plus connue — un bon compromis' },
   { value: 25,  label: '25%',  hint: 'Seulement les incontournables — idéal débutant' },
 ];
+
+const REROLL_HINTS = {
+  0: 'Aucune relance — ce qui sort au départ, c\'est ce qui reste',
+  1: 'Une seule relance à jouer au bon moment',
+  3: 'Classique — un bon équilibre stratégique',
+  5: 'Généreux — de quoi vraiment façonner son équipe',
+};
 
 function FamiliarityPicker({ game, onChoose }) {
   const ACCENT = game.accent, ACCENT_LIGHT = game.accentLight, ACCENT_DARK = game.accentDark;
@@ -44,6 +52,39 @@ function FamiliarityPicker({ game, onChoose }) {
             >
               <Text style={[styles.familiarityBtnLabel, opt.value !== 100 && { color: ACCENT_LIGHT }]}>{opt.label}</Text>
               <Text style={[styles.familiarityBtnHint, opt.value === 100 && { color: '#0A0815AA' }]}>{opt.hint}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        ))}
+      </PageScroll>
+    </LinearGradient>
+  );
+}
+
+function RerollPicker({ game, onChoose }) {
+  const ACCENT = game.accent, ACCENT_LIGHT = game.accentLight, ACCENT_DARK = game.accentDark;
+  return (
+    <LinearGradient colors={OB_BG} style={styles.container}>
+      <PageScroll contentContainerStyle={styles.familiarityScroll}>
+        <Text style={styles.title}>🔄 NOMBRE DE RELANCES</Text>
+        <Text style={styles.familiaritySub}>
+          Combien de fois pourras-tu tout relancer pendant le draft ? Chaque relance rafraîchit tous les slots encore ouverts en une fois.
+        </Text>
+        {REROLL_OPTIONS.map(n => (
+          <TouchableOpacity
+            key={n}
+            onPress={() => onChoose(n)}
+            style={styles.familiarityBtn}
+            activeOpacity={0.85}
+          >
+            <LinearGradient
+              colors={n === DEFAULT_REROLLS ? [ACCENT_LIGHT, ACCENT, ACCENT_DARK] : ['transparent', 'transparent']}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+              style={[styles.familiarityBtnGrad, n !== DEFAULT_REROLLS && { ...styles.familiarityBtnOutline, borderColor: `${ACCENT}45` }]}
+            >
+              <Text style={[styles.familiarityBtnLabel, n !== DEFAULT_REROLLS && { color: ACCENT_LIGHT }]}>
+                {n === 0 ? 'Aucune' : n}
+              </Text>
+              <Text style={[styles.familiarityBtnHint, n === DEFAULT_REROLLS && { color: '#0A0815AA' }]}>{REROLL_HINTS[n]}</Text>
             </LinearGradient>
           </TouchableOpacity>
         ))}
@@ -110,6 +151,7 @@ export default function LolSelectDraftScreen({ navigation, route }) {
   const ACCENT = game.accent, ACCENT_LIGHT = game.accentLight;
 
   const [state, setState] = useState(null);
+  const [pendingFamiliarity, setPendingFamiliarity] = useState(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -138,8 +180,17 @@ export default function LolSelectDraftScreen({ navigation, route }) {
     setState(s => rerollAll(game, s));
   }, [game]);
 
+  if (pendingFamiliarity === null) {
+    return <FamiliarityPicker game={game} onChoose={setPendingFamiliarity} />;
+  }
+
   if (!state) {
-    return <FamiliarityPicker game={game} onChoose={(pct) => setState(createDraftState(game, pct))} />;
+    return (
+      <RerollPicker
+        game={game}
+        onChoose={(rerollBudget) => setState(createDraftState(game, pendingFamiliarity, rerollBudget))}
+      />
+    );
   }
 
   const shownCount = getShownCount(state);
@@ -158,7 +209,7 @@ export default function LolSelectDraftScreen({ navigation, route }) {
             disabled={!rerollPossible}
             style={[styles.rerollBadge, !rerollPossible && styles.rerollBadgeDisabled]}
           >
-            <Text style={styles.rerollBadgeText}>🔄  Tout relancer ({state.rerollsLeft}/3)</Text>
+            <Text style={styles.rerollBadgeText}>🔄  Tout relancer ({state.rerollsLeft}/{state.rerollBudget})</Text>
           </TouchableOpacity>
         </View>
 

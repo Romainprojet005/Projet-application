@@ -88,6 +88,15 @@ export default function LolTournamentView({
   game, labelA, labelB, teamA, teamB, result, // result = simulateBo3(...) → { games, scoreA, scoreB, seriesWinner }
   youSide = null,
   onHome, onReplay, replayLabel = '🔄  Rejouer',
+  // `canControl` : qui fait avancer le récit (LANCER LE BO3 / Suite du récit
+  // / Manche suivante). true en solo (toujours) et pour l'hôte en
+  // multijoueur ; false pour l'invité, qui se contente d'observer.
+  // `syncState` : { phase, gameIdx, lineIdx } imposé par l'hôte quand
+  // `canControl` est false (l'état local suit alors ce prop au lieu des
+  // boutons). `onSyncChange` : notifié à chaque avancée quand `canControl`
+  // est true, pour que le parent diffuse l'état (Supabase realtime) à
+  // l'invité — sans effet en solo si non fourni.
+  canControl = true, syncState = null, onSyncChange = null,
 }) {
   const ACCENT = game.accent, ACCENT_LIGHT = game.accentLight, ACCENT_DARK = game.accentDark;
   const [phase, setPhase]     = useState('lineup'); // lineup → reveal → gameResult → final
@@ -99,6 +108,21 @@ export default function LolTournamentView({
     Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
   }, [phase, gameIdx, lineIdx]);
 
+  // Contrôleur (solo, ou hôte en multijoueur) : diffuse chaque avancée du
+  // récit au parent, qui la propage à l'invité en temps réel.
+  useEffect(() => {
+    if (canControl) onSyncChange?.({ phase, gameIdx, lineIdx });
+  }, [canControl, phase, gameIdx, lineIdx]);
+
+  // Non-contrôleur (invité) : le récit suit exactement ce que diffuse
+  // l'hôte — aucun bouton local ne fait avancer quoi que ce soit.
+  useEffect(() => {
+    if (canControl || !syncState) return;
+    setPhase(syncState.phase);
+    setGameIdx(syncState.gameIdx);
+    setLineIdx(syncState.lineIdx);
+  }, [canControl, syncState]);
+
   const { games } = result;
   const currentGame = games[gameIdx];
   // Le "côté adverse" est celui qui n'est pas vous — utilisé pour dévoiler
@@ -106,20 +130,25 @@ export default function LolTournamentView({
   // (spectateur), tout reste affiché normalement, sans mystère.
   const opponentSide = youSide === 'A' ? 'B' : youSide === 'B' ? 'A' : null;
 
-  const startTournament = useCallback(() => { setPhase('reveal'); setGameIdx(0); setLineIdx(1); }, []);
+  const startTournament = useCallback(() => {
+    if (!canControl) return;
+    setPhase('reveal'); setGameIdx(0); setLineIdx(1);
+  }, [canControl]);
 
   const nextLine = useCallback(() => {
+    if (!canControl) return;
     if (lineIdx >= currentGame.lines.length) { setPhase('gameResult'); return; }
     fadeAnim.setValue(0);
     setLineIdx(i => i + 1);
-  }, [lineIdx, currentGame]);
+  }, [canControl, lineIdx, currentGame]);
 
   const nextGame = useCallback(() => {
+    if (!canControl) return;
     if (gameIdx + 1 >= games.length) { setPhase('final'); return; }
     setGameIdx(i => i + 1);
     setLineIdx(1);
     setPhase('reveal');
-  }, [gameIdx, games.length]);
+  }, [canControl, gameIdx, games.length]);
 
   const isLastLine = lineIdx >= (currentGame?.lines.length || 0);
 
@@ -148,11 +177,17 @@ export default function LolTournamentView({
               <Text style={styles.mysteryHint}>🔎 La composition adverse sera dévoilée au fil du récit de la manche 1.</Text>
             )}
 
-            <TouchableOpacity onPress={startTournament} style={[styles.launchBtn, { shadowColor: ACCENT }]} activeOpacity={0.88}>
-              <LinearGradient colors={[ACCENT_LIGHT, ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.launchGradient}>
-                <Text style={styles.launchText}>🏁  LANCER LE BO3</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+            {canControl ? (
+              <TouchableOpacity onPress={startTournament} style={[styles.launchBtn, { shadowColor: ACCENT }]} activeOpacity={0.88}>
+                <LinearGradient colors={[ACCENT_LIGHT, ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.launchGradient}>
+                  <Text style={styles.launchText}>🏁  LANCER LE BO3</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.waitBanner}>
+                <Text style={styles.waitBannerText}>⏳  En attente que l'hôte de la salle lance le BO3…</Text>
+              </View>
+            )}
           </Animated.View>
         </PageScroll>
       </LinearGradient>
@@ -194,11 +229,17 @@ export default function LolTournamentView({
               </Animated.Text>
             ))}
           </View>
-          <TouchableOpacity onPress={nextLine} style={styles.nextBtn} activeOpacity={0.85}>
-            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextBtnGrad}>
-              <Text style={styles.nextBtnText}>{isLastLine ? '🏆  Voir le résultat de la manche' : '➡️  Suite du récit'}</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+          {canControl ? (
+            <TouchableOpacity onPress={nextLine} style={styles.nextBtn} activeOpacity={0.85}>
+              <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextBtnGrad}>
+                <Text style={styles.nextBtnText}>{isLastLine ? '🏆  Voir le résultat de la manche' : '➡️  Suite du récit'}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.waitBanner}>
+              <Text style={styles.waitBannerText}>⏳  En attente que l'hôte fasse avancer le récit…</Text>
+            </View>
+          )}
         </PageScroll>
       </LinearGradient>
     );
@@ -237,13 +278,19 @@ export default function LolTournamentView({
               <Text style={styles.matchStatsText}>⏱️  {currentGame.duration}</Text>
             </View>
 
-            <TouchableOpacity onPress={nextGame} style={styles.homeBtn} activeOpacity={0.85}>
-              <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.homeBtnGrad}>
-                <Text style={styles.homeBtnText}>
-                  {seriesOver ? '🏆  Voir le résultat final de la série' : `➡️  Manche ${gameIdx + 2}`}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
+            {canControl ? (
+              <TouchableOpacity onPress={nextGame} style={styles.homeBtn} activeOpacity={0.85}>
+                <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.homeBtnGrad}>
+                  <Text style={styles.homeBtnText}>
+                    {seriesOver ? '🏆  Voir le résultat final de la série' : `➡️  Manche ${gameIdx + 2}`}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.waitBanner}>
+                <Text style={styles.waitBannerText}>⏳  En attente que l'hôte passe à la suite…</Text>
+              </View>
+            )}
           </Animated.View>
         </PageScroll>
       </LinearGradient>
@@ -359,6 +406,12 @@ const styles = StyleSheet.create({
   nextBtn: { borderRadius: radius.full, overflow: 'hidden' },
   nextBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
   nextBtnText: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 1.5 },
+
+  waitBanner: {
+    borderRadius: radius.full, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.card, paddingVertical: spacing.md + 4, alignItems: 'center',
+  },
+  waitBannerText: { fontSize: 13, fontWeight: '700', color: colors.textSecondary, fontStyle: 'italic' },
 
   finalCard: {
     flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.sm,

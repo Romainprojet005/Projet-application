@@ -56,6 +56,7 @@ export default function LolSelectMultiWaitScreen({ navigation, route }) {
     await supabase.from('lolselect_rooms').update({
       status: 'finished',
       result_json: { result, hostTeam: host.team_json, guestTeam: guest.team_json, hostName: host.name, guestName: guest.name },
+      reveal_json: { phase: 'lineup', gameIdx: 0, lineIdx: 0 },
     }).eq('id', roomId);
   };
 
