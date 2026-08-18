@@ -6,31 +6,29 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
-import { ROLE_META, ROLE_ORDER, LOL_PLAYERS_BY_ID } from '../../data/lolPlayers';
+import { getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 import {
   createDraftState, pickPlayer, rerollAll, canReroll, getTrioPlayers, getShownCount,
 } from '../../data/lolDraftEngine';
 import { supabase } from '../../services/supabase';
 
-const ACCENT       = '#C89B3C';
-const ACCENT_LIGHT = '#F0D68C';
-const ACCENT_DARK  = '#8B6914';
-const HEXTECH      = '#0AC8B9';
+const HEXTECH = '#0AC8B9';
 
 const FAMILIARITY_OPTIONS = [
   { value: 100, label: '100%', hint: 'Tout le monde — la scène complète, sans filtre' },
-  { value: 75,  label: '75%',  hint: 'Les 3/4 les plus connus de chaque poste' },
+  { value: 75,  label: '75%',  hint: 'Les 3/4 les plus connus' },
   { value: 50,  label: '50%',  hint: 'La moitié la plus connue — un bon compromis' },
   { value: 25,  label: '25%',  hint: 'Seulement les incontournables — idéal débutant' },
 ];
 
-function FamiliarityPicker({ onChoose }) {
+function FamiliarityPicker({ game, onChoose }) {
+  const ACCENT = game.accent, ACCENT_LIGHT = game.accentLight, ACCENT_DARK = game.accentDark;
   return (
     <LinearGradient colors={OB_BG} style={styles.container}>
       <PageScroll contentContainerStyle={styles.familiarityScroll}>
         <Text style={styles.title}>🎯 NIVEAU DE CONNAISSANCE</Text>
         <Text style={styles.familiaritySub}>
-          Moins familier de la scène League of Legends ? Réduisez le vivier de départ aux joueurs les plus connus de chaque poste.
+          Moins familier de la scène {game.label} ? Réduisez le vivier de départ aux joueurs les plus connus.
         </Text>
         {FAMILIARITY_OPTIONS.map(opt => (
           <TouchableOpacity
@@ -42,7 +40,7 @@ function FamiliarityPicker({ onChoose }) {
             <LinearGradient
               colors={opt.value === 100 ? [ACCENT_LIGHT, ACCENT, ACCENT_DARK] : ['transparent', 'transparent']}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-              style={[styles.familiarityBtnGrad, opt.value !== 100 && styles.familiarityBtnOutline]}
+              style={[styles.familiarityBtnGrad, opt.value !== 100 && { ...styles.familiarityBtnOutline, borderColor: `${ACCENT}45` }]}
             >
               <Text style={[styles.familiarityBtnLabel, opt.value !== 100 && { color: ACCENT_LIGHT }]}>{opt.label}</Text>
               <Text style={[styles.familiarityBtnHint, opt.value === 100 && { color: '#0A0815AA' }]}>{opt.hint}</Text>
@@ -54,9 +52,8 @@ function FamiliarityPicker({ onChoose }) {
   );
 }
 
-function PlayerCard({ player, onPick }) {
+function PlayerCard({ player, meta, accent, accentDark, onPick }) {
   const scale = useRef(new Animated.Value(1)).current;
-  const meta = ROLE_META[player.role];
 
   return (
     <Animated.View style={[styles.cardWrap, { transform: [{ scale }] }]}>
@@ -71,8 +68,8 @@ function PlayerCard({ player, onPick }) {
 
           <View style={styles.photoWrap}>
             {player.image
-              ? <Image source={{ uri: player.image }} style={styles.photo} resizeMode="cover" />
-              : <View style={[styles.photo, styles.photoFallback]}><Text style={styles.photoFallbackEmoji}>{meta.emoji}</Text></View>}
+              ? <Image source={{ uri: player.image }} style={[styles.photo, { borderColor: accent }]} resizeMode="cover" />
+              : <View style={[styles.photo, styles.photoFallback, { borderColor: accent }]}><Text style={styles.photoFallbackEmoji}>{meta.emoji}</Text></View>}
           </View>
 
           <Text style={styles.cardName} numberOfLines={1}>{player.name}</Text>
@@ -80,7 +77,7 @@ function PlayerCard({ player, onPick }) {
 
           <Text style={styles.cardBio} numberOfLines={2}>{player.bio}</Text>
 
-          <View style={styles.pickBtn}>
+          <View style={[styles.pickBtn, { backgroundColor: accent, borderColor: accentDark }]}>
             <Text style={styles.pickBtnText}>CHOISIR</Text>
           </View>
         </View>
@@ -89,24 +86,28 @@ function PlayerCard({ player, onPick }) {
   );
 }
 
-function RoleLane({ role, state, onPick }) {
-  const trio = getTrioPlayers(state, role);
+function SlotLane({ game, slot, state, onPick }) {
+  const trio = getTrioPlayers(game, state, slot);
   if (!trio.length) return null;
-  const meta = ROLE_META[role];
+  const meta = game.slotMeta[slot];
 
   return (
     <View style={styles.lane}>
-      <Text style={styles.laneTitle}>{meta.emoji}  {meta.label.toUpperCase()}</Text>
+      <Text style={[styles.laneTitle, { color: game.accentLight }]}>{meta.emoji}  {meta.label.toUpperCase()}</Text>
       <View style={styles.laneCards}>
-        {trio.map(player => <PlayerCard key={player.id} player={player} onPick={onPick} />)}
+        {trio.map(player => (
+          <PlayerCard key={player.id} player={player} meta={meta} accent={game.accent} accentDark={game.accentDark} onPick={onPick} />
+        ))}
       </View>
     </View>
   );
 }
 
 export default function LolSelectDraftScreen({ navigation, route }) {
-  const { roomId, playerId } = route?.params || {};
+  const { roomId, playerId, gameId = DEFAULT_GAME_ID } = route?.params || {};
   const isMultiplayer = !!(roomId && playerId);
+  const game = getGame(gameId);
+  const ACCENT = game.accent, ACCENT_LIGHT = game.accentLight;
 
   const [state, setState] = useState(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -123,22 +124,22 @@ export default function LolSelectDraftScreen({ navigation, route }) {
       supabase.from('lolselect_players')
         .update({ team_json: state.team, ready: true })
         .eq('id', playerId)
-        .then(() => navigation.replace('LolSelectMultiWait', { roomId, playerId }));
+        .then(() => navigation.replace('LolSelectMultiWait', { roomId, playerId, gameId }));
     } else {
-      navigation.replace('LolSelectTournament', { team: state.team });
+      navigation.replace('LolSelectTournament', { team: state.team, gameId });
     }
   }, [state?.finished]);
 
   const handlePick = useCallback((playerId2) => {
-    setState(s => pickPlayer(s, playerId2));
-  }, []);
+    setState(s => pickPlayer(game, s, playerId2));
+  }, [game]);
 
   const handleReroll = useCallback(() => {
-    setState(s => rerollAll(s));
-  }, []);
+    setState(s => rerollAll(game, s));
+  }, [game]);
 
   if (!state) {
-    return <FamiliarityPicker onChoose={(pct) => setState(createDraftState(pct))} />;
+    return <FamiliarityPicker game={game} onChoose={(pct) => setState(createDraftState(game, pct))} />;
   }
 
   const shownCount = getShownCount(state);
@@ -162,17 +163,19 @@ export default function LolSelectDraftScreen({ navigation, route }) {
         </View>
 
         <Text style={styles.title}>COMPOSEZ VOTRE ÉQUIPE</Text>
+        <Text style={[styles.gameLabel, { color: ACCENT_LIGHT }]}>{game.emoji} {game.label}</Text>
 
         <View style={styles.roleTracker}>
-          {ROLE_ORDER.map(r => {
-            const filled = state.team[r];
-            const player = filled ? LOL_PLAYERS_BY_ID[filled] : null;
+          {game.slots.map(slot => {
+            const filled = state.team[slot];
+            const player = filled ? game.playersById[filled] : null;
+            const meta = game.slotMeta[slot];
             return (
-              <View key={r} style={[styles.trackerSlot, player && styles.trackerSlotFilled]}>
-                <Text style={styles.trackerEmoji}>{ROLE_META[r].emoji}</Text>
-                <Text style={styles.trackerLabel}>{ROLE_META[r].label}</Text>
+              <View key={slot} style={[styles.trackerSlot, player && { backgroundColor: `${ACCENT}18`, borderColor: `${ACCENT}55` }]}>
+                <Text style={styles.trackerEmoji}>{meta.emoji}</Text>
+                <Text style={styles.trackerLabel}>{meta.label}</Text>
                 {player
-                  ? <Text style={styles.trackerName} numberOfLines={1}>{player.name}</Text>
+                  ? <Text style={[styles.trackerName, { color: ACCENT_LIGHT }]} numberOfLines={1}>{player.name}</Text>
                   : <Text style={styles.trackerEmpty}>—</Text>}
               </View>
             );
@@ -180,12 +183,12 @@ export default function LolSelectDraftScreen({ navigation, route }) {
         </View>
 
         <Text style={styles.hint}>
-          {shownCount} joueurs proposés · un choix verrouille son poste et relance tous les autres · une relance manuelle rafraîchit tout
+          {shownCount} joueurs proposés · un choix verrouille son slot et relance tous les autres · une relance manuelle rafraîchit tout
         </Text>
 
         <Animated.View style={{ opacity: fadeAnim }}>
-          {ROLE_ORDER.map(role => (
-            <RoleLane key={role} role={role} state={state} onPick={handlePick} />
+          {game.slots.map(slot => (
+            <SlotLane key={slot} game={game} slot={slot} state={state} onPick={handlePick} />
           ))}
         </Animated.View>
 
@@ -207,13 +210,14 @@ const styles = StyleSheet.create({
   rerollBadgeDisabled: { opacity: 0.35 },
   rerollBadgeText: { fontSize: 12, fontWeight: '800', color: HEXTECH },
 
-  title: { fontSize: 22, fontWeight: '900', color: colors.text, letterSpacing: 1.5, textAlign: 'center', marginBottom: spacing.md },
+  title: { fontSize: 22, fontWeight: '900', color: colors.text, letterSpacing: 1.5, textAlign: 'center' },
+  gameLabel: { fontSize: 12, fontWeight: '800', textAlign: 'center', letterSpacing: 1, marginTop: 2, marginBottom: spacing.md },
 
   familiarityScroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.xxl, gap: spacing.md },
   familiaritySub: { fontSize: 13, color: colors.textSecondary, textAlign: 'center', lineHeight: 20, marginBottom: spacing.lg },
   familiarityBtn: { borderRadius: radius.lg, overflow: 'hidden' },
   familiarityBtnGrad: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, alignItems: 'center' },
-  familiarityBtnOutline: { borderWidth: 1, borderColor: `${ACCENT}45`, backgroundColor: colors.card },
+  familiarityBtnOutline: { borderWidth: 1, backgroundColor: colors.card },
   familiarityBtnLabel: { fontSize: 20, fontWeight: '900', color: '#0A0815', letterSpacing: 1 },
   familiarityBtnHint: { fontSize: 11, color: colors.textSecondary, marginTop: 2, textAlign: 'center' },
 
@@ -222,16 +226,15 @@ const styles = StyleSheet.create({
     width: 78, alignItems: 'center', paddingVertical: spacing.xs + 2, borderRadius: radius.md,
     backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
   },
-  trackerSlotFilled: { backgroundColor: `${ACCENT}18`, borderColor: `${ACCENT}55` },
   trackerEmoji: { fontSize: 16 },
   trackerLabel: { fontSize: 9, color: colors.textMuted, fontWeight: '700', marginTop: 2 },
-  trackerName: { fontSize: 10, color: ACCENT_LIGHT, fontWeight: '800', marginTop: 2 },
+  trackerName: { fontSize: 10, fontWeight: '800', marginTop: 2 },
   trackerEmpty: { fontSize: 10, color: colors.textMuted, marginTop: 2 },
 
   hint: { fontSize: 11, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.lg, fontStyle: 'italic' },
 
   lane: { marginBottom: spacing.lg },
-  laneTitle: { fontSize: 14, fontWeight: '900', color: ACCENT_LIGHT, letterSpacing: 1, marginBottom: spacing.sm },
+  laneTitle: { fontSize: 14, fontWeight: '900', letterSpacing: 1, marginBottom: spacing.sm },
 
   laneCards: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing.sm },
   cardWrap: { width: 158 },
@@ -242,7 +245,7 @@ const styles = StyleSheet.create({
   cardFlag: { alignSelf: 'flex-end', fontSize: 13, marginBottom: 2 },
 
   photoWrap: { marginBottom: spacing.xs },
-  photo: { width: 76, height: 76, borderRadius: 38, borderWidth: 2, borderColor: ACCENT },
+  photo: { width: 76, height: 76, borderRadius: 38, borderWidth: 2 },
   photoFallback: { backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   photoFallbackEmoji: { fontSize: 30 },
 
@@ -252,8 +255,7 @@ const styles = StyleSheet.create({
 
   pickBtn: {
     marginTop: spacing.sm, alignSelf: 'stretch', borderRadius: radius.full,
-    paddingVertical: spacing.xs + 3, alignItems: 'center',
-    backgroundColor: ACCENT, borderWidth: 1, borderColor: ACCENT_DARK,
+    paddingVertical: spacing.xs + 3, alignItems: 'center', borderWidth: 1,
   },
   pickBtnText: { fontSize: 11, fontWeight: '900', color: '#0A0815', letterSpacing: 1 },
 });

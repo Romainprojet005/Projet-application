@@ -10,27 +10,23 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
-import { ROLE_META, ROLE_ORDER, LOL_PLAYERS_BY_ID } from '../../data/lolPlayers';
 
-const ACCENT       = '#C89B3C';
-const ACCENT_LIGHT = '#F0D68C';
-const ACCENT_DARK  = '#8B6914';
 const HEXTECH      = '#0AC8B9';
 
-// `revealedRoles` : si fourni, seuls ces postes montrent le vrai joueur —
+// `revealedRoles` : si fourni, seuls ces slots montrent le vrai joueur —
 // les autres affichent un mystère (composition adverse à découvrir).
 // undefined = tout est connu (utilisé pour votre propre équipe).
-function RosterColumn({ title, team, highlight, revealedRoles }) {
+function RosterColumn({ game, title, team, highlight, revealedRoles }) {
   return (
-    <View style={[styles.rosterCol, highlight && styles.rosterColHighlight]}>
-      <Text style={styles.rosterTitle} numberOfLines={1}>{title}</Text>
-      {ROLE_ORDER.map(r => {
+    <View style={[styles.rosterCol, highlight && { borderColor: `${game.accent}55`, backgroundColor: `${game.accent}10` }]}>
+      <Text style={[styles.rosterTitle, { color: game.accentLight }]} numberOfLines={1}>{title}</Text>
+      {game.slots.map(r => {
         const known = !revealedRoles || revealedRoles.includes(r);
-        const p = known ? LOL_PLAYERS_BY_ID[team[r]] : null;
+        const p = known ? game.playersById[team[r]] : null;
         if (known && !p) return null;
         return (
           <View key={r} style={styles.rosterRow}>
-            <Text style={styles.rosterEmoji}>{ROLE_META[r].emoji}</Text>
+            <Text style={styles.rosterEmoji}>{game.slotMeta[r].emoji}</Text>
             {known
               ? (p.image
                   ? <Image source={{ uri: p.image }} style={styles.rosterPhoto} />
@@ -54,23 +50,23 @@ function RosterColumn({ title, team, highlight, revealedRoles }) {
 }
 
 // Bandeau compact affiché pendant le récit d'une manche : dévoile la
-// composition adverse poste par poste, au même rythme que les lignes.
-function OpponentStrip({ label, team, revealedRoles }) {
+// composition adverse slot par slot, au même rythme que les lignes.
+function OpponentStrip({ game, label, team, revealedRoles }) {
   return (
     <View style={styles.oppStrip}>
-      <Text style={styles.oppStripLabel}>🔎  {label}</Text>
+      <Text style={[styles.oppStripLabel, { color: game.accentLight }]}>🔎  {label}</Text>
       <View style={styles.oppStripRow}>
-        {ROLE_ORDER.map(r => {
+        {game.slots.map(r => {
           const known = revealedRoles.includes(r);
-          const p = known ? LOL_PLAYERS_BY_ID[team[r]] : null;
+          const p = known ? game.playersById[team[r]] : null;
           return (
             <View key={r} style={styles.oppSlot}>
               {known
                 ? (p.image
-                    ? <Image source={{ uri: p.image }} style={styles.oppSlotPhoto} />
-                    : <View style={[styles.oppSlotPhoto, styles.oppSlotFallback]}><Text style={{ fontSize: 14 }}>{p.flag}</Text></View>)
+                    ? <Image source={{ uri: p.image }} style={[styles.oppSlotPhoto, { borderColor: game.accent }]} />
+                    : <View style={[styles.oppSlotPhoto, styles.oppSlotFallback, { borderColor: game.accent }]}><Text style={{ fontSize: 14 }}>{p.flag}</Text></View>)
                 : <View style={[styles.oppSlotPhoto, styles.oppSlotMystery]}><Text style={styles.oppSlotMysteryMark}>❓</Text></View>}
-              <Text style={styles.oppSlotRole}>{ROLE_META[r].emoji}</Text>
+              <Text style={styles.oppSlotRole}>{game.slotMeta[r].emoji}</Text>
               <Text style={styles.oppSlotName} numberOfLines={1}>{known ? p.name : '???'}</Text>
             </View>
           );
@@ -89,10 +85,11 @@ function seriesScoreThrough(games, uptoIdx) {
 }
 
 export default function LolTournamentView({
-  labelA, labelB, teamA, teamB, result, // result = simulateBo3(...) → { games, scoreA, scoreB, seriesWinner }
+  game, labelA, labelB, teamA, teamB, result, // result = simulateBo3(...) → { games, scoreA, scoreB, seriesWinner }
   youSide = null,
   onHome, onReplay, replayLabel = '🔄  Rejouer',
 }) {
+  const ACCENT = game.accent, ACCENT_LIGHT = game.accentLight, ACCENT_DARK = game.accentDark;
   const [phase, setPhase]     = useState('lineup'); // lineup → reveal → gameResult → final
   const [gameIdx, setGameIdx] = useState(0);
   const [lineIdx, setLineIdx] = useState(0);
@@ -136,20 +133,22 @@ export default function LolTournamentView({
 
             <View style={styles.rosterRow2}>
               <RosterColumn
+                game={game}
                 title={`🛡️ ${labelA.toUpperCase()}`} team={teamA} highlight={youSide !== 'B'}
                 revealedRoles={opponentSide === 'A' ? [] : undefined}
               />
-              <View style={styles.vsBadge}><Text style={styles.vsBadgeText}>VS</Text></View>
+              <View style={[styles.vsBadge, { backgroundColor: `${HEXTECH}20`, borderColor: `${HEXTECH}50` }]}><Text style={styles.vsBadgeText}>VS</Text></View>
               <RosterColumn
+                game={game}
                 title={`🔥 ${labelB.toUpperCase()}`} team={teamB} highlight={youSide === 'B'}
                 revealedRoles={opponentSide === 'B' ? [] : undefined}
               />
             </View>
             {opponentSide && (
-              <Text style={styles.mysteryHint}>🔎 La composition adverse sera dévoilée poste par poste au fil du récit de la manche 1.</Text>
+              <Text style={styles.mysteryHint}>🔎 La composition adverse sera dévoilée au fil du récit de la manche 1.</Text>
             )}
 
-            <TouchableOpacity onPress={startTournament} style={styles.launchBtn} activeOpacity={0.88}>
+            <TouchableOpacity onPress={startTournament} style={[styles.launchBtn, { shadowColor: ACCENT }]} activeOpacity={0.88}>
               <LinearGradient colors={[ACCENT_LIGHT, ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.launchGradient}>
                 <Text style={styles.launchText}>🏁  LANCER LE BO3</Text>
               </LinearGradient>
@@ -164,9 +163,9 @@ export default function LolTournamentView({
     const linesToShow = currentGame.lines.slice(0, lineIdx);
     const scoreBefore = gameIdx === 0 ? { a: 0, b: 0 } : seriesScoreThrough(games, gameIdx - 1);
     const revealedLaneCount = gameIdx === 0
-      ? Math.max(0, Math.min(5, lineIdx - currentGame.laneLineStartIndex))
-      : 5;
-    const opponentRevealedRoles = ROLE_ORDER.slice(0, revealedLaneCount);
+      ? Math.max(0, Math.min(game.slots.length, lineIdx - currentGame.laneLineStartIndex))
+      : game.slots.length;
+    const opponentRevealedRoles = game.slots.slice(0, revealedLaneCount);
     return (
       <LinearGradient colors={OB_BG} style={styles.container}>
         <PageScroll contentContainerStyle={styles.scroll}>
@@ -178,6 +177,7 @@ export default function LolTournamentView({
           </View>
           {opponentSide && (
             <OpponentStrip
+              game={game}
               label={opponentSide === 'A' ? labelA : labelB}
               team={opponentSide === 'A' ? teamA : teamB}
               revealedRoles={opponentRevealedRoles}
@@ -212,7 +212,7 @@ export default function LolTournamentView({
     return (
       <LinearGradient colors={OB_BG} style={styles.container}>
         <PageScroll contentContainerStyle={styles.scroll}>
-          <Animated.View style={[styles.finalCard, { opacity: fadeAnim }]}>
+          <Animated.View style={[styles.finalCard, { opacity: fadeAnim, borderColor: `${ACCENT}40` }]}>
             <Text style={styles.finalEmoji}>🎮</Text>
             <Text style={styles.finalTitle}>MANCHE {gameIdx + 1} : {winnerLabel.toUpperCase()}</Text>
             <Text style={styles.finalSub}>Score de la série : {scoreNow.a} – {scoreNow.b}</Text>
@@ -232,7 +232,7 @@ export default function LolTournamentView({
             </View>
 
             <View style={styles.matchStatsRow}>
-              <Text style={styles.matchStatsText}>⚔️  {currentGame.killsA} – {currentGame.killsB}</Text>
+              <Text style={styles.matchStatsText}>{game.scoreEmoji}  {currentGame.killsA} – {currentGame.killsB}</Text>
               <Text style={styles.matchStatsSep}>·</Text>
               <Text style={styles.matchStatsText}>⏱️  {currentGame.duration}</Text>
             </View>
@@ -257,7 +257,7 @@ export default function LolTournamentView({
   return (
     <LinearGradient colors={OB_BG} style={styles.container}>
       <PageScroll contentContainerStyle={styles.scroll}>
-        <Animated.View style={[styles.finalCard, { opacity: fadeAnim }]}>
+        <Animated.View style={[styles.finalCard, { opacity: fadeAnim, borderColor: `${ACCENT}40` }]}>
           <Text style={styles.finalEmoji}>{youWon === null ? '🏆' : youWon ? '🏆' : '💔'}</Text>
           <Text style={styles.finalTitle}>{youWon === null ? 'FIN DE LA SÉRIE' : youWon ? 'VICTOIRE !' : 'DÉFAITE'}</Text>
           <Text style={styles.finalSub}>{winnerLabel} remporte la série {result.scoreA} – {result.scoreB}</Text>
@@ -269,10 +269,10 @@ export default function LolTournamentView({
                 <View key={i} style={styles.recapRow}>
                   <View style={styles.recapTopRow}>
                     <Text style={styles.recapLabel}>Manche {i + 1}</Text>
-                    <Text style={styles.recapWinner}>{gWinnerIsA ? labelA : labelB}</Text>
+                    <Text style={[styles.recapWinner, { color: ACCENT_LIGHT }]}>{gWinnerIsA ? labelA : labelB}</Text>
                     <Text style={styles.recapScore}>{g.statsA.total.toFixed(1)} – {g.statsB.total.toFixed(1)}</Text>
                   </View>
-                  <Text style={styles.recapMatchStats}>⚔️  {g.killsA}-{g.killsB}  ·  ⏱️  {g.duration}</Text>
+                  <Text style={styles.recapMatchStats}>{game.scoreEmoji}  {g.killsA}-{g.killsB}  ·  ⏱️  {g.duration}</Text>
                 </View>
               );
             })}
@@ -285,7 +285,7 @@ export default function LolTournamentView({
           </TouchableOpacity>
           {onReplay && (
             <TouchableOpacity onPress={onReplay} style={styles.replayBtn} activeOpacity={0.8}>
-              <Text style={styles.replayBtnText}>{replayLabel}</Text>
+              <Text style={[styles.replayBtnText, { color: ACCENT_LIGHT }]}>{replayLabel}</Text>
             </TouchableOpacity>
           )}
         </Animated.View>
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   vsSub: { fontSize: 12, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.lg },
 
   gameHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
-  gameHeaderTitle: { fontSize: 13, fontWeight: '900', color: ACCENT_LIGHT, letterSpacing: 2 },
+  gameHeaderTitle: { fontSize: 13, fontWeight: '900', color: colors.text, letterSpacing: 2 },
   seriesBadge: { paddingHorizontal: spacing.md, paddingVertical: 4, borderRadius: radius.full, backgroundColor: `${HEXTECH}20`, borderWidth: 1, borderColor: `${HEXTECH}50` },
   seriesBadgeText: { fontSize: 13, fontWeight: '900', color: HEXTECH },
 
@@ -312,8 +312,7 @@ const styles = StyleSheet.create({
     flex: 1, backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border,
     padding: spacing.sm, gap: spacing.xs,
   },
-  rosterColHighlight: { borderColor: `${ACCENT}55`, backgroundColor: `${ACCENT}10` },
-  rosterTitle: { fontSize: 11, fontWeight: '800', color: ACCENT_LIGHT, marginBottom: 4, textAlign: 'center' },
+  rosterTitle: { fontSize: 11, fontWeight: '800', color: colors.text, marginBottom: 4, textAlign: 'center' },
   rosterRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   rosterEmoji: { fontSize: 12 },
   rosterPhoto: { width: 26, height: 26, borderRadius: 13 },
@@ -332,7 +331,7 @@ const styles = StyleSheet.create({
 
   launchBtn: {
     borderRadius: radius.full, overflow: 'hidden',
-    shadowColor: ACCENT, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
+    shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
   launchText: { fontSize: 15, fontWeight: '800', color: '#0A0815', letterSpacing: 2 },
@@ -341,10 +340,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border,
     padding: spacing.sm + 2, marginBottom: spacing.md,
   },
-  oppStripLabel: { fontSize: 11, fontWeight: '800', color: ACCENT_LIGHT, marginBottom: spacing.xs },
+  oppStripLabel: { fontSize: 11, fontWeight: '800', color: colors.text, marginBottom: spacing.xs },
   oppStripRow: { flexDirection: 'row', justifyContent: 'space-between' },
   oppSlot: { alignItems: 'center', width: 58 },
-  oppSlotPhoto: { width: 40, height: 40, borderRadius: 20, borderWidth: 1.5, borderColor: ACCENT },
+  oppSlotPhoto: { width: 40, height: 40, borderRadius: 20, borderWidth: 1.5 },
   oppSlotFallback: { backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   oppSlotMystery: { backgroundColor: colors.surface, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   oppSlotMysteryMark: { fontSize: 16 },
@@ -363,7 +362,7 @@ const styles = StyleSheet.create({
 
   finalCard: {
     flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.sm,
-    backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1, borderColor: `${ACCENT}40`,
+    backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1,
     padding: spacing.xl, marginTop: spacing.xl,
   },
   finalEmoji: { fontSize: 56 },
@@ -391,7 +390,7 @@ const styles = StyleSheet.create({
   },
   recapTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   recapLabel: { fontSize: 11, color: colors.textMuted, fontWeight: '700', width: 70 },
-  recapWinner: { fontSize: 12, color: ACCENT_LIGHT, fontWeight: '800', flex: 1, textAlign: 'center' },
+  recapWinner: { fontSize: 12, color: colors.text, fontWeight: '800', flex: 1, textAlign: 'center' },
   recapScore: { fontSize: 11, color: colors.textMuted },
   recapMatchStats: { fontSize: 10, color: colors.textMuted, textAlign: 'center' },
 
@@ -399,5 +398,5 @@ const styles = StyleSheet.create({
   homeBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
   homeBtnText: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 1.5 },
   replayBtn: { paddingVertical: spacing.md, alignItems: 'center' },
-  replayBtnText: { color: ACCENT_LIGHT, fontSize: 14, fontWeight: '700' },
+  replayBtnText: { fontSize: 14, fontWeight: '700' },
 });

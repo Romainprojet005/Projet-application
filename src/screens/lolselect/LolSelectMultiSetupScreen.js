@@ -7,10 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
-
-const ACCENT       = '#C89B3C';
-const ACCENT_LIGHT = '#F0D68C';
-const ACCENT_DARK  = '#8B6914';
+import { getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 
 function generateCode() {
   return Array.from({ length: 4 }, () =>
@@ -32,7 +29,11 @@ function getDeviceId() {
   }
 }
 
-export default function LolSelectMultiSetupScreen({ navigation }) {
+export default function LolSelectMultiSetupScreen({ navigation, route }) {
+  const { gameId = DEFAULT_GAME_ID } = route?.params || {};
+  const game = getGame(gameId);
+  const ACCENT = game.accent, ACCENT_LIGHT = game.accentLight, ACCENT_DARK = game.accentDark;
+
   const [tab, setTab]           = useState('create');
   const [name, setName]         = useState('');
   const [joinCode, setJoinCode] = useState('');
@@ -45,7 +46,7 @@ export default function LolSelectMultiSetupScreen({ navigation }) {
       const code = generateCode();
       const { data: room, error: rErr } = await supabase
         .from('lolselect_rooms')
-        .insert({ code })
+        .insert({ code, game: gameId })
         .select()
         .single();
       if (rErr) throw rErr;
@@ -57,7 +58,7 @@ export default function LolSelectMultiSetupScreen({ navigation }) {
         .single();
       if (pErr) throw pErr;
 
-      navigation.replace('LolSelectMultiLobby', { roomId: room.id, playerId: player.id, isHost: true });
+      navigation.replace('LolSelectMultiLobby', { roomId: room.id, playerId: player.id, isHost: true, gameId });
     } catch (e) {
       Alert.alert('Erreur', e.message);
     } finally {
@@ -90,7 +91,7 @@ export default function LolSelectMultiSetupScreen({ navigation }) {
         .single();
       if (pErr) throw pErr;
 
-      navigation.replace('LolSelectMultiLobby', { roomId: room.id, playerId: player.id, isHost: false });
+      navigation.replace('LolSelectMultiLobby', { roomId: room.id, playerId: player.id, isHost: false, gameId: room.game || DEFAULT_GAME_ID });
     } catch (e) {
       Alert.alert('Erreur', e.message);
     } finally {
@@ -109,14 +110,14 @@ export default function LolSelectMultiSetupScreen({ navigation }) {
           <Text style={styles.backText}>← Retour</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>🌐 SÉLECTIONNEUR À DISTANCE</Text>
-        <Text style={styles.subtitle}>Chacun draft sa propre équipe sur son appareil, puis les deux s'affrontent</Text>
+        <Text style={[styles.title, { color: ACCENT_LIGHT }]}>{game.emoji} SÉLECTIONNEUR À DISTANCE</Text>
+        <Text style={styles.subtitle}>Chacun draft sa propre équipe sur son appareil, puis les deux s'affrontent · {game.label}</Text>
 
         <View style={styles.tabs}>
           {['create', 'join'].map(t => (
             <TouchableOpacity
               key={t}
-              style={[styles.tab, tab === t && styles.tabActive]}
+              style={[styles.tab, tab === t && { backgroundColor: ACCENT }]}
               onPress={() => setTab(t)}
             >
               <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
@@ -127,9 +128,9 @@ export default function LolSelectMultiSetupScreen({ navigation }) {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>TON PRÉNOM</Text>
+          <Text style={[styles.label, { color: ACCENT_LIGHT }]}>TON PRÉNOM</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { borderColor: ACCENT + '44' }]}
             placeholder="Entre ton prénom..."
             placeholderTextColor={colors.textMuted}
             value={name}
@@ -153,9 +154,9 @@ export default function LolSelectMultiSetupScreen({ navigation }) {
         ) : (
           <>
             <View style={styles.field}>
-              <Text style={styles.label}>CODE DE LA SALLE</Text>
+              <Text style={[styles.label, { color: ACCENT_LIGHT }]}>CODE DE LA SALLE</Text>
               <TextInput
-                style={[styles.input, styles.codeInput]}
+                style={[styles.input, styles.codeInput, { borderColor: ACCENT + '44' }]}
                 placeholder="ABCD"
                 placeholderTextColor={colors.textMuted}
                 value={joinCode}
@@ -186,17 +187,16 @@ const styles = StyleSheet.create({
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
   backRow: { marginBottom: spacing.lg },
   backText: { color: colors.textMuted, fontSize: 14 },
-  title: { fontSize: 24, fontWeight: '900', color: ACCENT_LIGHT, textAlign: 'center', letterSpacing: 1.5 },
+  title: { fontSize: 24, fontWeight: '900', color: colors.text, textAlign: 'center', letterSpacing: 1.5 },
   subtitle: { fontSize: 13, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl, lineHeight: 19 },
   tabs: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.lg, padding: 4, marginBottom: spacing.xl },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.md },
-  tabActive: { backgroundColor: ACCENT },
   tabText: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
   tabTextActive: { color: '#0A0815' },
   field: { marginBottom: spacing.lg },
-  label: { fontSize: 11, fontWeight: '800', color: ACCENT_LIGHT, letterSpacing: 2, marginBottom: spacing.sm },
+  label: { fontSize: 11, fontWeight: '800', color: colors.text, letterSpacing: 2, marginBottom: spacing.sm },
   input: {
-    backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1, borderColor: ACCENT + '44',
+    backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border,
     paddingVertical: spacing.md, paddingHorizontal: spacing.lg, fontSize: 16, fontWeight: '700', color: colors.text,
     ...Platform.select({ web: { outlineStyle: 'none' } }),
   },

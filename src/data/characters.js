@@ -425,7 +425,7 @@ export const characters = [
     emoji: '🎮',
     title: 'Maître du Draft',
     description:
-      'Draftez votre équipe de légendes League of Legends parmi 15 pros réels, à coups de relances stratégiques. Puis regardez le récit du tournoi trancher, sans aucun hasard.',
+      'Draftez votre équipe de pros réels — League of Legends ou Rocket League au choix — à coups de relances stratégiques. Puis regardez le récit du tournoi trancher, sans aucun hasard.',
     catchphrase: '"Composez la légende."',
     color: '#C89B3C',
     gradientColors: ['#1A1400', '#2D2200'],

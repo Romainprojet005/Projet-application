@@ -130,3 +130,11 @@ alter table lolselect_rooms   disable row level security;
 alter table lolselect_players disable row level security;
 grant select, insert, update, delete on lolselect_rooms   to anon;
 grant select, insert, update, delete on lolselect_players to anon;
+
+-- ============================================================
+-- LE SÉLECTIONNEUR — ajout de Rocket League (2e jeu, mêmes salons)
+-- ============================================================
+-- Une salle mémorise désormais quel jeu s'y joue ('lol' ou 'rocketleague'),
+-- choisi par l'hôte à la création. Les anciennes salles (déjà 'lol' par
+-- défaut) continuent de fonctionner sans y toucher.
+alter table lolselect_rooms add column if not exists game text default 'lol';

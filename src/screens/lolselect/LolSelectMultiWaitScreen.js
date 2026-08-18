@@ -6,12 +6,13 @@ import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 import { simulateBo3 } from '../../data/lolSimulation';
+import { getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 
 const ACCENT       = '#C89B3C';
 const ACCENT_LIGHT = '#F0D68C';
 
 export default function LolSelectMultiWaitScreen({ navigation, route }) {
-  const { roomId, playerId } = route.params;
+  const { roomId, playerId, gameId } = route.params;
   const [players, setPlayers] = useState([]);
   const channelRef = useRef(null);
   const computingRef = useRef(false);
@@ -27,7 +28,7 @@ export default function LolSelectMultiWaitScreen({ navigation, route }) {
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'lolselect_rooms', filter: `id=eq.${roomId}` },
         ({ new: r }) => {
-          if (r.status === 'finished') navigation.replace('LolSelectMultiTournament', { roomId, playerId });
+          if (r.status === 'finished') navigation.replace('LolSelectMultiTournament', { roomId, playerId, gameId: r.game || gameId });
         }
       )
       .subscribe();
@@ -45,9 +46,13 @@ export default function LolSelectMultiWaitScreen({ navigation, route }) {
     if (!me?.is_host) return; // seul l'hôte calcule le résultat, pour éviter toute divergence entre écrans
 
     computingRef.current = true;
+    // Relit la salle pour connaître le jeu de façon sûre (source de vérité),
+    // au cas où les route params se seraient perdus entre écrans.
+    const { data: room } = await supabase.from('lolselect_rooms').select().eq('id', roomId).single();
+    const game = getGame(room?.game || gameId || DEFAULT_GAME_ID);
     const host  = ps.find(p => p.is_host);
     const guest = ps.find(p => !p.is_host);
-    const result = simulateBo3(host.team_json, guest.team_json, host.name, guest.name);
+    const result = simulateBo3(game, host.team_json, guest.team_json, host.name, guest.name);
     await supabase.from('lolselect_rooms').update({
       status: 'finished',
       result_json: { result, hostTeam: host.team_json, guestTeam: guest.team_json, hostName: host.name, guestName: guest.name },

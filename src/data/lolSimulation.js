@@ -1,6 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────
 // LE SÉLECTIONNEUR — moteur du tournoi
 //
+// Générique : sert aussi bien le tournoi LoL (5 duels de poste) que le
+// tournoi Rocket League (3 duels) — chaque écran passe l'objet `game`
+// résolu via `getGame()` (voir selectGames.js).
+//
 // Le résultat (qui gagne, qui perd chaque duel) est intégralement déterminé
 // par la force des joueurs (`power`, ajustée à leur année) et la synergie
 // d'équipe (coéquipiers réels / même écurie). Le texte n'influence JAMAIS
@@ -11,33 +15,37 @@
 // B = IA générée) qu'en multijoueur à distance (A / B = les deux joueurs).
 // ─────────────────────────────────────────────────────────────────────────
 
-import { LOL_PLAYERS, LOL_PLAYERS_BY_ID, ROLE_ORDER, ROLE_META, relationBetween, RIVALRIES } from './lolPlayers';
-
 const STRONG_BONUS = 4;
 const MILD_BONUS   = 1.5;
+const ADAPT_BONUS  = 5;
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 // ── Équipe rivale (mode solo) ────────────────────────────────────────────
-// Composée avec les joueurs non sélectionnés, un par poste tiré au hasard —
-// garantit une équipe complète et différente à chaque partie.
-export function generateRivalTeam(userTeam) {
+// Composée avec les joueurs non sélectionnés, un par slot tiré au hasard —
+// garantit une équipe complète et différente à chaque partie. `used`
+// empêche qu'un même joueur soit tiré deux fois sur un vivier partagé
+// entre slots (Rocket League) ; sans effet sur un vivier partitionné (LoL).
+export function generateRivalTeam(game, userTeam) {
   const rival = {};
-  ROLE_ORDER.forEach(role => {
-    const leftovers = LOL_PLAYERS.filter(p => p.role === role && p.id !== userTeam[role]);
-    const chosen = pick(leftovers);
-    rival[role] = chosen.id;
+  const used = new Set();
+  game.slots.forEach(slot => {
+    const candidates = game.slotPool(game.players, slot)
+      .filter(p => p.id !== userTeam[slot] && !used.has(p.id));
+    const chosen = pick(candidates);
+    rival[slot] = chosen.id;
+    used.add(chosen.id);
   });
   return rival;
 }
 
-function teamSynergy(teamIds) {
+function teamSynergy(game, teamIds) {
   let bonus = 0;
   const strongPairs = [];
   const mildPairs = [];
   for (let i = 0; i < teamIds.length; i++) {
     for (let j = i + 1; j < teamIds.length; j++) {
-      const rel = relationBetween(teamIds[i], teamIds[j]);
+      const rel = game.relationBetween(teamIds[i], teamIds[j]);
       if (rel === 'strong') { bonus += STRONG_BONUS; strongPairs.push([teamIds[i], teamIds[j]]); }
       if (rel === 'mild')   { bonus += MILD_BONUS;   mildPairs.push([teamIds[i], teamIds[j]]); }
     }
@@ -45,50 +53,60 @@ function teamSynergy(teamIds) {
   return { bonus, strongPairs, mildPairs };
 }
 
-function teamTotal(team, bonus = 0) {
-  const ids = ROLE_ORDER.map(r => team[r]);
-  const powerSum = ids.reduce((s, id) => s + LOL_PLAYERS_BY_ID[id].power, 0);
-  const synergy = teamSynergy(ids);
+function teamTotal(game, team, bonus = 0) {
+  const ids = game.slots.map(s => team[s]);
+  const powerSum = ids.reduce((s, id) => s + game.playersById[id].power, 0);
+  const synergy = teamSynergy(game, ids);
   return { total: Math.round((powerSum + synergy.bonus + bonus) * 10) / 10, powerSum, synergy, adjustBonus: bonus };
 }
 
 // ── Gabarits de récit (variantes cosmétiques, tirées au hasard) ─────────
 const STOMP_TEMPLATES = [
-  ({ w, l, role }) => `${ROLE_META[role].emoji} EN ${ROLE_META[role].label.toUpperCase()} : ${w.name} écrase littéralement ${l.name} — ${w.signature}.`,
-  ({ w, l, role }) => `${ROLE_META[role].emoji} EN ${ROLE_META[role].label.toUpperCase()} : ${l.name} n'a jamais existé face à ${w.name}, porté par ${w.signature}.`,
-  ({ w, l, role }) => `${ROLE_META[role].emoji} EN ${ROLE_META[role].label.toUpperCase()} : ${w.name} impose un rythme que ${l.name} ne peut pas suivre, plombé par ${l.weakness}.`,
+  ({ w, l, tag, meta }) => `${meta.emoji} ${tag} : ${w.name} écrase littéralement ${l.name} — ${w.signature}.`,
+  ({ w, l, tag, meta }) => `${meta.emoji} ${tag} : ${l.name} n'a jamais existé face à ${w.name}, porté par ${w.signature}.`,
+  ({ w, l, tag, meta }) => `${meta.emoji} ${tag} : ${w.name} impose un rythme que ${l.name} ne peut pas suivre, plombé par ${l.weakness}.`,
 ];
 const WIN_TEMPLATES = [
-  ({ w, l, role }) => `${ROLE_META[role].emoji} EN ${ROLE_META[role].label.toUpperCase()} : ${w.name} prend l'avantage sur ${l.name} grâce à ${w.signature}.`,
-  ({ w, l, role }) => `${ROLE_META[role].emoji} EN ${ROLE_META[role].label.toUpperCase()} : ${l.name} tient un moment, mais ${l.weakness} finit par payer face à ${w.name}.`,
-  ({ w, l, role }) => `${ROLE_META[role].emoji} EN ${ROLE_META[role].label.toUpperCase()} : duel disputé, ${w.name} s'en sort mieux sur la durée.`,
+  ({ w, l, tag, meta }) => `${meta.emoji} ${tag} : ${w.name} prend l'avantage sur ${l.name} grâce à ${w.signature}.`,
+  ({ w, l, tag, meta }) => `${meta.emoji} ${tag} : ${l.name} tient un moment, mais ${l.weakness} finit par payer face à ${w.name}.`,
+  ({ w, l, tag, meta }) => `${meta.emoji} ${tag} : duel disputé, ${w.name} s'en sort mieux sur la durée.`,
 ];
 const CLOSE_TEMPLATES = [
-  ({ w, l, role }) => `${ROLE_META[role].emoji} EN ${ROLE_META[role].label.toUpperCase()} : ${w.name} et ${l.name} se rendent coup pour coup — lane serrée jusqu'au bout, léger avantage ${w.name}.`,
-  ({ w, l, role }) => `${ROLE_META[role].emoji} EN ${ROLE_META[role].label.toUpperCase()} : rien ne sépare ${w.name} et ${l.name}, si ce n'est un détail — ${w.signature}.`,
-  ({ w, l, role }) => `${ROLE_META[role].emoji} EN ${ROLE_META[role].label.toUpperCase()} : combat équilibré entre ${w.name} et ${l.name}, ${w.name} finit juste devant.`,
+  ({ w, l, tag, meta }) => `${meta.emoji} ${tag} : ${w.name} et ${l.name} se rendent coup pour coup — écart minime jusqu'au bout, léger avantage ${w.name}.`,
+  ({ w, l, tag, meta }) => `${meta.emoji} ${tag} : rien ne sépare ${w.name} et ${l.name}, si ce n'est un détail — ${w.signature}.`,
+  ({ w, l, tag, meta }) => `${meta.emoji} ${tag} : duel équilibré entre ${w.name} et ${l.name}, ${w.name} finit juste devant.`,
 ];
 // Cas particulier : la même légende s'affronte elle-même à deux époques différentes
 const MIRROR_TEMPLATES = [
-  ({ w, l, role }) => `${ROLE_META[role].emoji} DUEL D'ÉPOQUES EN ${ROLE_META[role].label.toUpperCase()} : ${w.name} ${w.year} affronte ${l.name} ${l.year} — la même légende, deux générations. C'est la version ${w.year} qui l'emporte, portée par ${w.signature}.`,
-  ({ w, l, role }) => `${ROLE_META[role].emoji} DUEL D'ÉPOQUES EN ${ROLE_META[role].label.toUpperCase()} : face à son propre miroir de ${l.year}, ${w.name} version ${w.year} prouve qu'il n'a pas volé sa réputation — ${w.signature}.`,
+  ({ w, l, tag, meta }) => `${meta.emoji} DUEL D'ÉPOQUES ${tag} : ${w.name} ${w.year} affronte ${l.name} ${l.year} — la même légende, deux générations. C'est la version ${w.year} qui l'emporte, portée par ${w.signature}.`,
+  ({ w, l, tag, meta }) => `${meta.emoji} DUEL D'ÉPOQUES ${tag} : face à son propre miroir de ${l.year}, ${w.name} version ${w.year} prouve qu'il n'a pas volé sa réputation — ${w.signature}.`,
 ];
 
-function laneLine(playerA, playerB, role, aIsWinner) {
+// Étiquette affichée avant les deux-points dans une ligne de duel : pour
+// LoL, "EN TOP" / "EN JUNGLE" (un vrai poste) ; pour Rocket League (pas de
+// poste), directement le libellé du slot ("DUEL 1").
+function slotTag(game, slot) {
+  const meta = game.slotMeta[slot];
+  return game.id === 'lol' ? `EN ${meta.label.toUpperCase()}` : meta.label.toUpperCase();
+}
+
+function laneLine(game, playerA, playerB, slot, aIsWinner) {
   const w = aIsWinner ? playerA : playerB;
   const l = aIsWinner ? playerB : playerA;
+  const meta = game.slotMeta[slot];
+  const tag = slotTag(game, slot);
   if (playerA.personId && playerA.personId === playerB.personId) {
-    return pick(MIRROR_TEMPLATES)({ w, l, role });
+    return pick(MIRROR_TEMPLATES)({ w, l, tag, meta });
   }
   const gap = Math.abs(playerA.power - playerB.power);
   const bank = gap >= 8 ? STOMP_TEMPLATES : gap >= 3 ? WIN_TEMPLATES : CLOSE_TEMPLATES;
-  return pick(bank)({ w, l, role });
+  return pick(bank)({ w, l, tag, meta });
 }
 
-function synergyLine(teamLabel, synergy) {
+function synergyLine(game, teamLabel, synergy) {
   const pair = synergy.strongPairs[0] || synergy.mildPairs[0];
   if (!pair) return null;
-  const [a, b] = pair.map(id => LOL_PLAYERS_BY_ID[id]);
+  const [a, b] = pair.map(id => game.playersById[id]);
   const strong = synergy.strongPairs.length > 0;
   return strong
     ? `✨ ${a.name} et ${b.name} (${a.team} ${a.year}) retrouvent leurs automatismes de l'époque — ${teamLabel} joue avec une cohésion qui ne s'improvise pas.`
@@ -99,31 +117,33 @@ function synergyLine(teamLabel, synergy) {
 // N'influence jamais le vainqueur (déjà tranché avant d'être appelé) :
 // un plus grand écart de force donne un score plus large et une manche
 // plus courte (l'équipe dominante conclut vite) ; une manche serrée dure
-// plus longtemps et le score de kills reste proche, comme une vraie partie.
+// plus longtemps et le score reste proche, comme une vraie partie. Les
+// bornes numériques viennent de `game.flavor` (kills LoL vs buts RL).
 function formatDuration(totalSeconds) {
   const m = Math.floor(totalSeconds / 60);
   const s = totalSeconds % 60;
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-function generateGameFlavor(gap) {
+function generateGameFlavor(game, gap) {
+  const f = game.flavor;
   const margin = Math.max(0, Math.min(40, gap)) / 40; // 0 (serré) → 1 (écrasant)
 
-  const durationMinutes = 34 - margin * 12 + (Math.random() * 6 - 3);
-  const durationSeconds = Math.max(19 * 60, Math.min(47 * 60,
+  const durationMinutes = f.baseMinutes - margin * f.marginMinutes + (Math.random() * f.jitterMinutes * 2 - f.jitterMinutes);
+  const durationSeconds = Math.max(f.minDurationSec, Math.min(f.maxDurationSec,
     Math.round(durationMinutes * 60 + Math.random() * 59)));
 
-  const loserKills = Math.round(8 + Math.random() * 6);
-  const winnerKills = loserKills + Math.round(4 + margin * 18 + Math.random() * 4);
+  const loserScore = Math.round(f.loserBase + Math.random() * f.loserVar);
+  const winnerScore = loserScore + Math.round(f.winnerBaseBonus + margin * f.winnerMarginMult + Math.random() * f.winnerVar);
 
-  return { duration: formatDuration(durationSeconds), winnerKills, loserKills };
+  return { duration: formatDuration(durationSeconds), winnerScore, loserScore };
 }
 
-function findRivalryLine(teamA, teamB) {
-  for (const { pair, story } of RIVALRIES) {
+function findRivalryLine(game, teamA, teamB) {
+  for (const { pair, story } of game.RIVALRIES) {
     const [a, b] = pair;
-    const inA = ROLE_ORDER.map(r => teamA[r]);
-    const inB = ROLE_ORDER.map(r => teamB[r]);
+    const inA = game.slots.map(s => teamA[s]);
+    const inB = game.slots.map(s => teamB[s]);
     const cross = (inA.includes(a) && inB.includes(b)) || (inA.includes(b) && inB.includes(a));
     if (cross) return `⚔️ ${story}`;
   }
@@ -131,23 +151,23 @@ function findRivalryLine(teamA, teamB) {
 }
 
 // ── Simulation d'une manche ───────────────────────────────────────────────
-// teamA / teamB : { TOP: playerId, JGL: playerId, ... }
+// teamA / teamB : { [slot]: playerId, ... } — slots donnés par `game.slots`.
 // labelA / labelB : noms affichés dans le récit (ex. "Votre équipe" / "L'équipe adverse",
 // ou en multijoueur les prénoms des deux joueurs).
 // bonusA / bonusB : ajustement stratégique optionnel (utilisé en BO3 par l'équipe
 // battue à la manche précédente) — reste 100% déterministe, aucun tirage aléatoire.
-export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "L'équipe adverse", bonusA = 0, bonusB = 0) {
-  const statsA = teamTotal(teamA, bonusA);
-  const statsB = teamTotal(teamB, bonusB);
+export function simulateMatch(game, teamA, teamB, labelA = 'Votre équipe', labelB = "L'équipe adverse", bonusA = 0, bonusB = 0) {
+  const statsA = teamTotal(game, teamA, bonusA);
+  const statsB = teamTotal(game, teamB, bonusB);
 
-  const lanes = ROLE_ORDER.map(role => {
-    const playerA = LOL_PLAYERS_BY_ID[teamA[role]];
-    const playerB = LOL_PLAYERS_BY_ID[teamB[role]];
+  const lanes = game.slots.map(slot => {
+    const playerA = game.playersById[teamA[slot]];
+    const playerB = game.playersById[teamB[slot]];
     const aIsWinner = playerA.power >= playerB.power;
     return {
-      role,
+      role: slot,
       playerA, playerB, aIsWinner,
-      line: laneLine(playerA, playerB, role, aIsWinner),
+      line: laneLine(game, playerA, playerB, slot, aIsWinner),
     };
   });
 
@@ -163,18 +183,18 @@ export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "
   if (bonusA > 0) lines.push(`🔁 Battue la manche précédente, ${labelA} a ajusté sa préparation — draft retravaillé, plan de jeu affûté.`);
   if (bonusB > 0) lines.push(`🔁 Battue la manche précédente, ${labelB} a ajusté sa préparation — draft retravaillé, plan de jeu affûté.`);
 
-  // Index où commencent les 5 lignes de duels (une par poste, dans l'ordre
-  // TOP/JGL/MID/ADC/SUP) — utilisé côté UI pour dévoiler la composition
-  // adverse poste par poste, au même rythme que le récit.
+  // Index où commencent les lignes de duels (une par slot, dans l'ordre de
+  // `game.slots`) — utilisé côté UI pour dévoiler la composition adverse
+  // slot par slot, au même rythme que le récit.
   const laneLineStartIndex = lines.length;
   lines.push(...lanes.map(l => l.line));
 
-  const synA = synergyLine(labelA, statsA.synergy);
-  const synB = synergyLine(labelB, statsB.synergy);
+  const synA = synergyLine(game, labelA, statsA.synergy);
+  const synB = synergyLine(game, labelB, statsB.synergy);
   if (synA) lines.push(synA);
   if (synB) lines.push(synB);
 
-  const rivalry = findRivalryLine(teamA, teamB);
+  const rivalry = findRivalryLine(game, teamA, teamB);
   if (rivalry) lines.push(rivalry);
 
   // Ligne de bascule : réconcilie le score des duels avec le résultat final
@@ -189,11 +209,11 @@ export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "
     lines.push(`📊 Résultat logique : ${winnerLabel} domine aussi les duels individuels, ${winnerLaneCount}-${loserLaneCount}.`);
   }
 
-  const flavor = generateGameFlavor(Math.abs(statsA.total - statsB.total));
-  const killsA = overallWinner === 'A' ? flavor.winnerKills : flavor.loserKills;
-  const killsB = overallWinner === 'A' ? flavor.loserKills : flavor.winnerKills;
+  const flavor = generateGameFlavor(game, Math.abs(statsA.total - statsB.total));
+  const killsA = overallWinner === 'A' ? flavor.winnerScore : flavor.loserScore;
+  const killsB = overallWinner === 'A' ? flavor.loserScore : flavor.winnerScore;
 
-  lines.push(`🏆 ${winnerLabel} remporte la manche ${flavor.winnerKills}-${flavor.loserKills} en ${flavor.duration} ! Indice de force : ${statsA.total.toFixed(1)} — ${statsB.total.toFixed(1)}.`);
+  lines.push(`🏆 ${winnerLabel} remporte la manche ${flavor.winnerScore}-${flavor.loserScore} en ${flavor.duration} ! Indice de force : ${statsA.total.toFixed(1)} — ${statsB.total.toFixed(1)}.`);
 
   return {
     lanes,
@@ -217,9 +237,7 @@ export function simulateMatch(teamA, teamB, labelA = 'Votre équipe', labelB = "
 // (illustre un vrai ajustement stratégique — pas un tirage au sort), ce qui
 // peut suffire à renverser des séries serrées sans jamais rendre le résultat
 // arbitraire.
-const ADAPT_BONUS = 5;
-
-export function simulateBo3(teamA, teamB, labelA = 'Votre équipe', labelB = "L'équipe adverse") {
+export function simulateBo3(game, teamA, teamB, labelA = 'Votre équipe', labelB = "L'équipe adverse") {
   const games = [];
   let scoreA = 0;
   let scoreB = 0;
@@ -227,7 +245,7 @@ export function simulateBo3(teamA, teamB, labelA = 'Votre équipe', labelB = "L'
   let bonusB = 0;
 
   while (scoreA < 2 && scoreB < 2) {
-    const result = simulateMatch(teamA, teamB, labelA, labelB, bonusA, bonusB);
+    const result = simulateMatch(game, teamA, teamB, labelA, labelB, bonusA, bonusB);
     games.push(result);
     if (result.winner === 'A') scoreA++; else scoreB++;
 

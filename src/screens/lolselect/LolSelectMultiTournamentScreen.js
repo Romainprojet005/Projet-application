@@ -5,14 +5,16 @@ import { colors, spacing } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
+import { getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 import LolTournamentView from './LolTournamentView';
 
 const ACCENT = '#C89B3C';
 
 export default function LolSelectMultiTournamentScreen({ navigation, route }) {
-  const { roomId, playerId } = route.params;
+  const { roomId, playerId, gameId } = route.params;
   const [payload, setPayload] = useState(null); // { result, hostTeam, guestTeam, hostName, guestName }
   const [isHost, setIsHost]   = useState(null);
+  const [roomGameId, setRoomGameId] = useState(gameId || DEFAULT_GAME_ID);
   const channelRef = useRef(null);
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
         ({ new: r }) => {
           // L'un des deux joueurs a relancé une partie dans la même salle :
           // les deux écrans repartent directement sur un nouveau draft.
-          if (r.status === 'drafting') { navigation.replace('LolSelectDraft', { roomId, playerId }); return; }
+          if (r.status === 'drafting') { navigation.replace('LolSelectDraft', { roomId, playerId, gameId: r.game || gameId }); return; }
           if (r.result_json) setPayload(r.result_json);
         }
       )
@@ -46,6 +48,7 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
       supabase.from('lolselect_players').select().eq('id', playerId).single(),
     ]);
     if (room?.result_json) setPayload(room.result_json);
+    if (room?.game) setRoomGameId(room.game);
     if (me) setIsHost(!!me.is_host);
   };
 
@@ -65,6 +68,7 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
 
   return (
     <LolTournamentView
+      game={getGame(roomGameId)}
       labelA={hostName}
       labelB={guestName}
       teamA={hostTeam}

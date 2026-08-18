@@ -13,7 +13,7 @@ const ACCENT_LIGHT = '#F0D68C';
 const ACCENT_DARK  = '#8B6914';
 
 export default function LolSelectMultiLobbyScreen({ navigation, route }) {
-  const { roomId, playerId, isHost } = route.params;
+  const { roomId, playerId, isHost, gameId } = route.params;
   const [players, setPlayers] = useState([]);
   const [room, setRoom]       = useState(null);
   const [starting, setStarting] = useState(false);
@@ -32,7 +32,7 @@ export default function LolSelectMultiLobbyScreen({ navigation, route }) {
         ({ new: r }) => {
           setRoom(r);
           if (r.status === 'drafting') {
-            navigation.replace('LolSelectDraft', { roomId, playerId });
+            navigation.replace('LolSelectDraft', { roomId, playerId, gameId: r.game || gameId });
           }
         }
       )

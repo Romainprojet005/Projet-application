@@ -1,20 +1,22 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
-import { ROLE_META, ROLE_ORDER } from '../../data/lolPlayers';
 import { MAX_REROLLS, TRIO_SIZE } from '../../data/lolDraftEngine';
+import { GAME_LIST, getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 
-const ACCENT      = '#C89B3C';
-const ACCENT_LIGHT= '#F0D68C';
-const ACCENT_DARK = '#8B6914';
-const HEXTECH     = '#0AC8B9';
+const HEXTECH = '#0AC8B9';
 
 export default function LolSelectSetupScreen({ navigation }) {
   const fadeIn  = useRef(new Animated.Value(0)).current;
   const slideUp = useRef(new Animated.Value(40)).current;
+  const [gameId, setGameId] = useState(DEFAULT_GAME_ID);
+  const game = getGame(gameId);
+  const ACCENT      = game.accent;
+  const ACCENT_LIGHT= game.accentLight;
+  const ACCENT_DARK = game.accentDark;
 
   useEffect(() => {
     Animated.parallel([
@@ -31,7 +33,7 @@ export default function LolSelectSetupScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.badge}>
+          <View style={[styles.badge, { backgroundColor: `${ACCENT}20`, borderColor: `${ACCENT}40` }]}>
             <Text style={styles.badgeEmoji}>🎮</Text>
             <View>
               <Text style={styles.badgeName}>Le Sélectionneur</Text>
@@ -39,38 +41,58 @@ export default function LolSelectSetupScreen({ navigation }) {
             </View>
           </View>
           <Text style={styles.pageTitle}>LE SÉLECTIONNEUR</Text>
-          <Text style={styles.pageSubtitle}>Draft ton équipe de légendes League of Legends</Text>
+          <Text style={[styles.pageSubtitle, { color: ACCENT_LIGHT }]}>Draft ton équipe de {game.label} parmi de vrais joueurs pro</Text>
+        </Animated.View>
+
+        <Animated.View style={{ opacity: fadeIn, transform: [{ translateY: slideUp }], paddingHorizontal: spacing.xl, marginBottom: spacing.lg }}>
+          <Text style={styles.gamePickerLabel}>QUEL JEU ?</Text>
+          <View style={styles.gamePickerRow}>
+            {GAME_LIST.map(g => {
+              const active = g.id === gameId;
+              return (
+                <TouchableOpacity
+                  key={g.id}
+                  onPress={() => setGameId(g.id)}
+                  activeOpacity={0.85}
+                  style={[
+                    styles.gameCard,
+                    { borderColor: active ? g.accent : colors.border, backgroundColor: active ? `${g.accent}18` : colors.card },
+                  ]}
+                >
+                  <Text style={styles.gameCardEmoji}>{g.emoji}</Text>
+                  <Text style={[styles.gameCardLabel, active && { color: g.accentLight }]}>{g.label}</Text>
+                  <Text style={styles.gameCardHint}>{g.squadLabel}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </Animated.View>
 
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
 
           <View style={[styles.rulesCard, { borderColor: ACCENT + '35', backgroundColor: ACCENT + '15' }]}>
             <Text style={styles.rulesTitle}>🎮  Comment jouer</Text>
-            <Text style={styles.rulesLine}>🃏  Les 5 postes s'affichent en parallèle, chacun avec un trio de {TRIO_SIZE} cartes — <Text style={styles.rulesAccent}>15 joueurs</Text> au départ</Text>
-            <Text style={styles.rulesLine}>🎯  Choisir une carte verrouille son poste : les {TRIO_SIZE} joueurs de ce trio disparaissent (les 2 autres sont écartés), et <Text style={styles.rulesAccent}>tous les autres postes ouverts sont automatiquement relancés</Text></Text>
-            <Text style={styles.rulesLine}>📉  La vitrine passe ainsi de <Text style={styles.rulesAccent}>15 → 12 → 9 → 6 → 3</Text> joueurs à chaque poste verrouillé</Text>
-            <Text style={styles.rulesLine}>🔄  En plus, {MAX_REROLLS} relances manuelles au total — chacune rafraîchit <Text style={styles.rulesAccent}>tous les postes encore ouverts</Text> en une fois, un joueur écarté n'est jamais reproposé</Text>
-            <Text style={styles.rulesLine}>🔒  Une fois les 5 postes remplis, <Text style={styles.rulesAccent}>impossible de revenir en arrière</Text> — place au tournoi !</Text>
-            <Text style={styles.rulesLine}>🎯  Moins familier de la scène ? Un <Text style={styles.rulesAccent}>niveau de connaissance</Text> (100/75/50/25 %) réduit le vivier aux joueurs les plus connus, à choisir juste avant le draft</Text>
+            <Text style={styles.rulesLine}>🃏  Les {game.squadSize} slots s'affichent en parallèle, chacun avec un trio de {TRIO_SIZE} cartes — <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>{game.squadSize * TRIO_SIZE} joueurs</Text> au départ</Text>
+            <Text style={styles.rulesLine}>🎯  Choisir une carte verrouille son slot : les {TRIO_SIZE} joueurs de ce trio disparaissent (les 2 autres sont écartés), et <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>tous les autres slots ouverts sont automatiquement relancés</Text></Text>
+            <Text style={styles.rulesLine}>📉  La vitrine se réduit ainsi à chaque slot verrouillé, jusqu'aux 3 derniers joueurs</Text>
+            <Text style={styles.rulesLine}>🔄  En plus, {MAX_REROLLS} relances manuelles au total — chacune rafraîchit <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>tous les slots encore ouverts</Text> en une fois, un joueur écarté n'est jamais reproposé</Text>
+            <Text style={styles.rulesLine}>🔒  Une fois les {game.squadSize} slots remplis, <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>impossible de revenir en arrière</Text> — place au tournoi !</Text>
+            <Text style={styles.rulesLine}>🎯  Moins familier de la scène ? Un <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>niveau de connaissance</Text> (100/75/50/25 %) réduit le vivier aux joueurs les plus connus, à choisir juste avant le draft</Text>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🧩  Les 5 postes à recruter</Text>
-            <View style={styles.roleRow}>
-              {ROLE_ORDER.map(r => (
-                <View key={r} style={styles.rolePill}>
-                  <Text style={styles.roleEmoji}>{ROLE_META[r].emoji}</Text>
-                  <Text style={styles.roleLabel}>{ROLE_META[r].label}</Text>
-                </View>
-              ))}
-            </View>
-            <Text style={styles.hint}>Des dizaines de vraies légendes de l'esport (LCK, LEC, LPL), certaines à plusieurs années différentes de leur carrière — leur niveau reflète leur domination réelle cette année-là.</Text>
+            <Text style={styles.cardLabel}>🧩  {game.squadSize} joueurs à recruter</Text>
+            <Text style={styles.hint}>
+              {game.id === 'lol'
+                ? "Des dizaines de vraies légendes de l'esport (LCK, LEC, LPL), certaines à plusieurs années différentes de leur carrière — leur niveau reflète leur domination réelle cette année-là."
+                : "De vrais joueurs pro du RLCS (champions du monde, finalistes, vainqueurs de Major), certains à plusieurs années différentes de leur carrière — leur niveau reflète leur domination réelle cette année-là."}
+            </Text>
           </View>
 
           <View style={[styles.rulesCard, { borderColor: HEXTECH + '35', backgroundColor: HEXTECH + '12' }]}>
             <Text style={[styles.rulesTitle, { color: HEXTECH }]}>🏆  Le tournoi (BO3)</Text>
-            <Text style={styles.rulesLine}>⚔️  Votre équipe affronte une équipe rivale en <Text style={styles.rulesAccent}>Best-of-3</Text> — la première à 2 manches gagne la série</Text>
-            <Text style={styles.rulesLine}>📊  Chaque manche est déterminée par le niveau des joueurs et la <Text style={styles.rulesAccent}>alchimie</Text> entre coéquipiers ayant réellement joué ensemble</Text>
+            <Text style={styles.rulesLine}>⚔️  Votre équipe affronte une équipe rivale en <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>Best-of-3</Text> — la première à 2 manches gagne la série</Text>
+            <Text style={styles.rulesLine}>📊  Chaque manche est déterminée par le niveau des joueurs et la <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>alchimie</Text> entre coéquipiers ayant réellement joué ensemble</Text>
             <Text style={styles.rulesLine}>🔁  L'équipe battue ajuste sa stratégie pour la manche suivante — de vrais retournements sont possibles</Text>
             <Text style={styles.rulesLine}>📝  Le récit change à chaque partie, mais jamais sans raison : il ne doit rien au hasard des lignes de texte</Text>
           </View>
@@ -79,7 +101,7 @@ export default function LolSelectSetupScreen({ navigation }) {
 
         <Animated.View style={{ opacity: fadeIn, paddingHorizontal: spacing.xl, paddingBottom: 48, gap: spacing.md }}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('LolSelectDraft')}
+            onPress={() => navigation.navigate('LolSelectDraft', { gameId })}
             style={styles.launchBtn}
             activeOpacity={0.88}
           >
@@ -88,12 +110,12 @@ export default function LolSelectSetupScreen({ navigation }) {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>🎮  DRAFT SOLO (VS IA)</Text>
+              <Text style={styles.launchText}>{game.emoji}  DRAFT SOLO (VS IA)</Text>
             </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => navigation.navigate('LolSelectMultiSetup')}
+            onPress={() => navigation.navigate('LolSelectMultiSetup', { gameId })}
             style={styles.multiBtn}
             activeOpacity={0.85}
           >
@@ -118,47 +140,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backBtn:     { alignSelf: 'flex-start', marginBottom: spacing.lg },
-  backBtnText: { color: ACCENT_LIGHT, fontSize: 14, fontWeight: '600' },
+  backBtnText: { color: colors.textSecondary, fontSize: 14, fontWeight: '600' },
 
   badge: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: `${ACCENT}20`, borderRadius: radius.full,
+    borderRadius: radius.full,
     paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
-    marginBottom: spacing.lg, borderWidth: 1, borderColor: `${ACCENT}40`, gap: spacing.sm,
+    marginBottom: spacing.lg, borderWidth: 1, gap: spacing.sm,
   },
   badgeEmoji: { fontSize: 26 },
   badgeName:  { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
   pageTitle:    { fontSize: 30, fontWeight: '900', color: colors.text, letterSpacing: 2, textAlign: 'center' },
-  pageSubtitle: { fontSize: 12, color: ACCENT_LIGHT, letterSpacing: 1, marginTop: spacing.xs, textAlign: 'center' },
+  pageSubtitle: { fontSize: 12, letterSpacing: 1, marginTop: spacing.xs, textAlign: 'center' },
+
+  gamePickerLabel: { fontSize: 11, fontWeight: '800', color: colors.textMuted, letterSpacing: 2, marginBottom: spacing.sm },
+  gamePickerRow: { flexDirection: 'row', gap: spacing.sm },
+  gameCard: {
+    flex: 1, borderRadius: radius.lg, borderWidth: 1.5,
+    paddingVertical: spacing.md, alignItems: 'center', gap: 2,
+  },
+  gameCardEmoji: { fontSize: 26 },
+  gameCardLabel: { fontSize: 13, fontWeight: '800', color: colors.text, marginTop: 2 },
+  gameCardHint:  { fontSize: 10, color: colors.textMuted },
 
   form: { paddingHorizontal: spacing.xl, gap: spacing.md },
 
   rulesCard: { borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1 },
   rulesTitle:  { fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
   rulesLine:   { fontSize: 13, color: colors.textSecondary, marginBottom: 4, lineHeight: 19 },
-  rulesAccent: { color: ACCENT_LIGHT, fontWeight: '800' },
+  rulesAccent: { fontWeight: '800' },
 
   card: {
     backgroundColor: colors.card, borderRadius: radius.lg,
     padding: spacing.lg, borderWidth: 1, borderColor: colors.border,
   },
   cardLabel: { fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
-  roleRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  rolePill: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: spacing.sm + 2, paddingVertical: spacing.xs + 2,
-    borderRadius: radius.full, borderWidth: 1,
-    backgroundColor: colors.surface, borderColor: colors.border,
-  },
-  roleEmoji: { fontSize: 15 },
-  roleLabel: { fontSize: 12, fontWeight: '700', color: colors.textSecondary },
-  hint: { fontSize: 12, color: colors.textMuted, marginTop: spacing.sm, fontStyle: 'italic', lineHeight: 17 },
+  hint: { fontSize: 12, color: colors.textMuted, fontStyle: 'italic', lineHeight: 17 },
 
   launchBtn: {
     borderRadius: radius.full, overflow: 'hidden', marginTop: spacing.lg,
-    shadowColor: ACCENT, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
+    shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
   launchText: { fontSize: 15, fontWeight: '800', color: '#0A0815', letterSpacing: 2 },
