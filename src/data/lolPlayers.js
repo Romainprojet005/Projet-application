@@ -1,12 +1,13 @@
 // ─────────────────────────────────────────────────────────────────────────
 // LE SÉLECTIONNEUR — données des joueurs professionnels League of Legends
-// Près de 70 joueurs, une douzaine par poste (TOP / JGL / MID / ADC / SUP),
-// venus de LCK (Corée), LEC (Europe) et LPL (Chine), à des années
-// différentes de leur carrière — de la toute première dynastie SKT T1
-// (2013) jusqu'aux sacres les plus récents. De nombreuses légendes
-// apparaissent PLUSIEURS FOIS, à des années différentes (`personId`
-// commun) — ex. Faker 2013 (révélation), 2015 (pic de forme absolu) et
-// 2023 (retour au sommet) : trois versions bien réelles, mais pas d'égale
+// Plus de 150 joueurs, une trentaine par poste (TOP / JGL / MID / ADC /
+// SUP), venus de LCK (Corée), LEC (Europe), LPL (Chine) et LCS (Amérique
+// du Nord), à des années différentes de leur carrière — de la toute
+// première dynastie SKT T1 (2013) jusqu'au threepeat historique de T1 aux
+// Worlds 2025. De nombreuses légendes apparaissent PLUSIEURS FOIS, à des
+// années différentes (`personId` commun) — ex. Faker 2013 (révélation),
+// 2015 (pic de forme absolu), 2023 (retour au sommet) et 2025 (troisième
+// titre consécutif) : quatre versions bien réelles, mais pas d'égale
 // domination. La force (`power`) reflète le niveau de domination réelle
 // CETTE année-là. Photos : Wikimedia Commons (licence libre). Quand aucune
 // photo Wikipédia fiable n'a été trouvée, `image` vaut null → le poste
@@ -268,6 +269,60 @@ export const LOL_PLAYERS = [
     signature: "un pool de champions redouté par toute la LEC",
     weakness: "une adaptation à un tout nouveau championnat",
   },
+  {
+    id: 'doran_2025', personId: 'doran', name: 'Doran', realName: 'Choi Hyeon-joon',
+    role: 'TOP', team: 'T1', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 87,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Doran_2025.jpg/250px-Doran_2025.jpg',
+    bio: 'Recruté par T1 en 2025 en remplacement de Zeus, champion du monde dès sa première saison avec la franchise, décrochant son tout premier titre international.',
+    signature: "une régularité qui ne craque jamais sous la pression",
+    weakness: "un rôle encore discret dans un roster à quatre légendes déjà installées",
+  },
+  {
+    id: 'perfect_2025', personId: 'perfect', name: 'PerfecT', realName: 'Lee Seung-min',
+    role: 'TOP', team: 'KT Rolster', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 84,
+    image: null,
+    bio: 'Finaliste des Worlds 2025 avec KT Rolster, toute première finale mondiale de l\'histoire du club.',
+    signature: "un style solide qui ne cède jamais le premier accroc",
+    weakness: "un profil plus discret que les grandes stars du haut du tableau",
+  },
+  {
+    id: 'kiin_2025', personId: 'kiin', name: 'Kiin', realName: 'Kim Gi-in',
+    role: 'TOP', team: 'Gen.G', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 87,
+    image: null,
+    bio: 'Pilier de la saison la plus dominante de l\'histoire de la LCK (29 victoires pour 1 seule défaite), demi-finaliste des Worlds 2025 avec Gen.G.',
+    signature: "un top lane increvable qui ne laisse jamais filer un side lane",
+    weakness: "une pression immense portée par le statut de grand favori",
+  },
+  {
+    id: '369_2025', personId: '369', name: '369', realName: 'Bai Jiahao',
+    role: 'TOP', team: 'Top Esports', year: 2025, region: 'LPL', flag: '🇨🇳',
+    power: 85,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2025 avec Top Esports, vétéran increvable du top lane chinois.',
+    signature: "un style de bruiser qui ne recule jamais d'un pouce",
+    weakness: "un profil qui a besoin d'un jungler proactif pour vraiment décoller",
+  },
+  {
+    id: 'expect_2018', personId: 'expect', name: 'Expect', realName: 'Kim Dae-hyeon',
+    role: 'TOP', team: 'G2 Esports', year: 2018, region: 'LEC', flag: '🇰🇷',
+    power: 82,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2018 avec G2 Esports, pilier coréen du premier grand run international du club.',
+    signature: "une solidité de vétéran qui ne cède jamais le premier accroc",
+    weakness: "un profil plus discret que ses coéquipiers stars",
+  },
+  {
+    id: 'licorice_2018', personId: 'licorice', name: 'Licorice', realName: 'Eric Ritchie',
+    role: 'TOP', team: 'Cloud9', year: 2018, region: 'LCS', flag: '🇨🇦',
+    power: 83,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2018 avec Cloud9, première demi-finale mondiale de l\'histoire nord-américaine.',
+    signature: "une propreté d'exécution qui étonne pour une région outsider",
+    weakness: "une inexpérience de la scène internationale à ce stade",
+  },
 
   // ── JUNGLE ────────────────────────────────────────────────────────────
   {
@@ -485,6 +540,60 @@ export const LOL_PLAYERS = [
     bio: 'Recruté par Karmine Corp pour l\'été 2024 après son titre avec G2, jungler très courtisé du marché LEC.',
     signature: "un tempo de early game qui écrase la concurrence",
     weakness: "une adaptation à un tout nouveau vestiaire",
+  },
+  {
+    id: 'oner_2025', personId: 'oner', name: 'Oner', realName: 'Moon Hyeon-jun',
+    role: 'JGL', team: 'T1', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 90,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Oner_at_Worlds_2025.jpg/250px-Oner_at_Worlds_2025.jpg',
+    bio: 'Troisième titre mondial avec T1 en 2025, artisan d\'un parcours parti des play-ins jusqu\'au sacre historique du threepeat.',
+    signature: "une lecture des objectifs sans faille",
+    weakness: "une préférence pour jouer collectif plutôt que solo",
+  },
+  {
+    id: 'cuzz_2025', personId: 'cuzz', name: 'Cuzz', realName: 'Moon Woo-chan',
+    role: 'JGL', team: 'KT Rolster', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 85,
+    image: null,
+    bio: 'Finaliste des Worlds 2025 avec KT Rolster, deuxième finale internationale de sa carrière sept ans après le MSI 2018.',
+    signature: "un pathing agressif qui déstabilise les débuts de partie",
+    weakness: "un profil qui reste dans l'ombre de ses coéquipiers plus médiatiques",
+  },
+  {
+    id: 'canyon_2025', personId: 'canyon', name: 'Canyon', realName: 'Kim Geon-bu',
+    role: 'JGL', team: 'Gen.G', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 92,
+    image: null,
+    bio: 'Pilier de la saison la plus dominante de l\'histoire de la LCK avec Gen.G (MSI et Esports World Cup remportés), demi-finaliste des Worlds 2025.',
+    signature: "un tempo de jungle presque inhumain",
+    weakness: "une pression immense portée par le statut de grand favori",
+  },
+  {
+    id: 'kanavi_2025', personId: 'kanavi', name: 'Kanavi', realName: 'Seo Jin-hyeok',
+    role: 'JGL', team: 'Top Esports', year: 2025, region: 'LPL', flag: '🇰🇷',
+    power: 87,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Kanavi_2020_interview.jpg/250px-Kanavi_2020_interview.jpg',
+    bio: 'Demi-finaliste des Worlds 2025 avec Top Esports, toujours une référence du poste jungle en LPL des années plus tard.',
+    signature: "une expérience de la scène chinoise inégalée",
+    weakness: "un rythme parfois freiné par une early game trop prudente",
+  },
+  {
+    id: 'trick_2018', personId: 'trick', name: 'Trick', realName: 'Kang Yoon-sung',
+    role: 'JGL', team: 'G2 Esports', year: 2018, region: 'LEC', flag: '🇰🇷',
+    power: 84,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2018 avec G2 Esports, jungler coréen expatrié au style flamboyant et imprévisible.',
+    signature: "un pathing totalement imprévisible qui déroute l'adversaire",
+    weakness: "une prise de risque qui peut se retourner contre lui",
+  },
+  {
+    id: 'svenskeren_2018', personId: 'svenskeren', name: 'Svenskeren', realName: 'Jesper Svenningsen',
+    role: 'JGL', team: 'Cloud9', year: 2018, region: 'LCS', flag: '🇩🇰',
+    power: 82,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2018 avec Cloud9, jungler danois au sang-froid inattendu pour une équipe outsider.',
+    signature: "un sang-froid inattendu pour une équipe outsider",
+    weakness: "un profil moins spectaculaire que les junglers hyper-agressifs",
   },
 
   // ── MID ───────────────────────────────────────────────────────────────
@@ -713,6 +822,60 @@ export const LOL_PLAYERS = [
     signature: "une audace de jeune joueur qui ne recule devant rien",
     weakness: "une inexpérience de la scène LEC à ce stade",
   },
+  {
+    id: 'faker_2025', personId: 'faker', name: 'Faker', realName: 'Lee Sang-hyeok',
+    role: 'MID', team: 'T1', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 92,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Faker_2020_interview.jpg',
+    bio: 'Sixième titre mondial en 2025, une décennie après son premier sacre, devenu le premier joueur à remporter trois Worlds consécutifs.',
+    signature: "une expérience de compétition sans égale",
+    weakness: "des réflexes qui ne sont plus tout à fait ceux de ses 19 ans",
+  },
+  {
+    id: 'bdd_2025', personId: 'bdd', name: 'Bdd', realName: 'Gwak Bo-seong',
+    role: 'MID', team: 'KT Rolster', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 88,
+    image: null,
+    bio: 'Vétéran de la LCK depuis 2015, enfin en finale mondiale en 2025 avec KT Rolster après une décennie de carrière.',
+    signature: "une constance de vétéran qui ne tremble jamais sur la grande scène",
+    weakness: "une finale qui lui échappe malgré une série héroïque",
+  },
+  {
+    id: 'chovy_2025', personId: 'chovy', name: 'Chovy', realName: 'Jeong Ji-hoon',
+    role: 'MID', team: 'Gen.G', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 93,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Chovy_MSI_2025.jpg/250px-Chovy_MSI_2025.jpg',
+    bio: 'MVP de la saison la plus dominante de l\'histoire de la LCK avec Gen.G, demi-finaliste des Worlds 2025.',
+    signature: "une phase de laning quasi parfaite",
+    weakness: "une prise de risque parfois trop calculée",
+  },
+  {
+    id: 'creme_2025', personId: 'creme', name: 'Creme', realName: 'Lin Jian',
+    role: 'MID', team: 'Top Esports', year: 2025, region: 'LPL', flag: '🇨🇳',
+    power: 84,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2025 avec Top Esports, mid laner chinois révélation de la saison.',
+    signature: "une créativité qui déstabilise n'importe quel plan",
+    weakness: "une inexpérience de la scène internationale à ce stade",
+  },
+  {
+    id: 'perkz_2018', personId: 'perkz', name: 'Perkz', realName: 'Luka Perković',
+    role: 'MID', team: 'G2 Esports', year: 2018, region: 'LEC', flag: '🇭🇷',
+    power: 87,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Perkz_2020.jpg/250px-Perkz_2020.jpg',
+    bio: 'Demi-finaliste des Worlds 2018 avec G2 Esports, déjà l\'un des mids les plus créatifs et décisifs d\'Europe.',
+    signature: "une créativité qui déstabilise n'importe quel plan",
+    weakness: "un all-in qui peut se retourner contre lui",
+  },
+  {
+    id: 'jensen_2018', personId: 'jensen', name: 'Jensen', realName: 'Nicolaj Jensen',
+    role: 'MID', team: 'Cloud9', year: 2018, region: 'LCS', flag: '🇩🇰',
+    power: 85,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2018 avec Cloud9, mid laner danois le plus régulier de la scène nord-américaine.',
+    signature: "une régularité qui ne craque jamais sous la pression",
+    weakness: "un style plus posé qui peine face à un rythme trop rapide",
+  },
 
   // ── ADC ───────────────────────────────────────────────────────────────
   {
@@ -931,6 +1094,60 @@ export const LOL_PLAYERS = [
     signature: "une constance qui a fait de lui une légende continentale",
     weakness: "un style plus posé qui peine face à un rythme trop rapide",
   },
+  {
+    id: 'gumayusi_2025', personId: 'gumayusi', name: 'Gumayusi', realName: 'Lee Min-hyeong',
+    role: 'ADC', team: 'T1', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 92,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Gumayusi_at_2023_LCK_Awards.jpg/250px-Gumayusi_at_2023_LCK_Awards.jpg',
+    bio: 'Finals MVP des Worlds 2025 avec T1, premier ADC à recevoir ce titre depuis Ruler en 2017, artisan de la remontée héroïque face à KT.',
+    signature: "un sang-froid retrouvé au meilleur moment de la finale",
+    weakness: "un profil plus discret quand la vision lui manque",
+  },
+  {
+    id: 'deokdam_2025', personId: 'deokdam', name: 'deokdam', realName: 'Seo Dae-gil',
+    role: 'ADC', team: 'KT Rolster', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 86,
+    image: null,
+    bio: 'Finaliste des Worlds 2025 avec KT Rolster après un transfert depuis la LPL, tout proche d\'un premier titre mondial.',
+    signature: "un DPS explosif dès que les items tombent",
+    weakness: "un profil prévisible pour une préparation adverse pointue",
+  },
+  {
+    id: 'ruler_2025', personId: 'ruler', name: 'Ruler', realName: 'Park Jae-hyuk',
+    role: 'ADC', team: 'Gen.G', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 90,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Ruler_interview_2022.jpg/250px-Ruler_interview_2022.jpg',
+    bio: 'De retour de LPL, MVP du MSI et de l\'Esports World Cup 2025 avec Gen.G, demi-finaliste des Worlds.',
+    signature: "un carry hyper-scaling que personne n'arrête en fin de partie",
+    weakness: "une dépendance à une jungle qui doit le protéger",
+  },
+  {
+    id: 'jackeylove_2025', personId: 'jackeylove', name: 'JackeyLove', realName: 'Yu Wen-Bo',
+    role: 'ADC', team: 'Top Esports', year: 2025, region: 'LPL', flag: '🇨🇳',
+    power: 87,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2025 avec Top Esports, sept ans après son sacre avec Invictus Gaming, toujours un carry redouté.',
+    signature: "une audace de carry qui n'a peur de personne",
+    weakness: "une jeunesse loin derrière lui, un style qui a dû évoluer avec le temps",
+  },
+  {
+    id: 'hjarnan_2018', personId: 'hjarnan', name: 'Hjarnan', realName: 'Oskar Fiskerstrand',
+    role: 'ADC', team: 'G2 Esports', year: 2018, region: 'LEC', flag: '🇳🇴',
+    power: 83,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2018 avec G2 Esports, ADC norvégien au style posé et efficace.',
+    signature: "une propreté d'exécution qui ne laisse rien au hasard",
+    weakness: "un style plus prudent que les hyper-carries",
+  },
+  {
+    id: 'sneaky_2018', personId: 'sneaky', name: 'Sneaky', realName: 'Zachary Scuderi',
+    role: 'ADC', team: 'Cloud9', year: 2018, region: 'LCS', flag: '🇺🇸',
+    power: 84,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2018 avec Cloud9, ADC increvable et visage historique de la région nord-américaine.',
+    signature: "une constance qui a fait de lui une icône nord-américaine",
+    weakness: "un style plus posé qui peine face à un rythme trop rapide",
+  },
 
   // ── SUPPORT ───────────────────────────────────────────────────────────
   {
@@ -1131,6 +1348,60 @@ export const LOL_PLAYERS = [
     signature: "un playmaking hors norme, capable de tout retourner",
     weakness: "un style si créatif qu'il peut parfois se faire punir",
   },
+  {
+    id: 'keria_2025', personId: 'keria', name: 'Keria', realName: 'Ryu Min-seok',
+    role: 'SUP', team: 'T1', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 93,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Keria%2C_2023_worlds_winning_team_interview.jpg/250px-Keria%2C_2023_worlds_winning_team_interview.jpg',
+    bio: 'Quatrième titre mondial avec T1 en 2025, prolongé jusqu\'en 2029 après avoir porté la remontée en finale face à KT.',
+    signature: "un playmaking hors norme, capable de tout retourner",
+    weakness: "un style si créatif qu'il peut parfois se faire punir",
+  },
+  {
+    id: 'peter_2025', personId: 'peter', name: 'Peter', realName: 'Jeong Yoon-su',
+    role: 'SUP', team: 'KT Rolster', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 83,
+    image: null,
+    bio: 'Rappelé de l\'équipe académie en cours de saison 2025, titulaire surprise jusqu\'à la toute première finale mondiale de KT Rolster.',
+    signature: "une audace de jeune joueur qui ne recule devant rien",
+    weakness: "une inexpérience de la scène internationale à ce stade",
+  },
+  {
+    id: 'duro_2025', personId: 'duro', name: 'Duro', realName: 'Joo Min-kyu',
+    role: 'SUP', team: 'Gen.G', year: 2025, region: 'LCK', flag: '🇰🇷',
+    power: 82,
+    image: null,
+    bio: 'Révélation de la saison la plus dominante de l\'histoire de la LCK avec Gen.G, demi-finaliste des Worlds 2025 dès sa première année.',
+    signature: "une communication et une créativité qui portent tout le roster",
+    weakness: "une prise de risque qui peut parfois isoler son ADC",
+  },
+  {
+    id: 'hang_2025', personId: 'hang', name: 'Hang', realName: 'Fu Minghang',
+    role: 'SUP', team: 'Top Esports', year: 2025, region: 'LPL', flag: '🇨🇳',
+    power: 81,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2025 avec Top Esports, support chinois discret au service de ses coéquipiers stars.',
+    signature: "un dévouement total au service de son ADC",
+    weakness: "un profil qui s'efface volontairement derrière ses coéquipiers",
+  },
+  {
+    id: 'wadid_2018', personId: 'wadid', name: 'Wadid', realName: 'Kim Bae-in',
+    role: 'SUP', team: 'G2 Esports', year: 2018, region: 'LEC', flag: '🇰🇷',
+    power: 82,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2018 avec G2 Esports, support coréen recruté pour structurer un roster déjà explosif.',
+    signature: "un leadership coréen transposé avec succès en Europe",
+    weakness: "une prise de risque qui peut isoler son ADC",
+  },
+  {
+    id: 'zeyzal_2018', personId: 'zeyzal', name: 'Zeyzal', realName: 'Zachary Patrone',
+    role: 'SUP', team: 'Cloud9', year: 2018, region: 'LCS', flag: '🇺🇸',
+    power: 80,
+    image: null,
+    bio: 'Demi-finaliste des Worlds 2018 avec Cloud9, support américain au sang-froid décisif dans le run historique de l\'équipe.',
+    signature: "un sang-froid décisif dans les moments qui comptent",
+    weakness: "une équipe encore jeune autour de lui à l'époque",
+  },
 ];
 
 export const LOL_PLAYERS_BY_ID = Object.fromEntries(LOL_PLAYERS.map(p => [p.id, p]));
@@ -1156,7 +1427,7 @@ const FAME_TIERS = {
   showmaker: FAME_A, khan: FAME_A, marin: FAME_A, wolf: FAME_A, ning: FAME_A,
   jackeylove: FAME_A, rookie: FAME_A, kanavi: FAME_A, knight: FAME_A,
   viper: FAME_A, meiko: FAME_A, bin: FAME_A, hansama: FAME_A, elyoya: FAME_A,
-  cabochard: FAME_A, targamas: FAME_A,
+  cabochard: FAME_A, targamas: FAME_A, bdd: FAME_A,
 };
 
 export function fameOf(player) {
@@ -1239,6 +1510,12 @@ const STRONG_GROUPS = [
   ['alphari_2017', 'maxlore_2017', 'powerofevil_2017', 'hansama_2017', 'ignar_2017'], // Misfits Gaming 2017 — Quart de finale Worlds
   ['odoamne_2018', 'xerxe_2018', 'nisqy_2018', 'kobbe_2018', 'kasing_2018'],  // Splyce 2018 — Quart de finale Worlds
   ['doran_2024', 'peanut_2024', 'zeka_2024', 'viper_2024', 'delight_2024'],   // Hanwha Life Esports 2024 — Champions LCK été, quart de finale Worlds
+  ['doran_2025', 'oner_2025', 'faker_2025', 'gumayusi_2025', 'keria_2025'],   // T1 2025 — Champions du monde (3e titre consécutif, threepeat historique)
+  ['perfect_2025', 'cuzz_2025', 'bdd_2025', 'deokdam_2025', 'peter_2025'],    // KT Rolster 2025 — Finalistes Worlds (1ère finale mondiale de leur histoire)
+  ['kiin_2025', 'canyon_2025', 'chovy_2025', 'ruler_2025', 'duro_2025'],      // Gen.G 2025 — saison LCK historique (29-1), demi-finalistes Worlds
+  ['369_2025', 'kanavi_2025', 'creme_2025', 'jackeylove_2025', 'hang_2025'],  // Top Esports 2025 — demi-finalistes Worlds
+  ['expect_2018', 'trick_2018', 'perkz_2018', 'hjarnan_2018', 'wadid_2018'],  // G2 Esports 2018 — demi-finalistes Worlds
+  ['licorice_2018', 'svenskeren_2018', 'jensen_2018', 'sneaky_2018', 'zeyzal_2018'], // Cloud9 2018 — demi-finalistes Worlds (1ère demi-finale nord-américaine)
 ];
 
 export const TEAMMATES_STRONG = STRONG_GROUPS.flatMap(withinPairs);
@@ -1249,6 +1526,7 @@ const SKT_T1_LINEAGE = [
   'marin_2015', 'faker_2015', 'wolf_2015',
   'duke_2016', 'bang_2016',
   'zeus_2023', 'oner_2023', 'faker_2023', 'gumayusi_2023', 'keria_2023',
+  'doran_2025', 'oner_2025', 'faker_2025', 'gumayusi_2025', 'keria_2025',
 ];
 const SAMSUNG_GENG_LINEAGE = [
   'cuvee_2017', 'ambition_2017', 'crown_2017', 'ruler_2017', 'corejj_2017',
@@ -1321,5 +1599,9 @@ export const RIVALRIES = [
   {
     pair: ['bin_2024', 'faker_2023'],
     story: "Un remake de l'une des finales les plus folles de l'histoire : en 2024, le T1 de Faker avait fini par dompter Bilibili Gaming au terme d'une série à suspense, 3-2.",
+  },
+  {
+    pair: ['faker_2025', 'bdd_2025'],
+    story: "La revanche du « Telecom War » : en finale des Worlds 2025, le T1 de Faker avait renversé le KT Rolster de Bdd après un déficit de 1-2, s'imposant 3-2 pour un troisième titre mondial consécutif historique.",
   },
 ];
