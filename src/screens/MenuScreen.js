@@ -177,7 +177,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         opacity: .55; transition: background .6s ease;
       }
       .sdl-floor {
-        position: absolute; left: 0; right: 0; height: 100vh; pointer-events: none;
+        position: absolute; left: 0; right: 0; bottom: 0; pointer-events: none;
         background: linear-gradient(180deg, rgba(169,155,255,.12), rgba(11,10,26,0));
         border-top: 1px solid rgba(232,198,106,.2);
       }
@@ -799,6 +799,9 @@ export default function MenuScreen({ navigation }) {
 
   // ── Animation lerp vers la cible ─────────────────────────────────
   const animate = useCallback(() => {
+    // Le jeu affiché (et lancé par JOUER) est celui vers lequel on se dirige,
+    // sans attendre la fin de l'animation
+    setActiveIdx(getFrontIdx(targetRef.current));
     const diff = targetRef.current - rotRef.current;
     if (Math.abs(diff) < 0.001) {
       rotRef.current = targetRef.current;
@@ -1067,7 +1070,7 @@ export default function MenuScreen({ navigation }) {
 
       {/* ══ CARROUSEL WEB ══ */}
       {Platform.OS === 'web' && (
-        <div style={{ flex: 1, position: 'relative' }}>
+        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
           <div
             className="sdl-aura"
             style={{ '--accent': characters[activeIdx]?.color ?? '#D4AF37', width: CARD_W * 2.6, height: CARD_W * 2.6, marginTop: -Math.round(CARD_H * REFLECT_SHIFT) }}
@@ -1172,7 +1175,10 @@ export default function MenuScreen({ navigation }) {
             <button
               className="sdl-play"
               disabled={!c.available}
-              onClick={() => c.available && handleSelectGame(c)}
+              onClick={() => {
+                const target = characters[getFrontIdx(targetRef.current)] ?? c;
+                if (target.available) handleSelectGame(target);
+              }}
             >
               {c.available ? '▶  JOUER' : 'BIENTÔT'}
             </button>
