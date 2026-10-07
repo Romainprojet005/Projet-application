@@ -19,12 +19,13 @@ const IS_MOBILE_WEB = Platform.OS === 'web' && SW < 600;
 const IS_DESKTOP_WEB = Platform.OS === 'web' && !IS_MOBILE_WEB;
 
 // Cartes booster au format 210×310, dimensionnées pour tenir dans la scène
-// (hauteur d'écran moins en-tête, points, panneau d'infos et pub)
+// (hauteur d'écran moins en-tête, points, panneau d'infos et, sur PC, pub).
+// Sur mobile la carte prend ~68 % de la largeur, comme sur la maquette.
 const REFLECT_SHIFT = 0.08;
-const STAGE_EST = SH - (IS_MOBILE_WEB ? 395 : 414);
-const FIT_H = Math.floor((STAGE_EST / 2 - 12) / (0.5 + REFLECT_SHIFT));
+const STAGE_EST = SH - (IS_MOBILE_WEB ? 285 : 414);
+const FIT_H = Math.floor((STAGE_EST / 2 - 8) / (0.5 + REFLECT_SHIFT));
 const WEB_H = IS_MOBILE_WEB
-  ? Math.max(190, Math.min(310, FIT_H, Math.round(Math.min(SW * 0.54, 210) * 310 / 210)))
+  ? Math.max(220, Math.min(400, FIT_H, Math.round(SW * 0.68 * 310 / 210)))
   : Math.max(280, Math.min(413, FIT_H));
 const CARD_W = Platform.OS === 'web' ? Math.round(WEB_H * 210 / 310)
              : Math.min(SW * 0.75, 300);
@@ -36,12 +37,17 @@ const RADIUS = IS_MOBILE_WEB ? 430
              : CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15;
 
 const STEP = (2 * Math.PI) / N;
-const DRAG_FACTOR = STEP / (IS_MOBILE_WEB ? CARD_W * 0.5 : CARD_W);
+// Mobile : il faut glisser ~1,2 largeur de carte pour passer à la suivante
+const DRAG_FACTOR = STEP / (IS_MOBILE_WEB ? CARD_W * 1.2 : CARD_W);
+// Vitesse du glissement vers la carte cible (plus petit = plus doux)
+const EASE = IS_MOBILE_WEB ? 0.09 : 0.14;
 
-// Anneau web façon "boosters" : carte centrale de face, voisines tournées,
-// cartes du fond plus petites et plus sombres.
-const RING_R    = IS_MOBILE_WEB ? CARD_W * 1.43 : CARD_W * 2;
-const RING_STEP = (IS_MOBILE_WEB ? 64 : 34) * Math.PI / 180;
+// Éventail : chaque carte s'écarte un peu plus que la précédente, toujours dans
+// l'ordre (la n°2 à droite reste plus loin du centre que la n°1).
+const FAN_X1   = CARD_W * 0.78;                       // décalage de la 1re voisine
+const FAN_XN   = CARD_W * 0.5;                        // écart des suivantes
+const FAN_Z    = 140;                                  // recul par carte (px)
+const FAN_RY   = IS_MOBILE_WEB ? 18 : 24;              // inclinaison des voisines (deg)
 const RING_VIS  = IS_MOBILE_WEB ? 2 : 3;
 
 // ── Calcul position d'une carte ──────────────────────────────────────
@@ -56,18 +62,18 @@ function cardPos(rot, i) {
     const d  = a / STEP;
     const ad = Math.abs(d);
     const dd = Math.max(-(RING_VIS + 1), Math.min(RING_VIS + 1, d));
-    const th = dd * RING_STEP;
+    const ae = Math.abs(dd), sg = Math.sign(dd);
     const op = ad <= 1 ? 1
              : ad <= RING_VIS ? 1 - (ad - 1) * 0.25
              : Math.max(0, (1 - (RING_VIS - 1) * 0.25) * (1 - (ad - RING_VIS) / 0.6));
     return {
-      x:     RING_R * Math.sin(th),
+      x:     sg * (FAN_X1 * Math.min(ae, 1) + FAN_XN * Math.max(0, ae - 1)),
       y:     0,
-      z:     RING_R * (Math.cos(th) - 1),
+      z:     -FAN_Z * ae,
       sc:    1,
       op,
       br:    1 - Math.min(ad, RING_VIS) * (IS_MOBILE_WEB ? 0.27 : 0.2),
-      ry:    th * (IS_MOBILE_WEB ? 0.3 : 0.45) * 180 / Math.PI,
+      ry:    sg * FAN_RY * Math.min(ae, 1),
       depth: -ad,
       ad,
     };
@@ -175,9 +181,15 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       .sdl-play:hover { transform: translateY(-1px); box-shadow: 0 12px 34px rgba(212,175,55,.45); }
       .sdl-play:disabled { opacity: .45; cursor: default; transform: none; }
       @media (max-width: 600px) {
-        .sdl-info { gap: 6px; }
-        .sdl-info-title { font-size: 24px; }
-        .sdl-info-kicker { font-size: 11px; }
+        /* Bouton éco en haut à droite pour ne pas couvrir le bouton JOUER */
+        .sdl-eco-btn.sdl-eco-top { bottom: auto; top: 22px; right: 16px; }
+        .sdl-info { gap: 5px; padding: 0 16px 14px; }
+        .sdl-info-title { font-size: 22px; }
+        .sdl-info-kicker { font-size: 10.5px; }
+        .sdl-info-chip { padding: 4px 10px; font-size: 12px; }
+        .sdl-play { height: 46px; font-size: 14px; margin-top: 2px; }
+        .sdl-dots { padding: 4px 0 4px; gap: 6px; }
+        .sdl-dot { height: 5px; }
       }
       .sdl-flip-card:not(.is-flipped) .sdl-back-face {
         opacity: 0; pointer-events: none; position: absolute; inset: 0;
@@ -775,7 +787,7 @@ export default function MenuScreen({ navigation }) {
       setActiveIdx(getFrontIdx(rotRef.current));
       return;
     }
-    rotRef.current += diff * 0.18;
+    rotRef.current += diff * EASE;
     updateCarousel(rotRef.current);
     rafRef.current = requestAnimationFrame(animate);
   }, [updateCarousel]);
@@ -839,8 +851,19 @@ export default function MenuScreen({ navigation }) {
       }
       return;
     }
+    if (IS_MOBILE_WEB) {
+      // Mobile : un glissement = une carte, quelle que soit la vitesse du doigt
+      const startIdx = Math.round(webDrag.current.startRot / STEP);
+      const moved    = (rotRef.current - webDrag.current.startRot) / STEP;
+      const dir      = Math.abs(moved) > 0.12 ? Math.sign(moved) : Math.sign(webDrag.current.vx);
+      targetRef.current = (startIdx + dir) * STEP;
+      setFlipped({});
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(animate);
+      return;
+    }
     snapToNearest(webDrag.current.vx);
-  }, [snapToNearest]);
+  }, [snapToNearest, animate]);
 
   // Amène la carte idx de face par le chemin le plus court
   const goTo = useCallback((idx) => {
@@ -1146,7 +1169,7 @@ export default function MenuScreen({ navigation }) {
       {Platform.OS === 'web' && IS_MOBILE_WEB && (
         <button
           onClick={toggleEco}
-          className={`sdl-eco-btn${ecoMode ? ' active' : ''}`}
+          className={`sdl-eco-btn sdl-eco-top${ecoMode ? ' active' : ''}`}
           title={ecoMode ? 'Mode éco actif — appuyer pour désactiver' : 'Activer le mode éco'}
         >
           {ecoMode ? '🌿' : '🔋'}
@@ -1154,14 +1177,14 @@ export default function MenuScreen({ navigation }) {
       )}
 
 
-      <AdBanner />
+      {!IS_MOBILE_WEB && <AdBanner />}
     </LinearGradient>
   );
 }
 
 const s = StyleSheet.create({
   container:    { flex: 1, ...Platform.select({ web: { height: '100vh', display: 'flex', flexDirection: 'column' } }) },
-  header:       { flexDirection: 'row', alignItems: 'center', paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },
+  header:       { flexDirection: 'row', alignItems: 'center', paddingTop: Platform.OS === 'ios' ? 60 : IS_MOBILE_WEB ? 18 : 40, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },
   backBtn:      { width: 70 },
   backBtnText:  { color: colors.primaryLight, fontSize: 14, fontWeight: '600' },
   headerCenter: { flex: 1, alignItems: 'center' },
