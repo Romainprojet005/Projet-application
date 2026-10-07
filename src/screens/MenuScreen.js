@@ -158,14 +158,14 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         opacity: .55; transition: background .6s ease;
       }
       .sdl-floor {
-        position: absolute; left: 0; right: 0; height: 40%; pointer-events: none;
+        position: absolute; left: 0; right: 0; height: 100vh; pointer-events: none;
         background: linear-gradient(180deg, rgba(169,155,255,.12), rgba(11,10,26,0));
         border-top: 1px solid rgba(232,198,106,.2);
       }
       body.sdl-eco .sdl-aura { display: none; }
 
       /* Panneau d'infos sous le carrousel */
-      .sdl-info { display: flex; flex-direction: column; align-items: center; gap: 8px;
+      .sdl-info { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px;
         padding: 2px 16px 12px; text-align: center; }
       .sdl-info-kicker { font-family: 'Outfit', system-ui, sans-serif; font-size: 12px; font-weight: 600;
         letter-spacing: .2em; text-transform: uppercase; color: #e8c66a; }
@@ -364,7 +364,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       .sdl-nav-next { right: 40px; }
 
       /* Dots */
-      .sdl-dots { display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 0 6px; }
+      .sdl-dots { position:relative; z-index:2; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 0 6px; }
       .sdl-dot { height:7px; border-radius:4px; background:rgba(255,255,255,.20);
         border:none; cursor:pointer; padding:0; transition:width .3s,background .3s; }
       .sdl-dot.active { width:26px; box-shadow:0 0 10px var(--accent,#D4AF37); }
@@ -1048,7 +1048,7 @@ export default function MenuScreen({ navigation }) {
 
       {/* ══ CARROUSEL WEB ══ */}
       {Platform.OS === 'web' && (
-        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ flex: 1, position: 'relative' }}>
           <div
             className="sdl-aura"
             style={{ '--accent': characters[activeIdx]?.color ?? '#D4AF37', width: CARD_W * 2.6, height: CARD_W * 2.6, marginTop: -Math.round(CARD_H * REFLECT_SHIFT) }}
@@ -1183,14 +1183,14 @@ export default function MenuScreen({ navigation }) {
 }
 
 const s = StyleSheet.create({
-  container:    { flex: 1, ...Platform.select({ web: { height: '100vh', display: 'flex', flexDirection: 'column' } }) },
-  header:       { flexDirection: 'row', alignItems: 'center', paddingTop: Platform.OS === 'ios' ? 60 : IS_MOBILE_WEB ? 18 : 40, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },
+  container:    { flex: 1, ...Platform.select({ web: { height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' } }) },
+  header:       { flexDirection: 'row', alignItems: 'center', paddingTop: Platform.OS === 'ios' ? 60 : IS_MOBILE_WEB ? 18 : 40, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm, position: 'relative', zIndex: 2 },
   backBtn:      { width: 70 },
   backBtnText:  { color: colors.primaryLight, fontSize: 14, fontWeight: '600' },
   headerCenter: { flex: 1, alignItems: 'center' },
   title:        { fontSize: 22, fontWeight: '900', color: colors.text, letterSpacing: 4 },
   subtitle:     { fontSize: 12, color: colors.primaryLight, letterSpacing: 2, marginTop: -2 },
-  countLine:    { textAlign: 'center', fontSize: 11, color: colors.textMuted, marginBottom: spacing.xs },
+  countLine:    { textAlign: 'center', fontSize: 11, color: colors.textMuted, marginBottom: spacing.xs, position: 'relative', zIndex: 2 },
   stageWrapper: { flex: 1, position: 'relative' },
   stage:        { flex: 1, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   arrowOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10 },
