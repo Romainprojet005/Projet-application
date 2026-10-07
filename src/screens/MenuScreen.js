@@ -42,13 +42,18 @@ const DRAG_FACTOR = STEP / (IS_MOBILE_WEB ? CARD_W * 1.2 : CARD_W);
 // Vitesse du glissement vers la carte cible (plus petit = plus doux)
 const EASE = IS_MOBILE_WEB ? 0.09 : 0.14;
 
-// Éventail : chaque carte s'écarte un peu plus que la précédente, toujours dans
+// Mobile — éventail : chaque carte s'écarte un peu plus que la précédente, toujours dans
 // l'ordre (la n°2 à droite reste plus loin du centre que la n°1).
 const FAN_X1   = CARD_W * 0.78;                       // décalage de la 1re voisine
 const FAN_XN   = CARD_W * 0.5;                        // écart des suivantes
 const FAN_Z    = 140;                                  // recul par carte (px)
 const FAN_RY   = IS_MOBILE_WEB ? 18 : 24;              // inclinaison des voisines (deg)
 const RING_VIS  = IS_MOBILE_WEB ? 2 : 3;
+// PC : vrai tambour 3D. Les cartes sont posées sur un cylindre (face vers
+// l'extérieur) ; on n'en montre que la moitié avant (≤ ~80°), ce qui garde
+// l'ordre visuel des cartes de gauche à droite.
+const DRUM_R    = CARD_W * 2.6;
+const DRUM_STEP = 26 * Math.PI / 180;
 
 // ── Calcul position d'une carte ──────────────────────────────────────
 function cardPos(rot, i) {
@@ -66,6 +71,20 @@ function cardPos(rot, i) {
     const op = ad <= 1 ? 1
              : ad <= RING_VIS ? 1 - (ad - 1) * 0.25
              : Math.max(0, (1 - (RING_VIS - 1) * 0.25) * (1 - (ad - RING_VIS) / 0.6));
+    if (IS_DESKTOP_WEB) {
+      const th = dd * DRUM_STEP;
+      return {
+        x:     DRUM_R * Math.sin(th),
+        y:     0,
+        z:     DRUM_R * (Math.cos(th) - 1),
+        sc:    1,
+        op,
+        br:    0.35 + 0.65 * Math.max(0, Math.cos(th)),
+        ry:    th * 180 / Math.PI,
+        depth: -ad,
+        ad,
+      };
+    }
     return {
       x:     sg * (FAN_X1 * Math.min(ae, 1) + FAN_XN * Math.max(0, ae - 1)),
       y:     0,
