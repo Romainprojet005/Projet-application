@@ -71,7 +71,11 @@ export default function UndercoverSetupScreen({ navigation }) {
       }
       const idx = available[Math.floor(Math.random() * available.length)];
       usedPairsPerTheme[selectedTheme].add(idx);
-      randomPair = theme.pairs[idx];
+      const pair = theme.pairs[idx];
+      // Tire au sort quel mot de la paire revient aux imposteurs
+      randomPair = Math.random() < 0.5
+        ? { civilian: pair.civilian, undercover: pair.undercover }
+        : { civilian: pair.undercover, undercover: pair.civilian };
     }
 
     navigation.navigate('UndercoverDistribute', {
