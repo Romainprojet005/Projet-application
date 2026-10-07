@@ -322,16 +322,6 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       }
       .sdl-eco-btn.active { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.4); }
 
-      /* Bouton bascule vue (carrousel / swipe) */
-      .sdl-view-btn {
-        position: fixed; bottom: 14px; left: 14px;
-        width: 32px; height: 32px; border-radius: 16px;
-        background: rgba(0,0,0,0.40); border: 1px solid rgba(255,255,255,0.15);
-        font-size: 14px; cursor: pointer; z-index: 9999;
-        display: flex; align-items: center; justify-content: center; padding: 0;
-        transition: background .2s, border-color .2s;
-      }
-      .sdl-view-btn:hover { background: rgba(236,72,153,0.18); border-color: rgba(236,72,153,0.4); }
 
       /* Eco mode — désactive les effets lourds sur mobile */
       body.sdl-eco .sdl-nebula { display: none !important; }
@@ -637,278 +627,6 @@ const ob = StyleSheet.create({
   soonTxt:     { fontFamily: MONO, fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,0.45)' },
 });
 
-// ── Deck swipe façon Tinder ─────────────────────────────────────────────
-const SWIPE_THRESHOLD = 100;
-const SWIPE_ROTATION   = 12;
-
-// PanResponder (natif) — fiable sur iOS/Android via le vrai responder system.
-function useSwipeCardNative(onSwipeComplete) {
-  const pan = useRef(new Animated.ValueXY()).current;
-
-  const fling = useCallback((dir) => {
-    Animated.timing(pan, {
-      toValue: { x: dir * (SW + CARD_W), y: 0 },
-      duration: 260,
-      useNativeDriver: false,
-    }).start(() => {
-      pan.setValue({ x: 0, y: 0 });
-      onSwipeComplete(dir);
-    });
-  }, [pan, onSwipeComplete]);
-
-  const flingRef = useRef(fling);
-  flingRef.current = fling;
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gs) => Math.abs(gs.dx) > 4 || Math.abs(gs.dy) > 4,
-      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], { useNativeDriver: false }),
-      onPanResponderRelease: (_, gs) => {
-        if (Math.abs(gs.dx) > SWIPE_THRESHOLD) {
-          flingRef.current(gs.dx > 0 ? 1 : -1);
-        } else {
-          Animated.spring(pan, { toValue: { x: 0, y: 0 }, friction: 6, useNativeDriver: false }).start();
-        }
-      },
-      onPanResponderTerminate: () => {
-        Animated.spring(pan, { toValue: { x: 0, y: 0 }, friction: 6, useNativeDriver: false }).start();
-      },
-    })
-  ).current;
-
-  return { pan, panResponder, fling };
-}
-
-// Pointer events (web) — PanResponder de react-native-web ne capte pas
-// fiablement le drag souris ; on suit ici le même schéma que le carrousel
-// web (onPointerDown local + écouteurs window pour move/up).
-function useSwipeCardWeb(onSwipeComplete) {
-  const [drag, setDrag] = useState({ x: 0, y: 0, animating: false });
-  const dragInfo = useRef({ active: false, startX: 0, startY: 0 });
-  const completeRef = useRef(onSwipeComplete);
-  completeRef.current = onSwipeComplete;
-
-  const fling = useCallback((dir) => {
-    const flyX = dir * (SW + CARD_W);
-    setDrag({ x: flyX, y: 0, animating: true });
-    setTimeout(() => {
-      completeRef.current(dir);
-      setDrag({ x: 0, y: 0, animating: false });
-    }, 260);
-  }, []);
-
-  const onPointerDown = useCallback((e) => {
-    dragInfo.current = { active: true, startX: e.clientX, startY: e.clientY };
-    setDrag(d => ({ ...d, animating: false }));
-  }, []);
-
-  useEffect(() => {
-    const onMove = (e) => {
-      if (!dragInfo.current.active) return;
-      setDrag({ x: e.clientX - dragInfo.current.startX, y: e.clientY - dragInfo.current.startY, animating: false });
-    };
-    const onUp = () => {
-      if (!dragInfo.current.active) return;
-      dragInfo.current.active = false;
-      setDrag(d => {
-        if (Math.abs(d.x) > SWIPE_THRESHOLD) {
-          const dir = d.x > 0 ? 1 : -1;
-          setTimeout(() => {
-            completeRef.current(dir);
-            setDrag({ x: 0, y: 0, animating: false });
-          }, 260);
-          return { x: dir * (SW + CARD_W), y: d.y, animating: true };
-        }
-        return { x: 0, y: 0, animating: true };
-      });
-    };
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
-    window.addEventListener('pointercancel', onUp);
-    return () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      window.removeEventListener('pointercancel', onUp);
-    };
-  }, []);
-
-  return { drag, onPointerDown, fling };
-}
-
-function webStampStyle(kind) {
-  return {
-    position: 'absolute', top: 24,
-    [kind === 'like' ? 'right' : 'left']: 18,
-    border: `3px solid ${kind === 'like' ? '#22C55E' : '#EF4444'}`,
-    borderRadius: 10, padding: '4px 14px',
-    fontSize: 22, fontWeight: 900, letterSpacing: 2, color: '#fff',
-    transform: `rotate(${kind === 'like' ? -18 : 18}deg)`,
-    pointerEvents: 'none', fontFamily: 'inherit',
-  };
-}
-
-function useSwipeDeckState(onSelect) {
-  const [swipeIdx, setSwipeIdx] = useState(0);
-  const topCharRef = useRef(characters[0]);
-  useEffect(() => { topCharRef.current = characters[swipeIdx]; }, [swipeIdx]);
-
-  const advance = useCallback((dir) => {
-    if (dir > 0) {
-      const char = topCharRef.current;
-      if (char?.available) onSelect(char);
-    }
-    setSwipeIdx(i => (i + 1) % N);
-  }, [onSelect]);
-
-  const stackIdxs = [0, 1, 2].map(o => (swipeIdx + o) % N);
-  return { stackIdxs, advance };
-}
-
-function SwipeBackground({ restCi }) {
-  return (
-    <>
-      {restCi.slice().reverse().map((ci, revI) => {
-        const stackPos = restCi.length - revI;
-        const char = characters[ci];
-        return (
-          <View
-            key={char.id}
-            pointerEvents="none"
-            style={[
-              sw.cardAbs,
-              {
-                transform: [{ translateY: stackPos * 10 }, { scale: 1 - stackPos * 0.04 }],
-                opacity: 1 - stackPos * 0.3,
-                zIndex: 10 - stackPos,
-              },
-            ]}
-          >
-            {Platform.OS === 'web'
-              ? <ObsidianFront character={char} idx={ci} />
-              : <GameCardVisual character={char} idx={ci} />}
-          </View>
-        );
-      })}
-    </>
-  );
-}
-
-function SwipeActions({ onNope, onLike }) {
-  return (
-    <>
-      <View style={sw.actions}>
-        <TouchableOpacity onPress={onNope} style={[sw.actionBtn, sw.actionNope]} activeOpacity={0.8}>
-          <Text style={sw.actionIcon}>✕</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onLike} style={[sw.actionBtn, sw.actionLike]} activeOpacity={0.8}>
-          <Text style={sw.actionIcon}>♥</Text>
-        </TouchableOpacity>
-      </View>
-      <Text style={sw.hint}>Glissez à droite pour jouer · à gauche pour passer</Text>
-    </>
-  );
-}
-
-function SwipeDeckWeb({ onSelect }) {
-  const { stackIdxs, advance } = useSwipeDeckState(onSelect);
-  const [topCi, ...restCi] = stackIdxs;
-  const topChar = characters[topCi];
-
-  const { drag, onPointerDown, fling } = useSwipeCardWeb(advance);
-  const rotateDeg   = Math.max(-SWIPE_ROTATION, Math.min(SWIPE_ROTATION, drag.x / 10));
-  const likeOpacity = Math.max(0, Math.min(1, (drag.x - 20) / 90));
-  const nopeOpacity = Math.max(0, Math.min(1, (-drag.x - 20) / 90));
-
-  return (
-    <View style={sw.wrapper}>
-      <View style={[sw.deck, { width: CARD_W, height: CARD_H }]}>
-        <SwipeBackground restCi={restCi} />
-        <div
-          onPointerDown={onPointerDown}
-          style={{
-            position: 'absolute', top: 0, left: 0, zIndex: 10,
-            transform: `translate(${drag.x}px, ${drag.y}px) rotate(${rotateDeg}deg)`,
-            transition: drag.animating ? 'transform .28s ease' : 'none',
-            touchAction: 'none', cursor: 'grab',
-          }}
-        >
-          <ObsidianFront character={topChar} idx={topCi} />
-          <div style={{ ...webStampStyle('like'), opacity: likeOpacity }}>JOUER</div>
-          <div style={{ ...webStampStyle('nope'), opacity: nopeOpacity }}>PASSER</div>
-        </div>
-      </View>
-      <SwipeActions onNope={() => fling(-1)} onLike={() => fling(1)} />
-    </View>
-  );
-}
-
-function SwipeDeckNative({ onSelect }) {
-  const { stackIdxs, advance } = useSwipeDeckState(onSelect);
-  const [topCi, ...restCi] = stackIdxs;
-  const topChar = characters[topCi];
-
-  const { pan, panResponder, fling } = useSwipeCardNative(advance);
-  const rotate = pan.x.interpolate({
-    inputRange: [-SW / 2, 0, SW / 2],
-    outputRange: [`-${SWIPE_ROTATION}deg`, '0deg', `${SWIPE_ROTATION}deg`],
-  });
-  const likeOpacity = pan.x.interpolate({ inputRange: [20, 110], outputRange: [0, 1], extrapolate: 'clamp' });
-  const nopeOpacity = pan.x.interpolate({ inputRange: [-110, -20], outputRange: [1, 0], extrapolate: 'clamp' });
-
-  return (
-    <View style={sw.wrapper}>
-      <View style={[sw.deck, { width: CARD_W, height: CARD_H }]}>
-        <SwipeBackground restCi={restCi} />
-        <Animated.View
-          {...panResponder.panHandlers}
-          style={[sw.cardAbs, { transform: [{ translateX: pan.x }, { translateY: pan.y }, { rotate }], zIndex: 10 }]}
-        >
-          <GameCardVisual character={topChar} idx={topCi} />
-          <Animated.View pointerEvents="none" style={[sw.stamp, sw.stampLike, { opacity: likeOpacity }]}>
-            <Text style={sw.stampText}>JOUER</Text>
-          </Animated.View>
-          <Animated.View pointerEvents="none" style={[sw.stamp, sw.stampNope, { opacity: nopeOpacity }]}>
-            <Text style={sw.stampText}>PASSER</Text>
-          </Animated.View>
-        </Animated.View>
-      </View>
-      <SwipeActions onNope={() => fling(-1)} onLike={() => fling(1)} />
-    </View>
-  );
-}
-
-function SwipeDeck({ onSelect }) {
-  return Platform.OS === 'web'
-    ? <SwipeDeckWeb onSelect={onSelect} />
-    : <SwipeDeckNative onSelect={onSelect} />;
-}
-
-const sw = StyleSheet.create({
-  wrapper: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  deck:    { position: 'relative' },
-  cardAbs: { position: 'absolute', top: 0, left: 0 },
-
-  stamp: {
-    position: 'absolute', top: 24, borderWidth: 3, borderRadius: 10,
-    paddingHorizontal: 14, paddingVertical: 4, transform: [{ rotate: '-18deg' }],
-  },
-  stampLike: { right: 18, borderColor: '#22C55E' },
-  stampNope: { left: 18, borderColor: '#EF4444', transform: [{ rotate: '18deg' }] },
-  stampText: { fontSize: 22, fontWeight: '900', letterSpacing: 2, color: '#fff' },
-
-  actions: { flexDirection: 'row', gap: spacing.xl, marginTop: spacing.xl },
-  actionBtn: {
-    width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, backgroundColor: 'rgba(255,255,255,0.06)',
-  },
-  actionNope: { borderColor: 'rgba(239,68,68,0.5)' },
-  actionLike: { borderColor: 'rgba(34,197,94,0.5)' },
-  actionIcon: { fontSize: 24, color: '#fff' },
-
-  hint: { marginTop: spacing.md, fontSize: 11, color: colors.textMuted, letterSpacing: 0.5 },
-});
-
 // ── MenuScreen ────────────────────────────────────────────────────────
 export default function MenuScreen({ navigation }) {
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -949,16 +667,6 @@ export default function MenuScreen({ navigation }) {
     return next;
   }), []);
 
-  const [viewMode, setViewMode] = useState(() => {
-    if (Platform.OS !== 'web') return 'carousel';
-    try { return localStorage.getItem('sdl-viewmode') === 'swipe' ? 'swipe' : 'carousel'; } catch { return 'carousel'; }
-  });
-
-  const toggleViewMode = useCallback(() => setViewMode(v => {
-    const next = v === 'carousel' ? 'swipe' : 'carousel';
-    if (Platform.OS === 'web') { try { localStorage.setItem('sdl-viewmode', next); } catch {} }
-    return next;
-  }), []);
 
   // ── Mise à jour du carousel ───────────────────────────────────────
   const updateCarousel = useCallback((rot) => {
@@ -1228,7 +936,7 @@ export default function MenuScreen({ navigation }) {
       </Animated.Text>
 
       {/* ══ CARROUSEL WEB ══ */}
-      {viewMode === 'carousel' && Platform.OS === 'web' && (
+      {Platform.OS === 'web' && (
         <div style={{ flex: 1, position: 'relative' }}>
           <div
             ref={stageRef}
@@ -1257,7 +965,7 @@ export default function MenuScreen({ navigation }) {
       )}
 
       {/* ══ CARROUSEL NATIF ══ */}
-      {viewMode === 'carousel' && Platform.OS !== 'web' && (
+      {Platform.OS !== 'web' && (
         <View style={s.stageWrapper}>
           <View style={s.stage} {...panResponder.panHandlers}>
             {sortedIndices.map(i => {
@@ -1284,11 +992,9 @@ export default function MenuScreen({ navigation }) {
         </View>
       )}
 
-      {/* ══ DECK SWIPE (TINDER) ══ */}
-      {viewMode === 'swipe' && <SwipeDeck onSelect={handleSelectGame} />}
 
       {/* Dots */}
-      {viewMode === 'carousel' && (Platform.OS === 'web' ? (
+      {(Platform.OS === 'web' ? (
         <div className="sdl-dots">
           {characters.map((c, i) => (
             <button
@@ -1316,7 +1022,7 @@ export default function MenuScreen({ navigation }) {
       ))}
 
       {/* Meta (web) */}
-      {viewMode === 'carousel' && Platform.OS === 'web' && (
+      {Platform.OS === 'web' && (
         <div className="sdl-meta">
           <div className="sdl-meta-line">
             <span className="sdl-meta-idx" ref={metaIdxRef}>
@@ -1347,19 +1053,6 @@ export default function MenuScreen({ navigation }) {
         </button>
       )}
 
-      {Platform.OS === 'web' ? (
-        <button
-          onClick={toggleViewMode}
-          className="sdl-view-btn"
-          title={viewMode === 'swipe' ? 'Retour au carrousel' : 'Basculer en mode Swipe'}
-        >
-          {viewMode === 'swipe' ? '🎠' : '💘'}
-        </button>
-      ) : (
-        <TouchableOpacity onPress={toggleViewMode} style={s.viewBtn} activeOpacity={0.8}>
-          <Text style={s.viewBtnIcon}>{viewMode === 'swipe' ? '🎠' : '💘'}</Text>
-        </TouchableOpacity>
-      )}
 
       <AdBanner />
     </LinearGradient>
@@ -1383,10 +1076,4 @@ const s = StyleSheet.create({
   cardSlot:     { position: 'absolute' },
   dots:         { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 7, paddingVertical: 10 },
   dot:          { height: 6, borderRadius: 3 },
-  viewBtn: {
-    position: 'absolute', bottom: 14, left: 14, width: 32, height: 32, borderRadius: 16,
-    backgroundColor: 'rgba(0,0,0,0.40)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
-    alignItems: 'center', justifyContent: 'center',
-  },
-  viewBtnIcon: { fontSize: 14 },
 });
