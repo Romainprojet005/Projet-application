@@ -74,7 +74,7 @@ export default function VoteMultiFinalScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { padding: spacing.lg, paddingTop: 60, paddingBottom: spacing.xxl },
-  title:    { fontSize: 28, fontWeight: '900', color: VOTE_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xs },
+  title:    { fontSize: 28, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: VOTE_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xs },
   subtitle: { fontSize: 13, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl },
 
   winnerCard: {

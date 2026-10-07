@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   agentBadgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
   pageTitle: {
     fontSize: 34,
-    fontWeight: '900',
+    fontWeight: '700', fontFamily: 'Cinzel_700Bold',
     color: colors.text,
     letterSpacing: 4,
   },

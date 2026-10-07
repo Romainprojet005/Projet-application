@@ -133,7 +133,7 @@ export default function LolSelectMultiLobbyScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  title: { fontSize: 22, fontWeight: '900', color: ACCENT_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
+  title: { fontSize: 22, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: ACCENT_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
   codeCard: {
     backgroundColor: ACCENT + '22', borderRadius: radius.xl, borderWidth: 1, borderColor: ACCENT + '55',
     padding: spacing.xl, alignItems: 'center', marginBottom: spacing.xl,

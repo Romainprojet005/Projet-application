@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
 
   pageTitle: {
     fontSize: 34,
-    fontWeight: '900',
+    fontWeight: '700', fontFamily: 'Cinzel_700Bold',
     color: colors.text,
     letterSpacing: 4,
   },

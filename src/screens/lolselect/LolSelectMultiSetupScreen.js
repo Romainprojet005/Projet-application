@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
   backRow: { marginBottom: spacing.lg },
   backText: { color: colors.textMuted, fontSize: 14 },
-  title: { fontSize: 24, fontWeight: '900', color: colors.text, textAlign: 'center', letterSpacing: 1.5 },
+  title: { fontSize: 24, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, textAlign: 'center', letterSpacing: 1.5 },
   subtitle: { fontSize: 13, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl, lineHeight: 19 },
   tabs: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.lg, padding: 4, marginBottom: spacing.xl },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.md },

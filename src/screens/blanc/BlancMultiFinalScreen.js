@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: spacing.xxl,
   },
-  title: { fontSize: 28, fontWeight: '900', color: GOLD_LIGHT, textAlign: 'center', letterSpacing: 3, marginBottom: 4 },
+  title: { fontSize: 28, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: GOLD_LIGHT, textAlign: 'center', letterSpacing: 3, marginBottom: 4 },
   sub:   { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginBottom: spacing.xl },
 
   row: {

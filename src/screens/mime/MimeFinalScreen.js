@@ -91,7 +91,7 @@ export default function MimeFinalScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  title: { fontSize: 28, fontWeight: '900', color: PINK_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
+  title: { fontSize: 28, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: PINK_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
   winnerCard: { borderRadius: radius.xl, overflow: 'hidden', marginBottom: spacing.xl, borderWidth: 1, borderColor: PINK + '55' },
   winnerInner: { alignItems: 'center', padding: spacing.xl },
   winnerTrophy: { fontSize: 56, marginBottom: spacing.sm },

@@ -279,9 +279,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: '900',
+    fontWeight: '700', fontFamily: 'Cinzel_700Bold',
     color: colors.text,
-    letterSpacing: 5,
+    letterSpacing: 4,
     marginBottom: 4,
   },
   subtitle: { fontSize: 13, color: colors.textSecondary, letterSpacing: 1 },

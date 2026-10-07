@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import GameSkin from '../components/GameSkin';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import WelcomeScreen from '../screens/WelcomeScreen';
@@ -145,12 +146,15 @@ const linking = {
 };
 
 export default function AppNavigator() {
+  const [routeName, setRouteName] = useState(null);
+  const navRef = React.useRef(null);
+  const syncRoute = () => setRouteName(navRef.current?.getCurrentRoute()?.name ?? null);
   return (
-    <NavigationContainer linking={linking}>
+    <NavigationContainer ref={navRef} linking={linking} onReady={syncRoute} onStateChange={syncRoute}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
-          cardStyle: { backgroundColor: '#0A0A1B' },
+          cardStyle: { backgroundColor: '#0B0A1A' },
           gestureEnabled: true,
         }}
       >
@@ -218,6 +222,7 @@ export default function AppNavigator() {
         <Stack.Screen name="LolSelectMultiWait" component={LolSelectMultiWaitScreen} />
         <Stack.Screen name="LolSelectMultiTournament" component={LolSelectMultiTournamentScreen} />
       </Stack.Navigator>
+      <GameSkin routeName={routeName} />
     </NavigationContainer>
   );
 }

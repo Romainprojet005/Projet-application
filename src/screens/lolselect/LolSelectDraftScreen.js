@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   rerollBadgeDisabled: { opacity: 0.35 },
   rerollBadgeText: { fontSize: 12, fontWeight: '800', color: HEXTECH },
 
-  title: { fontSize: 22, fontWeight: '900', color: colors.text, letterSpacing: 1.5, textAlign: 'center' },
+  title: { fontSize: 22, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 1.5, textAlign: 'center' },
   gameLabel: { fontSize: 12, fontWeight: '800', textAlign: 'center', letterSpacing: 1, marginTop: 2, marginBottom: spacing.md },
 
   familiarityScroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.xxl, gap: spacing.md },

@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   badgeName:  { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
-  pageTitle:    { fontSize: 30, fontWeight: '900', color: colors.text, letterSpacing: 2, textAlign: 'center' },
+  pageTitle:    { fontSize: 30, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 2, textAlign: 'center' },
   pageSubtitle: { fontSize: 12, letterSpacing: 1, marginTop: spacing.xs, textAlign: 'center' },
 
   gamePickerLabel: { fontSize: 11, fontWeight: '800', color: colors.textMuted, letterSpacing: 2, marginBottom: spacing.sm },

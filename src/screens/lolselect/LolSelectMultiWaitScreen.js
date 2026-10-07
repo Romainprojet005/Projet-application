@@ -103,6 +103,6 @@ const styles = StyleSheet.create({
     padding: spacing.xl, alignItems: 'center', gap: spacing.sm, maxWidth: 420, alignSelf: 'center',
   },
   emoji: { fontSize: 48 },
-  title: { fontSize: 18, fontWeight: '900', color: colors.text, letterSpacing: 1, textAlign: 'center' },
+  title: { fontSize: 18, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 1, textAlign: 'center' },
   sub: { fontSize: 13, color: colors.textSecondary, textAlign: 'center', lineHeight: 19 },
 });

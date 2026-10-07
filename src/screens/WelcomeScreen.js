@@ -6,6 +6,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { spacing, radius } from '../theme';
 import { OB_BG } from '../theme/obsidian';
+import { characters } from '../data/characters';
+import { BoosterFront } from '../components/BoosterCard';
 
 // Web: inject fonts (partagé avec MenuScreen via même id)
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -13,7 +15,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
     const lk = document.createElement('link');
     lk.id = 'sdl-fonts';
     lk.rel = 'stylesheet';
-    lk.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;500;600&display=swap';
+    lk.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap';
     document.head.appendChild(lk);
   }
   if (!document.getElementById('sdl-welcome-css')) {
@@ -85,6 +87,164 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
 
 const IS_MOBILE_WEB = Platform.OS === 'web' &&
   (typeof window !== 'undefined' ? window.innerWidth < 600 : false);
+const WIN_H = typeof window !== 'undefined' ? window.innerHeight : 800;
+
+// ── Accueil web : éventail de cartes booster ─────────────────────────
+if (Platform.OS === 'web' && typeof document !== 'undefined' && !document.getElementById('sdl-welcome-v2-css')) {
+  const st = document.createElement('style');
+  st.id = 'sdl-welcome-v2-css';
+  st.textContent = `
+    .sdl-wl { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+      display: flex; color: #efeaf8; font-family: 'Outfit', system-ui, sans-serif; }
+    .sdl-wl > * { animation: sdl-wl-in .8s cubic-bezier(.2,.8,.2,1) both; }
+    .sdl-wl > *:nth-child(2) { animation-delay: .15s; }
+    @keyframes sdl-wl-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+    /* Mobile : une colonne */
+    .sdl-wl.m { flex-direction: column; align-items: center; justify-content: space-between;
+      padding: 40px 24px 28px; gap: 12px; text-align: center; }
+    .sdl-wl.m .sdl-wl-head { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .sdl-wl.m .sdl-logo-title { font-size: 38px; letter-spacing: 4px; }
+    .sdl-wl.m .sdl-logo-sub { font-size: 14px; letter-spacing: 6px; }
+
+    /* PC : texte à gauche, éventail à droite */
+    .sdl-wl.d { flex-direction: column; }
+    .sdl-wl-nav { width: 100%; max-width: 1240px; margin: 0 auto; box-sizing: border-box; padding: 24px 32px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .sdl-wl-brand { display: flex; align-items: center; gap: 12px; font-family: 'Cinzel', Georgia, serif;
+      font-weight: 700; font-size: 17px; letter-spacing: .14em; color: #F4DC8C; }
+    .sdl-wl-brand .sdl-crown { font-size: 28px; }
+    .sdl-wl-link { background: none; border: 1px solid rgba(212,175,55,.5); color: #F4DC8C; border-radius: 99px;
+      padding: 12px 20px; font-family: 'Outfit', system-ui, sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .sdl-wl-link:hover { background: rgba(212,175,55,.1); }
+    .sdl-wl-main { width: 100%; max-width: 1240px; margin: 0 auto; box-sizing: border-box; padding: 24px 32px 56px;
+      flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 48px; }
+    .sdl-wl-copy { flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 22px; }
+    .sdl-wl-kicker { font-size: 13px; font-weight: 600; letter-spacing: .28em; color: #b3a8ff; }
+    .sdl-wl-h1 { margin: 0; font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: clamp(44px, 6vw, 84px);
+      line-height: .98; letter-spacing: .04em;
+      background: linear-gradient(180deg, #FFFFFF 0%, #F4DC8C 60%, #D4AF37 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    .sdl-wl-tag { margin: 0; font-size: 15px; line-height: 1.55; color: #cfc8e6; max-width: 300px; }
+    .sdl-wl.d .sdl-wl-tag { font-size: 18px; line-height: 1.6; max-width: 480px; }
+    .sdl-wl-rule { width: 72px; height: 1px; margin-top: 8px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); }
+
+    .sdl-wl-actions { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+    .sdl-wl.d .sdl-wl-actions { flex-direction: row; flex-wrap: wrap; width: auto; margin-top: 8px; }
+    .sdl-wl-cta { position: relative; overflow: hidden; width: min(100%, 360px); height: 56px; padding: 0 34px;
+      border: 0; border-radius: 99px; cursor: pointer;
+      background: linear-gradient(180deg, #F4DC8C, #D4AF37 55%, #B8892A); color: #1a1408;
+      font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 15px; letter-spacing: .14em;
+      box-shadow: 0 10px 34px rgba(212,175,55,.38); transition: transform .15s, box-shadow .15s; }
+    .sdl-wl.d .sdl-wl-cta { width: auto; height: 58px; font-size: 16px; }
+    .sdl-wl-cta:hover { transform: translateY(-1px); box-shadow: 0 14px 40px rgba(212,175,55,.5); }
+    .sdl-wl-cta::after { content: ''; position: absolute; top: 0; bottom: 0; left: -80px; width: 60px;
+      background: rgba(255,255,255,.4); transform: skewX(-20deg); animation: sdl-wl-shine 3.2s ease-in-out infinite; }
+    @keyframes sdl-wl-shine { 0%, 55% { left: -80px; } 100% { left: 110%; } }
+
+    /* Éventail */
+    .sdl-fan { position: relative; perspective: 1000px; flex: none; }
+    .sdl-wl.d .sdl-fan { flex: 1 1 480px; min-width: 0; height: 560px; perspective: 1200px; }
+    .sdl-fan-aura { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); border-radius: 50%;
+      pointer-events: none; background: radial-gradient(circle, rgba(124,58,237,.45) 0%, transparent 62%); }
+    .sdl-fan-card { position: absolute; left: 50%; top: 46%; }
+    .sdl-fan-card.center { -webkit-box-reflect: below 10px linear-gradient(transparent 70%, rgba(255,255,255,.25)); }
+    body.sdl-eco .sdl-fan-card.center { -webkit-box-reflect: none; }
+    body.sdl-eco .sdl-wl-cta::after { display: none; }
+  `;
+  document.head.appendChild(st);
+}
+
+const FAN_W = Math.max(130, Math.min(190, Math.round((WIN_H - 520) * 210 / 310)));
+
+function pick(game) {
+  const i = characters.findIndex(c => c.game === game);
+  return { c: characters[Math.max(0, i)], i: Math.max(0, i) };
+}
+
+function Fan({ desktop }) {
+  // [jeu, largeur, transform, luminosité]
+  const W = desktop ? 260 : FAN_W;
+  const cards = desktop
+    ? [
+        ['oracle',     210, 'translate3d(-190px, 20px, -200px) rotateY(28deg)',  .5],
+        ['buzzer',     210, 'translate3d(190px, 20px, -200px) rotateY(-28deg)',  .5],
+        ['undercover', 236, 'translate3d(-120px, 0, -60px) rotateY(16deg) rotateZ(-4deg)', .75],
+        ['cineflash',  236, 'translate3d(120px, 0, -60px) rotateY(-16deg) rotateZ(4deg)',  .75],
+        ['blindtest',  260, 'none', 1],
+      ]
+    : [
+        ['undercover', Math.round(W * .9), `translate3d(${-Math.round(W * .55)}px, ${Math.round(W * .1)}px, -120px) rotateY(24deg) rotateZ(-6deg)`, .7],
+        ['cineflash',  Math.round(W * .9), `translate3d(${Math.round(W * .55)}px, ${Math.round(W * .1)}px, -120px) rotateY(-24deg) rotateZ(6deg)`,  .7],
+        ['blindtest',  W, 'none', 1],
+      ];
+  const boxH = desktop ? 560 : Math.round(W * 310 / 210 + W * 0.45);
+  const auraS = desktop ? 520 : W * 2.6;
+  return (
+    <div className="sdl-fan" aria-hidden="true" style={desktop ? undefined : { width: '100%', height: boxH }}>
+      <div className="sdl-fan-aura" style={{ width: auraS, height: auraS }} />
+      {cards.map(([game, w, tf, br], k) => {
+        const { c, i } = pick(game);
+        return (
+          <div
+            key={game}
+            className={`sdl-fan-card${k === cards.length - 1 ? ' center' : ''}`}
+            style={{
+              transform: `translate(-50%, -50%) ${tf === 'none' ? '' : tf}`,
+              filter: br < 1 ? `brightness(${br})` : undefined,
+              top: desktop ? '44%' : '42%',
+            }}
+          >
+            <BoosterFront character={c} idx={i} width={w} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function WelcomeWeb({ onStart }) {
+  const nGames = characters.filter(c => c.available).length;
+  if (IS_MOBILE_WEB) {
+    return (
+      <div className="sdl-wl m">
+        <div className="sdl-wl-head">
+          <span className="sdl-crown">♛</span>
+          <div className="sdl-logo-title">LA SOIRÉE</div>
+          <div className="sdl-logo-sub">DES LÉGENDES</div>
+          <div className="sdl-wl-rule" />
+          <p className="sdl-wl-tag">{nGames} jeux de soirée, chacun incarné par sa légende. Choisissez votre carte.</p>
+        </div>
+        <Fan />
+        <div className="sdl-wl-actions">
+          <button className="sdl-wl-cta" onClick={onStart}>♛  COMMENCER LA SOIRÉE</button>
+          <span className="sdl-version">v1.0 · Bêta</span>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="sdl-wl d">
+      <div className="sdl-wl-nav">
+        <div className="sdl-wl-brand"><span className="sdl-crown">♛</span>LA SOIRÉE DES LÉGENDES</div>
+        <button className="sdl-wl-link" onClick={onStart}>Les {nGames} jeux</button>
+      </div>
+      <div className="sdl-wl-main">
+        <div className="sdl-wl-copy">
+          <span className="sdl-wl-kicker">{nGames} JEUX · 1 À 12 JOUEURS</span>
+          <h1 className="sdl-wl-h1">La Soirée<br />des Légendes</h1>
+          <p className="sdl-wl-tag">Chaque jeu est une carte, chaque carte une légende. Ouvrez la collection, choisissez votre aventure et lancez la soirée.</p>
+          <div className="sdl-wl-actions">
+            <button className="sdl-wl-cta" onClick={onStart}>♛  COMMENCER LA SOIRÉE</button>
+            <span className="sdl-version">v1.0 · Bêta</span>
+          </div>
+        </div>
+        <Fan desktop />
+      </div>
+    </div>
+  );
+}
 
 // ── Étoiles ───────────────────────────────────────────────────────────
 const STARS = Array.from({ length: 60 }, (_, i) => ({
@@ -235,6 +395,9 @@ export default function WelcomeScreen({ navigation }) {
       </View>
 
       {/* Contenu central */}
+      {Platform.OS === 'web' ? (
+        <WelcomeWeb onStart={() => navigation.replace('Menu')} />
+      ) : (
       <View style={st.content}>
         <Animated.View style={[st.logoContainer, {
           opacity: logoOpacity,
@@ -305,6 +468,7 @@ export default function WelcomeScreen({ navigation }) {
           )}
         </Animated.View>
       </View>
+      )}
 
       {Platform.OS === 'web' && IS_MOBILE_WEB && (
         <button

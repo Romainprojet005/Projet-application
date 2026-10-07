@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
   backRow: { marginBottom: spacing.lg },
   backText: { color: colors.textMuted, fontSize: 14 },
-  title:    { fontSize: 32, fontWeight: '900', color: BEAT_LIGHT, textAlign: 'center', letterSpacing: 2 },
+  title:    { fontSize: 32, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: BEAT_LIGHT, textAlign: 'center', letterSpacing: 2 },
   subtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
   tabs: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.lg, padding: 4, marginBottom: spacing.xl },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.md },

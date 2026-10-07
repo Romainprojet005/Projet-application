@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   backRow: { paddingTop: Platform.OS === 'ios' ? 56 : 36, paddingBottom: spacing.md },
   backText: { color: PRP_LIGHT, fontSize: 14, fontWeight: '600' },
 
-  title:    { fontSize: 26, fontWeight: '900', color: colors.text, letterSpacing: 3, textAlign: 'center', marginBottom: 4 },
+  title:    { fontSize: 26, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 3, textAlign: 'center', marginBottom: 4 },
   subtitle: { fontSize: 13, color: colors.textSecondary, textAlign: 'center', marginBottom: spacing.lg },
 
   tabs: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },

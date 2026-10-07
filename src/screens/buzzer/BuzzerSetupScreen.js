@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   badgeName:  { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
-  pageTitle:    { fontSize: 40, fontWeight: '900', color: colors.text, letterSpacing: 6 },
+  pageTitle:    { fontSize: 40, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 4 },
   pageSubtitle: { fontSize: 12, color: BUZZ_LIGHT, letterSpacing: 1, marginTop: spacing.xs, textAlign: 'center' },
 
   form: { paddingHorizontal: spacing.xl, gap: spacing.md },

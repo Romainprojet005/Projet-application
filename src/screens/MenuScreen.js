@@ -10,6 +10,7 @@ import { colors, spacing, radius } from '../theme';
 import { OB_BG } from '../theme/obsidian';
 import { characters } from '../data/characters';
 import AdBanner from '../components/AdBanner';
+import { BoosterFront, BoosterBack } from '../components/BoosterCard';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 const N = characters.length;
@@ -17,11 +18,17 @@ const N = characters.length;
 const IS_MOBILE_WEB = Platform.OS === 'web' && SW < 600;
 const IS_DESKTOP_WEB = Platform.OS === 'web' && !IS_MOBILE_WEB;
 
-const CARD_W = IS_MOBILE_WEB ? Math.min(SW * 0.44, 175)
-             : IS_DESKTOP_WEB ? 280
+// Cartes booster au format 210×310, dimensionnées pour tenir dans la scène
+// (hauteur d'écran moins en-tête, points, panneau d'infos et pub)
+const REFLECT_SHIFT = 0.08;
+const STAGE_EST = SH - (IS_MOBILE_WEB ? 395 : 414);
+const FIT_H = Math.floor((STAGE_EST / 2 - 12) / (0.5 + REFLECT_SHIFT));
+const WEB_H = IS_MOBILE_WEB
+  ? Math.max(190, Math.min(310, FIT_H, Math.round(Math.min(SW * 0.54, 210) * 310 / 210)))
+  : Math.max(280, Math.min(413, FIT_H));
+const CARD_W = Platform.OS === 'web' ? Math.round(WEB_H * 210 / 310)
              : Math.min(SW * 0.75, 300);
-const CARD_H = IS_MOBILE_WEB ? Math.min(Math.round(CARD_W * 1.75), SH - 190)
-             : IS_DESKTOP_WEB ? 420
+const CARD_H = Platform.OS === 'web' ? WEB_H
              : Math.min(Math.round(CARD_W * 1.55), SH - 210);
 
 const RADIUS = IS_MOBILE_WEB ? 430
@@ -31,6 +38,12 @@ const RADIUS = IS_MOBILE_WEB ? 430
 const STEP = (2 * Math.PI) / N;
 const DRAG_FACTOR = STEP / (IS_MOBILE_WEB ? CARD_W * 0.5 : CARD_W);
 
+// Anneau web façon "boosters" : carte centrale de face, voisines tournées,
+// cartes du fond plus petites et plus sombres.
+const RING_R    = IS_MOBILE_WEB ? CARD_W * 1.43 : CARD_W * 2;
+const RING_STEP = (IS_MOBILE_WEB ? 64 : 34) * Math.PI / 180;
+const RING_VIS  = IS_MOBILE_WEB ? 2 : 3;
+
 // ── Calcul position d'une carte ──────────────────────────────────────
 function cardPos(rot, i) {
   const alpha = rot + i * STEP;
@@ -38,14 +51,25 @@ function cardPos(rot, i) {
   const sinA  = Math.sin(alpha);
   const t     = (cosA + 1) / 2;
   if (IS_DESKTOP_WEB || IS_MOBILE_WEB) {
+    // Décalage (en nombre de cartes) par rapport à la carte de face
+    const a  = Math.atan2(sinA, cosA);
+    const d  = a / STEP;
+    const ad = Math.abs(d);
+    const dd = Math.max(-(RING_VIS + 1), Math.min(RING_VIS + 1, d));
+    const th = dd * RING_STEP;
+    const op = ad <= 1 ? 1
+             : ad <= RING_VIS ? 1 - (ad - 1) * 0.25
+             : Math.max(0, (1 - (RING_VIS - 1) * 0.25) * (1 - (ad - RING_VIS) / 0.6));
     return {
-      x:     RADIUS * sinA,
-      y:     IS_DESKTOP_WEB ? -28 * t : 0,
-      z:     RADIUS * (cosA - 1),
-      sc:    0.5 + 0.5 * t,
-      op:    0.25 + 0.75 * t,
-      ry:    alpha * 180 / Math.PI,
-      depth: cosA,
+      x:     RING_R * Math.sin(th),
+      y:     0,
+      z:     RING_R * (Math.cos(th) - 1),
+      sc:    1,
+      op,
+      br:    1 - Math.min(ad, RING_VIS) * (IS_MOBILE_WEB ? 0.27 : 0.2),
+      ry:    th * (IS_MOBILE_WEB ? 0.3 : 0.45) * 180 / Math.PI,
+      depth: -ad,
+      ad,
     };
   }
   const sc = 0.28 + 0.72 * t;
@@ -74,7 +98,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
   if (!document.getElementById('sdl-fonts')) {
     const lk = document.createElement('link');
     lk.id = 'sdl-fonts'; lk.rel = 'stylesheet';
-    lk.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;500;600&display=swap';
+    lk.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap';
     document.head.appendChild(lk);
   }
   if (!document.getElementById('sdl-menu-css-v2')) {
@@ -111,7 +135,49 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       /* Face / dos crossfade (pas de backface-visibility — problèmes de z-index) */
       .sdl-front, .sdl-back-face {
         transition: opacity 0.35s ease;
-        border-radius: 18px;
+      }
+
+      /* Reflet au sol sous chaque carte */
+      .sdl-flip-card {
+        -webkit-box-reflect: below 12px linear-gradient(transparent 64%, rgba(255,255,255,.28));
+      }
+      body.sdl-eco .sdl-flip-card { -webkit-box-reflect: none; }
+
+      /* Halo de la couleur du jeu derrière la carte centrale */
+      .sdl-aura {
+        position: absolute; left: 50%; top: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%; pointer-events: none;
+        background: radial-gradient(circle, color-mix(in oklab, var(--accent) 60%, transparent) 0%, transparent 62%);
+        opacity: .55; transition: background .6s ease;
+      }
+      .sdl-floor {
+        position: absolute; left: 0; right: 0; height: 40%; pointer-events: none;
+        background: linear-gradient(180deg, rgba(169,155,255,.12), rgba(11,10,26,0));
+        border-top: 1px solid rgba(232,198,106,.2);
+      }
+      body.sdl-eco .sdl-aura { display: none; }
+
+      /* Panneau d'infos sous le carrousel */
+      .sdl-info { display: flex; flex-direction: column; align-items: center; gap: 8px;
+        padding: 2px 16px 12px; text-align: center; }
+      .sdl-info-kicker { font-family: 'Outfit', system-ui, sans-serif; font-size: 12px; font-weight: 600;
+        letter-spacing: .2em; text-transform: uppercase; color: #e8c66a; }
+      .sdl-info-title { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 30px; line-height: 1.05;
+        text-transform: uppercase; color: #fff; }
+      .sdl-info-chips { display: flex; gap: 8px; }
+      .sdl-info-chip { font-family: 'Outfit', system-ui, sans-serif; padding: 6px 12px; border-radius: 99px;
+        background: rgba(255,255,255,.07); font-size: 13px; font-weight: 500; color: #ddd6f0; }
+      .sdl-play { width: min(100%, 340px); height: 52px; margin-top: 4px; border: 0; border-radius: 99px;
+        background: linear-gradient(180deg, #F4DC8C, #D4AF37 55%, #B8892A); color: #1a1408;
+        font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 15px; letter-spacing: .14em;
+        cursor: pointer; box-shadow: 0 8px 28px rgba(212,175,55,.35); transition: transform .15s, box-shadow .15s; }
+      .sdl-play:hover { transform: translateY(-1px); box-shadow: 0 12px 34px rgba(212,175,55,.45); }
+      .sdl-play:disabled { opacity: .45; cursor: default; transform: none; }
+      @media (max-width: 600px) {
+        .sdl-info { gap: 6px; }
+        .sdl-info-title { font-size: 24px; }
+        .sdl-info-kicker { font-size: 11px; }
       }
       .sdl-flip-card:not(.is-flipped) .sdl-back-face {
         opacity: 0; pointer-events: none; position: absolute; inset: 0;
@@ -675,15 +741,20 @@ export default function MenuScreen({ navigation }) {
         const el = cardSlotRefs.current[i];
         if (!el) return;
         const p = cardPos(rot, i);
+        const zi = String(Math.round(100 - p.ad * 10));
+        el.style.pointerEvents = p.ad <= RING_VIS + 0.5 ? 'auto' : 'none';
         if (IS_MOBILE_WEB && ecoRef.current) {
-          // Eco mode : 2D plat, léger
-          el.style.transform = `translateX(${p.x}px) scale(${p.sc})`;
+          // Eco mode : 2D plat, léger (perspective simulée par l'échelle)
+          const sc = 900 / (900 - p.z);
+          el.style.transform = `translateX(${p.x * sc}px) scale(${sc})`;
           el.style.opacity   = p.op < 0.5 ? '0' : String(p.op);
-          el.style.zIndex    = String(Math.round((p.depth + 1) * 100));
+          el.style.filter    = '';
+          el.style.zIndex    = zi;
         } else {
-          el.style.transform = `translate3d(${p.x}px, ${p.y ?? 0}px, ${p.z}px) scale(${p.sc}) rotateY(${p.ry}deg)`;
+          el.style.transform = `translate3d(${p.x}px, ${p.y ?? 0}px, ${p.z}px) rotateY(${p.ry}deg)`;
           el.style.opacity   = String(p.op);
-          el.style.zIndex    = String(Math.round((p.depth + 1) * 100));
+          el.style.filter    = p.br < 0.999 ? `brightness(${p.br.toFixed(3)})` : '';
+          el.style.zIndex    = zi;
         }
       });
     } else {
@@ -711,6 +782,7 @@ export default function MenuScreen({ navigation }) {
 
   const navigateCard = useCallback((dir) => {
     targetRef.current = Math.round(rotRef.current / STEP) * STEP + dir * STEP;
+    setFlipped({});
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(animate);
   }, [animate]);
@@ -755,12 +827,31 @@ export default function MenuScreen({ navigation }) {
     stageRef.current?.classList.remove('grabbing');
     const dx = Math.abs(e.clientX - webDrag.current.startX);
     if (dx < 6) {
-      const char = characters[getFrontIdx(rotRef.current)];
-      if (char?.available) handleSelectGameRef.current?.(char);
+      // Tap : carte de face → on la retourne ; carte de côté → on l'amène au centre
+      const front = getFrontIdx(rotRef.current);
+      const slot  = e.target?.closest?.('[data-idx]');
+      const idx   = slot ? Number(slot.getAttribute('data-idx')) : front;
+      if (idx === front) {
+        const c = characters[front];
+        if (c) setFlipped(f => ({ [c.id]: !f[c.id] }));
+      } else {
+        goToRef.current?.(idx);
+      }
       return;
     }
     snapToNearest(webDrag.current.vx);
   }, [snapToNearest]);
+
+  // Amène la carte idx de face par le chemin le plus court
+  const goTo = useCallback((idx) => {
+    const k = Math.round((rotRef.current + idx * STEP) / (2 * Math.PI));
+    targetRef.current = -idx * STEP + k * 2 * Math.PI;
+    setFlipped({});
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(animate);
+  }, [animate]);
+  const goToRef = useRef(null);
+  goToRef.current = goTo;
 
   // ── PanResponder (natif) ─────────────────────────────────────────
   const dragStartRot = useRef(0);
@@ -785,12 +876,18 @@ export default function MenuScreen({ navigation }) {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     const onKey = (e) => {
+      const tag = e.target?.tagName;
+      if (tag === 'BUTTON' || tag === 'INPUT' || tag === 'TEXTAREA') return;
       if (e.key === 'ArrowLeft')  navigateCard(+1);
       if (e.key === 'ArrowRight') navigateCard(-1);
       if (e.key === ' ') {
         e.preventDefault();
         const frontChar = characters[getFrontIdx(rotRef.current)];
-        if (frontChar) setFlipped(f => ({ ...f, [frontChar.id]: !f[frontChar.id] }));
+        if (frontChar) setFlipped(f => ({ [frontChar.id]: !f[frontChar.id] }));
+      }
+      if (e.key === 'Enter') {
+        const frontChar = characters[getFrontIdx(rotRef.current)];
+        if (frontChar?.available) handleSelectGameRef.current?.(frontChar);
       }
     };
     window.addEventListener('keydown', onKey);
@@ -817,8 +914,9 @@ export default function MenuScreen({ navigation }) {
     characters.forEach((_, i) => {
       const el = cardSlotRefs.current[i];
       if (el) {
-        el.style.marginLeft = `-${CARD_W / 2 + (IS_MOBILE_WEB ? 18 : 0)}px`;
-        el.style.marginTop  = `-${CARD_H / 2}px`;
+        el.style.marginLeft = `-${CARD_W / 2}px`;
+        // Remonte un peu la carte pour laisser la place au reflet
+        el.style.marginTop  = `-${CARD_H / 2 + Math.round(CARD_H * REFLECT_SHIFT)}px`;
       }
     });
     updateCarousel(0);
@@ -856,16 +954,6 @@ export default function MenuScreen({ navigation }) {
         el.classList.remove('active');
       }
     });
-    // Meta DOM update
-    if (metaIdxRef.current) {
-      metaIdxRef.current.textContent =
-        String(activeIdx + 1).padStart(2, '0') + ' / ' + String(N).padStart(2, '0');
-    }
-    if (metaGameRef.current) {
-      const c = characters[activeIdx];
-      metaGameRef.current.textContent = c?.gameName ?? '';
-      metaGameRef.current.style.color = c?.color ?? '#D4AF37';
-    }
   }, [activeIdx]);
 
   const handleSelectGame = (character) => {
@@ -937,7 +1025,12 @@ export default function MenuScreen({ navigation }) {
 
       {/* ══ CARROUSEL WEB ══ */}
       {Platform.OS === 'web' && (
-        <div style={{ flex: 1, position: 'relative' }}>
+        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+          <div
+            className="sdl-aura"
+            style={{ '--accent': characters[activeIdx]?.color ?? '#D4AF37', width: CARD_W * 2.6, height: CARD_W * 2.6, marginTop: -Math.round(CARD_H * REFLECT_SHIFT) }}
+          />
+          <div className="sdl-floor" style={{ top: `calc(50% + ${Math.round(CARD_H * (0.5 - REFLECT_SHIFT))}px)` }} />
           <div
             ref={stageRef}
             className="sdl-stage"
@@ -948,19 +1041,22 @@ export default function MenuScreen({ navigation }) {
                 key={char.id}
                 ref={(el) => { cardSlotRefs.current[i] = el; }}
                 className="sdl-slot"
+                data-idx={i}
               >
                 <div
                   className={`sdl-flip-card${flipped[char.id] ? ' is-flipped' : ''}`}
                   style={{ width: CARD_W, height: CARD_H }}
+                  role="button"
+                  aria-label={`${char.gameName} — ${char.title}`}
                 >
-                  <ObsidianFront character={char} idx={i} />
-                  {IS_DESKTOP_WEB && <ObsidianBack character={char} />}
+                  <BoosterFront character={char} idx={i} width={CARD_W} className="sdl-front" />
+                  <BoosterBack character={char} idx={i} width={CARD_W} className="sdl-back-face" />
                 </div>
               </div>
             ))}
           </div>
-          <button className="sdl-nav sdl-nav-prev" onClick={() => navigateCard(+1)}>‹</button>
-          <button className="sdl-nav sdl-nav-next" onClick={() => navigateCard(-1)}>›</button>
+          <button className="sdl-nav sdl-nav-prev" aria-label="Jeu précédent" onClick={() => navigateCard(+1)}>‹</button>
+          <button className="sdl-nav sdl-nav-next" aria-label="Jeu suivant" onClick={() => navigateCard(-1)}>›</button>
         </div>
       )}
 
@@ -1002,11 +1098,8 @@ export default function MenuScreen({ navigation }) {
               ref={(el) => { dotsRef.current[i] = el; }}
               className={`sdl-dot${i === 0 ? ' active' : ''}`}
               style={{ width: i === 0 ? 26 : 7, background: i === 0 ? (c.color) : 'rgba(255,255,255,0.20)', '--accent': c.color }}
-              onClick={() => {
-                targetRef.current = -i * STEP;
-                if (rafRef.current) cancelAnimationFrame(rafRef.current);
-                rafRef.current = requestAnimationFrame(animate);
-              }}
+              aria-label={`Aller au jeu ${i + 1}`}
+              onClick={() => goTo(i)}
             />
           ))}
         </div>
@@ -1022,26 +1115,33 @@ export default function MenuScreen({ navigation }) {
       ))}
 
       {/* Meta (web) */}
-      {Platform.OS === 'web' && (
-        <div className="sdl-meta">
-          <div className="sdl-meta-line">
-            <span className="sdl-meta-idx" ref={metaIdxRef}>
-              {String(1).padStart(2, '0')} / {String(N).padStart(2, '0')}
+      {Platform.OS === 'web' && (() => {
+        const c = characters[activeIdx] ?? characters[0];
+        return (
+          <div className="sdl-info">
+            <span className="sdl-info-kicker" ref={metaIdxRef}>
+              N° {String(activeIdx + 1).padStart(2, '0')} · {c.title}
             </span>
-            <span className="sdl-meta-sep">·</span>
-            <span
-              className="sdl-meta-game"
-              ref={metaGameRef}
-              style={{ color: characters[0]?.color }}
+            <span className="sdl-info-title" ref={metaGameRef}>{c.gameName}</span>
+            <div className="sdl-info-chips">
+              <span className="sdl-info-chip">{c.players || '2–12'} joueurs</span>
+              <span className="sdl-info-chip">{c.time || '15 min'}</span>
+            </div>
+            <button
+              className="sdl-play"
+              disabled={!c.available}
+              onClick={() => c.available && handleSelectGame(c)}
             >
-              {characters[0]?.gameName}
+              {c.available ? '▶  JOUER' : 'BIENTÔT'}
+            </button>
+            <span className="sdl-meta-hint">
+              {IS_MOBILE_WEB
+                ? 'glissez pour changer · touchez la carte pour la retourner'
+                : 'cliquer la carte pour la retourner · ← → pour naviguer · entrée pour jouer'}
             </span>
           </div>
-          <span className="sdl-meta-hint">
-            cliquer pour jouer · espace pour retourner · ← → pour naviguer
-          </span>
-        </div>
-      )}
+        );
+      })()}
 
       {Platform.OS === 'web' && IS_MOBILE_WEB && (
         <button
