@@ -41,7 +41,8 @@ export default function ConfessionsGameScreen({ route, navigation }) {
   const [phase, setPhase] = useState('collect'); // collect|vote|reveal|final
 
   const revealAnim = useRef(new Animated.Value(0)).current;
-  const prompt     = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+  // Tirée une seule fois : tous les joueurs répondent à la même question
+  const [prompt]   = useState(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
 
   // ── COLLECT ───────────────────────────────────────────────────────────
   const handleSubmitConfession = () => {
@@ -123,7 +124,8 @@ export default function ConfessionsGameScreen({ route, navigation }) {
         <Text style={styles.collectHint}>Les autres, regardez ailleurs ! 👀</Text>
 
         <View style={[styles.inputCard, { borderColor: ACCENT + '50' }]}>
-          <Text style={styles.inputLabel}>Ta confession :</Text>
+          <Text style={styles.inputLabel}>Complète la phrase :</Text>
+          <Text style={styles.promptText}>{prompt}</Text>
           <TextInput
             value={currentText}
             onChangeText={setCurrentText}
@@ -320,6 +322,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   inputLabel: { fontSize: 12, color: ACCENT_LIGHT, fontWeight: '700', marginBottom: spacing.sm, letterSpacing: 1 },
+  promptText: { fontSize: 18, color: colors.text, fontWeight: '700', marginBottom: spacing.md, lineHeight: 24 },
   confessionInput: {
     color: colors.text, fontSize: 16, minHeight: 90, textAlignVertical: 'top',
     ...Platform.select({ web: { outlineStyle: 'none', resize: 'none' } }),
