@@ -3,6 +3,8 @@ export const DEFI_CATEGORIES = [
   { id: 'social',   name: 'Social',     emoji: '🗣️', color: '#3B82F6' },
   { id: 'hot',      name: 'Questions 🔥', emoji: '🔥', color: '#EF4444' },
   { id: 'creatif',  name: 'Créatif',    emoji: '🎨', color: '#8B5CF6' },
+  // Catégorie explicite : désactivée par défaut, il faut la cocher exprès
+  { id: 'ose',      name: 'Osé 🔞',     emoji: '💋', color: '#DB2777', explicit: true },
 ];
 
 export const DEFIS = [
@@ -111,6 +113,28 @@ export const DEFIS = [
   { id: 54, cat: 'creatif', text: 'Invente une chorégraphie de 15 secondes et enseigne-la aux autres' },
   { id: 55, cat: 'creatif', text: 'Fais un stand-up de 30 secondes sur un sujet imposé par le groupe' },
   { id: 56, cat: 'creatif', text: 'Mime une célébrité connue en 20 secondes (les autres devinent)' },
+
+  // OSÉ 🔞
+  { id: 301, cat: 'ose', text: 'Simule une fellation/un cunnilingus sur une banane ou un fruit pendant 30 secondes' },
+  { id: 302, cat: 'ose', text: 'Déshabille-toi jusqu\'en sous-vêtements et fais un tour de la pièce' },
+  { id: 303, cat: 'ose', text: 'Caresse l\'intérieur de la cuisse d\'un joueur au choix pendant 20 secondes' },
+  { id: 304, cat: 'ose', text: 'Fais un lap dance sensuel sur les genoux d\'un autre joueur' },
+  { id: 305, cat: 'ose', text: 'Embrasse langoureusement le cou et les lèvres d\'un joueur désigné' },
+  { id: 306, cat: 'ose', text: 'Décris en détail ce que tu ferais au joueur à ta droite si vous étiez seuls' },
+  { id: 307, cat: 'ose', text: 'Fais-toi attacher les mains (menottes ou foulard) pendant 5 minutes' },
+  { id: 308, cat: 'ose', text: 'Simule un orgasme de manière réaliste pendant 15 secondes' },
+  { id: 309, cat: 'ose', text: 'Retire un vêtement à un joueur avec les dents uniquement' },
+  { id: 310, cat: 'ose', text: 'Fais un body shot sur le ventre/entre les seins d\'un joueur' },
+  { id: 311, cat: 'ose', text: 'Caresse les fesses d\'un joueur pendant 10 secondes' },
+  { id: 312, cat: 'ose', text: 'Récite un texte érotique tout en caressant ton propre corps' },
+  { id: 313, cat: 'ose', text: 'Embrasse les lèvres intimes d\'un joueur (simulé sur la main)' },
+  { id: 314, cat: 'ose', text: 'Fais-toi bander les yeux et laisse un joueur te toucher où il veut (limites à définir avant)' },
+  { id: 315, cat: 'ose', text: 'Danse de manière suggestive collé(e) à un partenaire choisi' },
+  { id: 316, cat: 'ose', text: 'Laisse un joueur te donner une fessée (3 coups)' },
+  { id: 317, cat: 'ose', text: 'Simule la position du missionnaire avec un joueur, habillés mais avec des mouvements réalistes' },
+  { id: 318, cat: 'ose', text: 'Caresse la poitrine/le sexe d\'un joueur par-dessus les vêtements' },
+  { id: 319, cat: 'ose', text: 'Fais un strip-tease jusqu\'en sous-vêtements sur une musique choisie par le groupe' },
+  { id: 320, cat: 'ose', text: 'Embrasse passionnément la personne que tu trouves la plus attirante ici' },
 ];
 
 export const CONSEQUENCES = [

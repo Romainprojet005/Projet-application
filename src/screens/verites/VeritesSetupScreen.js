@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
+import { VERITES_HOT_JOKER } from '../../data/veritesVoleesData';
 
 const ACCENT       = '#14B8A6';
 const ACCENT_LIGHT = '#99F6E4';
@@ -14,10 +15,15 @@ const ACCENT_DARK  = '#0F766E';
 const MIN_PLAYERS  = 4;
 const MAX_PLAYERS  = 10;
 const ROUND_OPTIONS = [3, 5, 7];
+const MODES = [
+  { id: 'classique', label: '😇 Classique' },
+  { id: 'hot',       label: '🔞 Hot' },
+];
 
 export default function VeritesSetupScreen({ navigation }) {
   const [playerNames, setPlayerNames] = useState(['', '', '', '']);
   const [rounds,      setRounds]      = useState(3);
+  const [mode,        setMode]        = useState('classique');
   const [inputFocus,  setInputFocus]  = useState(null);
 
   const fadeIn  = useRef(new Animated.Value(0)).current;
@@ -40,7 +46,7 @@ export default function VeritesSetupScreen({ navigation }) {
 
   const handleStart = () => {
     if (!canStart) return;
-    navigation.navigate('VeritesGame', { playerNames: validPlayers, rounds });
+    navigation.navigate('VeritesGame', { playerNames: validPlayers, rounds, mode });
   };
 
   return (
@@ -107,6 +113,27 @@ export default function VeritesSetupScreen({ navigation }) {
             )}
             {validPlayers.length >= MIN_PLAYERS && !uniqueNames && (
               <Text style={styles.hint}>Deux joueurs ont le même nom</Text>
+            )}
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>🎚️  Questions</Text>
+            <View style={styles.roundRow}>
+              {MODES.map(m => (
+                <TouchableOpacity
+                  key={m.id}
+                  onPress={() => setMode(m.id)}
+                  style={[styles.roundBtn, mode === m.id && styles.roundBtnActive]}
+                  activeOpacity={0.85}
+                >
+                  <Text style={[styles.roundBtnText, mode === m.id && styles.roundBtnTextActive]}>{m.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {mode === 'hot' && (
+              <Text style={styles.modeNote}>
+                🔞 Questions très indiscrètes, réservées aux adultes.{'\n'}🃏 Joker : {VERITES_HOT_JOKER}
+              </Text>
             )}
           </View>
 
@@ -222,6 +249,7 @@ const styles = StyleSheet.create({
   roundBtnActive:     { backgroundColor: ACCENT + '30', borderColor: ACCENT },
   roundBtnText:       { color: colors.textSecondary, fontSize: 16, fontWeight: '700' },
   roundBtnTextActive: { color: colors.text },
+  modeNote: { fontSize: 12, color: colors.textSecondary, marginTop: spacing.sm, lineHeight: 18 },
 
   launchBtn: {
     borderRadius: radius.full, overflow: 'hidden', marginTop: spacing.lg,

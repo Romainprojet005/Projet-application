@@ -92,6 +92,9 @@ export default function QuiEstLePlusSetupScreen({ navigation }) {
                 );
               })}
             </ScrollView>
+            {QUELPLUS_CATEGORIES.find(c => c.id === categoryId)?.joker && (
+              <Text style={styles.jokerText}>🃏 Joker : {QUELPLUS_CATEGORIES.find(c => c.id === categoryId).joker}</Text>
+            )}
           </View>
 
           <View style={styles.card}>
@@ -261,6 +264,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: `${ACCENT}50`, borderRadius: radius.md, borderStyle: 'dashed',
   },
   addBtnText: { color: ACCENT_LIGHT, fontSize: 13, fontWeight: '600' },
+  jokerText: { fontSize: 12, color: colors.textSecondary, marginTop: spacing.sm, lineHeight: 18 },
   hint: { fontSize: 12, color: colors.textMuted, textAlign: 'center', marginTop: spacing.sm, fontStyle: 'italic' },
 
   summaryCard: { borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1 },

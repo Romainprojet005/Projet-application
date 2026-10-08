@@ -4,6 +4,9 @@ export const QUELPLUS_CATEGORIES = [
   { id: 'perso', name: 'Perso', emoji: '😏', color: '#EC4899' },
   { id: 'courage', name: 'Courage', emoji: '🔥', color: '#EF4444' },
   { id: 'hot', name: 'Hot 🔞', emoji: '🌶️', color: '#DC2626' },
+  // Catégorie explicite : jamais incluse dans « Tous », il faut la choisir exprès
+  { id: 'tres_hot', name: 'Très hot 🔞', emoji: '🔥', color: '#B91C1C', explicit: true,
+    joker: 'Le joueur désigné peut nommer une autre personne à sa place si cette personne accepte de boire un shot.' },
 ];
 
 export const QUELPLUS_PROMPTS = [
@@ -115,12 +118,36 @@ export const QUELPLUS_PROMPTS = [
   { id: 99, text: 'susceptible d\'avoir un crush actuel qu\'il/elle cache à tout le monde', category: 'hot' },
   { id: 100, text: 'le plus susceptible de proposer un french kiss pour un gage', category: 'hot' },
   { id: 101, text: 'susceptible d\'avoir déjà trahi un secret intime d\'un(e) ex par vengeance', category: 'hot' },
+
+  // ── TRÈS HOT 🔞 ──
+  { id: 201, text: 'le plus susceptible de caresser l\'autre sous la table en plein dîner de famille', category: 'tres_hot' },
+  { id: 202, text: 'le plus susceptible de faire l\'amour dans les toilettes d\'un avion', category: 'tres_hot' },
+  { id: 203, text: 'le plus susceptible d\'embrasser passionnément un inconnu ce soir', category: 'tres_hot' },
+  { id: 204, text: 'le plus susceptible de se faire sucer/sucer quelqu\'un en voiture en conduisant', category: 'tres_hot' },
+  { id: 205, text: 'le plus susceptible de faire un striptease complet pour des étrangers', category: 'tres_hot' },
+  { id: 206, text: 'le plus susceptible d\'avoir des relations sur son lieu de travail', category: 'tres_hot' },
+  { id: 207, text: 'le plus susceptible de porter un sex-toy en public et de le laisser contrôler par quelqu\'un d\'autre', category: 'tres_hot' },
+  { id: 208, text: 'le plus susceptible de faire l\'amour avec les menottes attachées au lit', category: 'tres_hot' },
+  { id: 209, text: 'le plus susceptible de se masturber en pensant à quelqu\'un du groupe', category: 'tres_hot' },
+  { id: 210, text: 'le plus susceptible de faire un plan à trois avec deux inconnus', category: 'tres_hot' },
+  { id: 211, text: 'le plus susceptible de faire l\'amour pendant les règles sans aucune gêne', category: 'tres_hot' },
+  { id: 212, text: 'le plus susceptible d\'essayer la double pénétration', category: 'tres_hot' },
+  { id: 213, text: 'le plus susceptible de faire l\'amour dans un club échangiste', category: 'tres_hot' },
+  { id: 214, text: 'le plus susceptible de se faire photographier/filmer pendant l\'acte', category: 'tres_hot' },
+  { id: 215, text: 'le plus susceptible d\'avoir une aventure avec son/sa supérieur(e) hiérarchique', category: 'tres_hot' },
+  { id: 216, text: 'le plus susceptible de faire l\'amour avec quelqu\'un du même sexe pour la première fois', category: 'tres_hot' },
+  { id: 217, text: 'le plus susceptible de pratiquer le BDSM extrême (cravache, cire, etc.)', category: 'tres_hot' },
+  { id: 218, text: 'le plus susceptible d\'avoir des relations avec quelqu\'un de déjà en couple ici', category: 'tres_hot' },
+  { id: 219, text: 'le plus susceptible de faire l\'amour en pleine nature avec le risque d\'être vu', category: 'tres_hot' },
+  { id: 220, text: 'le plus susceptible d\'essayer la sodomie ce soir si l\'occasion se présente', category: 'tres_hot' },
 ];
+
+const EXPLICIT_CATS = new Set(QUELPLUS_CATEGORIES.filter(c => c.explicit).map(c => c.id));
 
 export function selectPrompts(count, categoryId) {
   const filtered =
     categoryId === 'all'
-      ? [...QUELPLUS_PROMPTS]
+      ? QUELPLUS_PROMPTS.filter((p) => !EXPLICIT_CATS.has(p.category))
       : QUELPLUS_PROMPTS.filter((p) => p.category === categoryId);
 
   for (let i = filtered.length - 1; i > 0; i--) {
@@ -135,7 +162,7 @@ let _tripotesUsedIds = new Set();
 
 export function pickPromptAndDecoys(categoryId = 'all') {
   const pool = categoryId === 'all'
-    ? QUELPLUS_PROMPTS
+    ? QUELPLUS_PROMPTS.filter(p => !EXPLICIT_CATS.has(p.category))
     : QUELPLUS_PROMPTS.filter(p => p.category === categoryId);
 
   let available = pool.filter(p => !_tripotesUsedIds.has(p.id));

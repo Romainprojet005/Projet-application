@@ -41,3 +41,29 @@ export const VERITES_PROMPTS = [
   "Mon pire fou rire au mauvais moment, c'était…",
   "Je juge secrètement les gens qui…",
 ];
+
+// Mode Hot 🔞 : questions très indiscrètes, à choisir exprès dans la configuration
+export const VERITES_HOT_PROMPTS = [
+  "Quelle est la taille réelle de ton anatomie intime (ou celle de ton partenaire) ?",
+  "Raconte en détail ton fantasme le plus sombre et inavouable.",
+  "Quelle est la pratique sexuelle que tu refuses catégoriquement mais qui t'intrigue secrètement ?",
+  "As-tu déjà eu une érection/une humidité en voyant quelqu'un ici ce soir ?",
+  "Quel est le nombre exact de partenaires avec qui tu as eu des relations complètes ?",
+  "Décris la dernière fois où tu t'es masturbé(e) et à quoi tu pensais.",
+  "Quel est le membre du groupe avec qui tu coucherais si tu étais obligé(e) de choisir ?",
+  "As-tu déjà eu des relations anales ? Donne les détails.",
+  "Quel est le sex-toy le plus extrême que tu possèdes ou que tu aimerais essayer ?",
+  "Raconte ton expérience de sexe la plus rapide (durée et contexte).",
+  "As-tu déjà fait un plan à plusieurs ? Combien de personnes ?",
+  "Quelle est la chose la plus dégradante que tu aies faite ou aimerais faire au lit ?",
+  "As-tu déjà eu des relations avec quelqu'un beaucoup plus âgé/jeune ? Quel écart d'âge ?",
+  "Décris ta technique préférée pour faire jouir un homme/une femme.",
+  "Quel est ton fantasme à propos de quelqu'un présent dans cette pièce ?",
+  "As-tu déjà fait l'amour sans protection avec un inconnu ?",
+  "Quelle est la partie du corps qui te fait le plus jouir chez l'autre sexe ?",
+  "Raconte une expérience sexuelle dont tu as honte aujourd'hui.",
+  "Quelle pratique sexuelle considères-tu comme ta spécialité ?",
+  "Quel est le lieu public le plus risqué où tu aimerais faire l'amour ?",
+];
+
+export const VERITES_HOT_JOKER = "Bois deux shots d'affilée pour esquiver la question.";

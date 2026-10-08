@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
-import { VERITES_PROMPTS } from '../../data/veritesVoleesData';
+import { VERITES_PROMPTS, VERITES_HOT_PROMPTS, VERITES_HOT_JOKER } from '../../data/veritesVoleesData';
 
 const ACCENT       = '#14B8A6';
 const ACCENT_LIGHT = '#99F6E4';
@@ -23,13 +23,15 @@ const shuffle = (arr) => {
 };
 
 export default function VeritesGameScreen({ route, navigation }) {
-  const { playerNames, rounds = 3 } = route.params;
+  const { playerNames, rounds = 3, mode = 'classique' } = route.params;
   const N = playerNames.length;
+  const isHot = mode === 'hot';
 
   // Une question différente par manche, tirée une fois pour toute la partie
-  const [prompts] = useState(() => shuffle(VERITES_PROMPTS).slice(0, rounds));
+  const [prompts] = useState(() => shuffle(isHot ? VERITES_HOT_PROMPTS : VERITES_PROMPTS).slice(0, rounds));
   const [roundIdx, setRoundIdx] = useState(0);
   const prompt = prompts[roundIdx];
+  const isQuestion = prompt.trim().endsWith('?') || prompt.trim().endsWith('.');
 
   // write|read|discuss|vote|reveal|final — chaque tour de passage commence masqué (handoff)
   const [phase,    setPhase]    = useState('write');
@@ -158,7 +160,7 @@ export default function VeritesGameScreen({ route, navigation }) {
         <Text style={styles.hint}>Dis la vérité, rien que la vérité 🤞</Text>
 
         <View style={[styles.inputCard, { borderColor: ACCENT + '50' }]}>
-          <Text style={styles.inputLabel}>Complète la phrase :</Text>
+          <Text style={styles.inputLabel}>{isQuestion ? 'Réponds en secret :' : 'Complète la phrase :'}</Text>
           <Text style={styles.promptText}>{prompt}</Text>
           <TextInput
             value={currentText}
@@ -172,6 +174,7 @@ export default function VeritesGameScreen({ route, navigation }) {
           />
           <Text style={styles.charCount}>{currentText.length}/160</Text>
         </View>
+        {isHot && <Text style={styles.hint}>🃏 Joker : {VERITES_HOT_JOKER}</Text>}
 
         <TouchableOpacity
           onPress={handleSubmitTruth}

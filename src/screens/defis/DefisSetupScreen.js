@@ -19,7 +19,7 @@ export default function DefisSetupScreen({ navigation }) {
   const [roundCount,       setRoundCount]       = useState(10);
   const [playerNames,      setPlayerNames]      = useState(['', '', '']);
   const [inputFocus,       setInputFocus]       = useState(null);
-  const [activeCategories, setActiveCategories] = useState(DEFI_CATEGORIES.map(c => c.id));
+  const [activeCategories, setActiveCategories] = useState(DEFI_CATEGORIES.filter(c => !c.explicit).map(c => c.id));
 
   const fadeIn  = useRef(new Animated.Value(0)).current;
   const slideUp = useRef(new Animated.Value(40)).current;
@@ -113,6 +113,11 @@ export default function DefisSetupScreen({ navigation }) {
             </View>
             {activeCategories.length === 0 && (
               <Text style={styles.hint}>Sélectionne au moins une catégorie</Text>
+            )}
+            {activeCategories.includes('ose') && (
+              <Text style={styles.oseText}>
+                🔞 Défis osés : réservés aux adultes. Tout défi qui implique un autre joueur se fait avec son accord — chacun peut refuser et prendre la conséquence.
+              </Text>
             )}
           </View>
 
@@ -270,6 +275,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: `${ACCENT}50`, borderRadius: radius.md, borderStyle: 'dashed',
   },
   addBtnText: { color: ACCENT_LIGHT, fontSize: 13, fontWeight: '600' },
+  oseText: { fontSize: 12, color: '#F9A8D4', marginTop: spacing.sm, lineHeight: 18 },
   hint: { fontSize: 12, color: colors.textMuted, textAlign: 'center', marginTop: spacing.sm, fontStyle: 'italic' },
 
   summaryCard:  { borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1 },
