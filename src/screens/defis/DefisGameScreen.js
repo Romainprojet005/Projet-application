@@ -125,6 +125,7 @@ export default function DefisGameScreen({ route, navigation }) {
 
         <Animated.View style={[styles.challengeCard, { opacity: cardAnim, transform: [{ scale: cardAnim }] }]}>
           <Text style={styles.challengeText}>{currentChallenge?.text}</Text>
+          {catInfo?.joker && <Text style={styles.jokerText}>🃏 Joker : {catInfo.joker}</Text>}
         </Animated.View>
 
         <View style={styles.actionRow}>
@@ -248,6 +249,7 @@ const styles = StyleSheet.create({
     shadowColor: ACCENT, shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.25, shadowRadius: 14, elevation: 8,
   },
+  jokerText: { fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 12, textAlign: 'center' },
   challengeText: {
     fontSize: 20, fontWeight: '700', color: colors.text,
     textAlign: 'center', lineHeight: 30,

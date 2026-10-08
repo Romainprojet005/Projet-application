@@ -4,7 +4,8 @@ export const DEFI_CATEGORIES = [
   { id: 'hot',      name: 'Questions 🔥', emoji: '🔥', color: '#EF4444' },
   { id: 'creatif',  name: 'Créatif',    emoji: '🎨', color: '#8B5CF6' },
   // Catégorie explicite : désactivée par défaut, il faut la cocher exprès
-  { id: 'ose',      name: 'Osé 🔞',     emoji: '💋', color: '#DB2777', explicit: true },
+  { id: 'ose',      name: 'Osé 🔞',     emoji: '💋', color: '#DB2777', explicit: true,
+    joker: 'Choisis un autre joueur pour faire le défi à ta place.' },
 ];
 
 export const DEFIS = [

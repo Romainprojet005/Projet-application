@@ -6,7 +6,13 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
-import { VERITES_PROMPTS, VERITES_HOT_PROMPTS, VERITES_HOT_JOKER } from '../../data/veritesVoleesData';
+import { VERITES_PROMPTS, VERITES_HOT_PROMPTS, VERITES_TRES_HOT_PROMPTS, VERITES_HOT_JOKER } from '../../data/veritesVoleesData';
+
+const PROMPTS_BY_MODE = {
+  classique: VERITES_PROMPTS,
+  hot:       VERITES_HOT_PROMPTS,
+  tres_hot:  VERITES_TRES_HOT_PROMPTS,
+};
 
 const ACCENT       = '#14B8A6';
 const ACCENT_LIGHT = '#99F6E4';
@@ -25,10 +31,10 @@ const shuffle = (arr) => {
 export default function VeritesGameScreen({ route, navigation }) {
   const { playerNames, rounds = 3, mode = 'classique' } = route.params;
   const N = playerNames.length;
-  const isHot = mode === 'hot';
+  const isHot = mode !== 'classique';
 
   // Une question différente par manche, tirée une fois pour toute la partie
-  const [prompts] = useState(() => shuffle(isHot ? VERITES_HOT_PROMPTS : VERITES_PROMPTS).slice(0, rounds));
+  const [prompts] = useState(() => shuffle(PROMPTS_BY_MODE[mode] ?? VERITES_PROMPTS).slice(0, rounds));
   const [roundIdx, setRoundIdx] = useState(0);
   const prompt = prompts[roundIdx];
   const isQuestion = prompt.trim().endsWith('?') || prompt.trim().endsWith('.');

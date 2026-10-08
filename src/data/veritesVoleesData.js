@@ -42,8 +42,32 @@ export const VERITES_PROMPTS = [
   "Je juge secrètement les gens qui…",
 ];
 
-// Mode Hot 🔞 : questions très indiscrètes, à choisir exprès dans la configuration
+// Mode Hot 🌶️ : questions indiscrètes, à choisir exprès dans la configuration
 export const VERITES_HOT_PROMPTS = [
+  "Quelle est la partie du corps qui t'excite le plus chez quelqu'un du sexe opposé ?",
+  "Raconte ton fantasme le plus récurrent.",
+  "Quelle est la chose la plus osée que tu aies faite en public ?",
+  "As-tu déjà eu des pensées coquines sur quelqu'un présent dans cette pièce ?",
+  "Quel est ton surnom dans l'intimité (ou celui que tu aimerais avoir) ?",
+  "Décris ta position préférée en 3 mots.",
+  "Quel est le lieu le plus insolite où tu as fait l'amour ?",
+  "As-tu déjà envoyé des photos intimes ? À qui ?",
+  "Quelle est ta plus grande frustration sexuelle actuelle ?",
+  "Quel accessoire te tente mais que tu n'as jamais osé essayer ?",
+  "As-tu déjà simulé l'orgasme ? Pourquoi ?",
+  "Quel est ton film/série érotique préféré ?",
+  "Décris ton premier baiser en détail.",
+  "Quelle est la chose la plus embarrassante qui t'est arrivée au lit ?",
+  "As-tu déjà eu une aventure d'un soir ?",
+  "Quel âge avais-tu pour ton premier rapport ?",
+  "Quel est ton préliminaire préféré ?",
+  "As-tu déjà été attiré(e) par le/la partenaire d'un(e) ami(e) ?",
+  "Quelle est ta plus grande qualité au lit selon toi ?",
+  "Quelle est la chose la plus folle que tu aimerais essayer ?",
+];
+
+// Mode Très hot 🔞 : questions très indiscrètes
+export const VERITES_TRES_HOT_PROMPTS = [
   "Quelle est la taille réelle de ton anatomie intime (ou celle de ton partenaire) ?",
   "Raconte en détail ton fantasme le plus sombre et inavouable.",
   "Quelle est la pratique sexuelle que tu refuses catégoriquement mais qui t'intrigue secrètement ?",

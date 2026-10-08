@@ -17,7 +17,8 @@ const MAX_PLAYERS  = 10;
 const ROUND_OPTIONS = [3, 5, 7];
 const MODES = [
   { id: 'classique', label: '😇 Classique' },
-  { id: 'hot',       label: '🔞 Hot' },
+  { id: 'hot',       label: '🌶️ Hot' },
+  { id: 'tres_hot',  label: '🔞 Très hot' },
 ];
 
 export default function VeritesSetupScreen({ navigation }) {
@@ -130,9 +131,9 @@ export default function VeritesSetupScreen({ navigation }) {
                 </TouchableOpacity>
               ))}
             </View>
-            {mode === 'hot' && (
+            {mode !== 'classique' && (
               <Text style={styles.modeNote}>
-                🔞 Questions très indiscrètes, réservées aux adultes.{'\n'}🃏 Joker : {VERITES_HOT_JOKER}
+                🔞 Questions {mode === 'tres_hot' ? 'très ' : ''}indiscrètes, réservées aux adultes. On répond honnêtement… ou on utilise son joker.{'\n'}🃏 Joker : {VERITES_HOT_JOKER}
               </Text>
             )}
           </View>

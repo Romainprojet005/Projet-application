@@ -7,6 +7,8 @@ export const VOTE_CATEGORIES = [
   { id: 'cEstPlutot', name: "C'est plutôt...",  emoji: '🪞', color: '#06B6D4' },
   { id: 'debat',      name: 'Débat',            emoji: '🔥', color: '#EF4444' },
   { id: 'adulte',     name: 'Mode Adulte 🔞',   emoji: '🍷', color: '#9333EA' },
+  { id: 'majorite',   name: 'Majorité 🔞',      emoji: '🗳️', color: '#BE123C', needsPlayers: true,
+    rule: 'Le joueur désigné par la majorité boit ou accepte un gage.' },
 ];
 
 const QUESTIONS = {
@@ -418,6 +420,29 @@ const QUESTIONS = {
     { id: 38, q: 'Tu préfères…', a: '🍑  Avoir 3 nuits folles avec un inconnu', b: '❤️  1 mois de tendresse avec l\'amour de ta vie' },
     { id: 39, q: 'Pour ou contre le coup d\'un soir sans lendemain ?',           a: '✅  Pour', b: '❌  Contre' },
     { id: 40, q: 'Pour ou contre partager son téléphone avec son/sa partenaire ?', a: '✅  Pour', b: '❌  Contre' },
+  ],
+
+  majorite: [
+    { id: 1, q: 'Entre {A} et {B}, qui est le/la plus susceptible de coucher avec un inconnu ce soir ?', a: '🌙  {A}', b: '🌙  {B}', targeted: true },
+    { id: 2, q: 'Entre {A} et {B}, qui est le/la plus sexy selon vous ?', a: '🔥  {A}', b: '🔥  {B}', targeted: true },
+    { id: 3, q: 'Entre {A} et {B}, qui est le/la plus susceptible d\'envoyer des nudes maintenant ?', a: '📸  {A}', b: '📸  {B}', targeted: true },
+    { id: 4, q: 'Entre {A} et {B}, qui a le plus d\'expérience au lit ?', a: '🛏️  {A}', b: '🛏️  {B}', targeted: true },
+    { id: 5, q: 'Entre {A} et {B}, qui ferait le meilleur strip-tease professionnel ?', a: '💃  {A}', b: '💃  {B}', targeted: true },
+    { id: 6, q: 'Entre {A} et {B}, qui est le/la plus coquin(e) du groupe ?', a: '😏  {A}', b: '😏  {B}', targeted: true },
+    { id: 7, q: 'Entre {A} et {B}, qui est le/la plus susceptible d\'avoir un plan à trois ?', a: '😈  {A}', b: '😈  {B}', targeted: true },
+    { id: 8, q: 'Entre {A} et {B}, qui embrasse le mieux selon vous ?', a: '💋  {A}', b: '💋  {B}', targeted: true },
+    { id: 9, q: 'Entre {A} et {B}, qui est le/la plus susceptible de s\'envoyer en l\'air au travail ?', a: '💼  {A}', b: '💼  {B}', targeted: true },
+    { id: 10, q: 'Entre {A} et {B}, qui a le plus de secrets coquins ?', a: '🤫  {A}', b: '🤫  {B}', targeted: true },
+    { id: 11, q: 'Entre {A} et {B}, qui draguerait le serveur/la serveuse ce soir ?', a: '🍸  {A}', b: '🍸  {B}', targeted: true },
+    { id: 12, q: 'Entre {A} et {B}, qui est le/la plus exhibitionniste ?', a: '👀  {A}', b: '👀  {B}', targeted: true },
+    { id: 13, q: 'Entre {A} et {B}, qui utilise des applis de rencontre pour du sexe ?', a: '📱  {A}', b: '📱  {B}', targeted: true },
+    { id: 14, q: 'Entre {A} et {B}, qui a le plus de fantasmes inavoués ?', a: '💭  {A}', b: '💭  {B}', targeted: true },
+    { id: 15, q: 'Entre {A} et {B}, qui ferait l\'amour dans des toilettes publiques ?', a: '🚻  {A}', b: '🚻  {B}', targeted: true },
+    { id: 16, q: 'Entre {A} et {B}, qui est le/la plus dominateur/dominatrice ?', a: '⛓️  {A}', b: '⛓️  {B}', targeted: true },
+    { id: 17, q: 'Entre {A} et {B}, qui est le/la plus susceptible d\'avoir une liaison secrète ?', a: '🕵️  {A}', b: '🕵️  {B}', targeted: true },
+    { id: 18, q: 'Entre {A} et {B}, qui est le/la plus joueur/joueuse au lit ?', a: '🎲  {A}', b: '🎲  {B}', targeted: true },
+    { id: 19, q: 'Entre {A} et {B}, qui ferait un film coquin amateur ?', a: '🎥  {A}', b: '🎥  {B}', targeted: true },
+    { id: 20, q: 'Entre {A} et {B}, qui est le/la plus susceptible de tout lâcher pour une nuit torride ?', a: '🌶️  {A}', b: '🌶️  {B}', targeted: true },
   ],
 };
 

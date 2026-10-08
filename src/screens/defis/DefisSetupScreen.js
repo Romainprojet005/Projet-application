@@ -116,7 +116,7 @@ export default function DefisSetupScreen({ navigation }) {
             )}
             {activeCategories.includes('ose') && (
               <Text style={styles.oseText}>
-                🔞 Défis osés : réservés aux adultes. Tout défi qui implique un autre joueur se fait avec son accord — chacun peut refuser et prendre la conséquence.
+                🔞 Défis osés : réservés aux adultes. Tout défi qui implique un autre joueur se fait avec son accord — chacun peut refuser et prendre la conséquence.{'\n'}🃏 Joker : {DEFI_CATEGORIES.find(c => c.id === 'ose').joker}
               </Text>
             )}
           </View>

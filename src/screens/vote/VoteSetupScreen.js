@@ -95,6 +95,7 @@ export default function VoteSetupScreen({ navigation }) {
                 );
               })}
             </ScrollView>
+            {activeCat.rule && <Text style={styles.ruleText}>🍻 {activeCat.rule}</Text>}
           </View>
 
           <View style={styles.card}>
@@ -280,6 +281,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: `${VOTE_COLOR}50`, borderRadius: radius.md, borderStyle: 'dashed',
   },
   addBtnText: { color: VOTE_LIGHT, fontSize: 13, fontWeight: '600' },
+  ruleText: { fontSize: 12, color: colors.textSecondary, marginTop: spacing.sm, lineHeight: 18 },
   hint: { fontSize: 12, color: colors.textMuted, textAlign: 'center', marginTop: spacing.sm, fontStyle: 'italic' },
 
   summaryCard: { borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1 },
