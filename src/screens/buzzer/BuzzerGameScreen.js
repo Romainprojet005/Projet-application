@@ -155,10 +155,13 @@ export default function BuzzerGameScreen({ navigation, route }) {
             })}
           </View>
 
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.retourBtn} activeOpacity={0.88}>
+          <TouchableOpacity onPress={() => navigation.replace(route.name, route.params)} style={styles.retourBtn} activeOpacity={0.88}>
             <LinearGradient colors={[BUZZ_COLOR, BUZZ_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.retourGradient}>
-              <Text style={styles.retourText}>← Retour au menu</Text>
+              <Text style={styles.retourText}>🔄  Rejouer</Text>
             </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.menuLink} activeOpacity={0.8}>
+            <Text style={styles.menuLinkText}>← Retour au menu</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -493,4 +496,6 @@ const styles = StyleSheet.create({
   },
   retourGradient: { paddingVertical: spacing.md + 4, alignItems: 'center' },
   retourText:     { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 1 },
+  menuLink:       { marginTop: spacing.md, paddingVertical: spacing.sm },
+  menuLinkText:   { fontSize: 14, fontWeight: '600', color: 'rgba(255,255,255,0.7)' },
 });

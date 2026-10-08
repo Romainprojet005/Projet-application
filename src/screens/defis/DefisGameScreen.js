@@ -192,7 +192,7 @@ export default function DefisGameScreen({ route, navigation }) {
         })}
 
         <View style={styles.finalBtns}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.replayBtn} activeOpacity={0.85}>
+          <TouchableOpacity onPress={() => navigation.replace(route.name, route.params)} style={styles.replayBtn} activeOpacity={0.85}>
             <Text style={styles.replayBtnText}>🔄 Rejouer</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.menuBtn} activeOpacity={0.85}>

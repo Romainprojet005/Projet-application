@@ -281,9 +281,9 @@ export default function CineFlashGameScreen({ navigation, route }) {
             ))}
           </View>
 
-          <TouchableOpacity onPress={() => navigation.navigate('CineFlashSetup')} style={styles.replayBtn}>
+          <TouchableOpacity onPress={() => navigation.replace(route.name, route.params)} style={styles.replayBtn}>
             <LinearGradient colors={[CIN, CIN_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.replayGradient}>
-              <Text style={styles.replayText}>🎬  Nouvelle partie</Text>
+              <Text style={styles.replayText}>🔄  Rejouer</Text>
             </LinearGradient>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.menuBtn}>

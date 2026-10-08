@@ -190,7 +190,7 @@ export default function OracleGameScreen({ route, navigation }) {
               </LinearGradient>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate('OracleSetup')}
+              onPress={() => navigation.replace(route.name, route.params)}
               style={styles.replayBtn}
               activeOpacity={0.8}
             >

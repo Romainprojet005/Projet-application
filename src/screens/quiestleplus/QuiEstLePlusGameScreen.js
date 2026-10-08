@@ -113,7 +113,7 @@ export default function QuiEstLePlusGameScreen({ route, navigation }) {
               </LinearGradient>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate('QuiEstLePlusSetup')}
+              onPress={() => navigation.replace(route.name, route.params)}
               style={styles.replayBtn}
               activeOpacity={0.8}
             >

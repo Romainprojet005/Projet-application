@@ -18,7 +18,7 @@ const TIMER_OPTIONS = [30, 60, 90];
 const WORDS_OPTIONS = [20, 30, 40];
 const MAX_PLAYERS = 8;
 
-export default function MotDePasseSetupScreen({ navigation }) {
+export default function MotDePasseSetupScreen({ navigation, route }) {
   const [players,    setPlayers]    = useState(['', '']);
   const [timerSecs,  setTimerSecs]  = useState(60);
   const [wordCount,  setWordCount]  = useState(30);
@@ -55,6 +55,14 @@ export default function MotDePasseSetupScreen({ navigation }) {
 
   const canStart = players.every(p => p.trim().length > 0);
   const turnsEst = Math.ceil(wordCount / players.length);
+
+  // « Rejouer » depuis la fin de partie : relance aussitôt avec les mêmes réglages
+  const replayToken = route?.params?.replay;
+  useEffect(() => {
+    if (!replayToken) return;
+    navigation.setParams({ replay: undefined });
+    handleStart();
+  }, [replayToken]);
 
   return (
     <LinearGradient colors={BG} style={styles.container}>

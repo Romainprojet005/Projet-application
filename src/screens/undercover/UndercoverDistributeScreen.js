@@ -76,7 +76,7 @@ function distributeRoles(playerCount, wordPair, undercoverCount, hasMrWhite) {
 }
 
 // --- Game board screen ---
-function GameBoardScreen({ roles, onBackToMenu }) {
+function GameBoardScreen({ roles, onBackToMenu, onReplay }) {
   const [eliminated, setEliminated] = useState(new Set());
   const [modalIdx, setModalIdx]     = useState(null);
   const [winner, setWinner]         = useState(null); // null | 'spies' | 'civilians'
@@ -291,6 +291,9 @@ function GameBoardScreen({ roles, onBackToMenu }) {
               >
                 <Text style={styles.gbConfirmBtnText}>🏠  Retour au menu</Text>
               </TouchableOpacity>
+              <TouchableOpacity onPress={onReplay} style={styles.gbReplayBtn} activeOpacity={0.85}>
+                <Text style={styles.gbConfirmBtnText}>🔄  Rejouer</Text>
+              </TouchableOpacity>
             </LinearGradient>
           </View>
         </View>
@@ -345,6 +348,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
       <GameBoardScreen
         roles={roles}
         onBackToMenu={() => navigation.navigate('Menu')}
+        onReplay={() => navigation.navigate('UndercoverSetup', { replay: Date.now() })}
       />
     );
   }
@@ -807,6 +811,11 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   gbConfirmBtnText: { fontSize: 14, fontWeight: '800', color: colors.text },
+  gbReplayBtn: {
+    borderRadius: radius.full, paddingVertical: spacing.md, paddingHorizontal: spacing.xl,
+    marginTop: spacing.md, width: '100%', alignItems: 'center',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)', backgroundColor: 'rgba(255,255,255,0.08)',
+  },
   gbCancelBtn: { marginTop: spacing.md, paddingVertical: spacing.sm },
   gbCancelBtnText: { fontSize: 13, color: colors.textMuted },
 

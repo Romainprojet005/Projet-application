@@ -24,7 +24,7 @@ const usedPairsPerTheme = {};
 const MIN_PLAYERS = 3;
 const MAX_PLAYERS = 12;
 
-export default function UndercoverSetupScreen({ navigation }) {
+export default function UndercoverSetupScreen({ navigation, route }) {
   const [playerCount, setPlayerCount] = useState(5);
   const [undercoverCount, setUndercoverCount] = useState(1);
   const [hasMrWhite, setHasMrWhite] = useState(false);
@@ -86,6 +86,14 @@ export default function UndercoverSetupScreen({ navigation }) {
       themeName: wordThemes[selectedTheme].label,
     });
   };
+
+  // « Rejouer » depuis la fin de partie : relance aussitôt avec les mêmes réglages
+  const replayToken = route?.params?.replay;
+  useEffect(() => {
+    if (!replayToken) return;
+    navigation.setParams({ replay: undefined });
+    handleStart();
+  }, [replayToken]);
 
   return (
     <LinearGradient colors={OB_BG} style={styles.container}>

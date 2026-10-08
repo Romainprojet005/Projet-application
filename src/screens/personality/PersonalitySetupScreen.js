@@ -23,7 +23,7 @@ function shuffleTiles(n) {
   return arr;
 }
 
-export default function PersonalitySetupScreen({ navigation }) {
+export default function PersonalitySetupScreen({ navigation, route }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
 
@@ -79,6 +79,14 @@ export default function PersonalitySetupScreen({ navigation }) {
     { key: 'international', label: 'International',  emoji: '🌍' },
     { key: 'francais',      label: 'Français',       emoji: '🇫🇷' },
   ];
+
+  // « Rejouer » depuis la fin de partie : relance aussitôt avec les mêmes réglages
+  const replayToken = route?.params?.replay;
+  useEffect(() => {
+    if (!replayToken) return;
+    navigation.setParams({ replay: undefined });
+    handleLaunch();
+  }, [replayToken]);
 
   return (
     <LinearGradient colors={BG} style={styles.container}>

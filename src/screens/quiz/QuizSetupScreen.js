@@ -19,7 +19,7 @@ const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 8;
 const QUESTION_OPTIONS = [5, 10, 15];
 
-export default function QuizSetupScreen({ navigation }) {
+export default function QuizSetupScreen({ navigation, route }) {
   const [playerCount, setPlayerCount] = useState(3);
   const [selectedCategories, setSelectedCategories] = useState(['culture', 'cinema']);
   const [questionCount, setQuestionCount] = useState(10);
@@ -63,6 +63,14 @@ export default function QuizSetupScreen({ navigation }) {
   };
 
   const canStart = selectedCategories.length > 0 && effectiveCount > 0;
+
+  // « Rejouer » depuis la fin de partie : relance aussitôt avec les mêmes réglages
+  const replayToken = route?.params?.replay;
+  useEffect(() => {
+    if (!replayToken) return;
+    navigation.setParams({ replay: undefined });
+    handleStart();
+  }, [replayToken]);
 
   return (
     <LinearGradient colors={OB_BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>

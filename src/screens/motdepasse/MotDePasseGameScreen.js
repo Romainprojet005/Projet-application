@@ -197,7 +197,7 @@ export default function MotDePasseGameScreen({ navigation, route }) {
     return (
       <FinalScreen
         players={players} scores={scores}
-        onPlayAgain={() => navigation.replace('MotDePasseSetup')}
+        onPlayAgain={() => navigation.navigate('MotDePasseSetup', { replay: Date.now() })}
         onMenu={() => navigation.navigate('Menu')}
       />
     );

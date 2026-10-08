@@ -332,7 +332,7 @@ export default function QuizGameScreen({ navigation, route }) {
       <FinalScreen
         players={players}
         scores={scores}
-        onPlayAgain={() => navigation.replace('QuizSetup')}
+        onPlayAgain={() => navigation.navigate('QuizSetup', { replay: Date.now() })}
         onMenu={() => navigation.navigate('Menu')}
       />
     );

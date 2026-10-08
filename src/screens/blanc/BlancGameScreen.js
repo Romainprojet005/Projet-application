@@ -162,6 +162,11 @@ export default function BlancGameScreen({ navigation, route }) {
               <Text style={styles.mainBtnText}>🏠 Retour au menu</Text>
             </LinearGradient>
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('BlancSetup', { replay: Date.now() })} style={{ marginTop: spacing.md }}>
+            <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
+              <Text style={styles.mainBtnText}>🔄 Rejouer</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </ScrollView>
       </LinearGradient>
     );

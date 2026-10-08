@@ -342,7 +342,7 @@ export default function VoteGameScreen({ route, navigation }) {
                 <Text style={styles.mainBtnText}>🏠  Retour au menu</Text>
               </LinearGradient>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('VoteSetup')} style={styles.replayBtn}>
+            <TouchableOpacity onPress={() => navigation.replace(route.name, route.params)} style={styles.replayBtn}>
               <Text style={styles.replayText}>↺  Rejouer</Text>
             </TouchableOpacity>
 

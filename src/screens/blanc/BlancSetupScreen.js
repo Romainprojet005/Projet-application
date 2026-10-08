@@ -12,7 +12,7 @@ import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '
 const PRP       = colors.primary;
 const PRP_LIGHT = colors.primaryLight;
 
-export default function BlancSetupScreen({ navigation }) {
+export default function BlancSetupScreen({ navigation, route }) {
   const fadeAnim  = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
 
@@ -53,6 +53,14 @@ export default function BlancSetupScreen({ navigation }) {
     { id: 'classique', emoji: '🃏', name: 'Classique', desc: 'Tout public' },
     { id: 'adulte',    emoji: '🔞', name: 'Adulte',    desc: '18+ sans filtre' },
   ];
+
+  // « Rejouer » depuis la fin de partie : relance aussitôt avec les mêmes réglages
+  const replayToken = route?.params?.replay;
+  useEffect(() => {
+    if (!replayToken) return;
+    navigation.setParams({ replay: undefined });
+    handleLaunch();
+  }, [replayToken]);
 
   return (
     <LinearGradient colors={OB_BG} style={styles.container}>

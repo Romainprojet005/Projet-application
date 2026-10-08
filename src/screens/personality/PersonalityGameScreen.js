@@ -486,7 +486,7 @@ function ResultsScreen({ players, scores, rounds, navigation }) {
 
           {/* Replay */}
           <TouchableOpacity
-            onPress={() => navigation.replace('PersonalitySetup')}
+            onPress={() => navigation.navigate('PersonalitySetup', { replay: Date.now() })}
             style={{ marginBottom: spacing.md }}
           >
             <LinearGradient

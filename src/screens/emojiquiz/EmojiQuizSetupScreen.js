@@ -17,7 +17,7 @@ const BG        = OB_BG;
 const ROUND_OPTIONS = [5, 10, 15, 20];
 const MAX_PLAYERS = 8;
 
-export default function EmojiQuizSetupScreen({ navigation }) {
+export default function EmojiQuizSetupScreen({ navigation, route }) {
   const [players, setPlayers] = useState(['', '']);
   const [questionCount, setQuestionCount] = useState(10);
   const [selectedCats, setSelectedCats] = useState(['film', 'musique', 'serie', 'personnalite', 'jeu_video']);
@@ -60,6 +60,14 @@ export default function EmojiQuizSetupScreen({ navigation }) {
   };
 
   const canStart = players.every(p => p.trim().length > 0) && selectedCats.length > 0;
+
+  // « Rejouer » depuis la fin de partie : relance aussitôt avec les mêmes réglages
+  const replayToken = route?.params?.replay;
+  useEffect(() => {
+    if (!replayToken) return;
+    navigation.setParams({ replay: undefined });
+    handleStart();
+  }, [replayToken]);
 
   return (
     <LinearGradient colors={BG} style={styles.container}>

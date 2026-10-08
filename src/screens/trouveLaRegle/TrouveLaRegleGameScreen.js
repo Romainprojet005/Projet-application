@@ -122,9 +122,9 @@ export default function TrouveLaRegleGameScreen({ navigation, route }) {
                 </View>
               ))}
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('TrouveLaRegleSetup')} style={styles.replayBtn}>
+            <TouchableOpacity onPress={() => navigation.replace(route.name, route.params)} style={styles.replayBtn}>
               <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.replayGrad}>
-                <Text style={styles.replayText}>🕵️  Nouvelle enquête</Text>
+                <Text style={styles.replayText}>🔄  Rejouer</Text>
               </LinearGradient>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.menuBtn}>

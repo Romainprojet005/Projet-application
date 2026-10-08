@@ -230,7 +230,7 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
     return (
       <FinalScreen
         players={players} scores={scores}
-        onPlayAgain={() => navigation.replace('EmojiQuizSetup')}
+        onPlayAgain={() => navigation.navigate('EmojiQuizSetup', { replay: Date.now() })}
         onMenu={() => navigation.navigate('Menu')}
       />
     );
