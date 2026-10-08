@@ -294,6 +294,27 @@ export const characters = [
     },
   },
   {
+    id: 'verites',
+    name: 'Pinocchio',
+    emoji: '🤥',
+    title: 'Maître des Vérités Volées',
+    description:
+      'Tout le monde dit la vérité… mais pas toujours la sienne ! Chacun complète la même phrase en secret, puis le jeu échange les vérités de 2 joueurs. À eux de bluffer pour ne pas se faire démasquer au vote final !',
+    catchphrase: '"Tout est vrai… mais pas forcément à toi."',
+    color: '#14B8A6',
+    gradientColors: ['#002620', '#003D35'],
+    game: 'verites',
+    gameName: 'VÉRITÉS VOLÉES',
+    players: '4–10',
+    time: '20 min',
+    available: true,
+    stats: {
+      Bluff: 99,
+      Vérité: 94,
+      Suspicion: 91,
+    },
+  },
+  {
     id: 'defis',
     name: 'Le Bouffon',
     emoji: '🃏',

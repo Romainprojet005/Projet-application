@@ -47,6 +47,8 @@ import TrouveLaRegleSetupScreen from '../screens/trouveLaRegle/TrouveLaRegleSetu
 import TrouveLaRegleGameScreen from '../screens/trouveLaRegle/TrouveLaRegleGameScreen';
 import ConfessionsSetupScreen from '../screens/confessions/ConfessionsSetupScreen';
 import ConfessionsGameScreen from '../screens/confessions/ConfessionsGameScreen';
+import VeritesSetupScreen from '../screens/verites/VeritesSetupScreen';
+import VeritesGameScreen from '../screens/verites/VeritesGameScreen';
 import DefisSetupScreen from '../screens/defis/DefisSetupScreen';
 import DefisGameScreen from '../screens/defis/DefisGameScreen';
 import BlancSetupScreen from '../screens/blanc/BlancSetupScreen';
@@ -122,6 +124,8 @@ const linking = {
       TrouveLaRegleGame: 'trouvelaregle/game',
       ConfessionsSetup: 'confessions',
       ConfessionsGame: 'confessions/game',
+      VeritesSetup: 'verites',
+      VeritesGame: 'verites/game',
       DefisSetup: 'defis',
       DefisGame: 'defis/game',
       BlancSetup: 'blanc',
@@ -202,6 +206,8 @@ export default function AppNavigator() {
         <Stack.Screen name="TrouveLaRegleGame" component={TrouveLaRegleGameScreen} />
         <Stack.Screen name="ConfessionsSetup" component={ConfessionsSetupScreen} />
         <Stack.Screen name="ConfessionsGame" component={ConfessionsGameScreen} />
+        <Stack.Screen name="VeritesSetup" component={VeritesSetupScreen} />
+        <Stack.Screen name="VeritesGame" component={VeritesGameScreen} />
         <Stack.Screen name="DefisSetup" component={DefisSetupScreen} />
         <Stack.Screen name="DefisGame" component={DefisGameScreen} />
         <Stack.Screen name="BlancSetup" component={BlancSetupScreen} />

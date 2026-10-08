@@ -1010,6 +1010,7 @@ export default function MenuScreen({ navigation }) {
       quiestleplus: 'QuiEstLePlusSetup', oracle: 'OracleSetup',
       trouveLaRegle: 'TrouveLaRegleSetup',
       confessions: 'ConfessionsSetup',
+      verites: 'VeritesSetup',
       defis: 'DefisSetup',
       blanc_manger: 'BlancSetup',
       tripotes: 'TriPotesSetup',
