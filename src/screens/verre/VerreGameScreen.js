@@ -18,8 +18,13 @@ function rotate(arr, start) {
 }
 
 export default function VerreGameScreen({ route, navigation }) {
-  const { playerNames } = route.params;
+  const { playerNames, mode = 'classique' } = route.params;
   const n = playerNames.length;
+  const isElim = mode === 'battleRoyale';
+
+  // Joueurs encore en lice (indices) et ordre des éliminations (mode Battle Royale)
+  const [alive,         setAlive]         = useState(() => [...playerNames.keys()]);
+  const [eliminated,    setEliminated]    = useState([]);
 
   const [mancheIdx,     setMancheIdx]     = useState(1);
   const [toursMax,      setToursMax]      = useState(() => randomTours());
@@ -51,7 +56,7 @@ export default function VerreGameScreen({ route, navigation }) {
     setPeekRevealed(true);
   };
   const handlePeekNext = () => {
-    if (peekIdx + 1 >= n) {
+    if (peekIdx + 1 >= alive.length) {
       setPhase('table');
     } else {
       setPeekIdx(i => i + 1);
@@ -87,8 +92,8 @@ export default function VerreGameScreen({ route, navigation }) {
     const newLapsCompleted = lapsCompleted + 1;
 
     if (newLapsCompleted >= toursMax) {
-      let minIdx = 0;
-      for (let i = 1; i < cards.length; i++) if (cards[i] < cards[minIdx]) minIdx = i;
+      let minIdx = alive[0];
+      for (const i of alive) if (cards[i] < cards[minIdx]) minIdx = i;
       addSips(minIdx, newGlass);
       setGlass(newGlass);
       setPendingResult({ type: 'reveal', cards: [...cards], drinkerIdx: minIdx, amount: newGlass });
@@ -122,9 +127,14 @@ export default function VerreGameScreen({ route, navigation }) {
     const amount = glass * 2;
     const drinkerIdx = correct ? targetIdx : challengerIdx;
     addSips(drinkerIdx, amount);
+    const remaining = isElim ? alive.filter(i => i !== drinkerIdx) : alive;
+    if (isElim) {
+      setAlive(remaining);
+      setEliminated(prev => [...prev, drinkerIdx]);
+    }
     setPendingResult({
       type: 'duel', challengerIdx, targetIdx, call, correct, amount,
-      challengerCard, targetCard, drinkerIdx,
+      challengerCard, targetCard, drinkerIdx, remaining: remaining.length,
     });
     setPhase('resolve');
   };
@@ -138,7 +148,7 @@ export default function VerreGameScreen({ route, navigation }) {
     setPassesThisLap(0);
     setLapsCompleted(0);
     setTurnPos(0);
-    setTurnOrder(rotate([...playerNames.keys()], (nextManche - 1) % n));
+    setTurnOrder(rotate(alive, (nextManche - 1) % alive.length));
     setPeekIdx(0);
     setPeekRevealed(false);
     setChallengeTarget(null);
@@ -150,7 +160,8 @@ export default function VerreGameScreen({ route, navigation }) {
 
   // ── DISTRIBUTE ────────────────────────────────────────────────────────
   if (phase === 'distribute') {
-    const peekName = playerNames[peekIdx];
+    const peekPlayerIdx = alive[peekIdx];
+    const peekName = playerNames[peekPlayerIdx];
     return (
       <LinearGradient colors={OB_BG} style={styles.fullCenter}>
         <Text style={styles.roundBadge}>Manche {mancheIdx} · {toursMax} tour{toursMax > 1 ? 's' : ''} max</Text>
@@ -169,12 +180,12 @@ export default function VerreGameScreen({ route, navigation }) {
           <Animated.View style={{ opacity: revealAnim, transform: [{ scale: revealAnim }], width: '100%', maxWidth: 320 }}>
             <LinearGradient colors={[ACCENT_DARK, ACCENT]} style={styles.peekRevealCard}>
               <Text style={styles.peekRevealLabel}>TA CARTE SECRÈTE</Text>
-              <Text style={styles.peekRevealValue}>{cards[peekIdx]}</Text>
+              <Text style={styles.peekRevealValue}>{cards[peekPlayerIdx]}</Text>
               <Text style={styles.peekRevealHint}>sur 20 — garde-la en tête</Text>
             </LinearGradient>
             <TouchableOpacity onPress={handlePeekNext} style={styles.peekNextBtn} activeOpacity={0.85}>
               <Text style={styles.peekNextBtnText}>
-                {peekIdx + 1 >= n ? "J'ai mémorisé, commencer !" : 'Joueur suivant →'}
+                {peekIdx + 1 >= alive.length ? "J'ai mémorisé, commencer !" : 'Joueur suivant →'}
               </Text>
             </TouchableOpacity>
           </Animated.View>
@@ -205,7 +216,7 @@ export default function VerreGameScreen({ route, navigation }) {
             </LinearGradient>
           </TouchableOpacity>
 
-          {n > 1 && (
+          {alive.length > 1 && (
             <TouchableOpacity onPress={openChallenge} style={styles.challengeBtn} activeOpacity={0.85}>
               <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.drinkInner}>
                 <Text style={styles.drinkBtnText}>⚔️  Challenger</Text>
@@ -219,7 +230,11 @@ export default function VerreGameScreen({ route, navigation }) {
         </View>
 
         <Text style={styles.lapHint}>{passesThisLap} / {turnOrder.length} joueurs ont passé ce tour-ci</Text>
-        <Text style={styles.warnHint}>🍺 Boire (ou perdre un duel) termine la manche — nouvelles cartes ensuite</Text>
+        {isElim ? (
+          <Text style={styles.warnHint}>💀 Perdre un duel = éliminé · {alive.length} joueurs en lice</Text>
+        ) : (
+          <Text style={styles.warnHint}>🍺 Boire (ou perdre un duel) termine la manche — nouvelles cartes ensuite</Text>
+        )}
 
         <TouchableOpacity onPress={endGame} style={styles.endGameLink}>
           <Text style={styles.endGameLinkText}>🏆 Terminer la partie</Text>
@@ -236,10 +251,10 @@ export default function VerreGameScreen({ route, navigation }) {
         <Text style={styles.turnLabel}>{activePlayer} challenge qui ?</Text>
 
         <View style={styles.targetList}>
-          {playerNames.map((name, idx) => (
+          {alive.map(idx => (
             idx !== activePlayerIdx && (
               <TouchableOpacity key={idx} onPress={() => pickTarget(idx)} style={styles.targetBtn} activeOpacity={0.85}>
-                <Text style={styles.targetBtnText}>{name}</Text>
+                <Text style={styles.targetBtnText}>{playerNames[idx]}</Text>
               </TouchableOpacity>
             )
           ))}
@@ -304,18 +319,37 @@ export default function VerreGameScreen({ route, navigation }) {
         <View style={[styles.consequenceCard, { borderColor: '#EF444450' }]}>
           <Text style={styles.consequenceLabel}>Conséquence :</Text>
           <Text style={styles.consequenceText}>{playerNames[r.drinkerIdx]} boit {r.amount} gorgées !</Text>
-          <Text style={styles.consequenceSub}>La manche se termine, nouvelles cartes…</Text>
+          {isElim ? (
+            <Text style={[styles.consequenceText, { marginTop: spacing.sm }]}>💀 {playerNames[r.drinkerIdx]} est éliminé !</Text>
+          ) : null}
+          <Text style={styles.consequenceSub}>
+            {isElim && r.remaining <= 1
+              ? 'Il ne reste plus qu\'un joueur…'
+              : isElim
+                ? `${r.remaining} joueurs en lice — nouvelles cartes…`
+                : 'La manche se termine, nouvelles cartes…'}
+          </Text>
         </View>
 
         <View style={styles.continueRow}>
-          <TouchableOpacity onPress={advanceManche} style={styles.nextBtn} activeOpacity={0.85}>
-            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
-              <Text style={styles.nextBtnText}>Manche suivante →</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={endGame} style={styles.endGameLink}>
-            <Text style={styles.endGameLinkText}>🏆 Terminer la partie</Text>
-          </TouchableOpacity>
+          {isElim && r.remaining <= 1 ? (
+            <TouchableOpacity onPress={endGame} style={styles.nextBtn} activeOpacity={0.85}>
+              <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
+                <Text style={styles.nextBtnText}>🏆 Voir le vainqueur</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          ) : (
+            <>
+              <TouchableOpacity onPress={advanceManche} style={styles.nextBtn} activeOpacity={0.85}>
+                <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
+                  <Text style={styles.nextBtnText}>Manche suivante →</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={endGame} style={styles.endGameLink}>
+                <Text style={styles.endGameLinkText}>🏆 Terminer la partie</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </LinearGradient>
     );
@@ -355,9 +389,9 @@ export default function VerreGameScreen({ route, navigation }) {
         <Text style={styles.revealSub}>Personne n'a bu en {toursMax} tour{toursMax > 1 ? 's' : ''} — les cartes parlent</Text>
 
         <ScrollView style={styles.revealScroll} contentContainerStyle={styles.revealGrid}>
-          {playerNames.map((name, idx) => (
+          {alive.map(idx => (
             <View key={idx} style={[styles.revealCard, idx === r.drinkerIdx && styles.revealCardLowest]}>
-              <Text style={styles.revealName}>{name}</Text>
+              <Text style={styles.revealName}>{playerNames[idx]}</Text>
               <Text style={[styles.revealValue, idx === r.drinkerIdx && { color: '#FCA5A5' }]}>{r.cards[idx]}</Text>
             </View>
           ))}
@@ -383,19 +417,31 @@ export default function VerreGameScreen({ route, navigation }) {
   }
 
   // ── FINAL ─────────────────────────────────────────────────────────────
-  const sorted = [...playerNames].sort((a, b) => totalSips[a] - totalSips[b]);
+  // Battle Royale : survivants (départagés aux gorgées), puis éliminés du dernier au premier
+  const sorted = isElim
+    ? [
+        ...alive.map(i => playerNames[i]).sort((a, b) => totalSips[a] - totalSips[b]),
+        ...[...eliminated].reverse().map(i => playerNames[i]),
+      ]
+    : [...playerNames].sort((a, b) => totalSips[a] - totalSips[b]);
   const medals = ['🥇', '🥈', '🥉'];
+  const elimWinner = isElim && alive.length === 1 ? playerNames[alive[0]] : null;
 
   return (
     <LinearGradient colors={OB_BG} style={styles.container}>
       <ScrollView contentContainerStyle={styles.finalScroll}>
         <Text style={styles.finalTitle}>🏆 Résultats finaux</Text>
-        <Text style={styles.finalSub}>{mancheIdx} manche{mancheIdx > 1 ? 's' : ''} jouée{mancheIdx > 1 ? 's' : ''} · moins tu as bu, mieux c'est !</Text>
+        {elimWinner && <Text style={styles.finalWinner}>👑 {elimWinner} est le dernier debout !</Text>}
+        <Text style={styles.finalSub}>
+          {mancheIdx} manche{mancheIdx > 1 ? 's' : ''} jouée{mancheIdx > 1 ? 's' : ''} · {isElim ? 'le dernier en lice gagne !' : "moins tu as bu, mieux c'est !"}
+        </Text>
 
         {sorted.map((name, idx) => (
           <View key={name} style={[styles.finalRow, idx === 0 && styles.finalRowFirst]}>
             <Text style={styles.finalMedal}>{medals[idx] ?? `${idx + 1}.`}</Text>
-            <Text style={styles.finalName}>{name}</Text>
+            <Text style={styles.finalName}>
+              {name}{isElim && eliminated.includes(playerNames.indexOf(name)) ? ' 💀' : ''}
+            </Text>
             <Text style={styles.finalSips}>{totalSips[name]} 🥃</Text>
           </View>
         ))}
@@ -535,6 +581,7 @@ const styles = StyleSheet.create({
     paddingBottom: 60, alignItems: 'center',
   },
   finalTitle: { fontSize: 30, fontWeight: '900', color: colors.text, marginBottom: spacing.xs },
+  finalWinner: { fontSize: 18, fontWeight: '800', color: GOLD, marginBottom: spacing.xs, textAlign: 'center' },
   finalSub:   { fontSize: 13, color: colors.textMuted, marginBottom: spacing.xl, fontStyle: 'italic', textAlign: 'center' },
 
   finalRow: {

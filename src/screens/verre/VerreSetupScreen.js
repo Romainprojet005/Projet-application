@@ -14,9 +14,15 @@ const ACCENT_LIGHT = '#FDA4AF';
 const ACCENT_DARK  = '#9F1239';
 const MAX_PLAYERS  = 10;
 
+const MODES = [
+  { id: 'classique',   emoji: '🥂', label: 'Classique',   desc: 'Celui qui a bu le moins gagne' },
+  { id: 'battleRoyale', emoji: '👑', label: 'Battle Royale', desc: 'Perdre un duel = éliminé. Le dernier debout gagne' },
+];
+
 export default function VerreSetupScreen({ navigation }) {
   const [playerNames, setPlayerNames] = useState(['', '', '']);
   const [inputFocus,  setInputFocus]  = useState(null);
+  const [mode,        setMode]        = useState('classique');
 
   const fadeIn  = useRef(new Animated.Value(0)).current;
   const slideUp = useRef(new Animated.Value(40)).current;
@@ -37,7 +43,7 @@ export default function VerreSetupScreen({ navigation }) {
 
   const handleStart = () => {
     if (!canStart) return;
-    navigation.navigate('VerreGame', { playerNames: validPlayers });
+    navigation.navigate('VerreGame', { playerNames: validPlayers, mode });
   };
 
   return (
@@ -71,7 +77,32 @@ export default function VerreSetupScreen({ navigation }) {
             <Text style={styles.rulesLine}>🔄  Si tout le monde passe, le verre <Text style={styles.rulesAccent}>se remplit encore un peu</Text></Text>
             <Text style={styles.rulesLine}>🎲  Un nombre de tours est <Text style={styles.rulesAccent}>tiré au sort</Text> à chaque manche ({MIN_TOURS}-{MAX_TOURS})</Text>
             <Text style={styles.rulesLine}>🃏  Si personne n'a bu au bout de ces tours, les cartes sont <Text style={styles.rulesAccent}>révélées</Text> et la <Text style={styles.rulesAccent}>plus petite carte boit le verre</Text></Text>
-            <Text style={styles.rulesLine}>🏆  À la fin, celui qui a <Text style={styles.rulesAccent}>bu le moins</Text> gagne !</Text>
+            {mode === 'battleRoyale' ? (
+              <>
+                <Text style={styles.rulesLine}>👑  Mode Battle Royale : le perdant d'un duel est <Text style={styles.rulesAccent}>éliminé</Text> et la partie continue sans lui</Text>
+                <Text style={styles.rulesLine}>🏆  Le <Text style={styles.rulesAccent}>dernier joueur en lice</Text> gagne !</Text>
+              </>
+            ) : (
+              <Text style={styles.rulesLine}>🏆  À la fin, celui qui a <Text style={styles.rulesAccent}>bu le moins</Text> gagne !</Text>
+            )}
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>🎮  Mode de jeu</Text>
+            <View style={styles.modeRow}>
+              {MODES.map(m => (
+                <TouchableOpacity
+                  key={m.id}
+                  onPress={() => setMode(m.id)}
+                  style={[styles.modeBtn, mode === m.id && styles.modeBtnActive]}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.modeEmoji}>{m.emoji}</Text>
+                  <Text style={[styles.modeLabel, mode === m.id && { color: ACCENT_LIGHT }]}>{m.label}</Text>
+                  <Text style={styles.modeDesc}>{m.desc}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
 
           <View style={styles.card}>
@@ -170,6 +201,16 @@ const styles = StyleSheet.create({
     padding: spacing.lg, borderWidth: 1, borderColor: colors.border,
   },
   cardLabel: { fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
+
+  modeRow: { flexDirection: 'row', gap: spacing.sm },
+  modeBtn: {
+    flex: 1, alignItems: 'center', padding: spacing.md, borderRadius: radius.md,
+    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
+  },
+  modeBtnActive: { borderColor: ACCENT, backgroundColor: `${ACCENT}20` },
+  modeEmoji: { fontSize: 24, marginBottom: 4 },
+  modeLabel: { fontSize: 14, fontWeight: '800', color: colors.text },
+  modeDesc:  { fontSize: 11, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
 
   playerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
   inputWrap: {
