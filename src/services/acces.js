@@ -69,12 +69,13 @@ export function enregistrerDeblocage(offreId, game) {
 }
 
 // Statut d'accès d'un jeu :
+//  'libre'    → cadenas désactivé (PAYWALL_ACTIF = false)
 //  'multi'    → toujours gratuit (multi-téléphones)
 //  'gratuit'  → offert aujourd'hui
 //  'debloque' → débloqué par un achat
 //  'verrouille'
 export function statutAcces(c, gratuits = gratuitsDuJour()) {
-  if (!PAYWALL_ACTIF) return 'gratuit';
+  if (!PAYWALL_ACTIF) return 'libre';
   if (isMulti(c)) return 'multi';
   if (gratuits.has(c.game)) return 'gratuit';
   const d = lire();

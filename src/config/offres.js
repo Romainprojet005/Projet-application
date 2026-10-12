@@ -2,7 +2,8 @@
 // Tout ce qui concerne les prix se règle ici.
 
 // Mettre à false pour couper le cadenas (tous les jeux redeviennent gratuits).
-export const PAYWALL_ACTIF = true;
+// En pause tant que le paiement en ligne n'est pas branché (liens ci-dessous vides).
+export const PAYWALL_ACTIF = false;
 
 // Nombre de jeux « un seul téléphone » offerts chaque jour, en plus des jeux
 // multi-téléphones (toujours gratuits). La sélection change chaque jour à minuit

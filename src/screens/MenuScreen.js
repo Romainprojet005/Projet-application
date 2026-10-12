@@ -1295,6 +1295,7 @@ export default function MenuScreen({ navigation }) {
                 {c.adult && <span className="sdl-info-age">18+ ou sans alcool</span>}
                 {(() => {
                   const st = acces(c);
+                  if (st === 'libre') return null;
                   if (st === 'multi') return <span className="sdl-info-tag free">Toujours gratuit</span>;
                   if (st === 'gratuit') return <span className="sdl-info-tag free">Gratuit aujourd’hui</span>;
                   if (st === 'debloque') return <span className="sdl-info-tag">Débloqué</span>;
