@@ -9,7 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../theme';
 import { OB_BG } from '../theme/obsidian';
 import { characters } from '../data/characters';
-import AdBanner from '../components/AdBanner';
+import AdBanner, { AD_ENABLED } from '../components/AdBanner';
 import { BoosterFront, BoosterBack } from '../components/BoosterCard';
 
 const { width: SW, height: SH } = Dimensions.get('window');
@@ -22,11 +22,11 @@ const IS_DESKTOP_WEB = Platform.OS === 'web' && !IS_MOBILE_WEB;
 // (hauteur d'écran moins en-tête, points, panneau d'infos et, sur PC, pub).
 // Sur mobile la carte prend ~68 % de la largeur, comme sur la maquette.
 const REFLECT_SHIFT = 0.08;
-const STAGE_EST = SH - (IS_MOBILE_WEB ? 285 : 414);
+const STAGE_EST = SH - (IS_MOBILE_WEB ? 285 : 250 + (AD_ENABLED ? 90 : 0));
 const FIT_H = Math.floor((STAGE_EST / 2 - 8) / (0.5 + REFLECT_SHIFT));
 const WEB_H = IS_MOBILE_WEB
   ? Math.max(220, Math.min(400, FIT_H, Math.round(SW * 0.68 * 310 / 210)))
-  : Math.max(280, Math.min(413, FIT_H));
+  : Math.max(260, Math.min(540, FIT_H, Math.round(SW * 0.26 * 310 / 210)));
 const CARD_W = Platform.OS === 'web' ? Math.round(WEB_H * 210 / 310)
              : Math.min(SW * 0.75, 300);
 const CARD_H = Platform.OS === 'web' ? WEB_H
@@ -199,6 +199,16 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         cursor: pointer; box-shadow: 0 8px 28px rgba(212,175,55,.35); transition: transform .15s, box-shadow .15s; }
       .sdl-play:hover { transform: translateY(-1px); box-shadow: 0 12px 34px rgba(212,175,55,.45); }
       .sdl-play:disabled { opacity: .45; cursor: default; transform: none; }
+      .sdl-info-head { display: flex; flex-direction: column; align-items: center; gap: inherit; }
+      @media (min-width: 601px) {
+        /* PC : panneau compact sur une ligne pour laisser la place aux cartes */
+        .sdl-info { flex-direction: row; flex-wrap: wrap; justify-content: center;
+          column-gap: 28px; row-gap: 6px; padding: 2px 24px 12px; }
+        .sdl-info-head { align-items: flex-start; text-align: left; gap: 2px; }
+        .sdl-info-title { font-size: 24px; }
+        .sdl-play { width: 220px; height: 46px; margin-top: 0; }
+        .sdl-meta-hint { flex-basis: 100%; text-align: center; }
+      }
       @media (max-width: 600px) {
         /* Bouton éco en haut à droite pour ne pas couvrir le bouton JOUER */
         .sdl-eco-btn.sdl-eco-top { bottom: auto; top: 22px; right: 16px; }
@@ -1165,10 +1175,12 @@ export default function MenuScreen({ navigation }) {
         const c = characters[activeIdx] ?? characters[0];
         return (
           <div className="sdl-info">
-            <span className="sdl-info-kicker" ref={metaIdxRef}>
-              N° {String(activeIdx + 1).padStart(2, '0')} · {c.title}
-            </span>
-            <span className="sdl-info-title" ref={metaGameRef}>{c.gameName}</span>
+            <div className="sdl-info-head">
+              <span className="sdl-info-kicker" ref={metaIdxRef}>
+                N° {String(activeIdx + 1).padStart(2, '0')} · {c.title}
+              </span>
+              <span className="sdl-info-title" ref={metaGameRef}>{c.gameName}</span>
+            </div>
             <div className="sdl-info-chips">
               <span className="sdl-info-chip">{c.players || '2–12'} joueurs</span>
               <span className="sdl-info-chip">{c.time || '15 min'}</span>
