@@ -11,7 +11,7 @@ import { OB_BG } from '../theme/obsidian';
 import { characters } from '../data/characters';
 import AdBanner, { AD_ENABLED } from '../components/AdBanner';
 import { BoosterFront, BoosterBack, FamilyEmblem, FAMILIES, familyOf, PhoneIcon, LockIcon } from '../components/BoosterCard';
-import { OffresModal, IdeeModal } from '../components/WebModals';
+import { OffresModal, IdeeModal, CodeModal } from '../components/WebModals';
 import { statutAcces, gratuitsDuJour, PHONE_LABELS } from '../services/acces';
 
 const { width: SW, height: SH } = Dimensions.get('window');
@@ -191,7 +191,8 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         gap: 12px; padding: 14px 24px; border-bottom: 1px solid #2E2A4A; background: #0E0C1A; }
       .sdl-logo { display: flex; flex-direction: column; line-height: 1; text-decoration: none; color: #F3EEE2; }
       .sdl-logo-main { font-family: 'Bodoni Moda', Didot, Georgia, serif; font-weight: 700; font-size: 18px; letter-spacing: .06em; }
-      .sdl-logo-crown { color: #D4AF37; margin-right: 6px; }
+      .sdl-logo-crown { color: #D4AF37; margin-right: 6px; padding: 0; border: 0; background: none; font: inherit; cursor: pointer; }
+      .sdl-logo-crown:focus-visible { outline: 2px solid #F4DC8C; outline-offset: 2px; }
       .sdl-logo-sub { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: .3em;
         text-transform: uppercase; color: #A9A3BF; margin: 4px 0 0 24px; }
       .sdl-top-actions { display: flex; align-items: center; gap: 10px; }
@@ -1141,7 +1142,7 @@ export default function MenuScreen({ navigation }) {
           <>
             <div className="sdl-top">
               <div className="sdl-logo" aria-label="La Soirée des Légendes">
-                <span className="sdl-logo-main"><span className="sdl-logo-crown" aria-hidden="true">♛</span>LA SOIRÉE</span>
+                <span className="sdl-logo-main"><button className="sdl-logo-crown" aria-label="Code d'accès" onClick={() => setModal({ type: 'code' })}>♛</button>LA SOIRÉE</span>
                 <span className="sdl-logo-sub">des légendes</span>
               </div>
               <div className="sdl-top-actions">
@@ -1346,6 +1347,9 @@ export default function MenuScreen({ navigation }) {
 
       {Platform.OS === 'web' && modal?.type === 'offres' && (
         <OffresModal game={modal.game} onClose={() => setModal(null)} />
+      )}
+      {Platform.OS === 'web' && modal?.type === 'code' && (
+        <CodeModal onClose={() => setModal(null)} onUnlock={() => setFlipped(f => ({ ...f }))} />
       )}
       {Platform.OS === 'web' && modal?.type === 'idee' && (
         <IdeeModal onClose={() => setModal(null)} />

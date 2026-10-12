@@ -68,6 +68,24 @@ export function enregistrerDeblocage(offreId, game) {
   try { localStorage.setItem(KEY, JSON.stringify(d)); } catch {}
 }
 
+// ── Code d'accès (couronne du logo) ──────────────────────────────────
+// Le code n'est pas écrit en clair : on compare son empreinte SHA-256.
+const CODE_HASH = 'fd2ed99a072e2450895b09d204b00b79549bfcb0c9caf49d9b225e9cad1d1be9';
+export async function verifierCode(code) {
+  try {
+    const data = new TextEncoder().encode('sdl:' + String(code).trim());
+    const buf = await crypto.subtle.digest('SHA-256', data);
+    const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    if (hex !== CODE_HASH) return false;
+    const d = lire();
+    d.code = true;
+    try { localStorage.setItem(KEY, JSON.stringify(d)); } catch {}
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // Statut d'accès d'un jeu :
 //  'libre'    → cadenas désactivé (PAYWALL_ACTIF = false)
 //  'multi'    → toujours gratuit (multi-téléphones)
@@ -80,6 +98,6 @@ export function statutAcces(c, gratuits = gratuitsDuJour()) {
   if (gratuits.has(c.game)) return 'gratuit';
   const d = lire();
   const now = Date.now();
-  if ((d.abonnement || 0) > now || (d.tous || 0) > now || (d.jeux?.[c.game] || 0) > now) return 'debloque';
+  if (d.code || (d.abonnement || 0) > now || (d.tous || 0) > now || (d.jeux?.[c.game] || 0) > now) return 'debloque';
   return 'verrouille';
 }

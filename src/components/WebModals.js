@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { OFFRES, JEUX_GRATUITS_PAR_JOUR } from '../config/offres';
-import { avantRotation } from '../services/acces';
+import { avantRotation, verifierCode } from '../services/acces';
 import { supabase } from '../services/supabase';
 import { LockIcon } from './BoosterCard';
 
@@ -168,6 +168,36 @@ export function IdeeModal({ onClose }) {
           {etat === 'envoi' ? 'Envoi…' : 'Envoyer mon idée'}
         </button></div>
       </form>
+    </Modal>
+  );
+}
+
+export function CodeModal({ onClose, onUnlock }) {
+  const [code, setCode] = useState('');
+  const [etat, setEtat] = useState('saisie'); // saisie | ok | faux
+  const valider = async (e) => {
+    e.preventDefault();
+    if (code.length !== 4) return;
+    if (await verifierCode(code)) { setEtat('ok'); onUnlock?.(); }
+    else { setEtat('faux'); setCode(''); }
+  };
+  return (
+    <Modal onClose={onClose} small label="Code d'accès">
+      <span className="sdl-kick">Accès</span>
+      <h2 className="sdl-mh">{etat === 'ok' ? 'Tous les jeux sont débloqués' : 'Code d\u2019accès'}</h2>
+      {etat === 'ok' ? (
+        <div style={{ marginTop: 16 }}><button className="sdl-btn or" onClick={onClose}>Retour aux jeux</button></div>
+      ) : (
+        <form className="sdl-form" onSubmit={valider}>
+          <label className="sdl-field"><span>Code à 4 chiffres</span>
+            <input value={code} onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 4)); setEtat('saisie'); }}
+              inputMode="numeric" autoComplete="off" maxLength={4} autoFocus
+              style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 24, letterSpacing: '.5em', textAlign: 'center' }} />
+          </label>
+          {etat === 'faux' && <div className="sdl-msg err" role="alert">Code incorrect.</div>}
+          <div><button className="sdl-btn or" type="submit" disabled={code.length !== 4}>Valider</button></div>
+        </form>
+      )}
     </Modal>
   );
 }
