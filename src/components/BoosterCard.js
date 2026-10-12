@@ -88,6 +88,10 @@ if (Platform.OS === 'web' && typeof document !== 'undefined' && !document.getEle
     .bc-medal { width: 9.4em; height: 9.4em; border-radius: 50%; display: grid; place-items: center;
       margin: auto 0 1em; position: relative; }
     .bc-medal svg { width: 4.6em; height: 4.6em; }
+    .bc-medal.has-art { width: 12em; height: 12em; margin-bottom: .8em; padding: 0; overflow: hidden;
+      border: .12em solid currentColor; box-shadow: 0 0 0 .35em rgba(212,175,55,.12), 0 .6em 2em -.6em rgba(0,0,0,.8); }
+    .bc-art { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%;
+      -webkit-user-drag: none; user-select: none; pointer-events: none; }
     .bc-who { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500; font-size: .95em;
       letter-spacing: .2em; text-transform: uppercase; color: #A9A3BF; text-align: center; position: relative; }
     .bc-title { font-family: 'Bodoni Moda', Didot, Georgia, serif; font-weight: 700; font-size: 2.05em; line-height: 1.08;
@@ -155,8 +159,8 @@ export function BoosterFront({ character, idx, width, className = '', locked = f
           <FamilyEmblem family={character.family} size="1.1em" />{fam.label}
         </span>
       </div>
-      <div className="bc-medal" style={{ color: fam.color, background: fam.veil }}>
-        <FamilyEmblem family={character.family} />
+      <div className="bc-medal has-art" style={{ color: fam.color, background: '#0E0C1A' }}>
+        <img className="bc-art" src={`/legendes/${character.game}.webp`} alt="" loading="lazy" draggable={false} />
       </div>
       <span className="bc-who">{character.title}</span>
       <span className="bc-title" style={titleSize(character.gameName)}>{character.gameName}</span>
