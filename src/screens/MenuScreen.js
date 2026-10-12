@@ -1,5 +1,5 @@
 import React, {
-  useRef, useEffect, useLayoutEffect, useState, useCallback, memo,
+  useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo, memo,
 } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
@@ -10,7 +10,9 @@ import { colors, spacing, radius } from '../theme';
 import { OB_BG } from '../theme/obsidian';
 import { characters } from '../data/characters';
 import AdBanner, { AD_ENABLED } from '../components/AdBanner';
-import { BoosterFront, BoosterBack, FamilyEmblem, FAMILIES, familyOf } from '../components/BoosterCard';
+import { BoosterFront, BoosterBack, FamilyEmblem, FAMILIES, familyOf, PhoneIcon, LockIcon } from '../components/BoosterCard';
+import { OffresModal, IdeeModal } from '../components/WebModals';
+import { statutAcces, gratuitsDuJour, PHONE_LABELS } from '../services/acces';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 const N = characters.length;
@@ -192,6 +194,22 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       .sdl-logo-crown { color: #D4AF37; margin-right: 6px; }
       .sdl-logo-sub { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: .3em;
         text-transform: uppercase; color: #A9A3BF; margin: 4px 0 0 24px; }
+      .sdl-top-actions { display: flex; align-items: center; gap: 10px; }
+      .sdl-top-count { margin-right: 10px; }
+      .sdl-top-btn { min-height: 40px; box-sizing: border-box; padding: 8px 16px; border-radius: 99px; cursor: pointer;
+        border: 1px solid #6B6590; background: transparent; color: #F3EEE2;
+        font-family: 'Outfit', system-ui, sans-serif; font-weight: 600; font-size: 14px; }
+      .sdl-logo-main, .sdl-top-btn { white-space: nowrap; }
+      .sdl-sm { display: none; }
+      .sdl-top-btn:hover { border-color: #F3EEE2; }
+      .sdl-top-btn.gold { border-color: #D4AF37; color: #E6C766; }
+      .sdl-top-btn:focus-visible { outline: 2px solid #F4DC8C; outline-offset: 2px; }
+      .sdl-info-tag { display: inline-flex; align-items: center; gap: 4px; font-family: 'Outfit', system-ui, sans-serif;
+        font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 6px; color: #F3EEE2; border: 1px solid #2E2A4A; }
+      .sdl-info-tag.free { color: #E6C766; border-color: #D4AF37; }
+      .sdl-info-tag.lock { color: #F3EEE2; border-color: #6B6590; background: #08070F; }
+      .sdl-chip-phone { display: inline-flex; align-items: center; gap: 6px; }
+      .sdl-chip-phone svg { color: #E6C766; }
       .sdl-top-count { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: .2em;
         text-transform: uppercase; color: #E6C766; }
       .sdl-hero { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 10px;
@@ -243,7 +261,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
           column-gap: 32px; row-gap: 6px; padding: 14px 24px 12px; }
         .sdl-info-head { align-items: flex-start; text-align: left; gap: 4px; flex: 0 1 560px; min-width: 0; }
         .sdl-info-line { justify-content: flex-start; }
-        .sdl-play { width: 200px; height: 46px; margin-top: 0; }
+        .sdl-play { width: auto; min-width: 200px; padding: 0 26px; white-space: nowrap; height: 46px; margin-top: 0; }
         .sdl-meta-hint { flex-basis: 100%; text-align: center; }
       }
       @media (max-width: 600px) {
@@ -251,6 +269,12 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-eco-btn.sdl-eco-top { bottom: auto; top: 16px; right: 16px; }
         .sdl-top { padding: 12px 64px 12px 16px; }
         .sdl-top-count { display: none; }
+        .sdl-top-actions { gap: 6px; }
+        .sdl-top-btn { min-height: 36px; padding: 6px 12px; font-size: 13px; }
+        .sdl-lg { display: none; }
+        .sdl-sm { display: inline; }
+        .sdl-logo-main { font-size: 16px; }
+        .sdl-chip-phone { display: none; }
         .sdl-hero { gap: 8px; padding-top: 10px; }
         .sdl-fam { min-height: 32px; padding: 4px 11px 4px 8px; font-size: 13px; }
         .sdl-info { gap: 5px; padding: 8px 16px 14px; }
@@ -796,6 +820,9 @@ export default function MenuScreen({ navigation }) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [positions, setPositions] = useState(() => computePositions(0));
   const [flipped, setFlipped]     = useState({});
+  const [modal, setModal]         = useState(null); // { type: 'offres', game } | { type: 'idee' }
+  const gratuits = useMemo(() => gratuitsDuJour(), []);
+  const acces = (c) => statutAcces(c, gratuits);
 
   const [ecoMode, setEcoMode] = useState(() => {
     if (Platform.OS !== 'web') return false;
@@ -973,6 +1000,7 @@ export default function MenuScreen({ navigation }) {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     const onKey = (e) => {
+      if (document.querySelector('.sdl-modal')) return;
       const tag = e.target?.tagName;
       if (tag === 'BUTTON' || tag === 'INPUT' || tag === 'TEXTAREA') return;
       if (e.key === 'ArrowLeft')  navigateCard(+1);
@@ -1068,6 +1096,10 @@ export default function MenuScreen({ navigation }) {
       verre: 'VerreSetup',
       lolselect: 'LolSelectSetup',
     };
+    if (acces(character) === 'verrouille') {
+      if (Platform.OS === 'web') setModal({ type: 'offres', game: character });
+      return;
+    }
     if (routes[character.game]) navigation.navigate(routes[character.game]);
   };
   const handleSelectGameRef = useRef(null);
@@ -1112,9 +1144,13 @@ export default function MenuScreen({ navigation }) {
                 <span className="sdl-logo-main"><span className="sdl-logo-crown" aria-hidden="true">♛</span>LA SOIRÉE</span>
                 <span className="sdl-logo-sub">des légendes</span>
               </div>
-              <span className="sdl-top-count">
-                {characters.filter(c => c.available).length} jeux · 2 à 12 joueurs
-              </span>
+              <div className="sdl-top-actions">
+                <span className="sdl-top-count">
+                  {characters.filter(c => c.available).length} jeux · 2 à 12 joueurs
+                </span>
+                <button className="sdl-top-btn" onClick={() => setModal({ type: 'idee' })}><span className="sdl-lg">Proposer un jeu</span><span className="sdl-sm">Idée</span></button>
+                <button className="sdl-top-btn gold" onClick={() => setModal({ type: 'offres', game: null })}>Offres</button>
+              </div>
             </div>
             <div className="sdl-hero">
               <h1 className="sdl-h1">Choisissez <em>votre légende.</em></h1>
@@ -1177,7 +1213,7 @@ export default function MenuScreen({ navigation }) {
                   role="button"
                   aria-label={`${char.gameName} — ${char.title}`}
                 >
-                  <BoosterFront character={char} idx={i} width={CARD_W} className="sdl-front" />
+                  <BoosterFront character={char} idx={i} width={CARD_W} className="sdl-front" locked={acces(char) === 'verrouille'} />
                   <BoosterBack character={char} idx={i} width={CARD_W} className="sdl-back-face" />
                 </div>
               </div>
@@ -1257,6 +1293,13 @@ export default function MenuScreen({ navigation }) {
                   <FamilyEmblem family={c.family} size="13px" />{fam.label}
                 </span>
                 {c.adult && <span className="sdl-info-age">18+ ou sans alcool</span>}
+                {(() => {
+                  const st = acces(c);
+                  if (st === 'multi') return <span className="sdl-info-tag free">Toujours gratuit</span>;
+                  if (st === 'gratuit') return <span className="sdl-info-tag free">Gratuit aujourd’hui</span>;
+                  if (st === 'debloque') return <span className="sdl-info-tag">Débloqué</span>;
+                  return <span className="sdl-info-tag lock"><LockIcon size="12px" />Verrouillé</span>;
+                })()}
               </span>
               <span className="sdl-info-title" ref={metaGameRef}>{c.gameName}</span>
               {c.description && <p className="sdl-info-desc">{c.description}</p>}
@@ -1264,6 +1307,7 @@ export default function MenuScreen({ navigation }) {
             <div className="sdl-info-chips">
               <span className="sdl-info-chip">{c.players || '2–12'} joueurs</span>
               <span className="sdl-info-chip">{c.time || '15 min'}</span>
+              <span className="sdl-info-chip sdl-chip-phone"><PhoneIcon mode={c.phones || 'one'} size="16px" />{PHONE_LABELS[c.phones || 'one']}</span>
             </div>
             <button
               className="sdl-play"
@@ -1273,7 +1317,9 @@ export default function MenuScreen({ navigation }) {
                 if (target.available) handleSelectGame(target);
               }}
             >
-              {c.available ? '▶  Jouer' : 'Bientôt'}
+              {!c.available ? 'Bientôt'
+                : acces(c) === 'verrouille' ? <><LockIcon size="16px" />Débloquer · dès 0,99 €</>
+                : '▶  Jouer'}
             </button>
             <span className="sdl-meta-hint">
               {IS_MOBILE_WEB
@@ -1296,6 +1342,13 @@ export default function MenuScreen({ navigation }) {
 
 
       {!IS_MOBILE_WEB && <AdBanner />}
+
+      {Platform.OS === 'web' && modal?.type === 'offres' && (
+        <OffresModal game={modal.game} onClose={() => setModal(null)} />
+      )}
+      {Platform.OS === 'web' && modal?.type === 'idee' && (
+        <IdeeModal onClose={() => setModal(null)} />
+      )}
     </LinearGradient>
   );
 }

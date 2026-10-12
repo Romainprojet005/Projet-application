@@ -1,5 +1,6 @@
 import React from 'react';
 import { Platform } from 'react-native';
+import { PHONE_LABELS } from '../services/acces';
 
 // ── Carte de légende (web) ────────────────────────────────────────────
 // Refonte « écran unique » : carte nuit, cadre or, emblème de la famille du jeu.
@@ -36,6 +37,30 @@ export function FamilyEmblem({ family, size = '1em' }) {
   return <svg {...common}><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="2" fill="currentColor" /></svg>;
 }
 
+// Pictogramme téléphone : un seul, ou deux superposés pour le multi-téléphones
+export function PhoneIcon({ mode = 'one', size = '1em' }) {
+  const p = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinejoin: 'round' };
+  const svg = { viewBox: '0 0 24 24', width: size, height: size, 'aria-hidden': true, style: { display: 'block', flex: 'none' } };
+  if (mode === 'one') {
+    return <svg {...svg}><rect x="7" y="3" width="10" height="18" rx="2" {...p} /><path d="M11 18h2" {...p} /></svg>;
+  }
+  return (
+    <svg {...svg}>
+      <rect x="3" y="5" width="9" height="15" rx="2" {...p} />
+      <rect x="12" y="3" width="9" height="15" rx="2" {...p} />
+      <path d="M6.5 17h2M15.5 15h2" {...p} />
+    </svg>
+  );
+}
+
+export function LockIcon({ size = '1em' }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true" style={{ display: 'block', flex: 'none' }}>
+      <rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </svg>
+  );
+}
+
 if (Platform.OS === 'web' && typeof document !== 'undefined' && !document.getElementById('sdl-legend-css')) {
   const st = document.createElement('style');
   st.id = 'sdl-legend-css';
@@ -68,6 +93,15 @@ if (Platform.OS === 'web' && typeof document !== 'undefined' && !document.getEle
     .bc-title { font-family: 'Bodoni Moda', Didot, Georgia, serif; font-weight: 700; font-size: 2.05em; line-height: 1.08;
       letter-spacing: .04em; text-transform: uppercase; text-align: center; margin: .25em 0 .5em; position: relative; }
     .bc-meta { font-size: 1.25em; color: #A9A3BF; position: relative; }
+    .bc-phones { display: inline-flex; align-items: center; gap: .4em; margin-top: .5em; position: relative;
+      font-size: 1.05em; font-weight: 500; color: #F3EEE2; padding: .3em .8em; border-radius: 99em;
+      border: 1px solid #2E2A4A; }
+    .bc-phones svg { width: 1.35em; height: 1.35em; color: #E6C766; }
+    .bc-num-wrap { display: inline-flex; align-items: center; gap: .5em; }
+    .bc-lock { display: inline-grid; place-items: center; width: 2.2em; height: 2.2em; border-radius: 50%;
+      background: #08070F; border: 1px solid #6B6590; color: #E6C766; }
+    .bc-lock svg { width: 1.2em; height: 1.2em; }
+    .bc.is-locked .bc-medal, .bc.is-locked .bc-title, .bc.is-locked .bc-who { opacity: .55; }
 
     .bc-back { position: absolute; inset: 0; box-sizing: border-box; border-radius: 1.8em;
       padding: 2em 1.9em; display: flex; flex-direction: column; gap: .9em; text-align: left;
@@ -106,13 +140,17 @@ function titleSize(name = '') {
   return longest > 10 ? { fontSize: `${Math.max(1.4, 2.05 * 10 / longest).toFixed(2)}em` } : undefined;
 }
 
-export function BoosterFront({ character, idx, width, className = '' }) {
+export function BoosterFront({ character, idx, width, className = '', locked = false }) {
   const n = String(idx + 1).padStart(2, '0');
   const fam = familyOf(character);
+  const mode = character.phones || 'one';
   return (
-    <div className={`bc ${className}`} style={cardVars(width)}>
+    <div className={`bc ${className}${locked ? ' is-locked' : ''}`} style={cardVars(width)}>
       <div className="bc-top">
-        <span className="bc-num">N° {n}</span>
+        <span className="bc-num-wrap">
+          <span className="bc-num">N° {n}</span>
+          {locked && <span className="bc-lock" aria-label="Verrouillé"><LockIcon /></span>}
+        </span>
         <span className="bc-fam" style={{ color: fam.color, background: fam.veil }}>
           <FamilyEmblem family={character.family} size="1.1em" />{fam.label}
         </span>
@@ -123,6 +161,7 @@ export function BoosterFront({ character, idx, width, className = '' }) {
       <span className="bc-who">{character.title}</span>
       <span className="bc-title" style={titleSize(character.gameName)}>{character.gameName}</span>
       <span className="bc-meta">{character.players || '2–12'} joueurs · {character.time || '15 min'}</span>
+      <span className="bc-phones"><PhoneIcon mode={mode} />{mode === 'both' ? '1 ou + téléphones' : PHONE_LABELS[mode]}</span>
       {!character.available && <div className="bc-soon"><span>BIENTÔT</span></div>}
     </div>
   );
