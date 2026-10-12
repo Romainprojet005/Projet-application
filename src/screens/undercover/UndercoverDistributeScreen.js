@@ -79,7 +79,14 @@ function distributeRoles(playerCount, wordPair, undercoverCount, hasMrWhite) {
 function GameBoardScreen({ roles, onBackToMenu, onReplay }) {
   const [eliminated, setEliminated] = useState(new Set());
   const [modalIdx, setModalIdx]     = useState(null);
-  const [winner, setWinner]         = useState(null); // null | 'spies' | 'civilians'
+  const [winner, setWinner]         = useState(null); // null | 'spies' | 'civilians' | 'ended'
+  // Le jeu désigne qui commence — jamais Monsieur Blanc (il n'a pas de mot)
+  const [starter] = useState(() => {
+    const ok = roles.map((r, i) => (r.type !== 'mrwhite' ? i : -1)).filter(i => i >= 0);
+    return ok[Math.floor(Math.random() * ok.length)];
+  });
+  const civilianWord   = roles.find(r => r.type === 'civilian')?.word;
+  const undercoverWord = roles.find(r => r.type === 'undercover')?.word;
   const [peekPlayer, setPeekPlayer] = useState(null); // null | -1 (selecting) | number
   const [peekRevealed, setPeekRevealed] = useState(false);
   const modalAnim = useRef(new Animated.Value(0)).current;
@@ -134,6 +141,11 @@ function GameBoardScreen({ roles, onBackToMenu, onReplay }) {
         <View style={styles.gbHeader}>
           <Text style={styles.gbTitle}>⚔️  PARTIE EN COURS</Text>
           <Text style={styles.gbSub}>Appuyez sur un joueur pour révéler sa carte et l'éliminer</Text>
+          <View style={styles.starterBox}>
+            <Text style={styles.starterLabel}>C'EST À</Text>
+            <Text style={styles.starterName}>JOUEUR {starter + 1}</Text>
+            <Text style={styles.starterSub}>de commencer, puis on tourne dans le sens des aiguilles d'une montre</Text>
+          </View>
           <TouchableOpacity style={styles.peekBtn} onPress={openPeek}>
             <Text style={styles.peekBtnText}>👁️  Revoir mon mot</Text>
           </TouchableOpacity>
@@ -161,6 +173,9 @@ function GameBoardScreen({ roles, onBackToMenu, onReplay }) {
                   </>
                 ) : (
                   <>
+                    {idx === starter && (
+                      <View style={styles.starterTag}><Text style={styles.starterTagText}>COMMENCE</Text></View>
+                    )}
                     <Text style={styles.gbEmoji}>🎭</Text>
                     <Text style={styles.gbAliveStatus}>En vie</Text>
                     <View style={styles.gbElimBtn}>
@@ -173,6 +188,9 @@ function GameBoardScreen({ roles, onBackToMenu, onReplay }) {
           })}
         </View>
 
+        <TouchableOpacity onPress={() => setWinner('ended')} style={[styles.gbBackBtn, { marginBottom: spacing.sm }]}>
+          <Text style={styles.gbBackBtnText}>Terminer et révéler les mots</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={onBackToMenu} style={styles.gbBackBtn}>
           <Text style={styles.gbBackBtnText}>Retour au menu</Text>
         </TouchableOpacity>
@@ -272,18 +290,40 @@ function GameBoardScreen({ roles, onBackToMenu, onReplay }) {
         <View style={styles.gbOverlay}>
           <View style={styles.gbModalBox}>
             <LinearGradient
-              colors={winner === 'spies' ? ['#450A0A', '#7F1D1D'] : ['#052e16', '#14532d']}
+              colors={winner === 'spies' ? ['#3A0D16', '#5C1622'] : winner === 'civilians' ? ['#0B2A21', '#0F3D2E'] : ['#1A1730', '#0E0C1A']}
               style={styles.gbModalGrad}
             >
-              <Text style={styles.winnerEmoji}>{winner === 'spies' ? '🕵️' : '🏘️'}</Text>
+              <Text style={styles.winnerEmoji}>{winner === 'spies' ? '🕵️' : winner === 'civilians' ? '🏘️' : '🏁'}</Text>
               <Text style={styles.winnerTitle}>
-                {winner === 'spies' ? 'Les espions gagnent !' : 'Les villageois gagnent !'}
+                {winner === 'spies' ? 'Les espions gagnent !' : winner === 'civilians' ? 'Les villageois gagnent !' : 'Fin de la partie'}
               </Text>
               <Text style={styles.winnerSub}>
                 {winner === 'spies'
                   ? 'Les espions sont en majorité — la mission est compromise !'
-                  : 'Tous les espions ont été démasqués !'}
+                  : winner === 'civilians' ? 'Tous les espions ont été démasqués !' : 'Voici qui était qui.'}
               </Text>
+
+              {/* Révélation des mots */}
+              <View style={styles.revealWords}>
+                <View style={styles.revealWordBox}>
+                  <Text style={styles.revealWordLabel}>MOT DES VILLAGEOIS</Text>
+                  <Text style={styles.revealWord}>{civilianWord ?? '—'}</Text>
+                </View>
+                <View style={[styles.revealWordBox, { borderColor: colors.danger + '80' }]}>
+                  <Text style={[styles.revealWordLabel, { color: colors.secondaryLight }]}>MOT DE L'ESPION</Text>
+                  <Text style={styles.revealWord}>{undercoverWord ?? '—'}</Text>
+                </View>
+              </View>
+              <View style={styles.revealList}>
+                {roles.map((r, i) => (
+                  <View key={i} style={styles.revealChip}>
+                    <Text style={styles.revealChipText}>
+                      J{i + 1} {ROLE_CONFIG[r.type].emoji} {r.type === 'civilian' ? 'Villageois' : r.type === 'undercover' ? 'Espion' : 'M. Blanc'}
+                      {eliminated.has(i) ? ' ✕' : ''}
+                    </Text>
+                  </View>
+                ))}
+              </View>
               <TouchableOpacity
                 onPress={onBackToMenu}
                 style={[styles.gbConfirmBtn, winner === 'civilians' && { backgroundColor: '#16A34A', shadowColor: '#16A34A' }]}
@@ -818,6 +858,32 @@ const styles = StyleSheet.create({
   },
   gbCancelBtn: { marginTop: spacing.md, paddingVertical: spacing.sm },
   gbCancelBtnText: { fontSize: 13, color: colors.textMuted },
+
+  // Qui commence
+  starterBox: {
+    marginTop: spacing.md, alignItems: 'center', paddingVertical: spacing.sm, paddingHorizontal: spacing.lg,
+    borderRadius: radius.md, borderWidth: 1, borderColor: '#D4AF37', backgroundColor: 'rgba(212,175,55,0.10)',
+  },
+  starterLabel: { fontSize: 10, letterSpacing: 3, color: colors.accent, fontWeight: '700' },
+  starterName: { fontFamily: 'BodoniModa_700Bold', fontSize: 26, color: colors.text, letterSpacing: 2, marginTop: 2 },
+  starterSub: { fontSize: 12, color: colors.textMuted, textAlign: 'center', marginTop: 2 },
+  starterTag: {
+    position: 'absolute', top: 8, right: 8, backgroundColor: '#D4AF37', borderRadius: radius.full,
+    paddingVertical: 2, paddingHorizontal: 8,
+  },
+  starterTagText: { fontSize: 9, fontWeight: '800', letterSpacing: 1, color: '#1A1408' },
+
+  // Révélation de fin
+  revealWords: { flexDirection: 'row', gap: spacing.sm, width: '100%', marginBottom: spacing.md },
+  revealWordBox: {
+    flex: 1, borderRadius: radius.md, borderWidth: 1, borderColor: colors.accent + '80',
+    backgroundColor: 'rgba(0,0,0,0.25)', paddingVertical: spacing.sm, paddingHorizontal: spacing.sm, alignItems: 'center',
+  },
+  revealWordLabel: { fontSize: 9, letterSpacing: 1.5, fontWeight: '800', color: colors.accent, textAlign: 'center' },
+  revealWord: { fontFamily: 'BodoniModa_700Bold', fontSize: 20, color: colors.text, textAlign: 'center', marginTop: 4 },
+  revealList: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6, marginBottom: spacing.sm },
+  revealChip: { borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', paddingVertical: 3, paddingHorizontal: 9 },
+  revealChipText: { fontSize: 11, color: colors.textSecondary, fontWeight: '600' },
 
   // Peek button
   peekBtn: {
