@@ -79,7 +79,7 @@ export default function VerreSetupScreen({ navigation }) {
             <Text style={styles.rulesLine}>🃏  Si personne n'a bu au bout de ces tours, les cartes sont <Text style={styles.rulesAccent}>révélées</Text> et la <Text style={styles.rulesAccent}>plus petite carte boit le verre</Text></Text>
             {mode === 'battleRoyale' ? (
               <>
-                <Text style={styles.rulesLine}>👑  Mode Battle Royale : le perdant d'un duel est <Text style={styles.rulesAccent}>éliminé</Text> et la partie continue sans lui</Text>
+                <Text style={styles.rulesLine}>👑  Mode Battle Royale : le perdant d'un duel est <Text style={styles.rulesAccent}>éliminé</Text> et la manche continue sans lui : <Text style={styles.rulesAccent}>pas de nouvelle distribution</Text>, chacun garde sa carte</Text>
                 <Text style={styles.rulesLine}>🏆  Le <Text style={styles.rulesAccent}>dernier joueur en lice</Text> gagne !</Text>
               </>
             ) : (

@@ -156,6 +156,17 @@ export default function VerreGameScreen({ route, navigation }) {
     setPhase('distribute');
   };
 
+  // Battle Royale : après une élimination, la manche continue — chacun garde sa carte
+  const continueAfterElim = () => {
+    const pos = turnOrder.indexOf(pendingResult.challengerIdx);
+    setTurnOrder(rotate(turnOrder, pos + 1).filter(i => alive.includes(i)));
+    setTurnPos(0);
+    setPassesThisLap(0);
+    setChallengeTarget(null);
+    setPendingResult(null);
+    setPhase('table');
+  };
+
   const endGame = () => setPhase('final');
 
   // ── DISTRIBUTE ────────────────────────────────────────────────────────
@@ -231,7 +242,7 @@ export default function VerreGameScreen({ route, navigation }) {
 
         <Text style={styles.lapHint}>{passesThisLap} / {turnOrder.length} joueurs ont passé ce tour-ci</Text>
         {isElim ? (
-          <Text style={styles.warnHint}>💀 Perdre un duel = éliminé · {alive.length} joueurs en lice</Text>
+          <Text style={styles.warnHint}>💀 Perdre un duel = éliminé · chacun garde sa carte · {alive.length} joueurs en lice</Text>
         ) : (
           <Text style={styles.warnHint}>🍺 Boire (ou perdre un duel) termine la manche — nouvelles cartes ensuite</Text>
         )}
@@ -326,7 +337,7 @@ export default function VerreGameScreen({ route, navigation }) {
             {isElim && r.remaining <= 1
               ? 'Il ne reste plus qu\'un joueur…'
               : isElim
-                ? `${r.remaining} joueurs en lice — nouvelles cartes…`
+                ? `${r.remaining} joueurs en lice — chacun garde sa carte, la manche continue`
                 : 'La manche se termine, nouvelles cartes…'}
           </Text>
         </View>
@@ -340,9 +351,9 @@ export default function VerreGameScreen({ route, navigation }) {
             </TouchableOpacity>
           ) : (
             <>
-              <TouchableOpacity onPress={advanceManche} style={styles.nextBtn} activeOpacity={0.85}>
+              <TouchableOpacity onPress={isElim ? continueAfterElim : advanceManche} style={styles.nextBtn} activeOpacity={0.85}>
                 <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
-                  <Text style={styles.nextBtnText}>Manche suivante →</Text>
+                  <Text style={styles.nextBtnText}>{isElim ? 'Continuer la manche →' : 'Manche suivante →'}</Text>
                 </LinearGradient>
               </TouchableOpacity>
               <TouchableOpacity onPress={endGame} style={styles.endGameLink}>
