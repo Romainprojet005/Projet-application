@@ -9,9 +9,9 @@ import PageScroll from '../../components/PageScroll';
 import { CATEGORIES, getSongsCount } from '../../data/blindTestSongs';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const BEAT       = GOLD;
-const BEAT_DARK  = GOLD_DARK;
-const BEAT_LIGHT = GOLD_LIGHT;
+const BEAT       = '#D4AF37';
+const BEAT_DARK  = '#B8962E';
+const BEAT_LIGHT = '#F4DC8C';
 
 const ROUND_OPTIONS = [5, 10, 15, 20];
 const TIME_OPTIONS  = [30, null]; // null = infini
@@ -54,13 +54,6 @@ export default function BlindTestSetupScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>🎸</Text>
-            <View>
-              <Text style={styles.badgeName}>Le Guitariste</Text>
-              <Text style={styles.badgeQuote}>"Montez le son, le chrono tourne !"</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>BLIND TEST</Text>
           <Text style={styles.pageSubtitle}>Reconnaissez les tubes avant le buzzer</Text>
         </Animated.View>
@@ -69,7 +62,7 @@ export default function BlindTestSetupScreen({ navigation }) {
 
           {/* ── Catégorie ── */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎵  Catégorie</Text>
+            <Text style={styles.cardLabel}>Catégorie</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catRow}>
               {CATEGORIES.map(cat => {
                 const active = categoryId === cat.id;
@@ -79,11 +72,10 @@ export default function BlindTestSetupScreen({ navigation }) {
                     onPress={() => setCategoryId(cat.id)}
                     style={[
                       styles.catPill,
-                      active && { backgroundColor: cat.color + '30', borderColor: cat.color },
+                      active && { backgroundColor: '#D4AF37' + '30', borderColor: '#D4AF37' },
                     ]}
                   >
-                    <Text style={styles.catEmoji}>{cat.emoji}</Text>
-                    <Text style={[styles.catText, active && { color: cat.color, fontWeight: '800' }]}>
+                    <Text style={[styles.catText, active && { color: '#D4AF37', fontWeight: '800' }]}>
                       {cat.name}
                     </Text>
                   </TouchableOpacity>
@@ -93,18 +85,18 @@ export default function BlindTestSetupScreen({ navigation }) {
           </View>
 
           {/* ── Règles ── */}
-          <View style={[styles.rulesCard, { borderColor: activeCat.color + '35', backgroundColor: activeCat.color + '18' }]}>
-            <Text style={styles.rulesTitle}>🎯  Comment jouer</Text>
+          <View style={[styles.rulesCard, { borderColor: '#D4AF37' + '35', backgroundColor: '#D4AF37' + '18' }]}>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
             {timeLimit === null ? (
               <>
                 <Text style={styles.rulesLine}>∞  Pas de limite de temps</Text>
-                <Text style={styles.rulesLine}>✅  <Text style={styles.rulesPoints}>1 pt</Text>  si la chanson est trouvée</Text>
+                <Text style={styles.rulesLine}><Text style={styles.rulesPoints}>1 pt</Text>  si la chanson est trouvée</Text>
               </>
             ) : (
               <>
-                <Text style={styles.rulesLine}>⏱  0 → {Math.round(timeLimit / 3)} s  →  <Text style={styles.rulesPoints}>3 pts</Text></Text>
-                <Text style={styles.rulesLine}>⏱  {Math.round(timeLimit / 3)} → {Math.round(timeLimit * 2 / 3)} s  →  <Text style={styles.rulesPoints}>2 pts</Text></Text>
-                <Text style={styles.rulesLine}>⏱  {Math.round(timeLimit * 2 / 3)} → {timeLimit} s  →  <Text style={styles.rulesPoints}>1 pt</Text></Text>
+                <Text style={styles.rulesLine}>0 → {Math.round(timeLimit / 3)} s  →  <Text style={styles.rulesPoints}>3 pts</Text></Text>
+                <Text style={styles.rulesLine}>{Math.round(timeLimit / 3)} → {Math.round(timeLimit * 2 / 3)} s  →  <Text style={styles.rulesPoints}>2 pts</Text></Text>
+                <Text style={styles.rulesLine}>{Math.round(timeLimit * 2 / 3)} → {timeLimit} s  →  <Text style={styles.rulesPoints}>1 pt</Text></Text>
               </>
             )}
             <Text style={styles.rulesNote}>
@@ -116,7 +108,7 @@ export default function BlindTestSetupScreen({ navigation }) {
 
           {/* ── Temps ── */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>⏱  Temps par chanson</Text>
+            <Text style={styles.cardLabel}>Temps par chanson</Text>
             <View style={styles.pillRow}>
               {TIME_OPTIONS.map(t => (
                 <TouchableOpacity
@@ -134,7 +126,7 @@ export default function BlindTestSetupScreen({ navigation }) {
 
           {/* ── Nb chansons ── */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎵  Nombre de chansons</Text>
+            <Text style={styles.cardLabel}>Nombre de chansons</Text>
             <View style={styles.pillRow}>
               {ROUND_OPTIONS.map(n => (
                 <TouchableOpacity
@@ -150,12 +142,12 @@ export default function BlindTestSetupScreen({ navigation }) {
 
           {/* ── Joueurs ── */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Joueurs (optionnel)</Text>
+            <Text style={styles.cardLabel}>Joueurs (optionnel)</Text>
             <Text style={styles.cardHint}>Laissez vide pour jouer sans suivi des scores</Text>
             {playerNames.map((name, i) => (
               <View key={i} style={styles.playerRow}>
                 <View style={[styles.inputWrap, inputFocus === i && styles.inputWrapFocus]}>
-                  <Text style={styles.inputIcon}>🎸</Text>
+                  <Text style={styles.inputIcon}></Text>
                   <TextInput
                     value={name}
                     onChangeText={v => updatePlayer(i, v)}
@@ -182,11 +174,11 @@ export default function BlindTestSetupScreen({ navigation }) {
           </View>
 
           {/* ── Résumé ── */}
-          <View style={[styles.summaryCard, { borderColor: activeCat.color + '30', backgroundColor: activeCat.color + '15' }]}>
-            <Text style={styles.summaryTitle}>📋  Résumé</Text>
+          <View style={[styles.summaryCard, { borderColor: '#D4AF37' + '30', backgroundColor: '#D4AF37' + '15' }]}>
+            <Text style={styles.summaryTitle}>Résumé</Text>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Catégorie</Text>
-              <Text style={styles.summaryValue}>{activeCat.emoji}  {activeCat.name}</Text>
+              <Text style={styles.summaryValue}>{activeCat.name}</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Chansons</Text>
@@ -210,7 +202,7 @@ export default function BlindTestSetupScreen({ navigation }) {
         <Animated.View style={{ opacity: fadeIn, paddingHorizontal: spacing.xl, paddingBottom: 48 }}>
           <TouchableOpacity onPress={handleStart} style={styles.launchBtn} activeOpacity={0.88}>
             <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.launchGradient}>
-              <Text style={styles.launchText}>🎸  QUE LA MUSIQUE COMMENCE !</Text>
+              <Text style={styles.launchText}>QUE LA MUSIQUE COMMENCE !</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -219,7 +211,7 @@ export default function BlindTestSetupScreen({ navigation }) {
             style={styles.multiBtn}
             activeOpacity={0.8}
           >
-            <Text style={styles.multiBtnText}>📱  Mode multi-téléphones</Text>
+            <Text style={styles.multiBtnText}>Mode multi-téléphones</Text>
           </TouchableOpacity>
         </Animated.View>
 

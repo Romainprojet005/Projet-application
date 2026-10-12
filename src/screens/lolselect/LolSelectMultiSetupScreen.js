@@ -110,7 +110,7 @@ export default function LolSelectMultiSetupScreen({ navigation, route }) {
           <Text style={styles.backText}>← Retour</Text>
         </TouchableOpacity>
 
-        <Text style={[styles.title, { color: ACCENT_LIGHT }]}>{game.emoji} SÉLECTIONNEUR À DISTANCE</Text>
+        <Text style={[styles.title, { color: ACCENT_LIGHT }]}>SÉLECTIONNEUR À DISTANCE</Text>
         <Text style={styles.subtitle}>Chacun draft sa propre équipe sur son appareil, puis les deux s'affrontent · {game.label}</Text>
 
         <View style={styles.tabs}>
@@ -121,7 +121,7 @@ export default function LolSelectMultiSetupScreen({ navigation, route }) {
               onPress={() => setTab(t)}
             >
               <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t === 'create' ? '➕ Créer' : '🔑 Rejoindre'}
+                {t === 'create' ? 'Créer' : 'Rejoindre'}
               </Text>
             </TouchableOpacity>
           ))}
@@ -148,7 +148,7 @@ export default function LolSelectMultiSetupScreen({ navigation, route }) {
             activeOpacity={0.8}
           >
             <LinearGradient colors={[ACCENT_LIGHT, ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-              {loading ? <ActivityIndicator color="#08070F" /> : <Text style={styles.mainBtnText}>✨ CRÉER LA SALLE</Text>}
+              {loading ? <ActivityIndicator color="#08070F" /> : <Text style={styles.mainBtnText}>CRÉER LA SALLE</Text>}
             </LinearGradient>
           </TouchableOpacity>
         ) : (
@@ -172,7 +172,7 @@ export default function LolSelectMultiSetupScreen({ navigation, route }) {
               activeOpacity={0.8}
             >
               <LinearGradient colors={[ACCENT_LIGHT, ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                {loading ? <ActivityIndicator color="#08070F" /> : <Text style={styles.mainBtnText}>🚀 REJOINDRE</Text>}
+                {loading ? <ActivityIndicator color="#08070F" /> : <Text style={styles.mainBtnText}>REJOINDRE</Text>}
               </LinearGradient>
             </TouchableOpacity>
           </>

@@ -9,16 +9,16 @@ import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 import { VERITES_HOT_JOKER } from '../../data/veritesVoleesData';
 
-const ACCENT       = '#7E62E0';
-const ACCENT_LIGHT = '#B9A2FF';
-const ACCENT_DARK  = '#5B3FB8';
+const ACCENT       = '#D4AF37';
+const ACCENT_LIGHT = '#F4DC8C';
+const ACCENT_DARK  = '#B8962E';
 const MIN_PLAYERS  = 4;
 const MAX_PLAYERS  = 10;
 const ROUND_OPTIONS = [3, 5, 7];
 const MODES = [
-  { id: 'classique', label: '😇 Classique' },
-  { id: 'hot',       label: '🌶️ Hot' },
-  { id: 'tres_hot',  label: '🔞 Très hot' },
+  { id: 'classique', label: 'Classique' },
+  { id: 'hot',       label: 'Hot' },
+  { id: 'tres_hot',  label: 'Très hot' },
 ];
 
 export default function VeritesSetupScreen({ navigation }) {
@@ -58,13 +58,6 @@ export default function VeritesSetupScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>🤥</Text>
-            <View>
-              <Text style={styles.badgeName}>Le Voleur de vérités</Text>
-              <Text style={styles.badgeQuote}>"Tout est vrai… mais pas forcément à toi."</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>VÉRITÉS VOLÉES</Text>
           <Text style={styles.pageSubtitle}>Tout le monde dit la vérité… mais pas toujours la sienne</Text>
         </Animated.View>
@@ -72,20 +65,20 @@ export default function VeritesSetupScreen({ navigation }) {
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
 
           <View style={[styles.rulesCard, { borderColor: ACCENT + '35', backgroundColor: ACCENT + '15' }]}>
-            <Text style={styles.rulesTitle}>🤥  Comment jouer</Text>
-            <Text style={styles.rulesLine}>📝  Chacun complète en secret le <Text style={styles.rulesAccent}>même début de phrase</Text>, en disant la vérité</Text>
-            <Text style={styles.rulesLine}>🔀  Le jeu <Text style={styles.rulesAccent}>échange en secret</Text> les vérités de 2 joueurs</Text>
-            <Text style={styles.rulesLine}>🗣️  Chacun lit « sa » vérité à voix haute — les 2 tricheurs doivent l'assumer et bluffer</Text>
-            <Text style={styles.rulesLine}>🗳️  Au vote final, chacun désigne <Text style={styles.rulesAccent}>2 suspects</Text></Text>
-            <Text style={styles.rulesLine}>⭐  <Text style={styles.rulesAccent}>+1 pt</Text> par tricheur démasqué · tricheur : <Text style={styles.rulesAccent}>+1 pt</Text> par joueur berné</Text>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
+            <Text style={styles.rulesLine}>Chacun complète en secret le <Text style={styles.rulesAccent}>même début de phrase</Text>, en disant la vérité</Text>
+            <Text style={styles.rulesLine}>Le jeu <Text style={styles.rulesAccent}>échange en secret</Text> les vérités de 2 joueurs</Text>
+            <Text style={styles.rulesLine}>Chacun lit « sa » vérité à voix haute — les 2 tricheurs doivent l'assumer et bluffer</Text>
+            <Text style={styles.rulesLine}>Au vote final, chacun désigne <Text style={styles.rulesAccent}>2 suspects</Text></Text>
+            <Text style={styles.rulesLine}><Text style={styles.rulesAccent}>+1 pt</Text> par tricheur démasqué · tricheur : <Text style={styles.rulesAccent}>+1 pt</Text> par joueur berné</Text>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Joueurs (min. {MIN_PLAYERS})</Text>
+            <Text style={styles.cardLabel}>Joueurs (min. {MIN_PLAYERS})</Text>
             {playerNames.map((name, i) => (
               <View key={i} style={styles.playerRow}>
                 <View style={[styles.inputWrap, inputFocus === i && styles.inputWrapFocus]}>
-                  <Text style={styles.inputIcon}>{i === 0 ? '🤥' : '👤'}</Text>
+                  <Text style={styles.inputIcon}>{i === 0 ? '' : ''}</Text>
                   <TextInput
                     value={name}
                     onChangeText={v => updatePlayer(i, v)}
@@ -118,7 +111,7 @@ export default function VeritesSetupScreen({ navigation }) {
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎚️  Questions</Text>
+            <Text style={styles.cardLabel}>Questions</Text>
             <View style={styles.roundRow}>
               {MODES.map(m => (
                 <TouchableOpacity
@@ -133,13 +126,13 @@ export default function VeritesSetupScreen({ navigation }) {
             </View>
             {mode !== 'classique' && (
               <Text style={styles.modeNote}>
-                🔞 Questions {mode === 'tres_hot' ? 'très ' : ''}indiscrètes, réservées aux adultes. On répond honnêtement… ou on utilise son joker.{'\n'}🃏 Joker : {VERITES_HOT_JOKER}
+                Questions {mode === 'tres_hot' ? 'très ' : ''}indiscrètes, réservées aux adultes. On répond honnêtement… ou on utilise son joker.{'\n'}Joker : {VERITES_HOT_JOKER}
               </Text>
             )}
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🔁  Nombre de manches</Text>
+            <Text style={styles.cardLabel}>Nombre de manches</Text>
             <View style={styles.roundRow}>
               {ROUND_OPTIONS.map(r => (
                 <TouchableOpacity
@@ -168,7 +161,7 @@ export default function VeritesSetupScreen({ navigation }) {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>🤥  QUE LE BLUFF COMMENCE !</Text>
+              <Text style={styles.launchText}>QUE LE BLUFF COMMENCE !</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
@@ -257,5 +250,5 @@ const styles = StyleSheet.create({
     shadowColor: ACCENT, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText:     { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+  launchText:     { fontSize: 15, fontWeight: '800', color: '#1A1408', letterSpacing: 2 },
 });

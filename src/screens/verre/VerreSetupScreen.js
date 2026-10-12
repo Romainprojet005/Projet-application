@@ -9,14 +9,14 @@ import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 import { MIN_TOURS, MAX_TOURS } from '../../data/verreData';
 
-const ACCENT       = '#7E62E0';
-const ACCENT_LIGHT = '#B9A2FF';
-const ACCENT_DARK  = '#5B3FB8';
+const ACCENT       = '#D4AF37';
+const ACCENT_LIGHT = '#F4DC8C';
+const ACCENT_DARK  = '#B8962E';
 const MAX_PLAYERS  = 10;
 
 const MODES = [
-  { id: 'classique',   emoji: '🥂', label: 'Classique',   desc: 'Celui qui a bu le moins gagne' },
-  { id: 'battleRoyale', emoji: '👑', label: 'Battle Royale', desc: 'Perdre un duel = éliminé. Le dernier debout gagne' },
+  { id: 'classique',   emoji: '', label: 'Classique',   desc: 'Celui qui a bu le moins gagne' },
+  { id: 'battleRoyale', emoji: '', label: 'Battle Royale', desc: 'Perdre un duel = éliminé. Le dernier debout gagne' },
 ];
 
 export default function VerreSetupScreen({ navigation }) {
@@ -54,13 +54,6 @@ export default function VerreSetupScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>🥂</Text>
-            <View>
-              <Text style={styles.badgeName}>Le Bluffeur</Text>
-              <Text style={styles.badgeQuote}>"Boire ou tenter le sort ?"</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>LE VERRE MAUDIT</Text>
           <Text style={styles.pageSubtitle}>Bluffe, parie, et bois le moins possible</Text>
         </Animated.View>
@@ -68,27 +61,27 @@ export default function VerreSetupScreen({ navigation }) {
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
 
           <View style={[styles.rulesCard, { borderColor: ACCENT + '35', backgroundColor: ACCENT + '15' }]}>
-            <Text style={styles.rulesTitle}>🥂  Comment jouer</Text>
-            <Text style={styles.rulesLine}>🎴  Chaque joueur reçoit une <Text style={styles.rulesAccent}>carte secrète (1-20)</Text> que lui seul voit</Text>
-            <Text style={styles.rulesLine}>🍷  Le verre commence avec <Text style={styles.rulesAccent}>1 gorgée</Text></Text>
-            <Text style={styles.rulesLine}>👉  À ton tour : <Text style={styles.rulesAccent}>bois le verre</Text>, <Text style={styles.rulesAccent}>passe</Text>, ou <Text style={styles.rulesAccent}>challenge</Text> un joueur</Text>
-            <Text style={styles.rulesLine}>⚔️  Si tu challenges, parie que ta carte est <Text style={styles.rulesAccent}>plus haute</Text> ou <Text style={styles.rulesAccent}>plus basse</Text></Text>
-            <Text style={styles.rulesLine}>🍺  Si un joueur boit (ou perd un duel), <Text style={styles.rulesAccent}>la manche se termine</Text> et de nouvelles cartes sont distribuées</Text>
-            <Text style={styles.rulesLine}>🔄  Si tout le monde passe, le verre <Text style={styles.rulesAccent}>se remplit encore un peu</Text></Text>
-            <Text style={styles.rulesLine}>🎲  Un nombre de tours est <Text style={styles.rulesAccent}>tiré au sort</Text> à chaque manche ({MIN_TOURS}-{MAX_TOURS})</Text>
-            <Text style={styles.rulesLine}>🃏  Si personne n'a bu au bout de ces tours, les cartes sont <Text style={styles.rulesAccent}>révélées</Text> et la <Text style={styles.rulesAccent}>plus petite carte boit le verre</Text></Text>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
+            <Text style={styles.rulesLine}>Chaque joueur reçoit une <Text style={styles.rulesAccent}>carte secrète (1-20)</Text> que lui seul voit</Text>
+            <Text style={styles.rulesLine}>Le verre commence avec <Text style={styles.rulesAccent}>1 gorgée</Text></Text>
+            <Text style={styles.rulesLine}>À ton tour : <Text style={styles.rulesAccent}>bois le verre</Text>, <Text style={styles.rulesAccent}>passe</Text>, ou <Text style={styles.rulesAccent}>challenge</Text> un joueur</Text>
+            <Text style={styles.rulesLine}>Si tu challenges, parie que ta carte est <Text style={styles.rulesAccent}>plus haute</Text> ou <Text style={styles.rulesAccent}>plus basse</Text></Text>
+            <Text style={styles.rulesLine}>Si un joueur boit (ou perd un duel), <Text style={styles.rulesAccent}>la manche se termine</Text> et de nouvelles cartes sont distribuées</Text>
+            <Text style={styles.rulesLine}>Si tout le monde passe, le verre <Text style={styles.rulesAccent}>se remplit encore un peu</Text></Text>
+            <Text style={styles.rulesLine}>Un nombre de tours est <Text style={styles.rulesAccent}>tiré au sort</Text> à chaque manche ({MIN_TOURS}-{MAX_TOURS})</Text>
+            <Text style={styles.rulesLine}>Si personne n'a bu au bout de ces tours, les cartes sont <Text style={styles.rulesAccent}>révélées</Text> et la <Text style={styles.rulesAccent}>plus petite carte boit le verre</Text></Text>
             {mode === 'battleRoyale' ? (
               <>
-                <Text style={styles.rulesLine}>👑  Mode Battle Royale : le perdant d'un duel est <Text style={styles.rulesAccent}>éliminé</Text> et la manche continue sans lui : <Text style={styles.rulesAccent}>pas de nouvelle distribution</Text>, chacun garde sa carte</Text>
-                <Text style={styles.rulesLine}>🏆  Le <Text style={styles.rulesAccent}>dernier joueur en lice</Text> gagne !</Text>
+                <Text style={styles.rulesLine}>Mode Battle Royale : le perdant d'un duel est <Text style={styles.rulesAccent}>éliminé</Text> et la manche continue sans lui : <Text style={styles.rulesAccent}>pas de nouvelle distribution</Text>, chacun garde sa carte</Text>
+                <Text style={styles.rulesLine}>Le <Text style={styles.rulesAccent}>dernier joueur en lice</Text> gagne !</Text>
               </>
             ) : (
-              <Text style={styles.rulesLine}>🏆  À la fin, celui qui a <Text style={styles.rulesAccent}>bu le moins</Text> gagne !</Text>
+              <Text style={styles.rulesLine}>À la fin, celui qui a <Text style={styles.rulesAccent}>bu le moins</Text> gagne !</Text>
             )}
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎮  Mode de jeu</Text>
+            <Text style={styles.cardLabel}>Mode de jeu</Text>
             <View style={styles.modeRow}>
               {MODES.map(m => (
                 <TouchableOpacity
@@ -97,7 +90,6 @@ export default function VerreSetupScreen({ navigation }) {
                   style={[styles.modeBtn, mode === m.id && styles.modeBtnActive]}
                   activeOpacity={0.85}
                 >
-                  <Text style={styles.modeEmoji}>{m.emoji}</Text>
                   <Text style={[styles.modeLabel, mode === m.id && { color: ACCENT_LIGHT }]}>{m.label}</Text>
                   <Text style={styles.modeDesc}>{m.desc}</Text>
                 </TouchableOpacity>
@@ -106,11 +98,11 @@ export default function VerreSetupScreen({ navigation }) {
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Joueurs (min. 2)</Text>
+            <Text style={styles.cardLabel}>Joueurs (min. 2)</Text>
             {playerNames.map((name, i) => (
               <View key={i} style={styles.playerRow}>
                 <View style={[styles.inputWrap, inputFocus === i && styles.inputWrapFocus]}>
-                  <Text style={styles.inputIcon}>👤</Text>
+                  <Text style={styles.inputIcon}></Text>
                   <TextInput
                     value={name}
                     onChangeText={v => updatePlayer(i, v)}
@@ -153,7 +145,7 @@ export default function VerreSetupScreen({ navigation }) {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>🥂  LANCER LA PARTIE !</Text>
+              <Text style={styles.launchText}>LANCER LA PARTIE !</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
@@ -242,5 +234,5 @@ const styles = StyleSheet.create({
     shadowColor: ACCENT, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText:     { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+  launchText:     { fontSize: 15, fontWeight: '800', color: '#1A1408', letterSpacing: 2 },
 });

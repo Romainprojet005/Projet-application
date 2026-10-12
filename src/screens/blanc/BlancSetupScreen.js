@@ -9,8 +9,8 @@ import PageScroll from '../../components/PageScroll';
 import { QUESTIONS, ANSWERS } from '../../data/blancMangerData';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 
-const PRP       = colors.primary;
-const PRP_LIGHT = colors.primaryLight;
+const PRP       = '#D4AF37';
+const PRP_LIGHT = '#E6C766';
 
 export default function BlancSetupScreen({ navigation, route }) {
   const fadeAnim  = useRef(new Animated.Value(0)).current;
@@ -50,8 +50,8 @@ export default function BlancSetupScreen({ navigation, route }) {
   const canLaunch = players.every(p => p.trim().length > 0);
 
   const CATEGORIES = [
-    { id: 'classique', emoji: '🃏', name: 'Classique', desc: 'Tout public' },
-    { id: 'adulte',    emoji: '🔞', name: 'Adulte',    desc: '18+ sans filtre' },
+    { id: 'classique', emoji: '', name: 'Classique', desc: 'Tout public' },
+    { id: 'adulte',    emoji: '', name: 'Adulte',    desc: '18+ sans filtre' },
   ];
 
   // « Rejouer » depuis la fin de partie : relance aussitôt avec les mêmes réglages
@@ -71,10 +71,6 @@ export default function BlancSetupScreen({ navigation, route }) {
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
               <Text style={styles.backText}>← Retour</Text>
             </TouchableOpacity>
-            <View style={styles.badge}>
-              <Text style={styles.badgeEmoji}>🃏</Text>
-              <Text style={styles.badgeQuote}>"Plus c'est absurde, plus c'est drôle !"</Text>
-            </View>
             <Text style={styles.title}>REMPLIS LE BLANC</Text>
             <Text style={styles.subtitle}>Configuration de la partie</Text>
           </Animated.View>
@@ -83,7 +79,7 @@ export default function BlancSetupScreen({ navigation, route }) {
 
             {/* Joueurs */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>👥 JOUEURS</Text>
+              <Text style={styles.cardLabel}>JOUEURS</Text>
               <Text style={styles.cardHint}>3 à 10 participants</Text>
               {players.map((name, i) => (
                 <View key={i} style={styles.playerRow}>
@@ -114,7 +110,7 @@ export default function BlancSetupScreen({ navigation, route }) {
 
             {/* Catégorie */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>🎯 CATÉGORIE</Text>
+              <Text style={styles.cardLabel}>CATÉGORIE</Text>
               <View style={styles.modeRow}>
                 {CATEGORIES.map(c => (
                   <TouchableOpacity
@@ -122,7 +118,6 @@ export default function BlancSetupScreen({ navigation, route }) {
                     style={[styles.modeBtn, category === c.id && { borderColor: PRP, backgroundColor: PRP + '22' }]}
                     onPress={() => setCategory(c.id)}
                   >
-                    <Text style={styles.modeEmoji}>{c.emoji}</Text>
                     <Text style={[styles.modeName, category === c.id && { color: PRP_LIGHT }]}>{c.name}</Text>
                     <Text style={styles.modeDesc}>{c.desc}</Text>
                   </TouchableOpacity>
@@ -132,7 +127,7 @@ export default function BlancSetupScreen({ navigation, route }) {
 
             {/* Tours */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>🔄 NOMBRE DE TOURS</Text>
+              <Text style={styles.cardLabel}>NOMBRE DE TOURS</Text>
               <View style={styles.countRow}>
                 {[5, 10, 15].map(n => (
                   <TouchableOpacity
@@ -149,16 +144,16 @@ export default function BlancSetupScreen({ navigation, route }) {
 
             {/* Résumé */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>📋 RÉSUMÉ</Text>
+              <Text style={styles.cardLabel}>RÉSUMÉ</Text>
               <SummaryRow label="Joueurs"    value={`${players.length} joueurs`} />
-              <SummaryRow label="Catégorie"  value={category === 'classique' ? '🃏 Classique' : '🔞 Adulte'} />
+              <SummaryRow label="Catégorie"  value={category === 'classique' ? 'Classique' : 'Adulte'} />
               <SummaryRow label="Tours"      value={`${rounds} tours`} />
               <SummaryRow label="Jury"       value="Tourne à chaque tour" />
             </View>
 
             {!!error && (
               <View style={styles.errorBox}>
-                <Text style={styles.errorTxt}>⚠️ {error}</Text>
+                <Text style={styles.errorTxt}>{error}</Text>
               </View>
             )}
 
@@ -169,7 +164,7 @@ export default function BlancSetupScreen({ navigation, route }) {
                 style={styles.launchBtn}
               >
                 <Text style={[styles.launchTxt, !canLaunch && { color: colors.textMuted }]}>
-                  LANCER LA PARTIE 🃏
+                  LANCER LA PARTIE 
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -181,10 +176,10 @@ export default function BlancSetupScreen({ navigation, route }) {
               <LinearGradient
                 colors={['#1A0D3D', '#0E0C1A']}
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-                style={[styles.launchBtn, { borderWidth: 1, borderColor: colors.primary + '66' }]}
+                style={[styles.launchBtn, { borderWidth: 1, borderColor: '#D4AF37' + '66' }]}
               >
-                <Text style={[styles.launchTxt, { color: colors.primaryLight }]}>
-                  🌐 MODE MULTI-APPAREILS
+                <Text style={[styles.launchTxt, { color: '#E6C766' }]}>
+                  MODE MULTI-APPAREILS
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -199,7 +194,7 @@ function SummaryRow({ label, value }) {
   return (
     <View style={styles.summaryRow}>
       <Text style={styles.summaryKey}>{label}</Text>
-      <Text style={[styles.summaryVal, { color: colors.primaryLight }]}>{value}</Text>
+      <Text style={[styles.summaryVal, { color: '#E6C766' }]}>{value}</Text>
     </View>
   );
 }
@@ -214,7 +209,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   backBtn:    { alignSelf: 'flex-start', marginBottom: spacing.md },
-  backText:   { color: colors.primaryLight, fontSize: 14, fontWeight: '600' },
+  backText:   { color: '#E6C766', fontSize: 14, fontWeight: '600' },
   badge: {
     alignItems: 'center',
     backgroundColor: PRP + '22',
@@ -226,7 +221,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   badgeEmoji:  { fontSize: 40, marginBottom: 4 },
-  badgeQuote:  { fontSize: 12, color: colors.primaryLight, fontStyle: 'italic', textAlign: 'center' },
+  badgeQuote:  { fontSize: 12, color: '#E6C766', fontStyle: 'italic', textAlign: 'center' },
   title:       { fontSize: 26, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 4, marginBottom: 4 },
   subtitle:    { fontSize: 13, color: colors.textSecondary, letterSpacing: 1 },
 
@@ -238,7 +233,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.md,
   },
-  cardLabel: { fontSize: 11, fontWeight: '800', color: colors.primaryLight, letterSpacing: 2, marginBottom: 4 },
+  cardLabel: { fontSize: 11, fontWeight: '800', color: '#E6C766', letterSpacing: 2, marginBottom: 4 },
   cardHint:  { fontSize: 12, color: colors.textMuted, marginBottom: spacing.md },
 
   playerRow:   { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm, gap: spacing.sm },

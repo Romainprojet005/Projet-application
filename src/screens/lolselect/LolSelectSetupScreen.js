@@ -33,13 +33,6 @@ export default function LolSelectSetupScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={[styles.badge, { backgroundColor: `${ACCENT}20`, borderColor: `${ACCENT}40` }]}>
-            <Text style={styles.badgeEmoji}>🎮</Text>
-            <View>
-              <Text style={styles.badgeName}>Le Sélectionneur</Text>
-              <Text style={styles.badgeQuote}>"Composez la légende."</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>LE SÉLECTIONNEUR</Text>
           <Text style={[styles.pageSubtitle, { color: ACCENT_LIGHT }]}>Draft ton équipe de {game.label} parmi de vrais joueurs pro</Text>
         </Animated.View>
@@ -59,7 +52,6 @@ export default function LolSelectSetupScreen({ navigation }) {
                     { borderColor: active ? g.accent : colors.border, backgroundColor: active ? `${g.accent}18` : colors.card },
                   ]}
                 >
-                  <Text style={styles.gameCardEmoji}>{g.emoji}</Text>
                   <Text style={[styles.gameCardLabel, active && { color: g.accentLight }]}>{g.label}</Text>
                   <Text style={styles.gameCardHint}>{g.squadLabel}</Text>
                 </TouchableOpacity>
@@ -71,17 +63,17 @@ export default function LolSelectSetupScreen({ navigation }) {
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
 
           <View style={[styles.rulesCard, { borderColor: ACCENT + '35', backgroundColor: ACCENT + '15' }]}>
-            <Text style={styles.rulesTitle}>🎮  Comment jouer</Text>
-            <Text style={styles.rulesLine}>🃏  Les {game.squadSize} slots s'affichent en parallèle, chacun avec un trio de {TRIO_SIZE} cartes — <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>{game.squadSize * TRIO_SIZE} joueurs</Text> au départ</Text>
-            <Text style={styles.rulesLine}>🎯  Choisir une carte verrouille son slot : les {TRIO_SIZE} joueurs de ce trio disparaissent (les 2 autres sont écartés), et <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>tous les autres slots ouverts sont automatiquement relancés</Text></Text>
-            <Text style={styles.rulesLine}>📉  La vitrine se réduit ainsi à chaque slot verrouillé, jusqu'aux 3 derniers joueurs</Text>
-            <Text style={styles.rulesLine}>🔄  En plus, un nombre de relances manuelles <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>à choisir avant le draft</Text> (0 à 5) — chacune rafraîchit <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>tous les slots encore ouverts</Text> en une fois, un joueur écarté n'est jamais reproposé</Text>
-            <Text style={styles.rulesLine}>🔒  Une fois les {game.squadSize} slots remplis, <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>impossible de revenir en arrière</Text> — place au tournoi !</Text>
-            <Text style={styles.rulesLine}>🎯  Moins familier de la scène ? Un <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>niveau de connaissance</Text> (100/75/50/25 %) réduit le vivier aux joueurs les plus connus, à choisir juste avant le draft</Text>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
+            <Text style={styles.rulesLine}>Les {game.squadSize} slots s'affichent en parallèle, chacun avec un trio de {TRIO_SIZE} cartes — <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>{game.squadSize * TRIO_SIZE} joueurs</Text> au départ</Text>
+            <Text style={styles.rulesLine}>Choisir une carte verrouille son slot : les {TRIO_SIZE} joueurs de ce trio disparaissent (les 2 autres sont écartés), et <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>tous les autres slots ouverts sont automatiquement relancés</Text></Text>
+            <Text style={styles.rulesLine}>La vitrine se réduit ainsi à chaque slot verrouillé, jusqu'aux 3 derniers joueurs</Text>
+            <Text style={styles.rulesLine}>En plus, un nombre de relances manuelles <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>à choisir avant le draft</Text> (0 à 5) — chacune rafraîchit <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>tous les slots encore ouverts</Text> en une fois, un joueur écarté n'est jamais reproposé</Text>
+            <Text style={styles.rulesLine}>Une fois les {game.squadSize} slots remplis, <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>impossible de revenir en arrière</Text> — place au tournoi !</Text>
+            <Text style={styles.rulesLine}>Moins familier de la scène ? Un <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>niveau de connaissance</Text> (100/75/50/25 %) réduit le vivier aux joueurs les plus connus, à choisir juste avant le draft</Text>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🧩  {game.squadSize} joueurs à recruter</Text>
+            <Text style={styles.cardLabel}>{game.squadSize} joueurs à recruter</Text>
             <Text style={styles.hint}>
               {game.id === 'lol'
                 ? "Des dizaines de vraies légendes de l'esport (LCK, LEC, LPL), certaines à plusieurs années différentes de leur carrière — leur niveau reflète leur domination réelle cette année-là."
@@ -90,11 +82,11 @@ export default function LolSelectSetupScreen({ navigation }) {
           </View>
 
           <View style={[styles.rulesCard, { borderColor: HEXTECH + '35', backgroundColor: HEXTECH + '12' }]}>
-            <Text style={[styles.rulesTitle, { color: HEXTECH }]}>🏆  Le tournoi (BO3)</Text>
-            <Text style={styles.rulesLine}>⚔️  Votre équipe affronte une équipe rivale en <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>Best-of-3</Text> — la première à 2 manches gagne la série</Text>
-            <Text style={styles.rulesLine}>📊  Chaque manche est déterminée par le niveau des joueurs et la <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>alchimie</Text> entre coéquipiers ayant réellement joué ensemble</Text>
-            <Text style={styles.rulesLine}>🔁  L'équipe battue ajuste sa stratégie pour la manche suivante — de vrais retournements sont possibles</Text>
-            <Text style={styles.rulesLine}>📝  Le récit change à chaque partie, mais jamais sans raison : il ne doit rien au hasard des lignes de texte</Text>
+            <Text style={[styles.rulesTitle, { color: HEXTECH }]}>Le tournoi (BO3)</Text>
+            <Text style={styles.rulesLine}>Votre équipe affronte une équipe rivale en <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>Best-of-3</Text> — la première à 2 manches gagne la série</Text>
+            <Text style={styles.rulesLine}>Chaque manche est déterminée par le niveau des joueurs et la <Text style={[styles.rulesAccent, { color: ACCENT_LIGHT }]}>alchimie</Text> entre coéquipiers ayant réellement joué ensemble</Text>
+            <Text style={styles.rulesLine}>L'équipe battue ajuste sa stratégie pour la manche suivante — de vrais retournements sont possibles</Text>
+            <Text style={styles.rulesLine}>Le récit change à chaque partie, mais jamais sans raison : il ne doit rien au hasard des lignes de texte</Text>
           </View>
 
         </Animated.View>
@@ -110,7 +102,7 @@ export default function LolSelectSetupScreen({ navigation }) {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>{game.emoji}  DRAFT SOLO (VS IA)</Text>
+              <Text style={styles.launchText}>DRAFT SOLO (VS IA)</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -119,7 +111,7 @@ export default function LolSelectSetupScreen({ navigation }) {
             style={styles.multiBtn}
             activeOpacity={0.85}
           >
-            <Text style={styles.multiBtnText}>🌐  JOUER À DISTANCE (2 JOUEURS)</Text>
+            <Text style={styles.multiBtnText}>JOUER À DISTANCE (2 JOUEURS)</Text>
             <Text style={styles.multiBtnHint}>Chacun draft sur son propre ordinateur / téléphone</Text>
           </TouchableOpacity>
         </Animated.View>

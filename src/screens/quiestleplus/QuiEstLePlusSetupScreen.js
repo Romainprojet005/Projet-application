@@ -9,9 +9,10 @@ import PageScroll from '../../components/PageScroll';
 import { QUELPLUS_CATEGORIES, selectPrompts } from '../../data/quiEstLePlusPrompts';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 
-const ACCENT       = '#2F74B5';
-const ACCENT_LIGHT = '#7CC4FF';
-const ACCENT_DARK  = '#1B5A97';
+import sansEmoji from '../../utils/sansEmoji';
+const ACCENT       = '#D4AF37';
+const ACCENT_LIGHT = '#F4DC8C';
+const ACCENT_DARK  = '#B8962E';
 const ROUND_OPTIONS = [5, 8, 10, 15];
 const MAX_PLAYERS   = 10;
 
@@ -52,13 +53,6 @@ export default function QuiEstLePlusSetupScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>👆</Text>
-            <View>
-              <Text style={styles.badgeName}>Le Juge suprême</Text>
-              <Text style={styles.badgeQuote}>"Le groupe a parlé !"</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>QUI EST LE PLUS</Text>
           <Text style={styles.pageSubtitle}>Désignez qui mérite le plus de boire</Text>
         </Animated.View>
@@ -66,15 +60,15 @@ export default function QuiEstLePlusSetupScreen({ navigation }) {
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
 
           <View style={[styles.rulesCard, { borderColor: ACCENT + '35', backgroundColor: ACCENT + '15' }]}>
-            <Text style={styles.rulesTitle}>👆  Comment jouer</Text>
-            <Text style={styles.rulesLine}>📱  Une question s'affiche à l'écran</Text>
-            <Text style={styles.rulesLine}>🗳️  Chaque joueur vote pour quelqu'un</Text>
-            <Text style={styles.rulesLine}>🍺  Le plus désigné <Text style={styles.rulesAccent}>boit autant de gorgées</Text> que de votes</Text>
-            <Text style={styles.rulesLine}>🤝  En cas d'égalité → tous les ex-aequo boivent</Text>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
+            <Text style={styles.rulesLine}>Une question s'affiche à l'écran</Text>
+            <Text style={styles.rulesLine}>Chaque joueur vote pour quelqu'un</Text>
+            <Text style={styles.rulesLine}>Le plus désigné <Text style={styles.rulesAccent}>boit autant de gorgées</Text> que de votes</Text>
+            <Text style={styles.rulesLine}>En cas d'égalité → tous les ex-aequo boivent</Text>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎯  Catégorie</Text>
+            <Text style={styles.cardLabel}>Catégorie</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catRow}>
               {QUELPLUS_CATEGORIES.map(cat => {
                 const active = categoryId === cat.id;
@@ -82,23 +76,22 @@ export default function QuiEstLePlusSetupScreen({ navigation }) {
                   <TouchableOpacity
                     key={cat.id}
                     onPress={() => setCategoryId(cat.id)}
-                    style={[styles.catPill, active && { backgroundColor: cat.color + '30', borderColor: cat.color }]}
+                    style={[styles.catPill, active && { backgroundColor: '#D4AF37' + '30', borderColor: '#D4AF37' }]}
                   >
-                    <Text style={styles.catEmoji}>{cat.emoji}</Text>
-                    <Text style={[styles.catText, active && { color: cat.color, fontWeight: '800' }]}>
-                      {cat.name}
+                    <Text style={[styles.catText, active && { color: '#D4AF37', fontWeight: '800' }]}>
+                      {sansEmoji(cat.name)}
                     </Text>
                   </TouchableOpacity>
                 );
               })}
             </ScrollView>
             {QUELPLUS_CATEGORIES.find(c => c.id === categoryId)?.joker && (
-              <Text style={styles.jokerText}>🃏 Joker : {QUELPLUS_CATEGORIES.find(c => c.id === categoryId).joker}</Text>
+              <Text style={styles.jokerText}>Joker : {QUELPLUS_CATEGORIES.find(c => c.id === categoryId).joker}</Text>
             )}
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🔄  Nombre de manches</Text>
+            <Text style={styles.cardLabel}>Nombre de manches</Text>
             <View style={styles.pillRow}>
               {ROUND_OPTIONS.map(n => (
                 <TouchableOpacity
@@ -113,11 +106,11 @@ export default function QuiEstLePlusSetupScreen({ navigation }) {
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Joueurs (min. 3)</Text>
+            <Text style={styles.cardLabel}>Joueurs (min. 3)</Text>
             {playerNames.map((name, i) => (
               <View key={i} style={styles.playerRow}>
                 <View style={[styles.inputWrap, inputFocus === i && styles.inputWrapFocus]}>
-                  <Text style={styles.inputIcon}>👤</Text>
+                  <Text style={styles.inputIcon}></Text>
                   <TextInput
                     value={name}
                     onChangeText={v => updatePlayer(i, v)}
@@ -147,7 +140,7 @@ export default function QuiEstLePlusSetupScreen({ navigation }) {
           </View>
 
           <View style={[styles.summaryCard, { borderColor: ACCENT + '30', backgroundColor: ACCENT + '12' }]}>
-            <Text style={styles.summaryTitle}>📋  Résumé</Text>
+            <Text style={styles.summaryTitle}>Résumé</Text>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Manches</Text>
               <Text style={styles.summaryValue}>{roundCount} / {available} dispo</Text>
@@ -172,7 +165,7 @@ export default function QuiEstLePlusSetupScreen({ navigation }) {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>👆  QUE LE JUGEMENT COMMENCE !</Text>
+              <Text style={styles.launchText}>QUE LE JUGEMENT COMMENCE !</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
@@ -278,5 +271,5 @@ const styles = StyleSheet.create({
     shadowColor: ACCENT, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+  launchText: { fontSize: 15, fontWeight: '800', color: '#1A1408', letterSpacing: 2 },
 });

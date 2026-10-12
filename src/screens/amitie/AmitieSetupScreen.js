@@ -15,9 +15,9 @@ import PageScroll from '../../components/PageScroll';
 import { getQuestions } from '../../data/amitieQuestions';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const ROSE       = GOLD;
-const ROSE_DARK  = GOLD_DARK;
-const ROSE_LIGHT = GOLD_LIGHT;
+const ROSE       = '#D4AF37';
+const ROSE_DARK  = '#B8962E';
+const ROSE_LIGHT = '#F4DC8C';
 const BG         = OB_BG;
 
 export default function AmitieSetupScreen({ navigation }) {
@@ -85,10 +85,6 @@ export default function AmitieSetupScreen({ navigation }) {
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
               <Text style={styles.backBtnText}>← Retour</Text>
             </TouchableOpacity>
-            <View style={styles.characterBadge}>
-              <Text style={styles.characterEmoji}>🦊</Text>
-              <Text style={styles.characterQuote}>"Les meilleurs amis pour toujours !"</Text>
-            </View>
             <Text style={styles.title}>TEST DU LIEN</Text>
             <Text style={styles.subtitle}>Configuration du test</Text>
           </Animated.View>
@@ -96,7 +92,7 @@ export default function AmitieSetupScreen({ navigation }) {
           <Animated.View style={{ opacity: fadeAnim }}>
             {/* Players Card */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>👥 JOUEURS</Text>
+              <Text style={styles.cardLabel}>JOUEURS</Text>
               <Text style={styles.cardHint}>2 à 6 participants</Text>
 
               {players.map((name, idx) => (
@@ -129,7 +125,7 @@ export default function AmitieSetupScreen({ navigation }) {
 
             {/* Mode Card */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>🎯 MODE DE JEU</Text>
+              <Text style={styles.cardLabel}>MODE DE JEU</Text>
               <View style={styles.modeRow}>
                 <TouchableOpacity
                   style={[
@@ -138,7 +134,7 @@ export default function AmitieSetupScreen({ navigation }) {
                   ]}
                   onPress={() => setMode('amitie')}
                 >
-                  <Text style={styles.modeEmoji}>🤝</Text>
+                  <Text style={styles.modeEmoji}></Text>
                   <Text style={[styles.modeName, mode === 'amitie' && { color: ROSE_LIGHT }]}>
                     Amitié
                   </Text>
@@ -151,7 +147,7 @@ export default function AmitieSetupScreen({ navigation }) {
                   ]}
                   onPress={() => setMode('couple')}
                 >
-                  <Text style={styles.modeEmoji}>💑</Text>
+                  <Text style={styles.modeEmoji}></Text>
                   <Text style={[styles.modeName, mode === 'couple' && { color: ROSE_LIGHT }]}>
                     Couple
                   </Text>
@@ -164,7 +160,7 @@ export default function AmitieSetupScreen({ navigation }) {
                   ]}
                   onPress={() => setMode('adulte')}
                 >
-                  <Text style={styles.modeEmoji}>🔥</Text>
+                  <Text style={styles.modeEmoji}></Text>
                   <Text style={[styles.modeName, mode === 'adulte' && { color: '#FF6B35' }]}>
                     Adulte
                   </Text>
@@ -175,7 +171,7 @@ export default function AmitieSetupScreen({ navigation }) {
 
             {/* Questions Count */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>❓ NOMBRE DE QUESTIONS</Text>
+              <Text style={styles.cardLabel}>NOMBRE DE QUESTIONS</Text>
               <View style={styles.countRow}>
                 {[5, 10, 15].map((n) => (
                   <TouchableOpacity
@@ -199,11 +195,11 @@ export default function AmitieSetupScreen({ navigation }) {
 
             {/* Summary */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>📋 RÉSUMÉ</Text>
+              <Text style={styles.cardLabel}>RÉSUMÉ</Text>
               <SummaryRow label="Joueurs" value={`${players.length} participants`} color={ROSE_LIGHT} />
               <SummaryRow
                 label="Mode"
-                value={mode === 'amitie' ? '🤝 Amitié' : mode === 'couple' ? '💑 Couple' : '🔥 Adulte'}
+                value={mode === 'amitie' ? 'Amitié' : mode === 'couple' ? 'Couple' : 'Adulte'}
                 color={mode === 'adulte' ? '#FF6B35' : ROSE_LIGHT}
               />
               <SummaryRow label="Questions" value={`${questionsCount} questions`} color={ROSE_LIGHT} />
@@ -212,7 +208,7 @@ export default function AmitieSetupScreen({ navigation }) {
             {/* Error */}
             {!!error && (
               <View style={styles.errorBox}>
-                <Text style={styles.errorText}>⚠️ {error}</Text>
+                <Text style={styles.errorText}>{error}</Text>
               </View>
             )}
 
@@ -229,7 +225,7 @@ export default function AmitieSetupScreen({ navigation }) {
                 style={styles.launchBtn}
               >
                 <Text style={[styles.launchBtnText, !canLaunch && { color: colors.textMuted }]}>
-                  LANCER LE TEST 💝
+                  LANCER LE TEST 
                 </Text>
               </LinearGradient>
             </TouchableOpacity>

@@ -9,9 +9,10 @@ import { supabase } from '../../services/supabase';
 import { VOTE_CATEGORIES } from '../../data/voteData';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const VOTE_COLOR = GOLD;
-const VOTE_DARK  = GOLD_DARK;
-const VOTE_LIGHT = GOLD_LIGHT;
+import sansEmoji from '../../utils/sansEmoji';
+const VOTE_COLOR = '#D4AF37';
+const VOTE_DARK  = '#B8962E';
+const VOTE_LIGHT = '#F4DC8C';
 const BG         = OB_BG;
 
 const ROUND_OPTIONS = [5, 10, 15, 20];
@@ -109,7 +110,7 @@ export default function VoteMultiSetupScreen({ navigation }) {
           <Text style={styles.backText}>← Retour</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>⚖️ VOTE MULTI</Text>
+        <Text style={styles.title}>VOTE MULTI</Text>
         <Text style={styles.subtitle}>Votez tous en même temps !</Text>
 
         <View style={styles.tabs}>
@@ -120,7 +121,7 @@ export default function VoteMultiSetupScreen({ navigation }) {
               onPress={() => setTab(t)}
             >
               <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t === 'create' ? '➕ Créer' : '🔑 Rejoindre'}
+                {t === 'create' ? 'Créer' : 'Rejoindre'}
               </Text>
             </TouchableOpacity>
           ))}
@@ -150,17 +151,16 @@ export default function VoteMultiSetupScreen({ navigation }) {
                     <TouchableOpacity
                       key={cat.id}
                       onPress={() => setCategoryId(cat.id)}
-                      style={[styles.catPill, active && { backgroundColor: cat.color + '30', borderColor: cat.color }]}
+                      style={[styles.catPill, active && { backgroundColor: '#D4AF37' + '30', borderColor: '#D4AF37' }]}
                     >
-                      <Text style={styles.catEmoji}>{cat.emoji}</Text>
-                      <Text style={[styles.catText, active && { color: cat.color, fontWeight: '800' }]}>{cat.name}</Text>
+                      <Text style={[styles.catText, active && { color: '#D4AF37', fontWeight: '800' }]}>{sansEmoji(cat.name)}</Text>
                     </TouchableOpacity>
                   );
                 })}
               </ScrollView>
               {VOTE_CATEGORIES.find(c => c.id === categoryId)?.needsPlayers && (
                 <Text style={styles.needsPlayersHint}>
-                  ⚖️ Les prénoms des joueurs seront automatiquement utilisés
+                  Les prénoms des joueurs seront automatiquement utilisés
                 </Text>
               )}
             </View>
@@ -187,7 +187,7 @@ export default function VoteMultiSetupScreen({ navigation }) {
               activeOpacity={0.8}
             >
               <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>✨ CRÉER LA SALLE</Text>}
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>CRÉER LA SALLE</Text>}
               </LinearGradient>
             </TouchableOpacity>
           </>
@@ -214,7 +214,7 @@ export default function VoteMultiSetupScreen({ navigation }) {
               activeOpacity={0.8}
             >
               <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>🚀 REJOINDRE</Text>}
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>REJOINDRE</Text>}
               </LinearGradient>
             </TouchableOpacity>
           </>

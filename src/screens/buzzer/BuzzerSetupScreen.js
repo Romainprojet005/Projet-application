@@ -9,9 +9,9 @@ import PageScroll from '../../components/PageScroll';
 import { BUZZER_MODES } from '../../data/buzzerQuestions';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const BUZZ_COLOR = GOLD;
-const BUZZ_DARK  = GOLD_DARK;
-const BUZZ_LIGHT = GOLD_LIGHT;
+const BUZZ_COLOR = '#D4AF37';
+const BUZZ_DARK  = '#B8962E';
+const BUZZ_LIGHT = '#F4DC8C';
 
 export const PLAYER_COLORS = [
   '#EF4444', '#3B82F6', '#10B981', '#F59E0B',
@@ -60,13 +60,6 @@ export default function BuzzerSetupScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>⚡</Text>
-            <View>
-              <Text style={styles.badgeName}>L'Éclair</Text>
-              <Text style={styles.badgeQuote}>"Rapidité, instinct, victoire !"</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>BUZZER</Text>
           <Text style={styles.pageSubtitle}>Premier à buzzer répond — dans le temps imparti !</Text>
         </Animated.View>
@@ -74,18 +67,18 @@ export default function BuzzerSetupScreen({ navigation }) {
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
 
           <View style={[styles.rulesCard, { borderColor: BUZZ_COLOR + '35', backgroundColor: BUZZ_COLOR + '18' }]}>
-            <Text style={styles.rulesTitle}>⚡  Comment jouer</Text>
-            <Text style={styles.rulesLine}>📱  Posez le téléphone au centre de la table</Text>
-            <Text style={styles.rulesLine}>🎯  Une question s'affiche à l'écran</Text>
-            <Text style={styles.rulesLine}>⚡  Appuyez "Lancer" — buzzez sur votre couleur dès que vous savez !</Text>
-            <Text style={styles.rulesLine}>⏱  Le premier à buzzer a <Text style={styles.rulesPoints}>10 secondes</Text> pour répondre</Text>
-            <Text style={styles.rulesLine}>✅  Bonne réponse → <Text style={styles.rulesPoints}>+1 pt</Text></Text>
-            <Text style={styles.rulesLine}>❌  Mauvaise réponse → <Text style={styles.rulesPoints}>0 pt</Text></Text>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
+            <Text style={styles.rulesLine}>Posez le téléphone au centre de la table</Text>
+            <Text style={styles.rulesLine}>Une question s'affiche à l'écran</Text>
+            <Text style={styles.rulesLine}>Appuyez "Lancer" — buzzez sur votre couleur dès que vous savez !</Text>
+            <Text style={styles.rulesLine}>Le premier à buzzer a <Text style={styles.rulesPoints}>10 secondes</Text> pour répondre</Text>
+            <Text style={styles.rulesLine}>Bonne réponse → <Text style={styles.rulesPoints}>+1 pt</Text></Text>
+            <Text style={styles.rulesLine}>Mauvaise réponse → <Text style={styles.rulesPoints}>0 pt</Text></Text>
           </View>
 
           {/* Mode de jeu */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎮  Mode de jeu</Text>
+            <Text style={styles.cardLabel}>Mode de jeu</Text>
             <View style={styles.modeRow}>
               {BUZZER_MODES.map(m => (
                 <TouchableOpacity
@@ -93,11 +86,10 @@ export default function BuzzerSetupScreen({ navigation }) {
                   onPress={() => setMode(m.id)}
                   style={[
                     styles.modeBtn,
-                    mode === m.id && { backgroundColor: m.color + '25', borderColor: m.color },
+                    mode === m.id && { backgroundColor: '#D4AF37' + '25', borderColor: '#D4AF37' },
                   ]}
                 >
-                  <Text style={styles.modeEmoji}>{m.emoji}</Text>
-                  <Text style={[styles.modeName, mode === m.id && { color: m.color, fontWeight: '800' }]}>{m.name}</Text>
+                  <Text style={[styles.modeName, mode === m.id && { color: '#D4AF37', fontWeight: '800' }]}>{m.name}</Text>
                   <Text style={styles.modeDesc}>{m.desc}</Text>
                 </TouchableOpacity>
               ))}
@@ -106,7 +98,7 @@ export default function BuzzerSetupScreen({ navigation }) {
 
           {/* Nombre de joueurs */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Nombre de joueurs</Text>
+            <Text style={styles.cardLabel}>Nombre de joueurs</Text>
             <View style={styles.pillRow}>
               {COUNT_OPTIONS.map(n => (
                 <TouchableOpacity
@@ -122,7 +114,7 @@ export default function BuzzerSetupScreen({ navigation }) {
 
           {/* Noms des joueurs */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎮  Noms des joueurs</Text>
+            <Text style={styles.cardLabel}>Noms des joueurs</Text>
             {Array.from({ length: playerCount }, (_, i) => (
               <View key={i} style={styles.playerRow}>
                 <View style={[styles.colorDot, { backgroundColor: PLAYER_COLORS[i] }]} />
@@ -152,7 +144,7 @@ export default function BuzzerSetupScreen({ navigation }) {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>⚡  QUE LE BUZZER SONNE !</Text>
+              <Text style={styles.launchText}>QUE LE BUZZER SONNE !</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>

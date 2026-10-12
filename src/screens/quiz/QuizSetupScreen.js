@@ -13,7 +13,8 @@ import PageScroll from '../../components/PageScroll';
 import { quizCategories, buildQuestions } from '../../data/quizQuestions';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const ZAPCOLOR  = GOLD;
+import sansEmoji from '../../utils/sansEmoji';
+const ZAPCOLOR  = '#D4AF37';
 const HOT_COLOR = '#EF4444';
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 8;
@@ -81,13 +82,6 @@ export default function QuizSetupScreen({ navigation, route }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.agentBadge}>
-            <Text style={styles.agentBadgeEmoji}>✨</Text>
-            <View>
-              <Text style={styles.agentBadgeName}>La Première de la classe</Text>
-              <Text style={styles.agentBadgeQuote}>"Ce n'est pas de la chance, c'est du savoir !"</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>QUIZ</Text>
           <Text style={styles.pageSubtitle}>Configuration de la partie</Text>
         </Animated.View>
@@ -96,7 +90,7 @@ export default function QuizSetupScreen({ navigation, route }) {
 
           {/* Joueurs */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Nombre de joueurs</Text>
+            <Text style={styles.cardLabel}>Nombre de joueurs</Text>
             <View style={styles.counter}>
               <TouchableOpacity
                 onPress={() => adjustPlayers(-1)}
@@ -118,7 +112,7 @@ export default function QuizSetupScreen({ navigation, route }) {
 
           {/* Catégories */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎲  Catégories</Text>
+            <Text style={styles.cardLabel}>Catégories</Text>
             <Text style={styles.cardHint}>Sélectionnez au moins une catégorie</Text>
             <View style={styles.categoryGrid}>
               {Object.entries(quizCategories).map(([key, cat]) => {
@@ -131,17 +125,16 @@ export default function QuizSetupScreen({ navigation, route }) {
                     style={[
                       styles.categoryBtn,
                       isAdult && styles.categoryBtnAdult,
-                      selected && { borderColor: cat.color, backgroundColor: cat.color + '22' },
+                      selected && { borderColor: '#D4AF37', backgroundColor: '#D4AF37' + '22' },
                     ]}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.categoryEmoji}>{cat.emoji}</Text>
-                    <Text style={[styles.categoryLabel, selected && { color: cat.color }, isAdult && !selected && { color: HOT_COLOR }]}>
-                      {cat.label}
+                    <Text style={[styles.categoryLabel, selected && { color: '#D4AF37' }, isAdult && !selected && { color: HOT_COLOR }]}>
+                      {sansEmoji(cat.label)}
                     </Text>
                     <Text style={styles.categoryCount}>{cat.questions.length} Q</Text>
                     {selected && (
-                      <View style={[styles.categoryCheck, { backgroundColor: cat.color }]}>
+                      <View style={[styles.categoryCheck, { backgroundColor: '#D4AF37' }]}>
                         <Text style={styles.categoryCheckText}>✓</Text>
                       </View>
                     )}
@@ -153,7 +146,7 @@ export default function QuizSetupScreen({ navigation, route }) {
 
           {/* Nombre de questions */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>❓  Nombre de questions</Text>
+            <Text style={styles.cardLabel}>Nombre de questions</Text>
             <Text style={styles.cardHint}>
               {availableQuestions} questions disponibles avec les catégories choisies
             </Text>
@@ -186,12 +179,12 @@ export default function QuizSetupScreen({ navigation, route }) {
 
           {/* Difficulté */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎯  Difficulté</Text>
+            <Text style={styles.cardLabel}>Difficulté</Text>
             <View style={styles.qCountRow}>
               {[
-                { key: 'facile',    label: 'Facile',    emoji: '😊' },
-                { key: 'normal',    label: 'Normal',    emoji: '🧠' },
-                { key: 'difficile', label: 'Difficile', emoji: '🔥' },
+                { key: 'facile',    label: 'Facile',    emoji: '' },
+                { key: 'normal',    label: 'Normal',    emoji: '' },
+                { key: 'difficile', label: 'Difficile', emoji: '' },
               ].map(({ key, label, emoji }) => {
                 const sel = difficulty === key;
                 const diffColor = key === 'facile' ? '#10B981' : key === 'difficile' ? '#EF4444' : ZAPCOLOR;
@@ -212,7 +205,7 @@ export default function QuizSetupScreen({ navigation, route }) {
 
           {/* Résumé */}
           <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>📋  Résumé de la partie</Text>
+            <Text style={styles.summaryTitle}>Résumé de la partie</Text>
             <SummaryRow label="Joueurs" value={String(playerCount)} />
             <SummaryRow label="Questions" value={String(effectiveCount)} valueColor={ZAPCOLOR} />
             <SummaryRow
@@ -222,7 +215,7 @@ export default function QuizSetupScreen({ navigation, route }) {
             <SummaryRow label="Temps / question" value="15 sec" />
             <SummaryRow
               label="Difficulté"
-              value={difficulty === 'facile' ? '😊 Facile' : difficulty === 'difficile' ? '🔥 Difficile' : '🧠 Normal'}
+              value={difficulty === 'facile' ? 'Facile' : difficulty === 'difficile' ? 'Difficile' : 'Normal'}
               valueColor={difficulty === 'facile' ? '#10B981' : difficulty === 'difficile' ? '#EF4444' : ZAPCOLOR}
             />
             <SummaryRow
@@ -246,7 +239,7 @@ export default function QuizSetupScreen({ navigation, route }) {
               end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>⚡  LANCER LE QUIZ</Text>
+              <Text style={styles.launchText}>LANCER LE QUIZ</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
@@ -259,7 +252,7 @@ function SummaryRow({ label, value, valueColor }) {
   return (
     <View style={summaryRowStyles.row}>
       <Text style={summaryRowStyles.label}>{label}</Text>
-      <Text style={[summaryRowStyles.value, valueColor && { color: valueColor }]}>{value}</Text>
+      <Text style={[summaryRowStyles.value, valueColor && { color: valueColor }]}>{sansEmoji(value)}</Text>
     </View>
   );
 }

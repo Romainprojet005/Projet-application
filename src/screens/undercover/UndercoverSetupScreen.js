@@ -14,9 +14,10 @@ import PageScroll from '../../components/PageScroll';
 import { wordThemes, generateRandomPair } from '../../data/wordLists';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const AMB       = GOLD;
-const AMB_DARK  = GOLD_DARK;
-const AMB_LIGHT = GOLD_LIGHT;
+import sansEmoji from '../../utils/sansEmoji';
+const AMB       = '#D4AF37';
+const AMB_DARK  = '#B8962E';
+const AMB_LIGHT = '#F4DC8C';
 
 // Persiste en mémoire tant que l'app n'est pas fermée
 const usedPairsPerTheme = {};
@@ -106,13 +107,6 @@ export default function UndercoverSetupScreen({ navigation, route }) {
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
 
-          <View style={styles.agentBadge}>
-            <Text style={styles.agentBadgeEmoji}>🔍</Text>
-            <View>
-              <Text style={styles.agentBadgeName}>Le Détective</Text>
-              <Text style={styles.agentBadgeQuote}>"Chaque mot compte. L'imposteur ne m'échappera pas."</Text>
-            </View>
-          </View>
 
           <Text style={styles.pageTitle}>UNDERCOVER</Text>
           <Text style={styles.pageSubtitle}>Configuration de la mission</Text>
@@ -123,7 +117,7 @@ export default function UndercoverSetupScreen({ navigation, route }) {
         >
           {/* Player count */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Nombre de joueurs</Text>
+            <Text style={styles.cardLabel}>Nombre de joueurs</Text>
             <View style={styles.counter}>
               <TouchableOpacity
                 onPress={() => adjustPlayers(-1)}
@@ -145,7 +139,7 @@ export default function UndercoverSetupScreen({ navigation, route }) {
 
           {/* Undercover count */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🕵️  Nombre d'espions</Text>
+            <Text style={styles.cardLabel}>Nombre d'espions</Text>
             <Text style={styles.cardHint}>Recommandé : 1 espion pour 3 joueurs</Text>
             <View style={styles.counter}>
               <TouchableOpacity
@@ -169,7 +163,7 @@ export default function UndercoverSetupScreen({ navigation, route }) {
           {/* Mr. White */}
           <View style={[styles.card, styles.cardRow]}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.cardLabel}>👻  Monsieur Blanc</Text>
+              <Text style={styles.cardLabel}>Monsieur Blanc</Text>
               <Text style={styles.cardHint}>Un joueur sans mot qui doit bluffer</Text>
             </View>
             <Switch
@@ -182,7 +176,7 @@ export default function UndercoverSetupScreen({ navigation, route }) {
 
           {/* Theme */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎲  Thème des mots</Text>
+            <Text style={styles.cardLabel}>Thème des mots</Text>
             <View style={styles.themeGrid}>
               {Object.entries(wordThemes).map(([key, theme]) => {
                 const selected = selectedTheme === key;
@@ -192,12 +186,11 @@ export default function UndercoverSetupScreen({ navigation, route }) {
                     onPress={() => setSelectedTheme(key)}
                     style={[styles.themeBtn, selected && styles.themeBtnSelected]}
                   >
-                    <Text style={styles.themeEmoji}>{theme.emoji}</Text>
                     <Text style={[styles.themeLabel, selected && styles.themeLabelSelected]}>
-                      {theme.label}
+                      {sansEmoji(theme.label)}
                     </Text>
                     {selected && (
-                      <Text style={styles.themeDesc}>{theme.description}</Text>
+                      <Text style={styles.themeDesc}>{sansEmoji(theme.description)}</Text>
                     )}
                   </TouchableOpacity>
                 );
@@ -207,7 +200,7 @@ export default function UndercoverSetupScreen({ navigation, route }) {
 
           {/* Summary */}
           <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>📋  Résumé de la partie</Text>
+            <Text style={styles.summaryTitle}>Résumé de la partie</Text>
             <SummaryRow label="Joueurs total" value={String(playerCount)} />
             <SummaryRow
               label="Villageois"
@@ -235,7 +228,7 @@ export default function UndercoverSetupScreen({ navigation, route }) {
               end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>🚀  LANCER LA MISSION</Text>
+              <Text style={styles.launchText}>LANCER LA MISSION</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
@@ -248,7 +241,7 @@ function SummaryRow({ label, value, valueColor }) {
   return (
     <View style={summaryRowStyles.row}>
       <Text style={summaryRowStyles.label}>{label}</Text>
-      <Text style={[summaryRowStyles.value, valueColor && { color: valueColor }]}>{value}</Text>
+      <Text style={[summaryRowStyles.value, valueColor && { color: valueColor }]}>{sansEmoji(value)}</Text>
     </View>
   );
 }

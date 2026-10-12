@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 
-const ACCENT       = '#1F9E70';
-const ACCENT_LIGHT = '#4FD8A4';
-const ACCENT_DARK  = '#0B6B4A';
+const ACCENT       = '#D4AF37';
+const ACCENT_LIGHT = '#F4DC8C';
+const ACCENT_DARK  = '#B8962E';
 
 export default function LolSelectMultiLobbyScreen({ navigation, route }) {
   const { roomId, playerId, isHost, gameId } = route.params;
@@ -63,7 +63,7 @@ export default function LolSelectMultiLobbyScreen({ navigation, route }) {
   return (
     <LinearGradient colors={OB_BG} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { height: '100vh' }}>
-        <Text style={styles.title}>🎮 SALLE D'ATTENTE</Text>
+        <Text style={styles.title}>SALLE D'ATTENTE</Text>
 
         <View style={styles.codeCard}>
           <Text style={styles.codeLabel}>CODE DE LA SALLE</Text>
@@ -75,7 +75,7 @@ export default function LolSelectMultiLobbyScreen({ navigation, route }) {
           <Text style={styles.sectionLabel}>JOUEURS CONNECTÉS ({players.length}/2)</Text>
           {players.map(p => (
             <View key={p.id} style={[styles.playerRow, p.id === playerId && styles.playerRowMe]}>
-              <Text style={styles.playerEmoji}>{p.is_host ? '👑' : '🎮'}</Text>
+              <Text style={styles.playerEmoji}>{p.is_host ? '' : ''}</Text>
               <Text style={[styles.playerName, p.id === playerId && { color: ACCENT_LIGHT }]}>
                 {p.name}{p.id === playerId ? ' (toi)' : ''}
               </Text>
@@ -89,9 +89,9 @@ export default function LolSelectMultiLobbyScreen({ navigation, route }) {
         <View style={styles.rules}>
           <Text style={styles.rulesTitle}>Comment jouer</Text>
           <Text style={styles.rulesText}>
-            🃏 Chacun draft sa propre équipe de 5, en privé sur son appareil.{'\n'}
-            ⏳ Une fois les deux équipes complètes, le tournoi se lance automatiquement.{'\n'}
-            📖 Le récit du match s'affiche ensuite, identique sur les deux écrans.
+            Chacun draft sa propre équipe de 5, en privé sur son appareil.{'\n'}
+            Une fois les deux équipes complètes, le tournoi se lance automatiquement.{'\n'}
+            Le récit du match s'affiche ensuite, identique sur les deux écrans.
           </Text>
         </View>
 
@@ -105,7 +105,7 @@ export default function LolSelectMultiLobbyScreen({ navigation, route }) {
             <LinearGradient colors={[ACCENT_LIGHT, ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.startBtnGrad}>
               {starting
                 ? <ActivityIndicator color="#08070F" />
-                : <Text style={styles.startBtnText}>🚀 LANCER LES DRAFTS</Text>
+                : <Text style={styles.startBtnText}>LANCER LES DRAFTS</Text>
               }
             </LinearGradient>
           </TouchableOpacity>

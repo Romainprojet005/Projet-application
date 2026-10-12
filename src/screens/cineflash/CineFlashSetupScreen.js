@@ -14,9 +14,9 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const CIN       = GOLD;
-const CIN_DARK  = GOLD_DARK;
-const CIN_LIGHT = GOLD_LIGHT;
+const CIN       = '#D4AF37';
+const CIN_DARK  = '#B8962E';
+const CIN_LIGHT = '#F4DC8C';
 
 const ROUND_OPTIONS = [5, 10, 15, 20];
 const MAX_PLAYERS = 6;
@@ -68,13 +68,6 @@ export default function CineFlashSetupScreen({ navigation }) {
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
 
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>🎬</Text>
-            <View>
-              <Text style={styles.badgeName}>L'Aventurier du cinéma</Text>
-              <Text style={styles.badgeQuote}>"Trois indices, un film. À vous de jouer !"</Text>
-            </View>
-          </View>
 
           <Text style={styles.pageTitle}>CINÉ-FLASH</Text>
           <Text style={styles.pageSubtitle}>Reconnaissez le film en 3 indices photos</Text>
@@ -83,16 +76,16 @@ export default function CineFlashSetupScreen({ navigation }) {
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
           {/* How to play */}
           <View style={styles.rulesCard}>
-            <Text style={styles.rulesTitle}>🎯  Comment jouer</Text>
-            <Text style={styles.rulesLine}>📸  Indice 1 → <Text style={styles.rulesPoints}>3 pts</Text></Text>
-            <Text style={styles.rulesLine}>📸  Indice 2 → <Text style={styles.rulesPoints}>2 pts</Text></Text>
-            <Text style={styles.rulesLine}>📸  Indice 3 → <Text style={styles.rulesPoints}>1 pt</Text></Text>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
+            <Text style={styles.rulesLine}>Indice 1 → <Text style={styles.rulesPoints}>3 pts</Text></Text>
+            <Text style={styles.rulesLine}>Indice 2 → <Text style={styles.rulesPoints}>2 pts</Text></Text>
+            <Text style={styles.rulesLine}>Indice 3 → <Text style={styles.rulesPoints}>1 pt</Text></Text>
             <Text style={styles.rulesNote}>Appuyez "Trouvé !" dès que vous connaissez le film.</Text>
           </View>
 
           {/* Number of films */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎞️  Nombre de films</Text>
+            <Text style={styles.cardLabel}>Nombre de films</Text>
             <View style={styles.pillRow}>
               {ROUND_OPTIONS.map((n) => (
                 <TouchableOpacity
@@ -110,12 +103,12 @@ export default function CineFlashSetupScreen({ navigation }) {
 
           {/* Players */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Joueurs (optionnel)</Text>
+            <Text style={styles.cardLabel}>Joueurs (optionnel)</Text>
             <Text style={styles.cardHint}>Laissez vide pour jouer sans suivi des scores</Text>
             {playerNames.map((name, i) => (
               <View key={i} style={styles.playerRow}>
                 <View style={[styles.inputWrap, inputFocus === i && styles.inputWrapFocus]}>
-                  <Text style={styles.inputIcon}>🎬</Text>
+                  <Text style={styles.inputIcon}></Text>
                   <TextInput
                     value={name}
                     onChangeText={(v) => updatePlayer(i, v)}
@@ -143,7 +136,7 @@ export default function CineFlashSetupScreen({ navigation }) {
 
           {/* Summary */}
           <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>📋  Résumé de la partie</Text>
+            <Text style={styles.summaryTitle}>Résumé de la partie</Text>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Films à deviner</Text>
               <Text style={styles.summaryValue}>{roundCount}</Text>
@@ -170,7 +163,7 @@ export default function CineFlashSetupScreen({ navigation }) {
               end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>🎬  LUMIÈRES, CAMÉRA... ACTION !</Text>
+              <Text style={styles.launchText}>LUMIÈRES, CAMÉRA... ACTION !</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>

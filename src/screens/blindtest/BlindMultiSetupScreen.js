@@ -9,9 +9,9 @@ import { supabase } from '../../services/supabase';
 import { CATEGORIES } from '../../data/blindTestSongs';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const BEAT       = GOLD;
-const BEAT_DARK  = GOLD_DARK;
-const BEAT_LIGHT = GOLD_LIGHT;
+const BEAT       = '#D4AF37';
+const BEAT_DARK  = '#B8962E';
+const BEAT_LIGHT = '#F4DC8C';
 const BG         = OB_BG;
 
 const SONG_OPTIONS = [5, 10, 15, 20];
@@ -111,14 +111,14 @@ export default function BlindMultiSetupScreen({ navigation }) {
           <Text style={styles.backText}>← Retour</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>🎸 BLIND TEST MULTI</Text>
+        <Text style={styles.title}>BLIND TEST MULTI</Text>
         <Text style={styles.subtitle}>Chaque joueur devine sur son téléphone !</Text>
 
         <View style={styles.tabs}>
           {['create', 'join'].map(t => (
             <TouchableOpacity key={t} style={[styles.tab, tab === t && styles.tabActive]} onPress={() => setTab(t)}>
               <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t === 'create' ? '➕ Créer' : '🔑 Rejoindre'}
+                {t === 'create' ? 'Créer' : 'Rejoindre'}
               </Text>
             </TouchableOpacity>
           ))}
@@ -148,10 +148,9 @@ export default function BlindMultiSetupScreen({ navigation }) {
                     <TouchableOpacity
                       key={cat.id}
                       onPress={() => setCategoryId(cat.id)}
-                      style={[styles.catPill, active && { backgroundColor: cat.color + '30', borderColor: cat.color }]}
+                      style={[styles.catPill, active && { backgroundColor: '#D4AF37' + '30', borderColor: '#D4AF37' }]}
                     >
-                      <Text style={styles.catEmoji}>{cat.emoji}</Text>
-                      <Text style={[styles.catText, active && { color: cat.color, fontWeight: '800' }]}>{cat.name}</Text>
+                      <Text style={[styles.catText, active && { color: '#D4AF37', fontWeight: '800' }]}>{cat.name}</Text>
                     </TouchableOpacity>
                   );
                 })}
@@ -182,9 +181,9 @@ export default function BlindMultiSetupScreen({ navigation }) {
 
             <View style={styles.infoBox}>
               <Text style={styles.infoText}>
-                🎵 L'hôte joue la musique depuis son téléphone.{'\n'}
-                ⌨️ Tous les joueurs tapent la réponse en même temps.{'\n'}
-                🏆 Le premier à trouver gagne les points !
+                L'hôte joue la musique depuis son téléphone.{'\n'}
+                Tous les joueurs tapent la réponse en même temps.{'\n'}
+                Le premier à trouver gagne les points !
               </Text>
             </View>
 
@@ -193,7 +192,7 @@ export default function BlindMultiSetupScreen({ navigation }) {
               onPress={handleCreate} disabled={!name.trim() || loading} activeOpacity={0.8}
             >
               <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>✨ CRÉER LA SALLE</Text>}
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>CRÉER LA SALLE</Text>}
               </LinearGradient>
             </TouchableOpacity>
           </>
@@ -218,7 +217,7 @@ export default function BlindMultiSetupScreen({ navigation }) {
               onPress={handleJoin} disabled={!name.trim() || joinCode.length < 4 || loading} activeOpacity={0.8}
             >
               <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>🚀 REJOINDRE</Text>}
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>REJOINDRE</Text>}
               </LinearGradient>
             </TouchableOpacity>
           </>

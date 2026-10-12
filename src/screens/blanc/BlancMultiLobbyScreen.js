@@ -9,8 +9,8 @@ import { supabase } from '../../services/supabase';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import { ANSWERS, QUESTIONS, initCards } from '../../data/blancMangerData';
 
-const PRP       = colors.primary;
-const PRP_LIGHT = colors.primaryLight;
+const PRP       = '#D4AF37';
+const PRP_LIGHT = '#E6C766';
 
 export default function BlancMultiLobbyScreen({ navigation, route }) {
   const { roomId, playerId, isHost } = route.params;
@@ -103,7 +103,7 @@ export default function BlancMultiLobbyScreen({ navigation, route }) {
           <Text style={styles.quitText}>✕ Quitter</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>🃏 REMPLIS LE BLANC</Text>
+        <Text style={styles.title}>REMPLIS LE BLANC</Text>
 
         {/* Code */}
         <View style={styles.codeCard}>
@@ -115,7 +115,7 @@ export default function BlancMultiLobbyScreen({ navigation, route }) {
         {/* Joueurs */}
         <View style={styles.playersCard}>
           <Text style={styles.playersLabel}>
-            👥 JOUEURS ({players.length}/10)
+            JOUEURS ({players.length}/10)
           </Text>
           {players.map(p => (
             <View key={p.id} style={styles.playerRow}>
@@ -140,7 +140,7 @@ export default function BlancMultiLobbyScreen({ navigation, route }) {
               {loading
                 ? <ActivityIndicator color={LAUNCH_TEXT} />
                 : <Text style={[styles.startTxt, !canStart && { color: colors.textMuted }]}>
-                    LANCER LA PARTIE 🚀
+                    LANCER LA PARTIE 
                   </Text>
               }
             </LinearGradient>

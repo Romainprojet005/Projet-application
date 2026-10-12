@@ -9,9 +9,9 @@ import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 import { selectSongs } from '../../data/blindTestSongs';
 
-const BEAT       = '#1F9E70';
-const BEAT_DARK  = '#0B6B4A';
-const BEAT_LIGHT = '#4FD8A4';
+const BEAT       = '#D4AF37';
+const BEAT_DARK  = '#B8962E';
+const BEAT_LIGHT = '#F4DC8C';
 const BG = OB_BG;
 
 export default function BlindMultiLobbyScreen({ navigation, route }) {
@@ -71,7 +71,7 @@ export default function BlindMultiLobbyScreen({ navigation, route }) {
   return (
     <LinearGradient colors={BG} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { height: '100vh' }}>
-        <Text style={styles.title}>🎸 SALLE D'ATTENTE</Text>
+        <Text style={styles.title}>SALLE D'ATTENTE</Text>
 
         <View style={styles.codeCard}>
           <Text style={styles.codeLabel}>CODE DE LA SALLE</Text>
@@ -83,7 +83,7 @@ export default function BlindMultiLobbyScreen({ navigation, route }) {
           <Text style={styles.sectionLabel}>JOUEURS CONNECTÉS ({players.length})</Text>
           {players.map(p => (
             <View key={p.id} style={[styles.playerRow, p.id === playerId && styles.playerRowMe]}>
-              <Text style={styles.playerEmoji}>{p.is_host ? '👑' : '🎸'}</Text>
+              <Text style={styles.playerEmoji}>{p.is_host ? '' : ''}</Text>
               <Text style={[styles.playerName, p.id === playerId && { color: BEAT_LIGHT }]}>
                 {p.name}{p.id === playerId ? ' (toi)' : ''}
               </Text>
@@ -95,10 +95,10 @@ export default function BlindMultiLobbyScreen({ navigation, route }) {
         <View style={styles.rules}>
           <Text style={styles.rulesTitle}>Comment jouer</Text>
           <Text style={styles.rulesText}>
-            🎵 L'hôte lance la musique depuis son téléphone.{'\n'}
-            ⌨️ Tous tapent le titre de la chanson simultanément.{'\n'}
-            🏆 Le premier à trouver gagne les points !{'\n'}
-            ⚡ Plus vite tu trouves, plus tu gagnes de points.
+            L'hôte lance la musique depuis son téléphone.{'\n'}
+            Tous tapent le titre de la chanson simultanément.{'\n'}
+            Le premier à trouver gagne les points !{'\n'}
+            Plus vite tu trouves, plus tu gagnes de points.
           </Text>
         </View>
 
@@ -108,7 +108,7 @@ export default function BlindMultiLobbyScreen({ navigation, route }) {
             onPress={handleStart} disabled={players.length < 2 || starting} activeOpacity={0.8}
           >
             <LinearGradient colors={[BEAT, BEAT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.startBtnGrad}>
-              {starting ? <ActivityIndicator color="#fff" /> : <Text style={styles.startBtnText}>🚀 LANCER LA PARTIE</Text>}
+              {starting ? <ActivityIndicator color="#fff" /> : <Text style={styles.startBtnText}>LANCER LA PARTIE</Text>}
             </LinearGradient>
           </TouchableOpacity>
         ) : (
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   startBtn:         { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.md },
   startBtnDisabled: { opacity: 0.4 },
   startBtnGrad:     { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  startBtnText:     { fontSize: 15, fontWeight: '900', color: colors.text, letterSpacing: 2 },
+  startBtnText:     { fontSize: 15, fontWeight: '900', color: '#1A1408', letterSpacing: 2 },
   waitBanner:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.md, paddingVertical: spacing.lg },
   waitBannerText: { color: colors.textSecondary, fontSize: 14 },
   leaveBtn:     { alignItems: 'center', paddingVertical: spacing.md },

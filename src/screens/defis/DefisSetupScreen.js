@@ -9,9 +9,10 @@ import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 import { DEFI_CATEGORIES } from '../../data/defisData';
 
-const ACCENT       = '#D0475B';
-const ACCENT_LIGHT = '#FF8A8A';
-const ACCENT_DARK  = '#A81F2D';
+import sansEmoji from '../../utils/sansEmoji';
+const ACCENT       = '#D4AF37';
+const ACCENT_LIGHT = '#F4DC8C';
+const ACCENT_DARK  = '#B8962E';
 const MAX_PLAYERS  = 10;
 const ROUND_OPTIONS = [5, 10, 15, 20];
 
@@ -56,13 +57,6 @@ export default function DefisSetupScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>🃏</Text>
-            <View>
-              <Text style={styles.badgeName}>Le Maître des défis</Text>
-              <Text style={styles.badgeQuote}>"Oser, c'est vivre !"</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>LES DÉFIS</Text>
           <Text style={styles.pageSubtitle}>Spin, défi, ou conséquence !</Text>
         </Animated.View>
@@ -70,16 +64,16 @@ export default function DefisSetupScreen({ navigation }) {
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
 
           <View style={[styles.rulesCard, { borderColor: ACCENT + '35', backgroundColor: ACCENT + '15' }]}>
-            <Text style={styles.rulesTitle}>🃏  Comment jouer</Text>
-            <Text style={styles.rulesLine}>🎰  La roue <Text style={styles.rulesAccent}>désigne un joueur</Text> au hasard</Text>
-            <Text style={styles.rulesLine}>📋  L'app lui donne un <Text style={styles.rulesAccent}>défi à relever</Text></Text>
-            <Text style={styles.rulesLine}>✅  Il réussit → les autres applaudissent !</Text>
-            <Text style={styles.rulesLine}>❌  Il refuse → une <Text style={styles.rulesAccent}>conséquence</Text> l'attend</Text>
-            <Text style={styles.rulesLine}>🏆  À la fin, on voit qui a tout osé !</Text>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
+            <Text style={styles.rulesLine}>La roue <Text style={styles.rulesAccent}>désigne un joueur</Text> au hasard</Text>
+            <Text style={styles.rulesLine}>L'app lui donne un <Text style={styles.rulesAccent}>défi à relever</Text></Text>
+            <Text style={styles.rulesLine}>Il réussit → les autres applaudissent !</Text>
+            <Text style={styles.rulesLine}>Il refuse → une <Text style={styles.rulesAccent}>conséquence</Text> l'attend</Text>
+            <Text style={styles.rulesLine}>À la fin, on voit qui a tout osé !</Text>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎯  Nombre de défis</Text>
+            <Text style={styles.cardLabel}>Nombre de défis</Text>
             <View style={styles.pillRow}>
               {ROUND_OPTIONS.map(n => (
                 <TouchableOpacity
@@ -94,7 +88,7 @@ export default function DefisSetupScreen({ navigation }) {
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎨  Catégories</Text>
+            <Text style={styles.cardLabel}>Catégories</Text>
             <View style={styles.catGrid}>
               {DEFI_CATEGORIES.map(cat => {
                 const active = activeCategories.includes(cat.id);
@@ -102,11 +96,10 @@ export default function DefisSetupScreen({ navigation }) {
                   <TouchableOpacity
                     key={cat.id}
                     onPress={() => toggleCategory(cat.id)}
-                    style={[styles.catBtn, active && { borderColor: cat.color, backgroundColor: cat.color + '22' }]}
+                    style={[styles.catBtn, active && { borderColor: '#D4AF37', backgroundColor: '#D4AF37' + '22' }]}
                   >
-                    <Text style={styles.catEmoji}>{cat.emoji}</Text>
-                    <Text style={[styles.catName, active && { color: cat.color }]}>{cat.name}</Text>
-                    {active && <Text style={[styles.catCheck, { color: cat.color }]}>✓</Text>}
+                    <Text style={[styles.catName, active && { color: '#D4AF37' }]}>{sansEmoji(cat.name)}</Text>
+                    {active && <Text style={[styles.catCheck, { color: '#D4AF37' }]}>✓</Text>}
                   </TouchableOpacity>
                 );
               })}
@@ -116,17 +109,17 @@ export default function DefisSetupScreen({ navigation }) {
             )}
             {activeCategories.includes('ose') && (
               <Text style={styles.oseText}>
-                🔞 Défis osés : réservés aux adultes. Tout défi qui implique un autre joueur se fait avec son accord — chacun peut refuser et prendre la conséquence.{'\n'}🃏 Joker : {DEFI_CATEGORIES.find(c => c.id === 'ose').joker}
+                Défis osés : réservés aux adultes. Tout défi qui implique un autre joueur se fait avec son accord — chacun peut refuser et prendre la conséquence.{'\n'}Joker : {DEFI_CATEGORIES.find(c => c.id === 'ose').joker}
               </Text>
             )}
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Joueurs (min. 2)</Text>
+            <Text style={styles.cardLabel}>Joueurs (min. 2)</Text>
             {playerNames.map((name, i) => (
               <View key={i} style={styles.playerRow}>
                 <View style={[styles.inputWrap, inputFocus === i && styles.inputWrapFocus]}>
-                  <Text style={styles.inputIcon}>👤</Text>
+                  <Text style={styles.inputIcon}></Text>
                   <TextInput
                     value={name}
                     onChangeText={v => updatePlayer(i, v)}
@@ -153,7 +146,7 @@ export default function DefisSetupScreen({ navigation }) {
           </View>
 
           <View style={[styles.summaryCard, { borderColor: ACCENT + '30', backgroundColor: ACCENT + '12' }]}>
-            <Text style={styles.summaryTitle}>📋  Résumé</Text>
+            <Text style={styles.summaryTitle}>Résumé</Text>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Défis</Text>
               <Text style={styles.summaryValue}>{roundCount}</Text>
@@ -182,7 +175,7 @@ export default function DefisSetupScreen({ navigation }) {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>🃏  LANCER LES DÉFIS !</Text>
+              <Text style={styles.launchText}>LANCER LES DÉFIS !</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
@@ -289,5 +282,5 @@ const styles = StyleSheet.create({
     shadowColor: ACCENT, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText:     { fontSize: 15, fontWeight: '800', color: '#000', letterSpacing: 2 },
+  launchText:     { fontSize: 15, fontWeight: '800', color: '#1A1408', letterSpacing: 2 },
 });

@@ -9,9 +9,10 @@ import PageScroll from '../../components/PageScroll';
 import { EMOJI_CATEGORIES, buildEmojiRound } from '../../data/emojiQuizData';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const AMB       = GOLD;
-const AMB_DARK  = GOLD_DARK;
-const AMB_LIGHT = GOLD_LIGHT;
+import sansEmoji from '../../utils/sansEmoji';
+const AMB       = '#D4AF37';
+const AMB_DARK  = '#B8962E';
+const AMB_LIGHT = '#F4DC8C';
 const BG        = OB_BG;
 
 const ROUND_OPTIONS = [5, 10, 15, 20];
@@ -78,13 +79,6 @@ export default function EmojiQuizSetupScreen({ navigation, route }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>🤩</Text>
-            <View>
-              <Text style={styles.badgeName}>Le Confiseur</Text>
-              <Text style={styles.badgeQuote}>"Décryptez le message des emojis !"</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>EMOJI QUIZ</Text>
           <Text style={styles.pageSubtitle}>Devinez ce que cachent les emojis</Text>
         </Animated.View>
@@ -93,15 +87,15 @@ export default function EmojiQuizSetupScreen({ navigation, route }) {
 
           {/* Règles */}
           <View style={styles.rulesCard}>
-            <Text style={styles.rulesTitle}>🎯  Comment jouer</Text>
-            <Text style={styles.rulesLine}>🤩  Des emojis représentent un film, une chanson, une série, une célébrité ou un jeu vidéo</Text>
-            <Text style={styles.rulesLine}>⚡  Un emoji d'abord, puis deux, puis trois — tapez la réponse !</Text>
-            <Text style={styles.rulesLine}>🏆  3 pts dès le 1er indice · 2 pts au 2e · 1 pt au 3e</Text>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
+            <Text style={styles.rulesLine}>Des emojis représentent un film, une chanson, une série, une célébrité ou un jeu vidéo</Text>
+            <Text style={styles.rulesLine}>Un emoji d'abord, puis deux, puis trois — tapez la réponse !</Text>
+            <Text style={styles.rulesLine}>3 pts dès le 1er indice · 2 pts au 2e · 1 pt au 3e</Text>
           </View>
 
           {/* Catégories */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎲  Catégories</Text>
+            <Text style={styles.cardLabel}>Catégories</Text>
             <View style={styles.catGrid}>
               {Object.entries(EMOJI_CATEGORIES).map(([key, cat]) => {
                 const sel = selectedCats.includes(key);
@@ -109,13 +103,12 @@ export default function EmojiQuizSetupScreen({ navigation, route }) {
                   <TouchableOpacity
                     key={key}
                     onPress={() => toggleCat(key)}
-                    style={[styles.catBtn, sel && { borderColor: cat.color, backgroundColor: cat.color + '22' }]}
+                    style={[styles.catBtn, sel && { borderColor: '#D4AF37', backgroundColor: '#D4AF37' + '22' }]}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.catEmoji}>{cat.emoji}</Text>
-                    <Text style={[styles.catLabel, sel && { color: cat.color }]}>{cat.label}</Text>
+                    <Text style={[styles.catLabel, sel && { color: '#D4AF37' }]}>{sansEmoji(cat.label)}</Text>
                     {sel && (
-                      <View style={[styles.catCheck, { backgroundColor: cat.color }]}>
+                      <View style={[styles.catCheck, { backgroundColor: '#D4AF37' }]}>
                         <Text style={styles.catCheckText}>✓</Text>
                       </View>
                     )}
@@ -127,7 +120,7 @@ export default function EmojiQuizSetupScreen({ navigation, route }) {
 
           {/* Nb questions */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>❓  Nombre de questions</Text>
+            <Text style={styles.cardLabel}>Nombre de questions</Text>
             <View style={styles.pillRow}>
               {ROUND_OPTIONS.map(n => (
                 <TouchableOpacity
@@ -144,11 +137,11 @@ export default function EmojiQuizSetupScreen({ navigation, route }) {
 
           {/* Joueurs */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Joueurs</Text>
+            <Text style={styles.cardLabel}>Joueurs</Text>
             {players.map((name, i) => (
               <View key={i} style={styles.playerRow}>
                 <View style={[styles.inputWrap, inputFocus === i && styles.inputWrapFocus]}>
-                  <Text style={styles.inputIcon}>🤩</Text>
+                  <Text style={styles.inputIcon}></Text>
                   <TextInput
                     value={name}
                     onChangeText={v => updatePlayer(i, v)}
@@ -178,11 +171,11 @@ export default function EmojiQuizSetupScreen({ navigation, route }) {
 
           {/* Résumé */}
           <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>📋  Résumé</Text>
+            <Text style={styles.summaryTitle}>Résumé</Text>
             {[
               ['Joueurs', String(players.length)],
               ['Questions', String(questionCount)],
-              ['Catégories', selectedCats.map(k => EMOJI_CATEGORIES[k]?.emoji).join(' ')],
+              ['Catégories', selectedCats.map(k => sansEmoji(EMOJI_CATEGORIES[k]?.label)).join(', ')],
             ].map(([label, value]) => (
               <View key={label} style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>{label}</Text>
@@ -201,7 +194,7 @@ export default function EmojiQuizSetupScreen({ navigation, route }) {
             activeOpacity={0.88}
           >
             <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.launchGradient}>
-              <Text style={styles.launchText}>🤩  C'EST PARTI !</Text>
+              <Text style={styles.launchText}>C'EST PARTI !</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>

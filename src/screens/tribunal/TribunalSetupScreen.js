@@ -25,7 +25,7 @@ export default function TribunalSetupScreen({ navigation }) {
     return (
       <LinearGradient colors={BG} style={styles.container}>
         <View style={styles.configWrap}>
-          <Text style={styles.configTitle}>⚙️ Configuration requise</Text>
+          <Text style={styles.configTitle}>Configuration requise</Text>
           <Text style={styles.configText}>
             Tribunal nécessite Supabase.{'\n\n'}
             Ajoute dans .env :{'\n\n'}
@@ -60,7 +60,7 @@ export default function TribunalSetupScreen({ navigation }) {
       const msg = e.message || '';
       setErrorMsg(
         msg.includes('fetch') || msg.includes('network') || msg.includes('ECONN')
-          ? '🔌 Serveur inaccessible. Le projet Supabase est en pause — va sur app.supabase.com et clique "Restore project".'
+          ? 'Serveur inaccessible. Le projet Supabase est en pause — va sur app.supabase.com et clique "Restore project".'
           : msg || 'Erreur de connexion. Réessaie.'
       );
     }
@@ -86,7 +86,7 @@ export default function TribunalSetupScreen({ navigation }) {
       const msg = e.message || '';
       setErrorMsg(
         msg.includes('fetch') || msg.includes('network') || msg.includes('ECONN')
-          ? '🔌 Serveur inaccessible. Le projet Supabase est en pause — va sur app.supabase.com et clique "Restore project".'
+          ? 'Serveur inaccessible. Le projet Supabase est en pause — va sur app.supabase.com et clique "Restore project".'
           : msg || 'Erreur de connexion. Réessaie.'
       );
     }
@@ -106,7 +106,7 @@ export default function TribunalSetupScreen({ navigation }) {
           <Text style={styles.backText}>← Menu</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>⚖️ TRIBUNAL</Text>
+        <Text style={styles.title}>TRIBUNAL</Text>
         <Text style={styles.subtitle}>La vérité sera jugée !</Text>
 
         {/* Tabs */}
@@ -114,7 +114,7 @@ export default function TribunalSetupScreen({ navigation }) {
           {['create', 'join'].map(t => (
             <TouchableOpacity key={t} style={[styles.tab, tab === t && styles.tabActive]} onPress={() => setTab(t)}>
               <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t === 'create' ? '➕ Créer' : '🔑 Rejoindre'}
+                {t === 'create' ? 'Créer' : 'Rejoindre'}
               </Text>
             </TouchableOpacity>
           ))}
@@ -152,7 +152,7 @@ export default function TribunalSetupScreen({ navigation }) {
 
         {!!errorMsg && (
           <View style={styles.errorBox}>
-            <Text style={styles.errorText}>⚠️ {errorMsg}</Text>
+            <Text style={styles.errorText}>{errorMsg}</Text>
           </View>
         )}
 
@@ -165,21 +165,21 @@ export default function TribunalSetupScreen({ navigation }) {
           <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
             {loading
               ? <ActivityIndicator color="#000" />
-              : <Text style={styles.mainBtnText}>{tab === 'create' ? '⚖️ CRÉER LA SALLE' : '🚀 REJOINDRE'}</Text>
+              : <Text style={styles.mainBtnText}>{tab === 'create' ? 'CRÉER LA SALLE' : 'REJOINDRE'}</Text>
             }
           </LinearGradient>
         </TouchableOpacity>
 
         {/* Règles */}
         <View style={styles.rules}>
-          <Text style={styles.rulesTitle}>⚖️ Règles du Tribunal</Text>
-          <Text style={styles.rulesLine}>✍️  Chacun écrit une vérité sur un autre joueur</Text>
-          <Text style={styles.rulesLine}>🎤  L'accusé découvre ce qu'on a écrit sur lui</Text>
-          <Text style={styles.rulesLine}>🔍  Il devine qui a écrit, puis se défend à voix haute</Text>
-          <Text style={styles.rulesLine}>🗳️  Le jury vote : "C'est vrai" ou "C'est faux"</Text>
-          <Text style={styles.rulesLine}>✅  Majorité "Faux" → acquitté, pas de malus</Text>
-          <Text style={styles.rulesLine}>💀  Sinon → +1 point de malus</Text>
-          <Text style={styles.rulesLine}>🏆  Le moins de malus gagne !</Text>
+          <Text style={styles.rulesTitle}>Règles du Tribunal</Text>
+          <Text style={styles.rulesLine}>Chacun écrit une vérité sur un autre joueur</Text>
+          <Text style={styles.rulesLine}>L'accusé découvre ce qu'on a écrit sur lui</Text>
+          <Text style={styles.rulesLine}>Il devine qui a écrit, puis se défend à voix haute</Text>
+          <Text style={styles.rulesLine}>Le jury vote : "C'est vrai" ou "C'est faux"</Text>
+          <Text style={styles.rulesLine}>Majorité "Faux" → acquitté, pas de malus</Text>
+          <Text style={styles.rulesLine}>Sinon → +1 point de malus</Text>
+          <Text style={styles.rulesLine}>Le moins de malus gagne !</Text>
         </View>
       </ScrollView>
     </LinearGradient>
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
   backRow: { marginBottom: spacing.lg },
   backText: { color: colors.textMuted, fontSize: 14 },
-  title: { fontSize: 34, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: GOLD_LIGHT, textAlign: 'center', letterSpacing: 3 },
+  title: { fontSize: 34, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, textAlign: 'center', letterSpacing: 3 },
   subtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
   tabs: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.lg, padding: 4, marginBottom: spacing.xl },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.md },

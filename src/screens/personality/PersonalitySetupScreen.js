@@ -9,9 +9,9 @@ import { colors, spacing, radius } from '../../theme';
 import { getPersonalities, buildChoices } from '../../data/personalityData';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const ORANGE       = GOLD;
-const ORANGE_DARK  = GOLD_DARK;
-const ORANGE_LIGHT = GOLD_LIGHT;
+const ORANGE       = '#D4AF37';
+const ORANGE_DARK  = '#B8962E';
+const ORANGE_LIGHT = '#F4DC8C';
 const BG           = OB_BG;
 
 function shuffleTiles(n) {
@@ -75,9 +75,9 @@ export default function PersonalitySetupScreen({ navigation, route }) {
   const canLaunch = players.every(p => p.trim().length > 0);
 
   const FILTERS = [
-    { key: 'all',           label: 'Tous',          emoji: '🌐' },
-    { key: 'international', label: 'International',  emoji: '🌍' },
-    { key: 'francais',      label: 'Français',       emoji: '🇫🇷' },
+    { key: 'all',           label: 'Tous',          emoji: '' },
+    { key: 'international', label: 'International',  emoji: '' },
+    { key: 'francais',      label: 'Français',       emoji: '' },
   ];
 
   // « Rejouer » depuis la fin de partie : relance aussitôt avec les mêmes réglages
@@ -101,10 +101,6 @@ export default function PersonalitySetupScreen({ navigation, route }) {
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
               <Text style={styles.backBtnText}>← Retour</Text>
             </TouchableOpacity>
-            <View style={styles.characterBadge}>
-              <Text style={styles.characterEmoji}>🐭</Text>
-              <Text style={styles.characterQuote}>"On ne les voit pas… mais on les reconnaît !"</Text>
-            </View>
             <Text style={styles.title}>FLASH VISION</Text>
             <Text style={styles.subtitle}>Configuration du jeu</Text>
           </Animated.View>
@@ -112,7 +108,7 @@ export default function PersonalitySetupScreen({ navigation, route }) {
           <Animated.View style={{ opacity: fadeAnim }}>
             {/* Players */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>👥 JOUEURS</Text>
+              <Text style={styles.cardLabel}>JOUEURS</Text>
               <Text style={styles.cardHint}>2 à 8 participants</Text>
               {players.map((name, idx) => (
                 <View key={idx} style={styles.playerRow}>
@@ -143,7 +139,7 @@ export default function PersonalitySetupScreen({ navigation, route }) {
 
             {/* Filter */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>🌐 PERSONNALITÉS</Text>
+              <Text style={styles.cardLabel}>PERSONNALITÉS</Text>
               <View style={styles.filterRow}>
                 {FILTERS.map(f => (
                   <TouchableOpacity
@@ -154,7 +150,6 @@ export default function PersonalitySetupScreen({ navigation, route }) {
                     ]}
                     onPress={() => setFilter(f.key)}
                   >
-                    <Text style={styles.filterEmoji}>{f.emoji}</Text>
                     <Text style={[styles.filterLabel, filter === f.key && { color: ORANGE_LIGHT }]}>
                       {f.label}
                     </Text>
@@ -165,7 +160,7 @@ export default function PersonalitySetupScreen({ navigation, route }) {
 
             {/* Questions count */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>❓ NOMBRE DE QUESTIONS</Text>
+              <Text style={styles.cardLabel}>NOMBRE DE QUESTIONS</Text>
               <View style={styles.countRow}>
                 {[5, 10, 15, 20].map(n => (
                   <TouchableOpacity
@@ -187,7 +182,7 @@ export default function PersonalitySetupScreen({ navigation, route }) {
 
             {/* Summary */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>📋 RÉSUMÉ</Text>
+              <Text style={styles.cardLabel}>RÉSUMÉ</Text>
               <SummaryRow label="Joueurs" value={`${players.length} joueurs`} color={ORANGE_LIGHT} />
               <SummaryRow
                 label="Filtre"
@@ -199,10 +194,10 @@ export default function PersonalitySetupScreen({ navigation, route }) {
 
             {/* How to play */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>📖 COMMENT JOUER</Text>
+              <Text style={styles.cardLabel}>COMMENT JOUER</Text>
               <Text style={styles.rulesText}>
                 Une <Text style={{ color: ORANGE_LIGHT }}>célébrité floue</Text> apparaît. Chaque
-                bonne réponse rapporte des points selon l'étape (🥇3pts → 🥈2pts → 🥉1pt).{'\n\n'}
+                bonne réponse rapporte des points selon l'étape (3pts → 2pts → 1pt).{'\n\n'}
                 Une question sur deux : seul un <Text style={{ color: ORANGE_LIGHT }}>fragment du visage</Text> est
                 révélé (nez → bouche → yeux). À toi de deviner !
               </Text>
@@ -210,7 +205,7 @@ export default function PersonalitySetupScreen({ navigation, route }) {
 
             {!!error && (
               <View style={styles.errorBox}>
-                <Text style={styles.errorText}>⚠️ {error}</Text>
+                <Text style={styles.errorText}>{error}</Text>
               </View>
             )}
 
@@ -226,7 +221,7 @@ export default function PersonalitySetupScreen({ navigation, route }) {
                 style={styles.launchBtn}
               >
                 <Text style={[styles.launchBtnText, !canLaunch && { color: colors.textMuted }]}>
-                  LANCER 👁️
+                  LANCER 
                 </Text>
               </LinearGradient>
             </TouchableOpacity>

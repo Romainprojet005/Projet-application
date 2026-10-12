@@ -9,9 +9,9 @@ import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 import { selectQuestions } from '../../data/voteData';
 
-const VOTE_COLOR = '#2F74B5';
-const VOTE_DARK  = '#1B5A97';
-const VOTE_LIGHT = '#7CC4FF';
+const VOTE_COLOR = '#D4AF37';
+const VOTE_DARK  = '#B8962E';
+const VOTE_LIGHT = '#F4DC8C';
 const BG = OB_BG;
 
 export default function VoteMultiLobbyScreen({ navigation, route }) {
@@ -73,7 +73,7 @@ export default function VoteMultiLobbyScreen({ navigation, route }) {
   return (
     <LinearGradient colors={BG} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { height: '100vh' }}>
-        <Text style={styles.title}>⚖️ SALLE D'ATTENTE</Text>
+        <Text style={styles.title}>SALLE D'ATTENTE</Text>
 
         <View style={styles.codeCard}>
           <Text style={styles.codeLabel}>CODE DE LA SALLE</Text>
@@ -85,7 +85,7 @@ export default function VoteMultiLobbyScreen({ navigation, route }) {
           <Text style={styles.sectionLabel}>JOUEURS CONNECTÉS ({players.length})</Text>
           {players.map(p => (
             <View key={p.id} style={[styles.playerRow, p.id === playerId && styles.playerRowMe]}>
-              <Text style={styles.playerEmoji}>{p.is_host ? '👑' : '⚖️'}</Text>
+              <Text style={styles.playerEmoji}>{p.is_host ? '' : ''}</Text>
               <Text style={[styles.playerName, p.id === playerId && { color: VOTE_LIGHT }]}>
                 {p.name}{p.id === playerId ? ' (toi)' : ''}
               </Text>
@@ -99,10 +99,10 @@ export default function VoteMultiLobbyScreen({ navigation, route }) {
         <View style={styles.rules}>
           <Text style={styles.rulesTitle}>Comment jouer</Text>
           <Text style={styles.rulesText}>
-            📱 Chaque joueur vote sur son téléphone.{'\n'}
-            👥 Voter avec la majorité → <Text style={styles.rulesHighlight}>+1 pt</Text>.{'\n'}
-            🏆 Vote unanime → <Text style={styles.rulesHighlight}>+2 pts</Text> pour tous !{'\n'}
-            ⚖️ Égalité parfaite → <Text style={styles.rulesHighlight}>0 pt</Text>.
+            Chaque joueur vote sur son téléphone.{'\n'}
+            Voter avec la majorité → <Text style={styles.rulesHighlight}>+1 pt</Text>.{'\n'}
+            Vote unanime → <Text style={styles.rulesHighlight}>+2 pts</Text> pour tous !{'\n'}
+            Égalité parfaite → <Text style={styles.rulesHighlight}>0 pt</Text>.
           </Text>
         </View>
 
@@ -116,7 +116,7 @@ export default function VoteMultiLobbyScreen({ navigation, route }) {
             <LinearGradient colors={[VOTE_COLOR, VOTE_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.startBtnGrad}>
               {starting
                 ? <ActivityIndicator color="#fff" />
-                : <Text style={styles.startBtnText}>🚀 LANCER LA PARTIE</Text>
+                : <Text style={styles.startBtnText}>LANCER LA PARTIE</Text>
               }
             </LinearGradient>
           </TouchableOpacity>
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   startBtn: { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.md },
   startBtnDisabled: { opacity: 0.4 },
   startBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  startBtnText: { fontSize: 15, fontWeight: '900', color: colors.text, letterSpacing: 2 },
+  startBtnText: { fontSize: 15, fontWeight: '900', color: '#1A1408', letterSpacing: 2 },
   waitBanner: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: spacing.md, paddingVertical: spacing.lg,

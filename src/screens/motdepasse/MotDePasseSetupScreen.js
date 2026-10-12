@@ -9,9 +9,9 @@ import PageScroll from '../../components/PageScroll';
 import { getMotDePasseCards } from '../../data/motDePasseData';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const CYAN       = GOLD;
-const CYAN_DARK  = GOLD_DARK;
-const CYAN_LIGHT = GOLD_LIGHT;
+const CYAN       = '#D4AF37';
+const CYAN_DARK  = '#B8962E';
+const CYAN_LIGHT = '#F4DC8C';
 const BG         = OB_BG;
 
 const TIMER_OPTIONS = [30, 60, 90];
@@ -73,13 +73,6 @@ export default function MotDePasseSetupScreen({ navigation, route }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>🎭</Text>
-            <View>
-              <Text style={styles.badgeName}>Le Poète</Text>
-              <Text style={styles.badgeQuote}>"Des mots, toujours des mots !"</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>MOT DE PASSE</Text>
           <Text style={styles.pageSubtitle}>Faites deviner sans dire les mots interdits</Text>
         </Animated.View>
@@ -88,16 +81,16 @@ export default function MotDePasseSetupScreen({ navigation, route }) {
 
           {/* Règles */}
           <View style={styles.rulesCard}>
-            <Text style={styles.rulesTitle}>🎯  Comment jouer</Text>
-            <Text style={styles.rulesLine}>🎭  À votre tour, faites deviner un mot à vos adversaires</Text>
-            <Text style={styles.rulesLine}>🚫  Vous ne pouvez pas dire les 5 mots interdits affichés</Text>
-            <Text style={styles.rulesLine}>✓ / ✗  Appuyez sur ✓ si deviné, ✗ pour passer au suivant</Text>
-            <Text style={styles.rulesLine}>🏆  Celui qui fait deviner le plus de mots gagne !</Text>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
+            <Text style={styles.rulesLine}>À votre tour, faites deviner un mot à vos adversaires</Text>
+            <Text style={styles.rulesLine}>Vous ne pouvez pas dire les 5 mots interdits affichés</Text>
+            <Text style={styles.rulesLine}>✓ / Appuyez sur ✓ si deviné, pour passer au suivant</Text>
+            <Text style={styles.rulesLine}>Celui qui fait deviner le plus de mots gagne !</Text>
           </View>
 
           {/* Timer */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>⏱️  Durée par tour</Text>
+            <Text style={styles.cardLabel}>Durée par tour</Text>
             <View style={styles.pillRow}>
               {TIMER_OPTIONS.map(t => (
                 <TouchableOpacity
@@ -114,30 +107,29 @@ export default function MotDePasseSetupScreen({ navigation, route }) {
 
           {/* Catégorie */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🔞  Catégorie</Text>
+            <Text style={styles.cardLabel}>Catégorie</Text>
             <View style={styles.pillRow}>
               {[
-                { key: 'normal', label: 'Tout public', emoji: '👪' },
-                { key: 'adult',  label: 'Adulte 18+',  emoji: '🔞' },
+                { key: 'normal', label: 'Tout public', emoji: '' },
+                { key: 'adult',  label: 'Adulte 18+',  emoji: '' },
               ].map(c => (
                 <TouchableOpacity
                   key={c.key}
                   onPress={() => setCategory(c.key)}
                   style={[styles.pill, category === c.key && styles.pillActive]}
                 >
-                  <Text style={styles.pillNum}>{c.emoji}</Text>
                   <Text style={[styles.pillLabel, category === c.key && { color: CYAN_LIGHT }]}>{c.label}</Text>
                 </TouchableOpacity>
               ))}
             </View>
             {category === 'adult' && (
-              <Text style={styles.adultWarning}>⚠️  Contenu réservé aux adultes</Text>
+              <Text style={styles.adultWarning}>Contenu réservé aux adultes</Text>
             )}
           </View>
 
           {/* Nb mots */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🃏  Mots au total</Text>
+            <Text style={styles.cardLabel}>Mots au total</Text>
             <View style={styles.pillRow}>
               {WORDS_OPTIONS.map(n => (
                 <TouchableOpacity
@@ -154,11 +146,11 @@ export default function MotDePasseSetupScreen({ navigation, route }) {
 
           {/* Joueurs */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Joueurs</Text>
+            <Text style={styles.cardLabel}>Joueurs</Text>
             {players.map((name, i) => (
               <View key={i} style={styles.playerRow}>
                 <View style={[styles.inputWrap, inputFocus === i && styles.inputWrapFocus]}>
-                  <Text style={styles.inputIcon}>🎭</Text>
+                  <Text style={styles.inputIcon}></Text>
                   <TextInput
                     value={name}
                     onChangeText={v => updatePlayer(i, v)}
@@ -188,7 +180,7 @@ export default function MotDePasseSetupScreen({ navigation, route }) {
 
           {/* Résumé */}
           <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>📋  Résumé</Text>
+            <Text style={styles.summaryTitle}>Résumé</Text>
             {[
               ['Joueurs', String(players.length)],
               ['Durée du tour', `${timerSecs}s`],
@@ -212,7 +204,7 @@ export default function MotDePasseSetupScreen({ navigation, route }) {
             activeOpacity={0.88}
           >
             <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.launchGradient}>
-              <Text style={styles.launchText}>🎭  C'EST PARTI !</Text>
+              <Text style={styles.launchText}>C'EST PARTI !</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>

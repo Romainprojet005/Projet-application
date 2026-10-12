@@ -77,7 +77,7 @@ export default function TribunalLobbyScreen({ navigation, route }) {
   return (
     <LinearGradient colors={BG} style={styles.container}>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>⚖️ SALLE D'ATTENTE</Text>
+        <Text style={styles.title}>SALLE D'ATTENTE</Text>
 
         {/* Code */}
         <View style={styles.codeCard}>
@@ -91,7 +91,7 @@ export default function TribunalLobbyScreen({ navigation, route }) {
           <Text style={styles.sectionLabel}>JURÉS CONNECTÉS ({players.length})</Text>
           {players.map(p => (
             <View key={p.id} style={[styles.playerRow, p.id === playerId && styles.playerRowMe]}>
-              <Text style={styles.playerEmoji}>{p.is_host ? '👑' : '⚖️'}</Text>
+              <Text style={styles.playerEmoji}>{p.is_host ? '' : ''}</Text>
               <Text style={[styles.playerName, p.id === playerId && { color: GOLD_LIGHT }]}>
                 {p.name}{p.id === playerId ? ' (toi)' : ''}
               </Text>
@@ -106,7 +106,7 @@ export default function TribunalLobbyScreen({ navigation, route }) {
 
         {/* Rappel des règles */}
         <View style={styles.rulesCard}>
-          <Text style={styles.rulesTitle}>📜 Rappel</Text>
+          <Text style={styles.rulesTitle}>Rappel</Text>
           <Text style={styles.rulesText}>
             Chacun recevra le nom d'un autre joueur et devra écrire une vérité sur lui.{'\n'}
             Ensuite, chaque accusé devra convaincre le jury que c'est faux !
@@ -123,7 +123,7 @@ export default function TribunalLobbyScreen({ navigation, route }) {
             <LinearGradient colors={[GOLD, GOLD_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.startBtnGrad}>
               {starting
                 ? <ActivityIndicator color="#000" />
-                : <Text style={styles.startBtnText}>⚖️ LANCER LE TRIBUNAL</Text>
+                : <Text style={styles.startBtnText}>LANCER LE TRIBUNAL</Text>
               }
             </LinearGradient>
           </TouchableOpacity>
@@ -148,7 +148,7 @@ export default function TribunalLobbyScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  title: { fontSize: 22, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: GOLD_LIGHT, textAlign: 'center', letterSpacing: 3, marginBottom: spacing.xl },
+  title: { fontSize: 22, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, textAlign: 'center', letterSpacing: 3, marginBottom: spacing.xl },
   codeCard: {
     backgroundColor: GOLD + '22', borderRadius: radius.xl, borderWidth: 1, borderColor: GOLD + '55',
     padding: spacing.xl, alignItems: 'center', marginBottom: spacing.xl,
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   startBtn: { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.md },
   startBtnDisabled: { opacity: 0.4 },
   startBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  startBtnText: { fontSize: 15, fontWeight: '900', color: '#000', letterSpacing: 2 },
+  startBtnText: { fontSize: 15, fontWeight: '900', color: '#1A1408', letterSpacing: 2 },
   waitBanner: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: spacing.md, paddingVertical: spacing.lg,

@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import { supabase } from '../../services/supabase';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 
-const PRP       = colors.primary;
-const PRP_LIGHT = colors.primaryLight;
-const PRP_DARK  = colors.primaryDark;
+const PRP       = '#D4AF37';
+const PRP_LIGHT = '#E6C766';
+const PRP_DARK  = '#B8962E';
 
 function generateCode() {
   return Array.from({ length: 4 }, () =>
@@ -33,8 +33,8 @@ function getDeviceId() {
 }
 
 const CATEGORIES = [
-  { id: 'classique', emoji: '🃏', name: 'Classique' },
-  { id: 'adulte',    emoji: '🔞', name: 'Adulte'    },
+  { id: 'classique', emoji: '', name: 'Classique' },
+  { id: 'adulte',    emoji: '', name: 'Adulte'    },
 ];
 
 export default function BlancMultiSetupScreen({ navigation }) {
@@ -110,7 +110,7 @@ export default function BlancMultiSetupScreen({ navigation }) {
           <Text style={styles.backText}>← Retour</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>🃏 REMPLIS LE BLANC</Text>
+        <Text style={styles.title}>REMPLIS LE BLANC</Text>
         <Text style={styles.subtitle}>Mode multi-appareils</Text>
 
         {/* Tabs */}
@@ -128,7 +128,7 @@ export default function BlancMultiSetupScreen({ navigation }) {
 
         {/* Prénom (commun) */}
         <View style={styles.card}>
-          <Text style={styles.cardLabel}>👤 TON PRÉNOM</Text>
+          <Text style={styles.cardLabel}>TON PRÉNOM</Text>
           <TextInput
             value={name}
             onChangeText={setName}
@@ -144,7 +144,7 @@ export default function BlancMultiSetupScreen({ navigation }) {
           <>
             {/* Catégorie */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>🎯 CATÉGORIE</Text>
+              <Text style={styles.cardLabel}>CATÉGORIE</Text>
               <View style={styles.row}>
                 {CATEGORIES.map(c => (
                   <TouchableOpacity
@@ -152,7 +152,6 @@ export default function BlancMultiSetupScreen({ navigation }) {
                     style={[styles.optBtn, category === c.id && { borderColor: PRP, backgroundColor: PRP + '22' }]}
                     onPress={() => setCategory(c.id)}
                   >
-                    <Text style={styles.optEmoji}>{c.emoji}</Text>
                     <Text style={[styles.optName, category === c.id && { color: PRP_LIGHT }]}>{c.name}</Text>
                   </TouchableOpacity>
                 ))}
@@ -161,7 +160,7 @@ export default function BlancMultiSetupScreen({ navigation }) {
 
             {/* Tours */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>🔄 NOMBRE DE TOURS</Text>
+              <Text style={styles.cardLabel}>NOMBRE DE TOURS</Text>
               <View style={styles.row}>
                 {[5, 10, 15].map(n => (
                   <TouchableOpacity
@@ -189,7 +188,7 @@ export default function BlancMultiSetupScreen({ navigation }) {
                 {loading
                   ? <ActivityIndicator color={LAUNCH_TEXT} />
                   : <Text style={[styles.launchTxt, (!name.trim() || loading) && { color: colors.textMuted }]}>
-                      CRÉER LA SALLE 🃏
+                      CRÉER LA SALLE 
                     </Text>
                 }
               </LinearGradient>
@@ -198,7 +197,7 @@ export default function BlancMultiSetupScreen({ navigation }) {
         ) : (
           <>
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>🔑 CODE DE LA SALLE</Text>
+              <Text style={styles.cardLabel}>CODE DE LA SALLE</Text>
               <TextInput
                 value={joinCode}
                 onChangeText={t => setJoinCode(t.toUpperCase())}
@@ -223,7 +222,7 @@ export default function BlancMultiSetupScreen({ navigation }) {
                 {loading
                   ? <ActivityIndicator color={LAUNCH_TEXT} />
                   : <Text style={[styles.launchTxt, (!name.trim() || joinCode.length < 4) && { color: colors.textMuted }]}>
-                      REJOINDRE 🚀
+                      REJOINDRE 
                     </Text>
                 }
               </LinearGradient>

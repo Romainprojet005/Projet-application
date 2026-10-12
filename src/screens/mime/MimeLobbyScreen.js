@@ -9,9 +9,9 @@ import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 import { pickWord } from '../../data/mimeWords';
 
-const PINK = '#D0475B';
-const PINK_DARK = '#A81F2D';
-const PINK_LIGHT = '#FF8A8A';
+const PINK = '#D4AF37';
+const PINK_DARK = '#B8962E';
+const PINK_LIGHT = '#F4DC8C';
 const BG = OB_BG;
 
 function shuffle(arr) {
@@ -90,7 +90,7 @@ export default function MimeLobbyScreen({ navigation, route }) {
         contentContainerStyle={styles.scroll}
         style={Platform.OS === 'web' && { height: '100vh' }}
       >
-        <Text style={styles.title}>🎭 SALLE D'ATTENTE</Text>
+        <Text style={styles.title}>SALLE D'ATTENTE</Text>
 
         {/* Room code */}
         <View style={styles.codeCard}>
@@ -103,7 +103,7 @@ export default function MimeLobbyScreen({ navigation, route }) {
         {room && (
           <View style={[styles.modeBadge, room.category === 'adulte' && styles.modeBadgeAdulte]}>
             <Text style={styles.modeBadgeText}>
-              {room.category === 'adulte' ? '🔞 MODE ADULTE — 18+ sans filtre' : '🎭 MODE CLASSIQUE — Tout public'}
+              {room.category === 'adulte' ? 'MODE ADULTE — 18+ sans filtre' : 'MODE CLASSIQUE — Tout public'}
             </Text>
           </View>
         )}
@@ -115,7 +115,7 @@ export default function MimeLobbyScreen({ navigation, route }) {
           </Text>
           {players.map(p => (
             <View key={p.id} style={[styles.playerRow, p.id === playerId && styles.playerRowMe]}>
-              <Text style={styles.playerEmoji}>{p.is_host ? '👑' : '🎭'}</Text>
+              <Text style={styles.playerEmoji}>{p.is_host ? '' : ''}</Text>
               <Text style={[styles.playerName, p.id === playerId && { color: PINK_LIGHT }]}>
                 {p.name}{p.id === playerId ? ' (toi)' : ''}
               </Text>
@@ -130,9 +130,9 @@ export default function MimeLobbyScreen({ navigation, route }) {
         <View style={styles.rules}>
           <Text style={styles.rulesTitle}>Comment jouer</Text>
           <Text style={styles.rulesText}>
-            🎭 Le mime voit un mot et doit le faire deviner sans parler.{'\n'}
-            ⌨️ Les autres tapent leur réponse sur leur téléphone.{'\n'}
-            🏆 +3 pts pour le devineur, +2 pts pour le mime !
+            Le mime voit un mot et doit le faire deviner sans parler.{'\n'}
+            Les autres tapent leur réponse sur leur téléphone.{'\n'}
+            +3 pts pour le devineur, +2 pts pour le mime !
           </Text>
         </View>
 
@@ -146,7 +146,7 @@ export default function MimeLobbyScreen({ navigation, route }) {
             <LinearGradient colors={[PINK, PINK_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.startBtnGrad}>
               {starting
                 ? <ActivityIndicator color="#fff" />
-                : <Text style={styles.startBtnText}>🚀 LANCER LA PARTIE</Text>
+                : <Text style={styles.startBtnText}>LANCER LA PARTIE</Text>
               }
             </LinearGradient>
           </TouchableOpacity>
@@ -171,7 +171,7 @@ export default function MimeLobbyScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  title: { fontSize: 22, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: PINK_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
+  title: { fontSize: 22, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
   codeCard: {
     backgroundColor: PINK + '22',
     borderRadius: radius.xl,
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   startBtn: { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.md },
   startBtnDisabled: { opacity: 0.4 },
   startBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  startBtnText: { fontSize: 15, fontWeight: '900', color: colors.text, letterSpacing: 2 },
+  startBtnText: { fontSize: 15, fontWeight: '900', color: '#1A1408', letterSpacing: 2 },
   waitBanner: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: spacing.md, paddingVertical: spacing.lg,

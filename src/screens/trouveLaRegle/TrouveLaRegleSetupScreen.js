@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 
-const ACCENT       = '#7E62E0';
-const ACCENT_LIGHT = '#B9A2FF';
-const ACCENT_DARK  = '#5B3FB8';
+const ACCENT       = '#D4AF37';
+const ACCENT_LIGHT = '#F4DC8C';
+const ACCENT_DARK  = '#B8962E';
 const ROUND_OPTIONS = [3, 5, 8, 10];
 const MAX_PLAYERS   = 8;
 
@@ -49,13 +49,6 @@ export default function TrouveLaRegleSetupScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>🕵️</Text>
-            <View>
-              <Text style={styles.badgeName}>L'Inspecteur</Text>
-              <Text style={styles.badgeQuote}>"Rien n'échappe à mon regard…"</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>TROUVE LA RÈGLE</Text>
           <Text style={styles.pageSubtitle}>Observe, déduis, démasque la règle secrète</Text>
         </Animated.View>
@@ -63,17 +56,17 @@ export default function TrouveLaRegleSetupScreen({ navigation }) {
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
 
           <View style={[styles.rulesCard, { borderColor: ACCENT + '35', backgroundColor: ACCENT + '15' }]}>
-            <Text style={styles.rulesTitle}>🕵️  Comment jouer</Text>
-            <Text style={styles.rulesLine}>👋  Un joueur (le détective) <Text style={styles.rulesAccent}>quitte la pièce</Text></Text>
-            <Text style={styles.rulesLine}>📜  L'app révèle une <Text style={styles.rulesAccent}>règle secrète</Text> aux autres</Text>
-            <Text style={styles.rulesLine}>🗣️  Exemple : "terminer chaque phrase par une question"</Text>
-            <Text style={styles.rulesLine}>🔔  Le détective revient et <Text style={styles.rulesAccent}>pose des questions</Text> libres</Text>
-            <Text style={styles.rulesLine}>💡  Il doit deviner la règle parmi 4 propositions</Text>
-            <Text style={styles.rulesLine}>⚡  Moins de questions = plus de points !</Text>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
+            <Text style={styles.rulesLine}>Un joueur (le détective) <Text style={styles.rulesAccent}>quitte la pièce</Text></Text>
+            <Text style={styles.rulesLine}>L'app révèle une <Text style={styles.rulesAccent}>règle secrète</Text> aux autres</Text>
+            <Text style={styles.rulesLine}>Exemple : "terminer chaque phrase par une question"</Text>
+            <Text style={styles.rulesLine}>Le détective revient et <Text style={styles.rulesAccent}>pose des questions</Text> libres</Text>
+            <Text style={styles.rulesLine}>Il doit deviner la règle parmi 4 propositions</Text>
+            <Text style={styles.rulesLine}>Moins de questions = plus de points !</Text>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🔄  Nombre de manches</Text>
+            <Text style={styles.cardLabel}>Nombre de manches</Text>
             <View style={styles.pillRow}>
               {ROUND_OPTIONS.map(n => (
                 <TouchableOpacity
@@ -88,11 +81,11 @@ export default function TrouveLaRegleSetupScreen({ navigation }) {
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Joueurs (min. 3)</Text>
+            <Text style={styles.cardLabel}>Joueurs (min. 3)</Text>
             {playerNames.map((name, i) => (
               <View key={i} style={styles.playerRow}>
                 <View style={[styles.inputWrap, inputFocus === i && styles.inputWrapFocus]}>
-                  <Text style={styles.inputIcon}>{i === 0 ? '🕵️' : '👤'}</Text>
+                  <Text style={styles.inputIcon}>{i === 0 ? '' : ''}</Text>
                   <TextInput
                     value={name}
                     onChangeText={v => updatePlayer(i, v)}
@@ -122,7 +115,7 @@ export default function TrouveLaRegleSetupScreen({ navigation }) {
           </View>
 
           <View style={[styles.summaryCard, { borderColor: ACCENT + '30', backgroundColor: ACCENT + '12' }]}>
-            <Text style={styles.summaryTitle}>📋  Résumé</Text>
+            <Text style={styles.summaryTitle}>Résumé</Text>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Manches</Text>
               <Text style={styles.summaryValue}>{roundCount}</Text>
@@ -151,7 +144,7 @@ export default function TrouveLaRegleSetupScreen({ navigation }) {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>🕵️  LANCER L'ENQUÊTE !</Text>
+              <Text style={styles.launchText}>LANCER L'ENQUÊTE !</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
@@ -246,5 +239,5 @@ const styles = StyleSheet.create({
     shadowColor: ACCENT, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText: { fontSize: 15, fontWeight: '800', color: '#000', letterSpacing: 2 },
+  launchText: { fontSize: 15, fontWeight: '800', color: '#1A1408', letterSpacing: 2 },
 });

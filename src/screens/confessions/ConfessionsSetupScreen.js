@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 
-const ACCENT       = '#7E62E0';
-const ACCENT_LIGHT = '#B9A2FF';
-const ACCENT_DARK  = '#5B3FB8';
+const ACCENT       = '#D4AF37';
+const ACCENT_LIGHT = '#F4DC8C';
+const ACCENT_DARK  = '#B8962E';
 const MAX_PLAYERS  = 10;
 
 export default function ConfessionsSetupScreen({ navigation }) {
@@ -47,13 +47,6 @@ export default function ConfessionsSetupScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>👻</Text>
-            <View>
-              <Text style={styles.badgeName}>Le Gardien des secrets</Text>
-              <Text style={styles.badgeQuote}>"Vos secrets ne sont pas si bien gardés…"</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>CONFESSIONS</Text>
           <Text style={styles.pageSubtitle}>Secrets anonymes — sauras-tu deviner ?</Text>
         </Animated.View>
@@ -61,20 +54,20 @@ export default function ConfessionsSetupScreen({ navigation }) {
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
 
           <View style={[styles.rulesCard, { borderColor: ACCENT + '35', backgroundColor: ACCENT + '15' }]}>
-            <Text style={styles.rulesTitle}>👻  Comment jouer</Text>
-            <Text style={styles.rulesLine}>📝  Chaque joueur tape une <Text style={styles.rulesAccent}>confession secrète</Text></Text>
-            <Text style={styles.rulesLine}>🔒  Les autres ne voient pas ce qu'il écrit</Text>
-            <Text style={styles.rulesLine}>🗳️  Chaque confession est lue, tout le monde <Text style={styles.rulesAccent}>vote</Text></Text>
-            <Text style={styles.rulesLine}>🎭  L'auteur est révélé — a-t-il trompé le groupe ?</Text>
-            <Text style={styles.rulesLine}>⭐  <Text style={styles.rulesAccent}>+2 pts</Text> si tu trouves · <Text style={styles.rulesAccent}>+1 pt</Text> à l'auteur par personne trompée</Text>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
+            <Text style={styles.rulesLine}>Chaque joueur tape une <Text style={styles.rulesAccent}>confession secrète</Text></Text>
+            <Text style={styles.rulesLine}>Les autres ne voient pas ce qu'il écrit</Text>
+            <Text style={styles.rulesLine}>Chaque confession est lue, tout le monde <Text style={styles.rulesAccent}>vote</Text></Text>
+            <Text style={styles.rulesLine}>L'auteur est révélé — a-t-il trompé le groupe ?</Text>
+            <Text style={styles.rulesLine}><Text style={styles.rulesAccent}>+2 pts</Text> si tu trouves · <Text style={styles.rulesAccent}>+1 pt</Text> à l'auteur par personne trompée</Text>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Joueurs (min. 3)</Text>
+            <Text style={styles.cardLabel}>Joueurs (min. 3)</Text>
             {playerNames.map((name, i) => (
               <View key={i} style={styles.playerRow}>
                 <View style={[styles.inputWrap, inputFocus === i && styles.inputWrapFocus]}>
-                  <Text style={styles.inputIcon}>{i === 0 ? '👻' : '👤'}</Text>
+                  <Text style={styles.inputIcon}>{i === 0 ? '' : ''}</Text>
                   <TextInput
                     value={name}
                     onChangeText={v => updatePlayer(i, v)}
@@ -104,7 +97,7 @@ export default function ConfessionsSetupScreen({ navigation }) {
           </View>
 
           <View style={[styles.summaryCard, { borderColor: ACCENT + '30', backgroundColor: ACCENT + '12' }]}>
-            <Text style={styles.summaryTitle}>📋  Résumé</Text>
+            <Text style={styles.summaryTitle}>Résumé</Text>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Joueurs</Text>
               <Text style={styles.summaryValue}>{validPlayers.length >= 3 ? validPlayers.length : '—'}</Text>
@@ -133,7 +126,7 @@ export default function ConfessionsSetupScreen({ navigation }) {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>👻  RÉVÉLER LES SECRETS !</Text>
+              <Text style={styles.launchText}>RÉVÉLER LES SECRETS !</Text>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
@@ -218,5 +211,5 @@ const styles = StyleSheet.create({
     shadowColor: ACCENT, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText:     { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+  launchText:     { fontSize: 15, fontWeight: '800', color: '#1A1408', letterSpacing: 2 },
 });

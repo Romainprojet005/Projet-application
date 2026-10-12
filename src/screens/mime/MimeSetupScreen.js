@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import { supabase, isSupabaseConfigured } from '../../services/supabase';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const PINK       = GOLD;
-const PINK_DARK  = GOLD_DARK;
-const PINK_LIGHT = GOLD_LIGHT;
+const PINK       = '#D4AF37';
+const PINK_DARK  = '#B8962E';
+const PINK_LIGHT = '#F4DC8C';
 const BG         = OB_BG;
 
 function generateCode() {
@@ -42,7 +42,7 @@ export default function MimeSetupScreen({ navigation }) {
     return (
       <LinearGradient colors={BG} style={styles.container}>
         <View style={styles.configError}>
-          <Text style={styles.configTitle}>⚙️ Configuration requise</Text>
+          <Text style={styles.configTitle}>Configuration requise</Text>
           <Text style={styles.configText}>
             Le jeu Mime Express nécessite Supabase.{'\n\n'}
             Crée un compte gratuit sur supabase.com, puis ajoute dans le fichier .env :{'\n\n'}
@@ -124,7 +124,7 @@ export default function MimeSetupScreen({ navigation }) {
           <Text style={styles.backText}>← Menu</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>🎭 MIME EXPRESS</Text>
+        <Text style={styles.title}>MIME EXPRESS</Text>
         <Text style={styles.subtitle}>Faites deviner sans parler !</Text>
 
         {/* Tabs */}
@@ -136,7 +136,7 @@ export default function MimeSetupScreen({ navigation }) {
               onPress={() => setTab(t)}
             >
               <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t === 'create' ? '➕ Créer' : '🔑 Rejoindre'}
+                {t === 'create' ? 'Créer' : 'Rejoindre'}
               </Text>
             </TouchableOpacity>
           ))}
@@ -180,7 +180,7 @@ export default function MimeSetupScreen({ navigation }) {
                   style={[styles.modeBtn, category === 'classique' && styles.modeBtnActive]}
                   onPress={() => setCategory('classique')}
                 >
-                  <Text style={styles.modeEmoji}>🎭</Text>
+                  <Text style={styles.modeEmoji}></Text>
                   <Text style={[styles.modeBtnLabel, category === 'classique' && styles.modeBtnLabelActive]}>Classique</Text>
                   <Text style={styles.modeDesc}>Tout public</Text>
                 </TouchableOpacity>
@@ -188,7 +188,7 @@ export default function MimeSetupScreen({ navigation }) {
                   style={[styles.modeBtn, styles.modeBtnAdulte, category === 'adulte' && styles.modeBtnAdulteActive]}
                   onPress={() => setCategory('adulte')}
                 >
-                  <Text style={styles.modeEmoji}>🔞</Text>
+                  <Text style={styles.modeEmoji}></Text>
                   <Text style={[styles.modeBtnLabel, category === 'adulte' && { color: '#FF6B6B' }]}>Adulte</Text>
                   <Text style={styles.modeDesc}>18+ sans filtre</Text>
                 </TouchableOpacity>
@@ -202,7 +202,7 @@ export default function MimeSetupScreen({ navigation }) {
               activeOpacity={0.8}
             >
               <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>✨ CRÉER LA SALLE</Text>}
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>CRÉER LA SALLE</Text>}
               </LinearGradient>
             </TouchableOpacity>
           </>
@@ -229,7 +229,7 @@ export default function MimeSetupScreen({ navigation }) {
               activeOpacity={0.8}
             >
               <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>🚀 REJOINDRE</Text>}
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>REJOINDRE</Text>}
               </LinearGradient>
             </TouchableOpacity>
           </>
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
   backRow: { marginBottom: spacing.lg },
   backText: { color: colors.textMuted, fontSize: 14 },
-  title: { fontSize: 32, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: PINK_LIGHT, textAlign: 'center', letterSpacing: 2 },
+  title: { fontSize: 32, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, textAlign: 'center', letterSpacing: 2 },
   subtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
   tabs: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.lg, padding: 4, marginBottom: spacing.xl },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.md },

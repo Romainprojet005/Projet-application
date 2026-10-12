@@ -9,9 +9,10 @@ import PageScroll from '../../components/PageScroll';
 import { VOTE_CATEGORIES, selectQuestions } from '../../data/voteData';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-const VOTE_COLOR = GOLD;
-const VOTE_DARK  = GOLD_DARK;
-const VOTE_LIGHT = GOLD_LIGHT;
+import sansEmoji from '../../utils/sansEmoji';
+const VOTE_COLOR = '#D4AF37';
+const VOTE_DARK  = '#B8962E';
+const VOTE_LIGHT = '#F4DC8C';
 
 const ROUND_OPTIONS = [5, 10, 15, 20];
 const MAX_PLAYERS   = 20;
@@ -54,13 +55,6 @@ export default function VoteSetupScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeEmoji}>⚖️</Text>
-            <View>
-              <Text style={styles.badgeName}>L'Arbitre</Text>
-              <Text style={styles.badgeQuote}>"La majorité a toujours raison… ou presque !"</Text>
-            </View>
-          </View>
           <Text style={styles.pageTitle}>VOTE MAJORITÉ</Text>
           <Text style={styles.pageSubtitle}>Votez comme la majorité pour gagner des points</Text>
         </Animated.View>
@@ -68,16 +62,16 @@ export default function VoteSetupScreen({ navigation }) {
         <Animated.View style={[styles.form, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
 
           <View style={[styles.rulesCard, { borderColor: VOTE_COLOR + '35', backgroundColor: VOTE_COLOR + '18' }]}>
-            <Text style={styles.rulesTitle}>⚖️  Comment jouer</Text>
-            <Text style={styles.rulesLine}>📱  Passez le téléphone à chaque joueur</Text>
-            <Text style={styles.rulesLine}>🗳️  Chaque joueur vote en secret</Text>
-            <Text style={styles.rulesLine}>👥  Voter avec la majorité → <Text style={styles.rulesPoints}>+1 pt</Text></Text>
-            <Text style={styles.rulesLine}>🏆  Vote unanime → <Text style={styles.rulesPoints}>+2 pts</Text> pour tous</Text>
-            <Text style={styles.rulesLine}>⚖️  Égalité parfaite → <Text style={styles.rulesPoints}>0 pt</Text></Text>
+            <Text style={styles.rulesTitle}>Comment jouer</Text>
+            <Text style={styles.rulesLine}>Passez le téléphone à chaque joueur</Text>
+            <Text style={styles.rulesLine}>Chaque joueur vote en secret</Text>
+            <Text style={styles.rulesLine}>Voter avec la majorité → <Text style={styles.rulesPoints}>+1 pt</Text></Text>
+            <Text style={styles.rulesLine}>Vote unanime → <Text style={styles.rulesPoints}>+2 pts</Text> pour tous</Text>
+            <Text style={styles.rulesLine}>Égalité parfaite → <Text style={styles.rulesPoints}>0 pt</Text></Text>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎯  Catégorie</Text>
+            <Text style={styles.cardLabel}>Catégorie</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catRow}>
               {VOTE_CATEGORIES.map(cat => {
                 const active = categoryId === cat.id;
@@ -85,21 +79,20 @@ export default function VoteSetupScreen({ navigation }) {
                   <TouchableOpacity
                     key={cat.id}
                     onPress={() => setCategoryId(cat.id)}
-                    style={[styles.catPill, active && { backgroundColor: cat.color + '30', borderColor: cat.color }]}
+                    style={[styles.catPill, active && { backgroundColor: '#D4AF37' + '30', borderColor: '#D4AF37' }]}
                   >
-                    <Text style={styles.catEmoji}>{cat.emoji}</Text>
-                    <Text style={[styles.catText, active && { color: cat.color, fontWeight: '800' }]}>
-                      {cat.name}
+                    <Text style={[styles.catText, active && { color: '#D4AF37', fontWeight: '800' }]}>
+                      {sansEmoji(cat.name)}
                     </Text>
                   </TouchableOpacity>
                 );
               })}
             </ScrollView>
-            {activeCat.rule && <Text style={styles.ruleText}>🍻 {activeCat.rule}</Text>}
+            {activeCat.rule && <Text style={styles.ruleText}>{sansEmoji(activeCat.rule)}</Text>}
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>❓  Nombre de questions</Text>
+            <Text style={styles.cardLabel}>Nombre de questions</Text>
             <View style={styles.pillRow}>
               {ROUND_OPTIONS.map(n => (
                 <TouchableOpacity
@@ -114,11 +107,11 @@ export default function VoteSetupScreen({ navigation }) {
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👥  Joueurs (min. 2)</Text>
+            <Text style={styles.cardLabel}>Joueurs (min. 2)</Text>
             {playerNames.map((name, i) => (
               <View key={i} style={styles.playerRow}>
                 <View style={[styles.inputWrap, inputFocus === i && styles.inputWrapFocus]}>
-                  <Text style={styles.inputIcon}>⚖️</Text>
+                  <Text style={styles.inputIcon}></Text>
                   <TextInput
                     value={name}
                     onChangeText={v => updatePlayer(i, v)}
@@ -148,10 +141,10 @@ export default function VoteSetupScreen({ navigation }) {
           </View>
 
           <View style={[styles.summaryCard, { borderColor: VOTE_COLOR + '30', backgroundColor: VOTE_COLOR + '15' }]}>
-            <Text style={styles.summaryTitle}>📋  Résumé</Text>
+            <Text style={styles.summaryTitle}>Résumé</Text>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Catégorie</Text>
-              <Text style={styles.summaryValue}>{activeCat.emoji}  {activeCat.name}</Text>
+              <Text style={styles.summaryValue}>{sansEmoji(activeCat.name)}</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Questions</Text>
@@ -181,7 +174,7 @@ export default function VoteSetupScreen({ navigation }) {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.launchGradient}
             >
-              <Text style={styles.launchText}>⚖️  QUE LE VOTE COMMENCE !</Text>
+              <Text style={styles.launchText}>QUE LE VOTE COMMENCE !</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -190,7 +183,7 @@ export default function VoteSetupScreen({ navigation }) {
             style={styles.multiBtn}
             activeOpacity={0.8}
           >
-            <Text style={styles.multiBtnText}>📱  Mode multi-téléphones</Text>
+            <Text style={styles.multiBtnText}>Mode multi-téléphones</Text>
           </TouchableOpacity>
         </Animated.View>
 
