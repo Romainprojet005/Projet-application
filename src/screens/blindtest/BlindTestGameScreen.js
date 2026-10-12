@@ -82,7 +82,10 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const isInfinite = timeLimit === null;
   const TOTAL_TIME = timeLimit ?? 30;
 
-  const [songs]      = useState(() => selectSongs(songCount, categoryId));
+  const [songs, setSongs] = useState(() => selectSongs(songCount, categoryId));
+  const [replaced, setReplaced] = useState(false); // une chanson indisponible vient d'être remplacée
+  const songsRef = useRef(songs);
+  useEffect(() => { songsRef.current = songs; }, [songs]);
   const [songIdx,    setSongIdx]    = useState(0);
   const [phase,      setPhase]      = useState('idle'); // idle|playing|found|blocked|reveal|final
   const [scores,     setScores]     = useState(() => Object.fromEntries(playerNames.map(n => [n, 0])));
@@ -141,9 +144,25 @@ export default function BlindTestGameScreen({ navigation, route }) {
       try {
         const d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
         // codes 101 et 150 = vidéo non autorisée en lecture intégrée
-        if (d?.event === 'error' && (d?.info === 101 || d?.info === 150)) {
-          if (phaseRef.current === 'playing') {
-            stopTimer();
+        // 2 = identifiant invalide, 5 = lecture impossible, 100 = vidéo supprimée,
+        // 101 / 150 = lecture intégrée interdite
+        if (d?.event === 'error' && [2, 5, 100, 101, 150].includes(d?.info)) {
+          if (phaseRef.current !== 'playing') return;
+          stopTimer();
+          if (iframeRef.current) iframeRef.current.src = '';
+          // On remplace la chanson par une autre de la même catégorie, puis on relance
+          const current = songsRef.current;
+          const spare = selectSongs(1000, categoryId).find(sg => !current.some(c => c.id === sg.id));
+          if (spare) {
+            const idx = current.indexOf(songRef.current);
+            const next = current.map((sg, i) => (i === idx ? spare : sg));
+            songRef.current = spare;
+            setSongs(next);
+            setTimer(TOTAL_TIME);
+            setReplaced(true);
+            phaseRef.current = 'idle';
+            setPhase('idle');
+          } else {
             phaseRef.current = 'blocked';
             setPhase('blocked');
           }
@@ -175,6 +194,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
 
   // ── Play ───────────────────────────────────────────────────────────────────
   const handlePlay = () => {
+    setReplaced(false);
     setPhase('playing');
     phaseRef.current = 'playing';
 
@@ -373,6 +393,9 @@ export default function BlindTestGameScreen({ navigation, route }) {
             <View style={styles.idleContent}>
               <Text style={styles.idleNote}>🎵</Text>
               <Text style={styles.idleSongNum}>Chanson {songIdx + 1}</Text>
+              {replaced && (
+                <Text style={styles.idleReplaced}>La chanson précédente n'était pas disponible : on en a choisi une autre.</Text>
+              )}
               <TouchableOpacity onPress={handlePlay} activeOpacity={0.85} style={styles.playBtnWrap}>
                 <LinearGradient colors={[BEAT, BEAT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.playBtn}>
                   <Text style={styles.playBtnText}>▶  JOUER L'EXTRAIT</Text>
@@ -594,6 +617,7 @@ const styles = StyleSheet.create({
   timerNum:   { fontSize: 36, fontWeight: '900' },
   timerLabel: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
 
+  idleReplaced:   { fontSize: 12, color: colors.textMuted, textAlign: 'center', paddingHorizontal: spacing.lg },
   blockedContent: { alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.xl, width: '100%' },
   blockedIcon:    { fontSize: 40 },
   blockedTitle:   { fontSize: 18, fontWeight: '900', color: colors.text },
