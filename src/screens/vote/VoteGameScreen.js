@@ -9,6 +9,7 @@ import { selectQuestions } from '../../data/voteData';
 import { OB_BG } from '../../theme/obsidian';
 import PageScroll from '../../components/PageScroll';
 
+import goBackOrMenu from '../../navigation/goBack';
 const BG         = OB_BG;
 const VOTE_COLOR = '#2F74B5';
 const VOTE_DARK  = '#1B5A97';
@@ -98,7 +99,7 @@ export default function VoteGameScreen({ route, navigation }) {
   const progressPct = `${(questionIdx / questions.length) * 100}%`;
   const progressBar = (
     <View style={styles.progressWrap}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.quitBtn}>
+      <TouchableOpacity onPress={() => goBackOrMenu(navigation)} style={styles.quitBtn}>
         <Text style={styles.quitText}>✕</Text>
       </TouchableOpacity>
       <View style={styles.progressTrack}>
@@ -221,7 +222,7 @@ export default function VoteGameScreen({ route, navigation }) {
     return (
       <LinearGradient colors={BG} style={styles.container}>
         <View style={[styles.progressWrap, { marginBottom: 0 }]}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.quitBtn}>
+          <TouchableOpacity onPress={() => goBackOrMenu(navigation)} style={styles.quitBtn}>
             <Text style={styles.quitText}>✕</Text>
           </TouchableOpacity>
           <View style={styles.progressTrack}>

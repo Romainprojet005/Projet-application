@@ -15,6 +15,7 @@ import { wordThemes, generateRandomPair } from '../../data/wordLists';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import sansEmoji from '../../utils/sansEmoji';
+import goBackOrMenu from '../../navigation/goBack';
 const AMB       = '#D4AF37';
 const AMB_DARK  = '#B8962E';
 const AMB_LIGHT = '#F4DC8C';
@@ -103,7 +104,7 @@ export default function UndercoverSetupScreen({ navigation, route }) {
         <Animated.View
           style={[styles.header, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}
         >
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <TouchableOpacity onPress={() => goBackOrMenu(navigation)} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
 
@@ -262,7 +263,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
     alignItems: 'center',
   },
-  backBtn: { alignSelf: 'flex-start', marginBottom: spacing.lg },
+  backBtn: { paddingVertical: 12, paddingRight: 20, marginTop: -12, alignSelf: 'flex-start', marginBottom: spacing.lg },
   backBtnText: { color: AMB_LIGHT, fontSize: 14, fontWeight: '600' },
   agentBadge: {
     flexDirection: 'row',

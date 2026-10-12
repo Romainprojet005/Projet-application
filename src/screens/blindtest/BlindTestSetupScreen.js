@@ -9,6 +9,7 @@ import PageScroll from '../../components/PageScroll';
 import { CATEGORIES, getSongsCount } from '../../data/blindTestSongs';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+import goBackOrMenu from '../../navigation/goBack';
 const BEAT       = '#D4AF37';
 const BEAT_DARK  = '#B8962E';
 const BEAT_LIGHT = '#F4DC8C';
@@ -51,7 +52,7 @@ export default function BlindTestSetupScreen({ navigation }) {
       <PageScroll contentContainerStyle={styles.scroll}>
 
         <Animated.View style={[styles.header, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <TouchableOpacity onPress={() => goBackOrMenu(navigation)} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
           <Text style={styles.pageTitle}>BLIND TEST</Text>
@@ -230,7 +231,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
     alignItems: 'center',
   },
-  backBtn:     { alignSelf: 'flex-start', marginBottom: spacing.lg },
+  backBtn:     { paddingVertical: 12, paddingRight: 20, marginTop: -12, alignSelf: 'flex-start', marginBottom: spacing.lg },
   backBtnText: { color: BEAT_LIGHT, fontSize: 14, fontWeight: '600' },
 
   badge: {

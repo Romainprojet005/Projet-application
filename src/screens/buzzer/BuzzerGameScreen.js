@@ -9,6 +9,7 @@ import { OB_BG } from '../../theme/obsidian';
 import { PLAYER_COLORS } from './BuzzerSetupScreen';
 import { BUZZER_MODES, getShuffledQuestions } from '../../data/buzzerQuestions';
 
+import goBackOrMenu from '../../navigation/goBack';
 const BUZZ_COLOR  = '#1F9E70';
 const BUZZ_DARK   = '#0B6B4A';
 const BUZZ_LIGHT  = '#4FD8A4';
@@ -122,7 +123,7 @@ export default function BuzzerGameScreen({ navigation, route }) {
   const handleQuit = useCallback(() => {
     if (countdownTimer.current) clearInterval(countdownTimer.current);
     if (buzzTimer.current) clearInterval(buzzTimer.current);
-    navigation.goBack();
+    goBackOrMenu(navigation);
   }, [navigation]);
 
   // ── Timer color ──

@@ -9,6 +9,7 @@ import PageScroll from '../../components/PageScroll';
 import { BUZZER_MODES } from '../../data/buzzerQuestions';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+import goBackOrMenu from '../../navigation/goBack';
 const BUZZ_COLOR = '#D4AF37';
 const BUZZ_DARK  = '#B8962E';
 const BUZZ_LIGHT = '#F4DC8C';
@@ -57,7 +58,7 @@ export default function BuzzerSetupScreen({ navigation }) {
       <PageScroll contentContainerStyle={styles.scroll}>
 
         <Animated.View style={[styles.header, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <TouchableOpacity onPress={() => goBackOrMenu(navigation)} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
           <Text style={styles.pageTitle}>BUZZER</Text>
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
     alignItems: 'center',
   },
-  backBtn:     { alignSelf: 'flex-start', marginBottom: spacing.lg },
+  backBtn:     { paddingVertical: 12, paddingRight: 20, marginTop: -12, alignSelf: 'flex-start', marginBottom: spacing.lg },
   backBtnText: { color: BUZZ_LIGHT, fontSize: 14, fontWeight: '600' },
 
   badge: {

@@ -8,6 +8,7 @@ import { colors, spacing, radius } from '../../theme';
 import { selectQuestions } from '../../data/oracleQuestions';
 import { OB_BG } from '../../theme/obsidian';
 
+import goBackOrMenu from '../../navigation/goBack';
 const ACCENT       = '#D0475B';
 const ACCENT_LIGHT = '#FF8A8A';
 const ACCENT_DARK  = '#A81F2D';
@@ -493,7 +494,7 @@ export default function OracleGameScreen({ route, navigation }) {
 
         <View style={styles.progressRow}>
           <Text style={styles.progressText}>{roundIdx + 1} / {questions.length}</Text>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => goBackOrMenu(navigation)}>
             <Text style={styles.quitText}>✕ Quitter</Text>
           </TouchableOpacity>
         </View>

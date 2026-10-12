@@ -227,7 +227,7 @@ export default function VoteMultiSetupScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  backRow: { marginBottom: spacing.lg },
+  backRow: { paddingVertical: 12, paddingRight: 20, marginTop: -12, marginBottom: spacing.lg },
   backText: { color: colors.textMuted, fontSize: 14 },
   title: { fontSize: 32, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: VOTE_LIGHT, textAlign: 'center', letterSpacing: 2 },
   subtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },

@@ -9,6 +9,7 @@ import { colors, spacing, radius } from '../../theme';
 import { getPersonalities, buildChoices } from '../../data/personalityData';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+import goBackOrMenu from '../../navigation/goBack';
 const ORANGE       = '#D4AF37';
 const ORANGE_DARK  = '#B8962E';
 const ORANGE_LIGHT = '#F4DC8C';
@@ -98,7 +99,7 @@ export default function PersonalitySetupScreen({ navigation, route }) {
           <Animated.View
             style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
           >
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <TouchableOpacity onPress={() => goBackOrMenu(navigation)} style={styles.backBtn}>
               <Text style={styles.backBtnText}>← Retour</Text>
             </TouchableOpacity>
             <Text style={styles.title}>FLASH VISION</Text>
@@ -250,7 +251,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.lg,
   },
-  backBtn: { alignSelf: 'flex-start', marginBottom: spacing.md },
+  backBtn: { paddingVertical: 12, paddingRight: 20, marginTop: -12, alignSelf: 'flex-start', marginBottom: spacing.md },
   backBtnText: { color: ORANGE_LIGHT, fontSize: 14, fontWeight: '600' },
   characterBadge: {
     alignItems: 'center',

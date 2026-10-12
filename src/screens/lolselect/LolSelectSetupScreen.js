@@ -7,6 +7,7 @@ import { OB_BG } from '../../theme/obsidian';
 import { TRIO_SIZE } from '../../data/lolDraftEngine';
 import { GAME_LIST, getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 
+import goBackOrMenu from '../../navigation/goBack';
 const HEXTECH = '#0AC8B9';
 
 export default function LolSelectSetupScreen({ navigation }) {
@@ -30,7 +31,7 @@ export default function LolSelectSetupScreen({ navigation }) {
       <PageScroll contentContainerStyle={styles.scroll}>
 
         <Animated.View style={[styles.header, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <TouchableOpacity onPress={() => goBackOrMenu(navigation)} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
           <Text style={styles.pageTitle}>LE SÉLECTIONNEUR</Text>
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
     alignItems: 'center',
   },
-  backBtn:     { alignSelf: 'flex-start', marginBottom: spacing.lg },
+  backBtn:     { paddingVertical: 12, paddingRight: 20, marginTop: -12, alignSelf: 'flex-start', marginBottom: spacing.lg },
   backBtnText: { color: colors.textSecondary, fontSize: 14, fontWeight: '600' },
 
   badge: {

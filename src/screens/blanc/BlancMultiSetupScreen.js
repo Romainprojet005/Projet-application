@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
 
-  backRow: { paddingTop: Platform.OS === 'ios' ? 56 : 36, paddingBottom: spacing.md },
+  backRow: { paddingVertical: 12, paddingRight: 20, marginTop: -12, paddingTop: Platform.OS === 'ios' ? 56 : 36, paddingBottom: spacing.md },
   backText: { color: PRP_LIGHT, fontSize: 14, fontWeight: '600' },
 
   title:    { fontSize: 26, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 3, textAlign: 'center', marginBottom: 4 },

@@ -14,6 +14,7 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import characterImages from '../../data/characterImages';
 
+import goBackOrMenu from '../../navigation/goBack';
 const BG = OB_BG;
 
 // Small helper: shows a character image, or nothing if URL is missing / fails to load
@@ -403,7 +404,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
 
         {/* Header row */}
         <View style={styles.topRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.cancelBtn}>
+          <TouchableOpacity onPress={() => goBackOrMenu(navigation)} style={styles.cancelBtn}>
             <Text style={styles.cancelBtnText}>✕  Annuler</Text>
           </TouchableOpacity>
           <View style={styles.progressRow}>

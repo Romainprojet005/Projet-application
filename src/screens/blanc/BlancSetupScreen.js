@@ -9,6 +9,7 @@ import PageScroll from '../../components/PageScroll';
 import { QUESTIONS, ANSWERS } from '../../data/blancMangerData';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 
+import goBackOrMenu from '../../navigation/goBack';
 const PRP       = '#D4AF37';
 const PRP_LIGHT = '#E6C766';
 
@@ -68,7 +69,7 @@ export default function BlancSetupScreen({ navigation, route }) {
         <PageScroll contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
 
           <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <TouchableOpacity onPress={() => goBackOrMenu(navigation)} style={styles.backBtn}>
               <Text style={styles.backText}>← Retour</Text>
             </TouchableOpacity>
             <Text style={styles.title}>REMPLIS LE BLANC</Text>
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.lg,
   },
-  backBtn:    { alignSelf: 'flex-start', marginBottom: spacing.md },
+  backBtn:    { paddingVertical: 12, paddingRight: 20, marginTop: -12, alignSelf: 'flex-start', marginBottom: spacing.md },
   backText:   { color: '#E6C766', fontSize: 14, fontWeight: '600' },
   badge: {
     alignItems: 'center',

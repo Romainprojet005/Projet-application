@@ -944,7 +944,9 @@ export default function MenuScreen({ navigation }) {
       // Tap : carte de face → on la retourne ; carte de côté → on l'amène au centre
       const front = getFrontIdx(rotRef.current);
       const slot  = e.target?.closest?.('[data-idx]');
-      const idx   = slot ? Number(slot.getAttribute('data-idx')) : front;
+      // Tap à côté des cartes : on ne fait rien (les règles ne s'ouvrent qu'en touchant la carte)
+      if (!slot) return;
+      const idx   = Number(slot.getAttribute('data-idx'));
       if (idx === front) {
         const c = characters[front];
         if (c) setFlipped(f => ({ [c.id]: !f[c.id] }));

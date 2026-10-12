@@ -9,6 +9,7 @@ import PageScroll from '../../components/PageScroll';
 import { ORACLE_CATEGORIES, selectQuestions } from '../../data/oracleQuestions';
 import { OB_BG } from '../../theme/obsidian';
 
+import goBackOrMenu from '../../navigation/goBack';
 const ACCENT       = '#D4AF37';
 const ACCENT_LIGHT = '#F4DC8C';
 const ACCENT_DARK  = '#B8962E';
@@ -49,7 +50,7 @@ export default function OracleSetupScreen({ navigation }) {
       <PageScroll contentContainerStyle={styles.scroll}>
 
         <Animated.View style={[styles.header, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <TouchableOpacity onPress={() => goBackOrMenu(navigation)} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
           <Text style={styles.pageTitle}>ORACLE</Text>
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
     alignItems: 'center',
   },
-  backBtn:     { alignSelf: 'flex-start', marginBottom: spacing.lg },
+  backBtn:     { paddingVertical: 12, paddingRight: 20, marginTop: -12, alignSelf: 'flex-start', marginBottom: spacing.lg },
   backBtnText: { color: ACCENT_LIGHT, fontSize: 14, fontWeight: '600' },
 
   badge: {

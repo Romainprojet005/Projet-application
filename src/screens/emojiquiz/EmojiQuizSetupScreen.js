@@ -10,6 +10,7 @@ import { EMOJI_CATEGORIES, buildEmojiRound } from '../../data/emojiQuizData';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import sansEmoji from '../../utils/sansEmoji';
+import goBackOrMenu from '../../navigation/goBack';
 const AMB       = '#D4AF37';
 const AMB_DARK  = '#B8962E';
 const AMB_LIGHT = '#F4DC8C';
@@ -76,7 +77,7 @@ export default function EmojiQuizSetupScreen({ navigation, route }) {
 
         {/* Header */}
         <Animated.View style={[styles.header, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <TouchableOpacity onPress={() => goBackOrMenu(navigation)} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Retour</Text>
           </TouchableOpacity>
           <Text style={styles.pageTitle}>EMOJI QUIZ</Text>
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
   scroll: { paddingBottom: spacing.xl },
 
   header: { paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingHorizontal: spacing.xl, paddingBottom: spacing.lg, alignItems: 'center' },
-  backBtn: { alignSelf: 'flex-start', marginBottom: spacing.lg },
+  backBtn: { paddingVertical: 12, paddingRight: 20, marginTop: -12, alignSelf: 'flex-start', marginBottom: spacing.lg },
   backBtnText: { color: AMB_LIGHT, fontSize: 14, fontWeight: '600' },
 
   badge: { flexDirection: 'row', alignItems: 'center', backgroundColor: AMB + '20', borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, marginBottom: spacing.lg, borderWidth: 1, borderColor: AMB + '40', gap: spacing.sm },

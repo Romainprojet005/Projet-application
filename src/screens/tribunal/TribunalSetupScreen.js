@@ -189,7 +189,7 @@ export default function TribunalSetupScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  backRow: { marginBottom: spacing.lg },
+  backRow: { paddingVertical: 12, paddingRight: 20, marginTop: -12, marginBottom: spacing.lg },
   backText: { color: colors.textMuted, fontSize: 14 },
   title: { fontSize: 34, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, textAlign: 'center', letterSpacing: 3 },
   subtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
@@ -224,6 +224,6 @@ const styles = StyleSheet.create({
   configWrap: { flex: 1, justifyContent: 'center', padding: spacing.xl },
   configTitle: { fontSize: 22, fontWeight: '900', color: GOLD_LIGHT, marginBottom: spacing.lg, textAlign: 'center' },
   configText: { fontSize: 13, color: colors.textSecondary, lineHeight: 22, fontFamily: Platform.OS === 'web' ? 'monospace' : 'Courier' },
-  backBtn: { marginTop: spacing.xl, alignItems: 'center' },
+  backBtn: { paddingVertical: 12, paddingRight: 20, marginTop: -12, marginTop: spacing.xl, alignItems: 'center' },
   backBtnText: { color: GOLD_LIGHT, fontSize: 15, fontWeight: '700' },
 });
