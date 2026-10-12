@@ -15,7 +15,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
     const lk = document.createElement('link');
     lk.id = 'sdl-fonts';
     lk.rel = 'stylesheet';
-    lk.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap';
+    lk.href = 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap';
     document.head.appendChild(lk);
   }
   if (!document.getElementById('sdl-welcome-css')) {

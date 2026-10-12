@@ -80,8 +80,9 @@ const linking = {
   ],
   config: {
     screens: {
-      Welcome: '',
-      Menu: 'menu',
+      // Écran unique : le carrousel des jeux est la page d'accueil
+      Menu: '',
+      Welcome: 'bienvenue',
       UndercoverSetup: 'undercover',
       UndercoverDistribute: 'undercover/distribute',
       QuizSetup: 'quiz',
@@ -162,8 +163,8 @@ export default function AppNavigator() {
           gestureEnabled: true,
         }}
       >
-        <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="Menu" component={MenuScreen} />
+        <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="UndercoverSetup" component={UndercoverSetupScreen} />
         <Stack.Screen name="UndercoverDistribute" component={UndercoverDistributeScreen} />
         <Stack.Screen name="QuizSetup" component={QuizSetupScreen} />

@@ -10,7 +10,7 @@ import { colors, spacing, radius } from '../theme';
 import { OB_BG } from '../theme/obsidian';
 import { characters } from '../data/characters';
 import AdBanner, { AD_ENABLED } from '../components/AdBanner';
-import { BoosterFront, BoosterBack } from '../components/BoosterCard';
+import { BoosterFront, BoosterBack, FamilyEmblem, FAMILIES, familyOf } from '../components/BoosterCard';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 const N = characters.length;
@@ -22,7 +22,8 @@ const IS_DESKTOP_WEB = Platform.OS === 'web' && !IS_MOBILE_WEB;
 // (hauteur d'écran moins en-tête, points, panneau d'infos et, sur PC, pub).
 // Sur mobile la carte prend ~68 % de la largeur, comme sur la maquette.
 const REFLECT_SHIFT = 0.08;
-const STAGE_EST = SH - (IS_MOBILE_WEB ? 285 : 250 + (AD_ENABLED ? 90 : 0));
+// En-tête + titre + familles + fiche du jeu (refonte « écran unique »)
+const STAGE_EST = SH - (IS_MOBILE_WEB ? 330 : 320 + (AD_ENABLED ? 90 : 0));
 const FIT_H = Math.floor((STAGE_EST / 2 - 8) / (0.5 + REFLECT_SHIFT));
 const WEB_H = IS_MOBILE_WEB
   ? Math.max(220, Math.min(400, FIT_H, Math.round(SW * 0.68 * 310 / 210)))
@@ -123,7 +124,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
   if (!document.getElementById('sdl-fonts')) {
     const lk = document.createElement('link');
     lk.id = 'sdl-fonts'; lk.rel = 'stylesheet';
-    lk.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap';
+    lk.href = 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap';
     document.head.appendChild(lk);
   }
   if (!document.getElementById('sdl-menu-css-v2')) {
@@ -173,50 +174,91 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         position: absolute; left: 50%; top: 50%;
         transform: translate(-50%, -50%);
         border-radius: 50%; pointer-events: none;
-        background: radial-gradient(circle, color-mix(in oklab, var(--accent) 60%, transparent) 0%, transparent 62%);
-        opacity: .55; transition: background .6s ease;
+        background: radial-gradient(circle, color-mix(in oklab, var(--accent) 45%, transparent) 0%, transparent 62%);
+        opacity: .35; transition: background .6s ease;
       }
       .sdl-floor {
         position: absolute; left: 0; right: 0; bottom: 0; pointer-events: none;
-        background: linear-gradient(180deg, rgba(169,155,255,.12), rgba(11,10,26,0));
-        border-top: 1px solid rgba(232,198,106,.2);
+        background: linear-gradient(180deg, rgba(212,175,55,.06), rgba(14,12,26,0));
+        border-top: 1px solid rgba(212,175,55,.18);
       }
       body.sdl-eco .sdl-aura { display: none; }
 
+      /* === En-tête « écran unique » === */
+      .sdl-top { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; padding: 14px 24px; border-bottom: 1px solid #2E2A4A; background: #0E0C1A; }
+      .sdl-logo { display: flex; flex-direction: column; line-height: 1; text-decoration: none; color: #F3EEE2; }
+      .sdl-logo-main { font-family: 'Bodoni Moda', Didot, Georgia, serif; font-weight: 700; font-size: 18px; letter-spacing: .06em; }
+      .sdl-logo-crown { color: #D4AF37; margin-right: 6px; }
+      .sdl-logo-sub { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: .3em;
+        text-transform: uppercase; color: #A9A3BF; margin: 4px 0 0 24px; }
+      .sdl-top-count { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: .2em;
+        text-transform: uppercase; color: #E6C766; }
+      .sdl-hero { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 10px;
+        padding: 16px 16px 2px; text-align: center; }
+      .sdl-h1 { margin: 0; font-family: 'Bodoni Moda', Didot, Georgia, serif; font-weight: 600;
+        font-size: clamp(28px, 3.6vw, 44px); line-height: 1; color: #F3EEE2; }
+      .sdl-h1 em { font-weight: 500; color: #E6C766; }
+      .sdl-fams { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+      .sdl-fam { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; box-sizing: border-box;
+        padding: 6px 14px 6px 10px; border-radius: 999px; border: 1px solid #2E2A4A; background: transparent;
+        font-family: 'Outfit', system-ui, sans-serif; font-weight: 500; font-size: 14px; color: #A9A3BF; cursor: pointer;
+        transition: border-color .2s, color .2s, background .2s; }
+      .sdl-fam:hover { color: #F3EEE2; border-color: #6B6590; }
+      .sdl-fam.on { color: #F3EEE2; border-color: #D4AF37; background: rgba(212,175,55,.1); }
+      .sdl-fam svg { width: 15px; height: 15px; }
+      .sdl-fam:focus-visible, .sdl-play:focus-visible, .sdl-nav:focus-visible, .sdl-dot:focus-visible {
+        outline: 2px solid #F4DC8C; outline-offset: 2px; }
+
       /* Panneau d'infos sous le carrousel */
       .sdl-info { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px;
-        padding: 2px 16px 12px; text-align: center; }
-      .sdl-info-kicker { font-family: 'Outfit', system-ui, sans-serif; font-size: 12px; font-weight: 600;
-        letter-spacing: .2em; text-transform: uppercase; color: #e8c66a; }
-      .sdl-info-title { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 30px; line-height: 1.05;
-        text-transform: uppercase; color: #fff; }
+        padding: 12px 16px 14px; text-align: center; background: #1A1730; border-top: 1px solid #2E2A4A; }
+      .sdl-info-kicker { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 500;
+        letter-spacing: .2em; text-transform: uppercase; color: #E6C766; }
+      .sdl-info-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: inherit; gap: 8px; }
+      .sdl-info-fam { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 6px; border-radius: 6px;
+        font-family: 'Outfit', system-ui, sans-serif; font-size: 12px; font-weight: 500; }
+      .sdl-info-fam svg { width: 13px; height: 13px; }
+      .sdl-info-age { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: .06em;
+        color: #FF8A8A; border: 1px solid #FF8A8A; border-radius: 6px; padding: 1px 6px; }
+      .sdl-info-title { font-family: 'Bodoni Moda', Didot, Georgia, serif; font-weight: 700; font-size: 28px; line-height: 1.05;
+        letter-spacing: .03em; text-transform: uppercase; color: #F3EEE2; }
+      .sdl-info-desc { margin: 0; max-width: 560px; font-family: 'Outfit', system-ui, sans-serif; font-size: 14px; line-height: 20px;
+        color: #A9A3BF; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
       .sdl-info-chips { display: flex; gap: 8px; }
-      .sdl-info-chip { font-family: 'Outfit', system-ui, sans-serif; padding: 6px 12px; border-radius: 99px;
-        background: rgba(255,255,255,.07); font-size: 13px; font-weight: 500; color: #ddd6f0; }
-      .sdl-play { width: min(100%, 340px); height: 52px; margin-top: 4px; border: 0; border-radius: 99px;
-        background: linear-gradient(180deg, #F4DC8C, #D4AF37 55%, #B8892A); color: #1a1408;
-        font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 15px; letter-spacing: .14em;
-        cursor: pointer; box-shadow: 0 8px 28px rgba(212,175,55,.35); transition: transform .15s, box-shadow .15s; }
-      .sdl-play:hover { transform: translateY(-1px); box-shadow: 0 12px 34px rgba(212,175,55,.45); }
+      .sdl-info-chip { font-family: 'Outfit', system-ui, sans-serif; padding: 8px 12px; border-radius: 6px;
+        border: 1px solid #2E2A4A; font-size: 14px; font-weight: 500; color: #F3EEE2; }
+      .sdl-play { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        width: min(100%, 340px); height: 48px; margin-top: 4px; border: 0; border-radius: 99px;
+        background: #D4AF37; color: #1A1408;
+        font-family: 'Outfit', system-ui, sans-serif; font-weight: 600; font-size: 16px; letter-spacing: .04em;
+        cursor: pointer; box-shadow: 0 0 0 1px rgba(212,175,55,.5), 0 10px 30px -8px rgba(212,175,55,.4);
+        transition: transform .15s, background .15s; }
+      .sdl-play:hover { transform: translateY(-1px); background: #E0BD4C; }
       .sdl-play:disabled { opacity: .45; cursor: default; transform: none; }
       .sdl-info-head { display: flex; flex-direction: column; align-items: center; gap: inherit; }
       @media (min-width: 601px) {
-        /* PC : panneau compact sur une ligne pour laisser la place aux cartes */
+        /* PC : fiche compacte sur une ligne pour laisser la place aux cartes */
         .sdl-info { flex-direction: row; flex-wrap: wrap; justify-content: center;
-          column-gap: 28px; row-gap: 6px; padding: 2px 24px 12px; }
-        .sdl-info-head { align-items: flex-start; text-align: left; gap: 2px; }
-        .sdl-info-title { font-size: 24px; }
-        .sdl-play { width: 220px; height: 46px; margin-top: 0; }
+          column-gap: 32px; row-gap: 6px; padding: 14px 24px 12px; }
+        .sdl-info-head { align-items: flex-start; text-align: left; gap: 4px; flex: 0 1 560px; min-width: 0; }
+        .sdl-info-line { justify-content: flex-start; }
+        .sdl-play { width: 200px; height: 46px; margin-top: 0; }
         .sdl-meta-hint { flex-basis: 100%; text-align: center; }
       }
       @media (max-width: 600px) {
         /* Bouton éco en haut à droite pour ne pas couvrir le bouton JOUER */
-        .sdl-eco-btn.sdl-eco-top { bottom: auto; top: 22px; right: 16px; }
-        .sdl-info { gap: 5px; padding: 0 16px 14px; }
+        .sdl-eco-btn.sdl-eco-top { bottom: auto; top: 16px; right: 16px; }
+        .sdl-top { padding: 12px 64px 12px 16px; }
+        .sdl-top-count { display: none; }
+        .sdl-hero { gap: 8px; padding-top: 10px; }
+        .sdl-fam { min-height: 32px; padding: 4px 11px 4px 8px; font-size: 13px; }
+        .sdl-info { gap: 5px; padding: 8px 16px 14px; }
         .sdl-info-title { font-size: 22px; }
+        .sdl-info-desc { display: none; }
         .sdl-info-kicker { font-size: 10.5px; }
         .sdl-info-chip { padding: 4px 10px; font-size: 12px; }
-        .sdl-play { height: 46px; font-size: 14px; margin-top: 2px; }
+        .sdl-play { height: 46px; font-size: 15px; margin-top: 2px; }
         .sdl-dots { padding: 4px 0 4px; gap: 6px; }
         .sdl-dot { height: 5px; }
       }
@@ -381,22 +423,21 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       .sdl-nav {
         position: absolute; top: 50%; transform: translateY(-50%);
         width: 48px; height: 48px; border-radius: 50%;
-        background: rgba(255,255,255,.06);
-        border: 1px solid rgba(255,255,255,.18);
-        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        color: #fff; font-size: 28px; font-weight: 300; line-height: 1;
+        background: #1A1730;
+        border: 1px solid #6B6590;
+        color: #F3EEE2; font-size: 28px; font-weight: 300; line-height: 1;
         display: flex; align-items: center; justify-content: center;
         cursor: pointer; z-index: 500; transition: background .2s, border-color .2s;
       }
-      .sdl-nav:hover { background: rgba(255,255,255,.12); border-color: rgba(212,175,55,.5); }
+      .sdl-nav:hover { background: #241F42; border-color: #F3EEE2; }
       .sdl-nav-prev { left: 40px; }
       .sdl-nav-next { right: 40px; }
 
       /* Dots */
       .sdl-dots { position:relative; z-index:2; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 0 6px; }
-      .sdl-dot { height:7px; border-radius:4px; background:rgba(255,255,255,.20);
+      .sdl-dot { height:7px; border-radius:4px; background:#2E2A4A;
         border:none; cursor:pointer; padding:0; transition:width .3s,background .3s; }
-      .sdl-dot.active { width:26px; box-shadow:0 0 10px var(--accent,#D4AF37); }
+      .sdl-dot.active { width:26px; }
 
       /* Meta */
       .sdl-meta { display:flex; flex-direction:column; align-items:center; gap:8px; padding-bottom:10px; }
@@ -797,6 +838,7 @@ export default function MenuScreen({ navigation }) {
           el.style.filter    = p.br < 0.999 ? `brightness(${p.br.toFixed(3)})` : '';
           el.style.zIndex    = zi;
         }
+        el.classList.toggle('is-front', p.ad < 0.5);
       });
     } else {
       setPositions(computePositions(rot));
@@ -1000,12 +1042,11 @@ export default function MenuScreen({ navigation }) {
       const i = Number(idx);
       if (i === activeIdx) {
         el.style.width      = '26px';
-        el.style.background = characters[activeIdx]?.color ?? '#D4AF37';
-        el.style.setProperty('--accent', characters[activeIdx]?.color ?? '#D4AF37');
+        el.style.background = '#D4AF37';
         el.classList.add('active');
       } else {
         el.style.width      = '7px';
-        el.style.background = 'rgba(255,255,255,0.20)';
+        el.style.background = '#2E2A4A';
         el.classList.remove('active');
       }
     });
@@ -1043,15 +1084,7 @@ export default function MenuScreen({ navigation }) {
       : [{ stars: STAR_NATIVE, anim: starSlow }];
 
   return (
-    <LinearGradient colors={OB_BG} style={s.container}>
-
-      {IS_DESKTOP_WEB && (
-        <>
-          <div className="sdl-nebula sdl-nebula-1" />
-          <div className="sdl-nebula sdl-nebula-2" />
-          <div className="sdl-nebula sdl-nebula-3" />
-        </>
-      )}
+    <LinearGradient colors={Platform.OS === 'web' ? ['#0E0C1A', '#0E0C1A'] : OB_BG} style={s.container}>
 
       {!ecoMode && starLayers.map(({ stars, anim }, li) => (
         <Animated.View key={li} pointerEvents="none"
@@ -1063,28 +1096,67 @@ export default function MenuScreen({ navigation }) {
         </Animated.View>
       ))}
 
-      {/* Header */}
-      <Animated.View style={[s.header, { opacity: headerAnim }]}>
-        <TouchableOpacity onPress={() => navigation.navigate('Welcome')} style={s.backBtn}>
-          <Text style={s.backBtnText}>← Retour</Text>
-        </TouchableOpacity>
-        <View style={s.headerCenter}>
-          <Text style={s.title}>CHOISISSEZ</Text>
-          <Text style={s.subtitle}>votre aventure</Text>
-        </View>
-        <View style={{ width: 70 }} />
-      </Animated.View>
+      {/* ══ EN-TÊTE WEB (écran unique : le menu est la page d'accueil) ══ */}
+      {Platform.OS === 'web' && (() => {
+        const curFam = (characters[activeIdx] ?? characters[0]).family;
+        const jumpFamily = (fam) => {
+          const idxs = characters.map((c, i) => (c.family === fam ? i : -1)).filter(i => i >= 0);
+          if (!idxs.length) return;
+          const next = curFam === fam ? (idxs.find(i => i > activeIdx) ?? idxs[0]) : idxs[0];
+          goTo(next);
+        };
+        return (
+          <>
+            <div className="sdl-top">
+              <div className="sdl-logo" aria-label="La Soirée des Légendes">
+                <span className="sdl-logo-main"><span className="sdl-logo-crown" aria-hidden="true">♛</span>LA SOIRÉE</span>
+                <span className="sdl-logo-sub">des légendes</span>
+              </div>
+              <span className="sdl-top-count">
+                {characters.filter(c => c.available).length} jeux · 2 à 12 joueurs
+              </span>
+            </div>
+            <div className="sdl-hero">
+              <h1 className="sdl-h1">Choisissez <em>votre légende.</em></h1>
+              <div className="sdl-fams" role="group" aria-label="Aller à une famille de jeux">
+                {Object.entries(FAMILIES).map(([key, f]) => (
+                  <button
+                    key={key}
+                    className={`sdl-fam${curFam === key ? ' on' : ''}`}
+                    aria-pressed={curFam === key}
+                    onClick={() => jumpFamily(key)}
+                  >
+                    <span style={{ color: f.color, display: 'inline-flex' }}><FamilyEmblem family={key} size="15px" /></span>
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        );
+      })()}
 
-      <Animated.Text style={[s.countLine, { opacity: headerAnim }]}>
-        {characters.filter(c => c.available).length} jeux disponibles
-      </Animated.Text>
+      {/* Header (natif) */}
+      {Platform.OS !== 'web' && (
+        <>
+          <Animated.View style={[s.header, { opacity: headerAnim }]}>
+            <View style={s.headerCenter}>
+              <Text style={s.title}>CHOISISSEZ</Text>
+              <Text style={s.subtitle}>votre légende</Text>
+            </View>
+          </Animated.View>
+          <Animated.Text style={[s.countLine, { opacity: headerAnim }]}>
+            {characters.filter(c => c.available).length} jeux disponibles
+          </Animated.Text>
+        </>
+      )}
 
       {/* ══ CARROUSEL WEB ══ */}
       {Platform.OS === 'web' && (
         <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
           <div
             className="sdl-aura"
-            style={{ '--accent': characters[activeIdx]?.color ?? '#D4AF37', width: CARD_W * 2.6, height: CARD_W * 2.6, marginTop: -Math.round(CARD_H * REFLECT_SHIFT) }}
+            style={{ '--accent': familyOf(characters[activeIdx] ?? characters[0]).color, width: CARD_W * 2.6, height: CARD_W * 2.6, marginTop: -Math.round(CARD_H * REFLECT_SHIFT) }}
           />
           <div className="sdl-floor" style={{ top: `calc(50% + ${Math.round(CARD_H * (0.5 - REFLECT_SHIFT))}px)` }} />
           <div
@@ -1153,7 +1225,7 @@ export default function MenuScreen({ navigation }) {
               key={c.id}
               ref={(el) => { dotsRef.current[i] = el; }}
               className={`sdl-dot${i === 0 ? ' active' : ''}`}
-              style={{ width: i === 0 ? 26 : 7, background: i === 0 ? (c.color) : 'rgba(255,255,255,0.20)', '--accent': c.color }}
+              style={{ width: i === 0 ? 26 : 7, background: i === 0 ? '#D4AF37' : '#2E2A4A' }}
               aria-label={`Aller au jeu ${i + 1}`}
               onClick={() => goTo(i)}
             />
@@ -1173,13 +1245,21 @@ export default function MenuScreen({ navigation }) {
       {/* Meta (web) */}
       {Platform.OS === 'web' && (() => {
         const c = characters[activeIdx] ?? characters[0];
+        const fam = familyOf(c);
         return (
           <div className="sdl-info">
             <div className="sdl-info-head">
-              <span className="sdl-info-kicker" ref={metaIdxRef}>
-                N° {String(activeIdx + 1).padStart(2, '0')} · {c.title}
+              <span className="sdl-info-line">
+                <span className="sdl-info-kicker" ref={metaIdxRef}>
+                  N° {String(activeIdx + 1).padStart(2, '0')} · {c.title}
+                </span>
+                <span className="sdl-info-fam" style={{ color: fam.color, background: fam.veil }}>
+                  <FamilyEmblem family={c.family} size="13px" />{fam.label}
+                </span>
+                {c.adult && <span className="sdl-info-age">18+ ou sans alcool</span>}
               </span>
               <span className="sdl-info-title" ref={metaGameRef}>{c.gameName}</span>
+              {c.description && <p className="sdl-info-desc">{c.description}</p>}
             </div>
             <div className="sdl-info-chips">
               <span className="sdl-info-chip">{c.players || '2–12'} joueurs</span>
@@ -1193,7 +1273,7 @@ export default function MenuScreen({ navigation }) {
                 if (target.available) handleSelectGame(target);
               }}
             >
-              {c.available ? '▶  JOUER' : 'BIENTÔT'}
+              {c.available ? '▶  Jouer' : 'Bientôt'}
             </button>
             <span className="sdl-meta-hint">
               {IS_MOBILE_WEB

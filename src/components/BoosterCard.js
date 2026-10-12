@@ -1,124 +1,128 @@
 import React from 'react';
 import { Platform } from 'react-native';
 
-// ── Carte "booster" (web) ─────────────────────────────────────────────
+// ── Carte de légende (web) ────────────────────────────────────────────
+// Refonte « écran unique » : carte nuit, cadre or, emblème de la famille du jeu.
 // Toutes les tailles sont en em : font-size = largeur / 21, donc la carte
 // se redimensionne d'un bloc (210 px de large → 1em = 10 px).
 
-if (Platform.OS === 'web' && typeof document !== 'undefined' && !document.getElementById('sdl-booster-css')) {
+export const FAMILIES = {
+  bluff:  { label: 'Bluff',  color: '#B9A2FF', veil: 'rgba(185,162,255,.12)' },
+  savoir: { label: 'Savoir', color: '#4FD8A4', veil: 'rgba(79,216,164,.12)' },
+  social: { label: 'Social', color: '#7CC4FF', veil: 'rgba(124,196,255,.12)' },
+  defi:   { label: 'Défis',  color: '#FF8A8A', veil: 'rgba(255,138,138,.12)' },
+};
+
+export function familyOf(character) {
+  return FAMILIES[character.family] || FAMILIES.savoir;
+}
+
+// Emblèmes géométriques des familles (trait 1,5 px, couleur héritée)
+export function FamilyEmblem({ family, size = '1em' }) {
+  const common = {
+    viewBox: '0 0 24 24', width: size, height: size, fill: 'none',
+    stroke: 'currentColor', strokeWidth: 1.5, 'aria-hidden': true,
+    style: { display: 'block' },
+  };
+  if (family === 'bluff') {
+    return <svg {...common}><path d="M12 3 21 12 12 21 3 12Z" /><path d="M12 3v18" /></svg>;
+  }
+  if (family === 'social') {
+    return <svg {...common}><circle cx="9" cy="12" r="5.5" /><circle cx="15" cy="12" r="5.5" /></svg>;
+  }
+  if (family === 'defi') {
+    return <svg {...common}><path d="M12 2c1 7 3 9 10 10-7 1-9 3-10 10-1-7-3-9-10-10 7-1 9-3 10-10Z" /></svg>;
+  }
+  return <svg {...common}><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="2" fill="currentColor" /></svg>;
+}
+
+if (Platform.OS === 'web' && typeof document !== 'undefined' && !document.getElementById('sdl-legend-css')) {
   const st = document.createElement('style');
-  st.id = 'sdl-booster-css';
+  st.id = 'sdl-legend-css';
   st.textContent = `
     .bc {
-      position: relative; border-radius: 1.1em; overflow: hidden;
-      display: flex; flex-direction: column;
-      background: var(--bc-dark);
-      box-shadow: 0 1.8em 4em rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
-      font-family: 'Outfit', system-ui, sans-serif; color: #efeaf8;
+      position: relative; box-sizing: border-box; border-radius: 1.8em; overflow: hidden;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 1.6em 1.6em 1.4em;
+      background: #1A1730; border: 1px solid #2E2A4A;
+      box-shadow: 0 1.8em 4em -1.2em rgba(0,0,0,.85);
+      font-family: 'Outfit', system-ui, sans-serif; color: #F3EEE2;
       -webkit-tap-highlight-color: transparent;
     }
-    .bc-band {
-      flex: none; position: relative;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background:
-        repeating-linear-gradient(90deg, rgba(255,255,255,.09) 0 .2em, transparent .2em .6em),
-        linear-gradient(180deg, var(--bc-accent), var(--bc-dark));
+    .bc::before {
+      content: ''; position: absolute; inset: .8em; border-radius: 1.2em; pointer-events: none;
+      border: 1px solid #D4AF37; opacity: .35; transition: opacity .3s ease;
     }
-    .bc-band.top { height: 4.4em; }
-    .bc-band.bottom { height: 2.2em;
-      background:
-        repeating-linear-gradient(90deg, rgba(255,255,255,.09) 0 .2em, transparent .2em .6em),
-        linear-gradient(0deg, var(--bc-accent), var(--bc-dark)); }
-    .bc-brand { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 1.3em;
-      letter-spacing: .12em; line-height: 1; color: #fff; text-shadow: 0 .1em 0 rgba(0,0,0,.5); }
-    .bc-brand-sub { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: .62em;
-      letter-spacing: .32em; line-height: 1.6; color: #fbe7b0; }
-    .bc-badge { position: absolute; right: .7em; top: .7em; padding: .2em .5em; border-radius: .35em;
-      background: #0d0c16; color: #fff; font-weight: 600; font-size: .8em; letter-spacing: .04em; }
-    .bc-stripe { flex: none; height: .4em; background: linear-gradient(90deg, #b9c6ff, #fff, #b9c6ff); }
-    .bc-art { flex: 1; position: relative; overflow: hidden;
-      background: radial-gradient(circle at 50% 38%, var(--bc-accent) 0%, var(--bc-dark) 46%, #0b0a1a 100%); }
-    .bc-streak { position: absolute; left: -30%; width: 160%; }
-    .bc-streak.a { top: 20%; height: 1.8em; transform: rotate(-26deg); opacity: .65;
-      background: linear-gradient(90deg, transparent, var(--bc-accent), transparent); }
-    .bc-streak.b { top: 56%; height: .9em; transform: rotate(18deg); opacity: .3;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); }
-    .bc-ring { position: absolute; left: 50%; top: 36%; transform: translate(-50%, -50%); border-radius: 50%; }
-    .bc-ring.outer { width: 11em; height: 11em; border: .15em solid rgba(251,231,176,.75);
-      box-shadow: 0 0 2.4em var(--bc-accent); }
-    .bc-ring.inner { width: 8.8em; height: 8.8em; border: .1em dashed rgba(251,231,176,.45); }
-    .bc-emoji { position: absolute; left: 0; right: 0; top: 36%; transform: translateY(-50%);
-      text-align: center; font-size: 4.6em; line-height: 1;
-      filter: drop-shadow(0 0 .25em rgba(0,0,0,.6)); }
-    .bc-plate { position: absolute; left: .8em; right: .8em; bottom: 1em;
-      display: flex; flex-direction: column; align-items: center; gap: .35em; text-align: center; }
-    .bc-persona { font-size: .72em; font-weight: 600; letter-spacing: .2em; text-transform: uppercase;
-      color: #fbe7b0; text-shadow: 0 .1em .3em rgba(0,0,0,.8); }
-    .bc-title { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 1.85em; line-height: 1.02;
-      text-transform: uppercase; color: #fff;
-      text-shadow: 0 .08em 0 #0b0a1a, .06em 0 0 #0b0a1a, -.06em 0 0 #0b0a1a, 0 -.06em 0 #0b0a1a, 0 0 .5em rgba(0,0,0,.7); }
-    .bc-sheen { position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(115deg, transparent 32%, rgba(255,255,255,.2) 46%, transparent 58%); }
+    .sdl-slot.is-front .bc { box-shadow: 0 0 0 1px rgba(212,175,55,.5), 0 1.4em 4em -.8em rgba(212,175,55,.4); }
+    .sdl-slot.is-front .bc::before { opacity: .9; }
+    .bc-top { align-self: stretch; display: flex; justify-content: space-between; align-items: center; position: relative; }
+    .bc-num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500; font-size: 1.15em;
+      letter-spacing: .18em; color: #E6C766; }
+    .bc-fam { display: inline-flex; align-items: center; gap: .45em; padding: .25em .7em .25em .55em;
+      border-radius: .6em; font-weight: 500; font-size: 1.1em; line-height: 1.4; }
+    .bc-medal { width: 9.4em; height: 9.4em; border-radius: 50%; display: grid; place-items: center;
+      margin: auto 0 1em; position: relative; }
+    .bc-medal svg { width: 4.6em; height: 4.6em; }
+    .bc-who { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500; font-size: .95em;
+      letter-spacing: .2em; text-transform: uppercase; color: #A9A3BF; text-align: center; position: relative; }
+    .bc-title { font-family: 'Bodoni Moda', Didot, Georgia, serif; font-weight: 700; font-size: 2.05em; line-height: 1.08;
+      letter-spacing: .04em; text-transform: uppercase; text-align: center; margin: .25em 0 .5em; position: relative; }
+    .bc-meta { font-size: 1.25em; color: #A9A3BF; position: relative; }
 
-    .bc-back { position: absolute; inset: 0; border-radius: 1.1em; box-sizing: border-box;
-      padding: 1.6em 1.5em; display: flex; flex-direction: column; gap: .9em; text-align: left;
-      background: radial-gradient(circle at 50% 0%, var(--bc-dark), #12101f 72%);
-      border: .15em solid rgba(251,231,176,.6); font-family: 'Outfit', system-ui, sans-serif; color: #efeaf8;
-      box-shadow: 0 1.8em 4em rgba(0,0,0,.6); }
-    .bc-back-kicker { font-size: .72em; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: #fbe7b0; }
-    .bc-back-title { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 1.7em; line-height: 1.05;
-      text-transform: uppercase; color: #fff; }
-    .bc-back-rule { height: .15em; width: 3em; background: #e8c66a; }
-    .bc-back-desc { margin: 0; font-size: 1.12em; line-height: 1.45; color: #ddd6f0; flex: 1; overflow: hidden; }
+    .bc-back { position: absolute; inset: 0; box-sizing: border-box; border-radius: 1.8em;
+      padding: 2em 1.9em; display: flex; flex-direction: column; gap: .9em; text-align: left;
+      background: #1A1730; border: 1px solid #D4AF37;
+      font-family: 'Outfit', system-ui, sans-serif; color: #F3EEE2;
+      box-shadow: 0 1.8em 4em -1.2em rgba(0,0,0,.85); }
+    .bc-back-kicker { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .95em; font-weight: 500;
+      letter-spacing: .18em; text-transform: uppercase; color: #E6C766; }
+    .bc-back-title { font-family: 'Bodoni Moda', Didot, Georgia, serif; font-weight: 700; font-size: 2em; line-height: 1.05;
+      text-transform: uppercase; color: #F3EEE2; overflow-wrap: anywhere; }
+    .bc-back-rule { height: .15em; width: 3em; background: #D4AF37; }
+    .bc-back-desc { margin: 0; font-size: 1.3em; line-height: 1.45; color: #A9A3BF; flex: 1; overflow: hidden; }
     .bc-chips { display: flex; gap: .6em; flex-wrap: wrap; }
-    .bc-chip { padding: .35em .8em; border-radius: 99em; border: .1em solid rgba(251,231,176,.5);
-      font-size: .95em; font-weight: 600; color: #fbe7b0; }
+    .bc-chip { padding: .4em .9em; border-radius: .6em; border: 1px solid #2E2A4A;
+      font-size: 1.1em; font-weight: 500; color: #F3EEE2; }
 
-    .bc-soon { position: absolute; inset: 0; background: rgba(5,4,16,.62); display: flex;
+    .bc-soon { position: absolute; inset: 0; background: rgba(8,7,15,.7); display: flex;
       align-items: center; justify-content: center; z-index: 5; }
-    .bc-soon span { font-size: .9em; letter-spacing: .3em; color: rgba(255,255,255,.6);
-      border: 1px solid rgba(255,255,255,.25); padding: .6em 1.4em; border-radius: 99em; }
-
-    body.sdl-eco .bc-sheen, body.sdl-eco .bc-streak { display: none; }
-    body.sdl-eco .bc-ring.outer { box-shadow: none; }
+    .bc-soon span { font-size: 1em; letter-spacing: .3em; color: #F3EEE2;
+      border: 1px solid #6B6590; padding: .6em 1.4em; border-radius: 99em; background: #08070F; }
   `;
   document.head.appendChild(st);
 }
 
-function cardVars(character, width) {
-  const accent = character.color || '#D4AF37';
+function cardVars(width) {
   return {
-    '--bc-accent': accent,
-    '--bc-dark': `color-mix(in oklab, ${accent} 34%, #0b0a1a)`,
     width,
     height: Math.round(width * 310 / 210),
     fontSize: `${(width / 21).toFixed(2)}px`,
   };
 }
 
+// Réduit le nom du jeu quand un mot est long, pour ne jamais le couper en deux
+function titleSize(name = '') {
+  const longest = Math.max(...name.split(/\s+/).map(w => w.length));
+  return longest > 10 ? { fontSize: `${Math.max(1.4, 2.05 * 10 / longest).toFixed(2)}em` } : undefined;
+}
+
 export function BoosterFront({ character, idx, width, className = '' }) {
   const n = String(idx + 1).padStart(2, '0');
+  const fam = familyOf(character);
   return (
-    <div className={`bc ${className}`} style={cardVars(character, width)}>
-      <div className="bc-band top">
-        <span className="bc-brand">LA SOIRÉE</span>
-        <span className="bc-brand-sub">DES LÉGENDES</span>
-        <span className="bc-badge">N° {n}</span>
+    <div className={`bc ${className}`} style={cardVars(width)}>
+      <div className="bc-top">
+        <span className="bc-num">N° {n}</span>
+        <span className="bc-fam" style={{ color: fam.color, background: fam.veil }}>
+          <FamilyEmblem family={character.family} size="1.1em" />{fam.label}
+        </span>
       </div>
-      <div className="bc-stripe" />
-      <div className="bc-art">
-        <div className="bc-streak a" />
-        <div className="bc-streak b" />
-        <div className="bc-ring outer" />
-        <div className="bc-ring inner" />
-        <div className="bc-emoji" aria-hidden="true">{character.emoji}</div>
-        <div className="bc-plate">
-          <span className="bc-persona">{character.title}</span>
-          <span className="bc-title">{character.gameName}</span>
-        </div>
+      <div className="bc-medal" style={{ color: fam.color, background: fam.veil }}>
+        <FamilyEmblem family={character.family} />
       </div>
-      <div className="bc-band bottom" />
-      <div className="bc-sheen" />
+      <span className="bc-who">{character.title}</span>
+      <span className="bc-title" style={titleSize(character.gameName)}>{character.gameName}</span>
+      <span className="bc-meta">{character.players || '2–12'} joueurs · {character.time || '15 min'}</span>
       {!character.available && <div className="bc-soon"><span>BIENTÔT</span></div>}
     </div>
   );
@@ -127,9 +131,9 @@ export function BoosterFront({ character, idx, width, className = '' }) {
 export function BoosterBack({ character, idx, width, className = '' }) {
   const n = String(idx + 1).padStart(2, '0');
   return (
-    <div className={`bc-back ${className}`} style={cardVars(character, width)}>
+    <div className={`bc-back ${className}`} style={cardVars(width)}>
       <span className="bc-back-kicker">N° {n} · {character.title}</span>
-      <span className="bc-back-title">{character.gameName}</span>
+      <span className="bc-back-title" style={titleSize(character.gameName)}>{character.gameName}</span>
       <span className="bc-back-rule" />
       <p className="bc-back-desc">{character.description}</p>
       <div className="bc-chips">
