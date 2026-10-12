@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   quitText: { color: colors.textMuted, fontSize: 13 },
 
   title: {
-    fontSize: 24, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text,
+    fontSize: 24, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text,
     letterSpacing: 3, textAlign: 'center', marginBottom: spacing.lg,
   },
 

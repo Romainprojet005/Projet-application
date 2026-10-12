@@ -9,8 +9,8 @@ import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 import { pickWord } from '../../data/mimeWords';
 
-const PINK = '#C026D3';
-const PINK_LIGHT = '#E879F9';
+const PINK = '#D0475B';
+const PINK_LIGHT = '#FF8A8A';
 const GREEN = '#10B981';
 const AMBER = '#F59E0B';
 const BG = OB_BG;
@@ -262,7 +262,7 @@ export default function MimeGameScreen({ navigation, route }) {
   }
 
   return (
-    <LinearGradient colors={isMime ? ['#1F1035', '#14101F'] : BG} style={styles.container}>
+    <LinearGradient colors={isMime ? ['#1F1035', '#1A1730'] : BG} style={styles.container}>
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: timerColor }]} />
       </View>

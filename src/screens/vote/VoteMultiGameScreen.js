@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 
-const VOTE_COLOR = '#6366F1';
-const VOTE_DARK  = '#4F46E5';
-const VOTE_LIGHT = '#A5B4FC';
+const VOTE_COLOR = '#2F74B5';
+const VOTE_DARK  = '#1B5A97';
+const VOTE_LIGHT = '#7CC4FF';
 const BG = OB_BG;
 
 function parseQuestions(raw) {

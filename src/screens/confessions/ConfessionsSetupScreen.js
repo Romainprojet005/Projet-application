@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 
-const ACCENT       = '#A855F7';
-const ACCENT_LIGHT = '#D8B4FE';
-const ACCENT_DARK  = '#7C3AED';
+const ACCENT       = '#7E62E0';
+const ACCENT_LIGHT = '#B9A2FF';
+const ACCENT_DARK  = '#5B3FB8';
 const MAX_PLAYERS  = 10;
 
 export default function ConfessionsSetupScreen({ navigation }) {
@@ -50,7 +50,7 @@ export default function ConfessionsSetupScreen({ navigation }) {
           <View style={styles.badge}>
             <Text style={styles.badgeEmoji}>👻</Text>
             <View>
-              <Text style={styles.badgeName}>Le Fantôme</Text>
+              <Text style={styles.badgeName}>Le Gardien des secrets</Text>
               <Text style={styles.badgeQuote}>"Vos secrets ne sont pas si bien gardés…"</Text>
             </View>
           </View>
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   badgeName:  { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
-  pageTitle:    { fontSize: 28, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 3 },
+  pageTitle:    { fontSize: 28, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 3 },
   pageSubtitle: { fontSize: 12, color: ACCENT_LIGHT, letterSpacing: 1, marginTop: spacing.xs, textAlign: 'center' },
 
   form: { paddingHorizontal: spacing.xl, gap: spacing.md },

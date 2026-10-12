@@ -5,9 +5,9 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 
-const VOTE_COLOR = '#6366F1';
-const VOTE_DARK  = '#4F46E5';
-const VOTE_LIGHT = '#A5B4FC';
+const VOTE_COLOR = '#2F74B5';
+const VOTE_DARK  = '#1B5A97';
+const VOTE_LIGHT = '#7CC4FF';
 const BG = OB_BG;
 
 const MEDALS = ['🥇', '🥈', '🥉'];
@@ -74,7 +74,7 @@ export default function VoteMultiFinalScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { padding: spacing.lg, paddingTop: 60, paddingBottom: spacing.xxl },
-  title:    { fontSize: 28, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: VOTE_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xs },
+  title:    { fontSize: 28, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: VOTE_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xs },
   subtitle: { fontSize: 13, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl },
 
   winnerCard: {

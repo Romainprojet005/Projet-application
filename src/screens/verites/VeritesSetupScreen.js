@@ -9,9 +9,9 @@ import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 import { VERITES_HOT_JOKER } from '../../data/veritesVoleesData';
 
-const ACCENT       = '#14B8A6';
-const ACCENT_LIGHT = '#99F6E4';
-const ACCENT_DARK  = '#0F766E';
+const ACCENT       = '#7E62E0';
+const ACCENT_LIGHT = '#B9A2FF';
+const ACCENT_DARK  = '#5B3FB8';
 const MIN_PLAYERS  = 4;
 const MAX_PLAYERS  = 10;
 const ROUND_OPTIONS = [3, 5, 7];
@@ -61,7 +61,7 @@ export default function VeritesSetupScreen({ navigation }) {
           <View style={styles.badge}>
             <Text style={styles.badgeEmoji}>🤥</Text>
             <View>
-              <Text style={styles.badgeName}>Pinocchio</Text>
+              <Text style={styles.badgeName}>Le Voleur de vérités</Text>
               <Text style={styles.badgeQuote}>"Tout est vrai… mais pas forcément à toi."</Text>
             </View>
           </View>
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   badgeName:  { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
-  pageTitle:    { fontSize: 28, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 3, textAlign: 'center' },
+  pageTitle:    { fontSize: 28, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 3, textAlign: 'center' },
   pageSubtitle: { fontSize: 12, color: ACCENT_LIGHT, letterSpacing: 1, marginTop: spacing.xs, textAlign: 'center' },
 
   form: { paddingHorizontal: spacing.xl, gap: spacing.md },

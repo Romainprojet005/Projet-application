@@ -9,9 +9,9 @@ import PageScroll from '../../components/PageScroll';
 import { QUELPLUS_CATEGORIES } from '../../data/quiEstLePlusPrompts';
 import { OB_BG } from '../../theme/obsidian';
 
-const ACCENT       = '#EC4899';
-const ACCENT_LIGHT = '#FBCFE8';
-const ACCENT_DARK  = '#BE185D';
+const ACCENT       = '#2F74B5';
+const ACCENT_LIGHT = '#7CC4FF';
+const ACCENT_DARK  = '#1B5A97';
 const ROUND_OPTIONS = [4, 6, 8, 10];
 const MAX_PLAYERS   = 10;
 
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   badgeName:  { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
-  pageTitle:    { fontSize: 32, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 3 },
+  pageTitle:    { fontSize: 32, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 3 },
   pageSubtitle: { fontSize: 12, color: ACCENT_LIGHT, letterSpacing: 1.5, marginTop: spacing.xs, textAlign: 'center' },
 
   form: { paddingHorizontal: spacing.xl, gap: spacing.md },

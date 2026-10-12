@@ -109,8 +109,8 @@ export default function UndercoverSetupScreen({ navigation, route }) {
           <View style={styles.agentBadge}>
             <Text style={styles.agentBadgeEmoji}>🔍</Text>
             <View>
-              <Text style={styles.agentBadgeName}>Sherlock Holmes</Text>
-              <Text style={styles.agentBadgeQuote}>"Élémentaire, mon cher Watson !"</Text>
+              <Text style={styles.agentBadgeName}>Le Détective</Text>
+              <Text style={styles.agentBadgeQuote}>"Chaque mot compte. L'imposteur ne m'échappera pas."</Text>
             </View>
           </View>
 
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   agentBadgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
   pageTitle: {
     fontSize: 34,
-    fontWeight: '700', fontFamily: 'Cinzel_700Bold',
+    fontWeight: '700', fontFamily: 'BodoniModa_700Bold',
     color: colors.text,
     letterSpacing: 4,
   },

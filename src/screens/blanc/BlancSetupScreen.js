@@ -179,7 +179,7 @@ export default function BlancSetupScreen({ navigation, route }) {
               style={{ marginBottom: spacing.xxl }}
             >
               <LinearGradient
-                colors={['#1A0D3D', '#0E0820']}
+                colors={['#1A0D3D', '#0E0C1A']}
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
                 style={[styles.launchBtn, { borderWidth: 1, borderColor: colors.primary + '66' }]}
               >
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
   },
   badgeEmoji:  { fontSize: 40, marginBottom: 4 },
   badgeQuote:  { fontSize: 12, color: colors.primaryLight, fontStyle: 'italic', textAlign: 'center' },
-  title:       { fontSize: 26, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 4, marginBottom: 4 },
+  title:       { fontSize: 26, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 4, marginBottom: 4 },
   subtitle:    { fontSize: 13, color: colors.textSecondary, letterSpacing: 1 },
 
   card: {

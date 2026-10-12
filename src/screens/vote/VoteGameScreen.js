@@ -10,9 +10,9 @@ import { OB_BG } from '../../theme/obsidian';
 import PageScroll from '../../components/PageScroll';
 
 const BG         = OB_BG;
-const VOTE_COLOR = '#6366F1';
-const VOTE_DARK  = '#4F46E5';
-const VOTE_LIGHT = '#A5B4FC';
+const VOTE_COLOR = '#2F74B5';
+const VOTE_DARK  = '#1B5A97';
+const VOTE_LIGHT = '#7CC4FF';
 
 // Phase machine:
 // player_ready → player_voting → player_voted → player_ready (next player)

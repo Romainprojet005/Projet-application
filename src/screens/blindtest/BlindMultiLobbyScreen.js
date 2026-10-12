@@ -9,9 +9,9 @@ import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 import { selectSongs } from '../../data/blindTestSongs';
 
-const BEAT       = '#10B981';
-const BEAT_DARK  = '#059669';
-const BEAT_LIGHT = '#6EE7B7';
+const BEAT       = '#1F9E70';
+const BEAT_DARK  = '#0B6B4A';
+const BEAT_LIGHT = '#4FD8A4';
 const BG = OB_BG;
 
 export default function BlindMultiLobbyScreen({ navigation, route }) {
@@ -132,7 +132,7 @@ export default function BlindMultiLobbyScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  title: { fontSize: 22, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: BEAT_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
+  title: { fontSize: 22, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: BEAT_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
   codeCard: {
     backgroundColor: BEAT + '22', borderRadius: radius.xl, borderWidth: 1, borderColor: BEAT + '55',
     padding: spacing.xl, alignItems: 'center', marginBottom: spacing.xl,

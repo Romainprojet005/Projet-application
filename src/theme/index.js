@@ -1,22 +1,22 @@
-// Palette "Soirée des Légendes" : nuit indigo, or et violet (refonte boosters)
+// Palette « La Soirée des Légendes » — refonte : nuit, or et quatre familles
 export const colors = {
-  background: '#0B0A1A',
-  surface: '#16132C',
-  card: '#1C1838',
-  cardBorder: '#3A3260',
-  primary: '#8B7BFF',
-  primaryDark: '#6A55E0',
-  primaryLight: '#B3A8FF',
-  secondary: '#EC4899',
-  secondaryLight: '#F9A8D4',
-  accent: '#E8C66A',
-  accentLight: '#FBE7B0',
-  text: '#F7F3FF',
-  textSecondary: '#CFC8E6',
-  textMuted: '#8F88AA',
-  success: '#10B981',
-  danger: '#EF4444',
-  border: '#2A2450',
+  background: '#0E0C1A',   // fond
+  surface: '#1A1730',      // fond-carte
+  card: '#1A1730',         // fond-carte
+  cardBorder: '#6B6590',   // trait-fort
+  primary: '#7E62E0',      // violet (famille Bluff, version foncée : texte blanc lisible dessus)
+  primaryDark: '#5B3FB8',
+  primaryLight: '#B9A2FF', // famille Bluff
+  secondary: '#E0566A',
+  secondaryLight: '#FF8A8A', // famille Défis
+  accent: '#E6C766',       // or-texte
+  accentLight: '#F4DC8C',
+  text: '#F3EEE2',         // encre
+  textSecondary: '#CFC9DD',
+  textMuted: '#A9A3BF',    // encre-douce
+  success: '#2FAE7E',
+  danger: '#E0566A',
+  border: '#2E2A4A',       // trait
 };
 export const spacing = {
   xs: 4,
@@ -28,9 +28,9 @@ export const spacing = {
 };
 
 export const radius = {
-  sm: 8,
+  sm: 6,
   md: 12,
   lg: 16,
-  xl: 24,
+  xl: 18,
   full: 999,
 };

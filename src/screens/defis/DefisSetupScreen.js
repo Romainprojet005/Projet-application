@@ -9,9 +9,9 @@ import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 import { DEFI_CATEGORIES } from '../../data/defisData';
 
-const ACCENT       = '#F97316';
-const ACCENT_LIGHT = '#FED7AA';
-const ACCENT_DARK  = '#EA580C';
+const ACCENT       = '#D0475B';
+const ACCENT_LIGHT = '#FF8A8A';
+const ACCENT_DARK  = '#A81F2D';
 const MAX_PLAYERS  = 10;
 const ROUND_OPTIONS = [5, 10, 15, 20];
 
@@ -59,7 +59,7 @@ export default function DefisSetupScreen({ navigation }) {
           <View style={styles.badge}>
             <Text style={styles.badgeEmoji}>🃏</Text>
             <View>
-              <Text style={styles.badgeName}>Le Bouffon</Text>
+              <Text style={styles.badgeName}>Le Maître des défis</Text>
               <Text style={styles.badgeQuote}>"Oser, c'est vivre !"</Text>
             </View>
           </View>
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   badgeName:  { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
-  pageTitle:    { fontSize: 28, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 3 },
+  pageTitle:    { fontSize: 28, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 3 },
   pageSubtitle: { fontSize: 12, color: ACCENT_LIGHT, letterSpacing: 1, marginTop: spacing.xs, textAlign: 'center' },
 
   form: { paddingHorizontal: spacing.xl, gap: spacing.md },

@@ -9,9 +9,9 @@ import PageScroll from '../../components/PageScroll';
 import { ORACLE_CATEGORIES, selectQuestions } from '../../data/oracleQuestions';
 import { OB_BG } from '../../theme/obsidian';
 
-const ACCENT       = '#8B5CF6';
-const ACCENT_LIGHT = '#C4B5FD';
-const ACCENT_DARK  = '#6D28D9';
+const ACCENT       = '#D0475B';
+const ACCENT_LIGHT = '#FF8A8A';
+const ACCENT_DARK  = '#A81F2D';
 const ROUND_OPTIONS = [5, 8, 10, 15];
 const MAX_PLAYERS   = 10;
 
@@ -55,7 +55,7 @@ export default function OracleSetupScreen({ navigation }) {
           <View style={styles.badge}>
             <Text style={styles.badgeEmoji}>🔮</Text>
             <View>
-              <Text style={styles.badgeName}>Merlin</Text>
+              <Text style={styles.badgeName}>Le Mage</Text>
               <Text style={styles.badgeQuote}>"La vérité est dans les réponses…"</Text>
             </View>
           </View>
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   badgeName:  { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
-  pageTitle:    { fontSize: 32, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 3 },
+  pageTitle:    { fontSize: 32, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 3 },
   pageSubtitle: { fontSize: 12, color: ACCENT_LIGHT, letterSpacing: 1, marginTop: spacing.xs, textAlign: 'center' },
 
   form: { paddingHorizontal: spacing.xl, gap: spacing.md },

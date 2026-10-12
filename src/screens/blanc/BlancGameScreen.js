@@ -177,7 +177,7 @@ export default function BlancGameScreen({ navigation, route }) {
   function renderQuestionCard(full = true) {
     const parts = currentQuestion.split('___');
     return full ? (
-      <LinearGradient colors={['#1C0D40', '#0E0820']} style={styles.blackCard}>
+      <LinearGradient colors={['#1A1730', '#0E0C1A']} style={styles.blackCard}>
         <Text style={styles.blackCardText}>
           {parts[0]}
           <Text style={styles.blackCardBlank}>___________</Text>
@@ -383,7 +383,7 @@ export default function BlancGameScreen({ navigation, route }) {
               <Text style={styles.winEmoji}>🎉</Text>
               <Text style={styles.winTitle}>{winnerName} gagne ce tour !</Text>
 
-              <LinearGradient colors={['#1C0D40', '#0E0820']} style={[styles.blackCard, { marginBottom: spacing.lg }]}>
+              <LinearGradient colors={['#1A1730', '#0E0C1A']} style={[styles.blackCard, { marginBottom: spacing.lg }]}>
                 <Text style={styles.blackCardText}>
                   {parts[0]}
                   <Text style={{ color: GOLD_LIGHT, fontWeight: '900' }}> {winnerText} </Text>
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
 
   // Mini black card (during picking)
   miniBlack: {
-    backgroundColor: '#1C0D40',
+    backgroundColor: '#1A1730',
     borderRadius: radius.lg,
     padding: spacing.md,
     marginBottom: spacing.sm,

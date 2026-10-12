@@ -261,7 +261,7 @@ export default function BlancMultiGameScreen({ navigation, route }) {
     const q = room.current_question || '';
     const parts = q.split('___');
     return (
-      <LinearGradient colors={['#1C0D40', '#0E0820']} style={styles.blackCard}>
+      <LinearGradient colors={['#1A1730', '#0E0C1A']} style={styles.blackCard}>
         <Text style={styles.blackCardText}>
           {parts[0]}
           <Text style={styles.blackCardBlank}>___________</Text>
@@ -455,7 +455,7 @@ export default function BlancMultiGameScreen({ navigation, route }) {
             <Text style={styles.winEmoji}>🎉</Text>
             <Text style={styles.winTitle}>{room.winner_name} gagne ce tour !</Text>
 
-            <LinearGradient colors={['#1C0D40', '#0E0820']} style={[styles.blackCard, { marginBottom: spacing.lg }]}>
+            <LinearGradient colors={['#1A1730', '#0E0C1A']} style={[styles.blackCard, { marginBottom: spacing.lg }]}>
               {(() => {
                 const parts = (room.current_question || '').split('___');
                 return (
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
   blackCardText:  { fontSize: 20, fontWeight: '700', color: colors.text, textAlign: 'center', lineHeight: 30 },
   blackCardBlank: { color: PRP_LIGHT, fontWeight: '900', textDecorationLine: 'underline' },
   miniBlack: {
-    backgroundColor: '#1C0D40', borderRadius: radius.lg, padding: spacing.md,
+    backgroundColor: '#1A1730', borderRadius: radius.lg, padding: spacing.md,
     marginBottom: spacing.sm, borderWidth: 1, borderColor: PRP + '44',
   },
   miniBlackText:  { fontSize: 14, color: colors.textSecondary, textAlign: 'center', lineHeight: 22 },

@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import { selectQuestions } from '../../data/oracleQuestions';
 import { OB_BG } from '../../theme/obsidian';
 
-const ACCENT       = '#8B5CF6';
-const ACCENT_LIGHT = '#C4B5FD';
-const ACCENT_DARK  = '#6D28D9';
+const ACCENT       = '#D0475B';
+const ACCENT_LIGHT = '#FF8A8A';
+const ACCENT_DARK  = '#A81F2D';
 const LETTERS      = 'ABCDEFGHIJKL';
 
 function shuffle(arr) {

@@ -12,9 +12,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 
-const ROSE = '#F43F5E';
-const ROSE_DARK = '#881337';
-const ROSE_LIGHT = '#FDA4AF';
+const ROSE = '#2F74B5';
+const ROSE_DARK = '#1B5A97';
+const ROSE_LIGHT = '#7CC4FF';
 const BG = OB_BG;
 
 function buildRounds(players, questions) {

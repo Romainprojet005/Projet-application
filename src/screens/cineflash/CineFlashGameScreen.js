@@ -16,9 +16,9 @@ import { OB_BG } from '../../theme/obsidian';
 import { selectFilms } from '../../data/movieClues';
 
 const BG        = OB_BG;
-const CIN       = '#DC2626';
-const CIN_DARK  = '#991B1B';
-const CIN_LIGHT = '#FCA5A5';
+const CIN       = '#1F9E70';
+const CIN_DARK  = '#0B6B4A';
+const CIN_LIGHT = '#4FD8A4';
 
 // Normalise pour comparaison : minuscules, sans accents ni ponctuation
 function normalize(s) {
@@ -409,7 +409,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
               disabled={phase !== 'playing'}
             >
               <LinearGradient
-                colors={['#0F0A1F', '#14101F']}
+                colors={['#0E0C1A', '#1A1730']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.skipBtnInner}
@@ -430,7 +430,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
         <Animated.View
           style={[styles.answerOverlay, { opacity: answerOpacity, transform: [{ translateY: answerSlide }] }]}
         >
-          <LinearGradient colors={['#0F0A1F', '#07050E']} style={styles.answerCard}>
+          <LinearGradient colors={['#0E0C1A', '#07050E']} style={styles.answerCard}>
             {foundAtIdx !== null ? (
               <>
                 <Text style={styles.answerResult}>🎉 Trouvé !</Text>
@@ -517,11 +517,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: `${CIN}40`,
-    backgroundColor: '#0F0A1F',
+    backgroundColor: '#0E0C1A',
     marginBottom: spacing.sm,
     position: 'relative',
   },
-  imgPlaceholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#0F0A1F', gap: spacing.sm },
+  imgPlaceholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#0E0C1A', gap: spacing.sm },
   imgPlaceholderEmoji: { fontSize: 48 },
   imgPlaceholderText:  { fontSize: 13, color: colors.textMuted },
 
@@ -628,7 +628,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     overflow: 'hidden',
     marginBottom: spacing.lg,
-    backgroundColor: '#0F0A1F',
+    backgroundColor: '#0E0C1A',
   },
   nextFilmBtn: {
     borderRadius: radius.full,

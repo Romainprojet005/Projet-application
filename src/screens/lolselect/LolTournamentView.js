@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText: { fontSize: 15, fontWeight: '800', color: '#0A0815', letterSpacing: 2 },
+  launchText: { fontSize: 15, fontWeight: '800', color: '#08070F', letterSpacing: 2 },
 
   oppStrip: {
     backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border,

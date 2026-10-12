@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { pickPromptAndDecoys } from '../../data/quiEstLePlusPrompts';
 
-const ACCENT       = '#EC4899';
-const ACCENT_LIGHT = '#FBCFE8';
-const ACCENT_DARK  = '#BE185D';
+const ACCENT       = '#2F74B5';
+const ACCENT_LIGHT = '#7CC4FF';
+const ACCENT_DARK  = '#1B5A97';
 
 export default function TriPotesGameScreen({ navigation, route }) {
   const { playerNames = [], roundCount = 6, categoryId = 'all' } = route.params || {};

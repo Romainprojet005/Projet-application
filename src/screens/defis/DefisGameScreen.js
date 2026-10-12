@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { DEFI_CATEGORIES, pickDefi, pickConsequence } from '../../data/defisData';
 
-const ACCENT       = '#F97316';
-const ACCENT_LIGHT = '#FED7AA';
-const ACCENT_DARK  = '#EA580C';
+const ACCENT       = '#D0475B';
+const ACCENT_LIGHT = '#FF8A8A';
+const ACCENT_DARK  = '#A81F2D';
 
 export default function DefisGameScreen({ route, navigation }) {
   const { roundCount, playerNames, activeCategories } = route.params;

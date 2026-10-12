@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: '700', fontFamily: 'Cinzel_700Bold',
+    fontWeight: '700', fontFamily: 'BodoniModa_700Bold',
     color: colors.text,
     letterSpacing: 4,
     marginBottom: 4,

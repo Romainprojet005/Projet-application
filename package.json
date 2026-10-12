@@ -12,9 +12,11 @@
     "deploy": "npm run build && netlify deploy --prod --dir dist"
   },
   "dependencies": {
+    "@expo-google-fonts/bodoni-moda": "^0.4.2",
     "@expo-google-fonts/cinzel": "^0.4.2",
     "@expo-google-fonts/cormorant-garamond": "^0.4.1",
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
+    "@expo-google-fonts/outfit": "^0.4.3",
     "@expo/metro-runtime": "~3.2.3",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",

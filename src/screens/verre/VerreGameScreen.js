@@ -8,10 +8,10 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { randomTours, dealCards, START_GLASS, FILL_STEP } from '../../data/verreData';
 
-const ACCENT       = '#BE123C';
-const ACCENT_LIGHT = '#FDA4AF';
-const ACCENT_DARK  = '#9F1239';
-const GOLD         = '#FBBF24';
+const ACCENT       = '#7E62E0';
+const ACCENT_LIGHT = '#B9A2FF';
+const ACCENT_DARK  = '#5B3FB8';
+const GOLD         = '#E6C766';
 
 function rotate(arr, start) {
   return arr.map((_, i) => arr[(start + i) % arr.length]);

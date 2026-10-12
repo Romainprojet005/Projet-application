@@ -9,9 +9,9 @@ import { selectSongs } from '../../data/blindTestSongs';
 import { OB_BG } from '../../theme/obsidian';
 
 const BG         = OB_BG;
-const BEAT       = '#10B981';
-const BEAT_DARK  = '#059669';
-const BEAT_LIGHT = '#6EE7B7';
+const BEAT       = '#1F9E70';
+const BEAT_DARK  = '#0B6B4A';
+const BEAT_LIGHT = '#4FD8A4';
 
 // Les navigateurs mobiles bloquent l'autoplay dans les iframes cachées
 const isMobileWeb = Platform.OS === 'web' &&
@@ -473,7 +473,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
               </TouchableOpacity>
             </View>
             <TouchableOpacity onPress={handleReveal} style={styles.skipBtn} activeOpacity={0.8}>
-              <LinearGradient colors={['#0F0A1F', '#14101F']} style={styles.skipBtnInner}>
+              <LinearGradient colors={['#0E0C1A', '#1A1730']} style={styles.skipBtnInner}>
                 <Text style={styles.skipBtnText}>❓  Je ne sais pas</Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -490,7 +490,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
       {/* Answer card */}
       {(phase === 'reveal') && (
         <Animated.View style={[styles.answerOverlay, { opacity: answerOpacity, transform: [{ translateY: answerSlide }] }]}>
-          <LinearGradient colors={['#0F0A1F', '#07050E']} style={styles.answerCard}>
+          <LinearGradient colors={['#0E0C1A', '#07050E']} style={styles.answerCard}>
             {results[results.length - 1]?.points > 0 ? (
               <>
                 <Text style={styles.answerResult}>🎉 Trouvé !</Text>
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
     height: Platform.select({ web: '52vh', default: 280 }),
     borderRadius: radius.xl,
     overflow: 'hidden',
-    backgroundColor: '#0F0A1F',
+    backgroundColor: '#0E0C1A',
     borderWidth: 1,
     borderColor: `${BEAT}40`,
     marginBottom: spacing.md,
@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
   answerLabel:  { fontSize: 11, color: colors.textMuted, letterSpacing: 1.5, marginBottom: 4 },
   answerTitle:  { fontSize: 22, fontWeight: '900', color: colors.text, textAlign: 'center' },
   answerArtist: { fontSize: 14, color: BEAT_LIGHT, fontWeight: '700', marginTop: 2, marginBottom: spacing.md },
-  thumbWrap:    { width: 200, height: 112, borderRadius: 12, overflow: 'hidden', marginBottom: spacing.lg, backgroundColor: '#0F0A1F' },
+  thumbWrap:    { width: 200, height: 112, borderRadius: 12, overflow: 'hidden', marginBottom: spacing.lg, backgroundColor: '#0E0C1A' },
 
   nextBtn:     { borderRadius: radius.full, overflow: 'hidden', width: '100%', shadowColor: BEAT, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 8 },
   nextGradient:{ paddingVertical: spacing.md + 4, alignItems: 'center' },

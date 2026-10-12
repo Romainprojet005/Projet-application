@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   badgeName:  { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
-  pageTitle:    { fontSize: 30, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 2, textAlign: 'center' },
+  pageTitle:    { fontSize: 30, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 2, textAlign: 'center' },
   pageSubtitle: { fontSize: 12, letterSpacing: 1, marginTop: spacing.xs, textAlign: 'center' },
 
   gamePickerLabel: { fontSize: 11, fontWeight: '800', color: colors.textMuted, letterSpacing: 2, marginBottom: spacing.sm },
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12,
   },
   launchGradient: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  launchText: { fontSize: 15, fontWeight: '800', color: '#0A0815', letterSpacing: 2 },
+  launchText: { fontSize: 15, fontWeight: '800', color: '#08070F', letterSpacing: 2 },
 
   multiBtn: {
     borderRadius: radius.lg, borderWidth: 1, borderColor: `${HEXTECH}50`,

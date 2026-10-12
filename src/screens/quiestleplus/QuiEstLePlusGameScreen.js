@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import { selectPrompts } from '../../data/quiEstLePlusPrompts';
 import { OB_BG } from '../../theme/obsidian';
 
-const ACCENT       = '#F97316';
-const ACCENT_LIGHT = '#FED7AA';
-const ACCENT_DARK  = '#C2410C';
+const ACCENT       = '#2F74B5';
+const ACCENT_LIGHT = '#7CC4FF';
+const ACCENT_DARK  = '#1B5A97';
 
 // Phases : prompt → voting → reveal → (next | final)
 

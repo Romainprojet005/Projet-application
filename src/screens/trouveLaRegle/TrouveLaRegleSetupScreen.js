@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 
-const ACCENT       = '#F59E0B';
-const ACCENT_LIGHT = '#FDE68A';
-const ACCENT_DARK  = '#D97706';
+const ACCENT       = '#7E62E0';
+const ACCENT_LIGHT = '#B9A2FF';
+const ACCENT_DARK  = '#5B3FB8';
 const ROUND_OPTIONS = [3, 5, 8, 10];
 const MAX_PLAYERS   = 8;
 
@@ -52,8 +52,8 @@ export default function TrouveLaRegleSetupScreen({ navigation }) {
           <View style={styles.badge}>
             <Text style={styles.badgeEmoji}>🕵️</Text>
             <View>
-              <Text style={styles.badgeName}>Columbo</Text>
-              <Text style={styles.badgeQuote}>"Il y a juste une dernière chose…"</Text>
+              <Text style={styles.badgeName}>L'Inspecteur</Text>
+              <Text style={styles.badgeQuote}>"Rien n'échappe à mon regard…"</Text>
             </View>
           </View>
           <Text style={styles.pageTitle}>TROUVE LA RÈGLE</Text>
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   badgeName:  { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
-  pageTitle:    { fontSize: 28, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 3 },
+  pageTitle:    { fontSize: 28, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 3 },
   pageSubtitle: { fontSize: 12, color: ACCENT_LIGHT, letterSpacing: 1, marginTop: spacing.xs, textAlign: 'center' },
 
   form: { paddingHorizontal: spacing.xl, gap: spacing.md },

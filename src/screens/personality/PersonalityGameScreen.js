@@ -86,7 +86,7 @@ function TilesMask({ revealedTiles, source, imgError }) {
                 resizeMode="cover"
               />
             ) : (
-              <View style={{ flex: 1, backgroundColor: '#0F0A1F' }} />
+              <View style={{ flex: 1, backgroundColor: '#0E0C1A' }} />
             )}
           </View>
         );
@@ -589,7 +589,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0F0A1F',
+    backgroundColor: '#0E0C1A',
   },
   imgFallbackEmoji: { fontSize: 48 },
   imgFallbackText: { fontSize: 12, color: colors.textMuted, marginTop: spacing.sm },

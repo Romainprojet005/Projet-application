@@ -84,8 +84,8 @@ export default function QuizSetupScreen({ navigation, route }) {
           <View style={styles.agentBadge}>
             <Text style={styles.agentBadgeEmoji}>✨</Text>
             <View>
-              <Text style={styles.agentBadgeName}>Hermione Granger</Text>
-              <Text style={styles.agentBadgeQuote}>"Ce n'est pas de la magie, c'est du savoir !"</Text>
+              <Text style={styles.agentBadgeName}>La Première de la classe</Text>
+              <Text style={styles.agentBadgeQuote}>"Ce n'est pas de la chance, c'est du savoir !"</Text>
             </View>
           </View>
           <Text style={styles.pageTitle}>QUIZ</Text>
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
 
   pageTitle: {
     fontSize: 34,
-    fontWeight: '700', fontFamily: 'Cinzel_700Bold',
+    fontWeight: '700', fontFamily: 'BodoniModa_700Bold',
     color: colors.text,
     letterSpacing: 4,
   },

@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { pickRuleAndDecoys, REGLE_CATEGORIES } from '../../data/regles';
 
-const ACCENT       = '#F59E0B';
-const ACCENT_LIGHT = '#FDE68A';
-const ACCENT_DARK  = '#D97706';
+const ACCENT       = '#7E62E0';
+const ACCENT_LIGHT = '#B9A2FF';
+const ACCENT_DARK  = '#5B3FB8';
 
 function calcPoints(questions) {
   if (questions <= 3) return 3;

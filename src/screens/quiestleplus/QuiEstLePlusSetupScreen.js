@@ -9,9 +9,9 @@ import PageScroll from '../../components/PageScroll';
 import { QUELPLUS_CATEGORIES, selectPrompts } from '../../data/quiEstLePlusPrompts';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 
-const ACCENT       = '#F97316';
-const ACCENT_LIGHT = '#FED7AA';
-const ACCENT_DARK  = '#C2410C';
+const ACCENT       = '#2F74B5';
+const ACCENT_LIGHT = '#7CC4FF';
+const ACCENT_DARK  = '#1B5A97';
 const ROUND_OPTIONS = [5, 8, 10, 15];
 const MAX_PLAYERS   = 10;
 
@@ -55,7 +55,7 @@ export default function QuiEstLePlusSetupScreen({ navigation }) {
           <View style={styles.badge}>
             <Text style={styles.badgeEmoji}>👆</Text>
             <View>
-              <Text style={styles.badgeName}>Le Peuple</Text>
+              <Text style={styles.badgeName}>Le Juge suprême</Text>
               <Text style={styles.badgeQuote}>"Le groupe a parlé !"</Text>
             </View>
           </View>
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   badgeName:  { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
-  pageTitle:    { fontSize: 32, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 3 },
+  pageTitle:    { fontSize: 32, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 3 },
   pageSubtitle: { fontSize: 12, color: ACCENT_LIGHT, letterSpacing: 1.5, marginTop: spacing.xs, textAlign: 'center' },
 
   form: { paddingHorizontal: spacing.xl, gap: spacing.md },

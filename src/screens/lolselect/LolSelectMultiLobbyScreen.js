@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 
-const ACCENT       = '#C89B3C';
-const ACCENT_LIGHT = '#F0D68C';
-const ACCENT_DARK  = '#8B6914';
+const ACCENT       = '#1F9E70';
+const ACCENT_LIGHT = '#4FD8A4';
+const ACCENT_DARK  = '#0B6B4A';
 
 export default function LolSelectMultiLobbyScreen({ navigation, route }) {
   const { roomId, playerId, isHost, gameId } = route.params;
@@ -104,7 +104,7 @@ export default function LolSelectMultiLobbyScreen({ navigation, route }) {
           >
             <LinearGradient colors={[ACCENT_LIGHT, ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.startBtnGrad}>
               {starting
-                ? <ActivityIndicator color="#0A0815" />
+                ? <ActivityIndicator color="#08070F" />
                 : <Text style={styles.startBtnText}>🚀 LANCER LES DRAFTS</Text>
               }
             </LinearGradient>
@@ -133,7 +133,7 @@ export default function LolSelectMultiLobbyScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  title: { fontSize: 22, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: ACCENT_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
+  title: { fontSize: 22, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: ACCENT_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
   codeCard: {
     backgroundColor: ACCENT + '22', borderRadius: radius.xl, borderWidth: 1, borderColor: ACCENT + '55',
     padding: spacing.xl, alignItems: 'center', marginBottom: spacing.xl,
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   startBtn: { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.md },
   startBtnDisabled: { opacity: 0.4 },
   startBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  startBtnText: { fontSize: 15, fontWeight: '900', color: '#0A0815', letterSpacing: 2 },
+  startBtnText: { fontSize: 15, fontWeight: '900', color: '#08070F', letterSpacing: 2 },
   waitBanner: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: spacing.md, paddingVertical: spacing.lg,

@@ -669,7 +669,7 @@ const OB_GOLD_DIM = 'rgba(212,175,55,0.6)';
 // Polices identiques au web (chargées via expo-font dans App.js)
 const MONO   = Platform.OS !== 'web' ? 'JetBrainsMono_400Regular'          : 'monospace';
 const SERIF  = Platform.OS !== 'web' ? 'CormorantGaramond_600SemiBold_Italic' : 'serif';
-const CINZEL = Platform.OS !== 'web' ? 'Cinzel_700Bold'                    : 'serif';
+const CINZEL = Platform.OS !== 'web' ? 'BodoniModa_700Bold'                    : 'serif';
 
 function GameCardVisual({ character, idx }) {
   const n = String(idx + 1).padStart(2, '0');

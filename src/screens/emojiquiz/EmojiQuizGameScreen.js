@@ -8,9 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { EMOJI_QUIZ_ITEMS } from '../../data/emojiQuizData';
 
-const AMB       = '#F59E0B';
-const AMB_DARK  = '#B45309';
-const AMB_LIGHT = '#FDE68A';
+const AMB       = '#1F9E70';
+const AMB_DARK  = '#0B6B4A';
+const AMB_LIGHT = '#4FD8A4';
 const BG = OB_BG;
 
 function shuffle(arr) {
@@ -52,7 +52,7 @@ function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
         <Animated.View style={[styles.finalHeader, { opacity: podiumAnim, transform: [{ scale: podiumAnim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }] }]}>
           <Text style={styles.finalEmoji}>🤩</Text>
           <Text style={styles.finalTitle}>EMOJI QUIZ TERMINÉ !</Text>
-          <Text style={styles.finalSub}>Willy Wonka est fier de vous</Text>
+          <Text style={styles.finalSub}>Le Confiseur est fier de vous</Text>
         </Animated.View>
 
         <View style={styles.rankList}>

@@ -36,7 +36,7 @@ function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
         }]}>
           <Text style={styles.finalEmoji}>🎭</Text>
           <Text style={styles.finalTitle}>MOT DE PASSE TERMINÉ !</Text>
-          <Text style={styles.finalSub}>Cyrano de Bergerac applaudit</Text>
+          <Text style={styles.finalSub}>Le Poète applaudit</Text>
         </Animated.View>
 
         <View style={styles.rankList}>

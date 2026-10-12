@@ -5,9 +5,9 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 
-const PINK = '#C026D3';
-const PINK_DARK = '#86198F';
-const PINK_LIGHT = '#E879F9';
+const PINK = '#D0475B';
+const PINK_DARK = '#A81F2D';
+const PINK_LIGHT = '#FF8A8A';
 const BG = OB_BG;
 const MEDALS = ['🥇', '🥈', '🥉'];
 
@@ -91,7 +91,7 @@ export default function MimeFinalScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  title: { fontSize: 28, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: PINK_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
+  title: { fontSize: 28, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: PINK_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
   winnerCard: { borderRadius: radius.xl, overflow: 'hidden', marginBottom: spacing.xl, borderWidth: 1, borderColor: PINK + '55' },
   winnerInner: { alignItems: 'center', padding: spacing.xl },
   winnerTrophy: { fontSize: 56, marginBottom: spacing.sm },

@@ -14,9 +14,9 @@ const PROMPTS_BY_MODE = {
   tres_hot:  VERITES_TRES_HOT_PROMPTS,
 };
 
-const ACCENT       = '#14B8A6';
-const ACCENT_LIGHT = '#99F6E4';
-const ACCENT_DARK  = '#0F766E';
+const ACCENT       = '#7E62E0';
+const ACCENT_LIGHT = '#B9A2FF';
+const ACCENT_DARK  = '#5B3FB8';
 const DANGER       = '#F87171';
 
 const shuffle = (arr) => {

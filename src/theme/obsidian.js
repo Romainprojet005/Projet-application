@@ -1,7 +1,7 @@
-// Palette partagée par tous les SetupScreens (refonte boosters : or plus chaud, fond nuit indigo)
-export const GOLD          = '#E8C66A';
-export const GOLD_LIGHT    = '#FBE7B0';
-export const GOLD_DARK     = '#B8892A';
-export const OB_BG         = ['#1D1840', '#100E26', '#0B0A1A'];
-export const GOLD_GRADIENT = ['#F4DC8C', '#D4AF37', '#B8892A'];
-export const LAUNCH_TEXT   = '#1A1408';
+// Palette partagée par les écrans de paramétrage et de jeu (refonte : nuit unie, or)
+export const GOLD          = '#E6C766'; // or-texte
+export const GOLD_LIGHT    = '#F4DC8C';
+export const GOLD_DARK     = '#B8962E';
+export const OB_BG         = ['#0E0C1A', '#0E0C1A', '#0E0C1A']; // fond uni (plus de dégradé)
+export const GOLD_GRADIENT = ['#D4AF37', '#D4AF37', '#D4AF37']; // bouton principal : or plein
+export const LAUNCH_TEXT   = '#1A1408'; // texte sur l'or

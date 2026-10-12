@@ -9,9 +9,9 @@ import { OB_BG } from '../../theme/obsidian';
 import { PLAYER_COLORS } from './BuzzerSetupScreen';
 import { BUZZER_MODES, getShuffledQuestions } from '../../data/buzzerQuestions';
 
-const BUZZ_COLOR  = '#DC2626';
-const BUZZ_DARK   = '#B91C1C';
-const BUZZ_LIGHT  = '#FCA5A5';
+const BUZZ_COLOR  = '#1F9E70';
+const BUZZ_DARK   = '#0B6B4A';
+const BUZZ_LIGHT  = '#4FD8A4';
 const BUZZ_TIMER  = 10;
 
 export default function BuzzerGameScreen({ navigation, route }) {
@@ -338,7 +338,7 @@ export default function BuzzerGameScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0815' },
+  container: { flex: 1, backgroundColor: '#08070F' },
 
   header: {
     flexDirection: 'row', alignItems: 'center',

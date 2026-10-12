@@ -76,7 +76,7 @@ export default function MotDePasseSetupScreen({ navigation, route }) {
           <View style={styles.badge}>
             <Text style={styles.badgeEmoji}>🎭</Text>
             <View>
-              <Text style={styles.badgeName}>Cyrano de Bergerac</Text>
+              <Text style={styles.badgeName}>Le Poète</Text>
               <Text style={styles.badgeQuote}>"Des mots, toujours des mots !"</Text>
             </View>
           </View>
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   badgeName: { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
-  pageTitle: { fontSize: 30, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 3 },
+  pageTitle: { fontSize: 30, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 3 },
   pageSubtitle: { fontSize: 12, color: CYAN_LIGHT, letterSpacing: 1.5, marginTop: spacing.xs, textAlign: 'center' },
 
   form: { paddingHorizontal: spacing.xl, gap: spacing.md },

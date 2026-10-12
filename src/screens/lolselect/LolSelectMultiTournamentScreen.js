@@ -8,7 +8,7 @@ import { supabase } from '../../services/supabase';
 import { getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 import LolTournamentView from './LolTournamentView';
 
-const ACCENT = '#C89B3C';
+const ACCENT = '#1F9E70';
 
 export default function LolSelectMultiTournamentScreen({ navigation, route }) {
   const { roomId, playerId, gameId } = route.params;

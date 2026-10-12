@@ -7,9 +7,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 
-const ACCENT       = '#A855F7';
-const ACCENT_LIGHT = '#D8B4FE';
-const ACCENT_DARK  = '#7C3AED';
+const ACCENT       = '#7E62E0';
+const ACCENT_LIGHT = '#B9A2FF';
+const ACCENT_DARK  = '#5B3FB8';
 
 const PROMPTS = [
   "J'ai une fois fait semblant de…",

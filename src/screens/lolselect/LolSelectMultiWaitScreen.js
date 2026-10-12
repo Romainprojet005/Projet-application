@@ -8,8 +8,8 @@ import { supabase } from '../../services/supabase';
 import { simulateBo3 } from '../../data/lolSimulation';
 import { getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 
-const ACCENT       = '#C89B3C';
-const ACCENT_LIGHT = '#F0D68C';
+const ACCENT       = '#1F9E70';
+const ACCENT_LIGHT = '#4FD8A4';
 
 export default function LolSelectMultiWaitScreen({ navigation, route }) {
   const { roomId, playerId, gameId } = route.params;
@@ -103,6 +103,6 @@ const styles = StyleSheet.create({
     padding: spacing.xl, alignItems: 'center', gap: spacing.sm, maxWidth: 420, alignSelf: 'center',
   },
   emoji: { fontSize: 48 },
-  title: { fontSize: 18, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 1, textAlign: 'center' },
+  title: { fontSize: 18, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 1, textAlign: 'center' },
   sub: { fontSize: 13, color: colors.textSecondary, textAlign: 'center', lineHeight: 19 },
 });

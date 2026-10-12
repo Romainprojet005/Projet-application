@@ -51,7 +51,7 @@ function FamiliarityPicker({ game, onChoose }) {
               style={[styles.familiarityBtnGrad, opt.value !== 100 && { ...styles.familiarityBtnOutline, borderColor: `${ACCENT}45` }]}
             >
               <Text style={[styles.familiarityBtnLabel, opt.value !== 100 && { color: ACCENT_LIGHT }]}>{opt.label}</Text>
-              <Text style={[styles.familiarityBtnHint, opt.value === 100 && { color: '#0A0815AA' }]}>{opt.hint}</Text>
+              <Text style={[styles.familiarityBtnHint, opt.value === 100 && { color: '#08070FAA' }]}>{opt.hint}</Text>
             </LinearGradient>
           </TouchableOpacity>
         ))}
@@ -84,7 +84,7 @@ function RerollPicker({ game, onChoose }) {
               <Text style={[styles.familiarityBtnLabel, n !== DEFAULT_REROLLS && { color: ACCENT_LIGHT }]}>
                 {n === 0 ? 'Aucune' : n}
               </Text>
-              <Text style={[styles.familiarityBtnHint, n === DEFAULT_REROLLS && { color: '#0A0815AA' }]}>{REROLL_HINTS[n]}</Text>
+              <Text style={[styles.familiarityBtnHint, n === DEFAULT_REROLLS && { color: '#08070FAA' }]}>{REROLL_HINTS[n]}</Text>
             </LinearGradient>
           </TouchableOpacity>
         ))}
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   rerollBadgeDisabled: { opacity: 0.35 },
   rerollBadgeText: { fontSize: 12, fontWeight: '800', color: HEXTECH },
 
-  title: { fontSize: 22, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 1.5, textAlign: 'center' },
+  title: { fontSize: 22, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 1.5, textAlign: 'center' },
   gameLabel: { fontSize: 12, fontWeight: '800', textAlign: 'center', letterSpacing: 1, marginTop: 2, marginBottom: spacing.md },
 
   familiarityScroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.xxl, gap: spacing.md },
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   familiarityBtn: { borderRadius: radius.lg, overflow: 'hidden' },
   familiarityBtnGrad: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, alignItems: 'center' },
   familiarityBtnOutline: { borderWidth: 1, backgroundColor: colors.card },
-  familiarityBtnLabel: { fontSize: 20, fontWeight: '900', color: '#0A0815', letterSpacing: 1 },
+  familiarityBtnLabel: { fontSize: 20, fontWeight: '900', color: '#08070F', letterSpacing: 1 },
   familiarityBtnHint: { fontSize: 11, color: colors.textSecondary, marginTop: 2, textAlign: 'center' },
 
   roleTracker: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, justifyContent: 'center', marginBottom: spacing.sm },
@@ -308,5 +308,5 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm, alignSelf: 'stretch', borderRadius: radius.full,
     paddingVertical: spacing.xs + 3, alignItems: 'center', borderWidth: 1,
   },
-  pickBtnText: { fontSize: 11, fontWeight: '900', color: '#0A0815', letterSpacing: 1 },
+  pickBtnText: { fontSize: 11, fontWeight: '900', color: '#08070F', letterSpacing: 1 },
 });

@@ -9,9 +9,9 @@ import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
 import { MIN_TOURS, MAX_TOURS } from '../../data/verreData';
 
-const ACCENT       = '#BE123C';
-const ACCENT_LIGHT = '#FDA4AF';
-const ACCENT_DARK  = '#9F1239';
+const ACCENT       = '#7E62E0';
+const ACCENT_LIGHT = '#B9A2FF';
+const ACCENT_DARK  = '#5B3FB8';
 const MAX_PLAYERS  = 10;
 
 const MODES = [
@@ -57,7 +57,7 @@ export default function VerreSetupScreen({ navigation }) {
           <View style={styles.badge}>
             <Text style={styles.badgeEmoji}>🥂</Text>
             <View>
-              <Text style={styles.badgeName}>Le Croupier</Text>
+              <Text style={styles.badgeName}>Le Bluffeur</Text>
               <Text style={styles.badgeQuote}>"Boire ou tenter le sort ?"</Text>
             </View>
           </View>
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   badgeName:  { fontSize: 13, fontWeight: '700', color: colors.text },
   badgeQuote: { fontSize: 11, color: colors.textSecondary, fontStyle: 'italic' },
 
-  pageTitle:    { fontSize: 26, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, letterSpacing: 2, textAlign: 'center' },
+  pageTitle:    { fontSize: 26, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, letterSpacing: 2, textAlign: 'center' },
   pageSubtitle: { fontSize: 12, color: ACCENT_LIGHT, letterSpacing: 1, marginTop: spacing.xs, textAlign: 'center' },
 
   form: { paddingHorizontal: spacing.xl, gap: spacing.md },

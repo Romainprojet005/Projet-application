@@ -31,9 +31,9 @@ function CharacterImage({ name, style }) {
   );
 }
 
-const AMB       = '#D97706';
-const AMB_DARK  = '#92400E';
-const AMB_LIGHT = '#FCD34D';
+const AMB       = '#7E62E0';
+const AMB_DARK  = '#5B3FB8';
+const AMB_LIGHT = '#B9A2FF';
 
 // --- Role config ---
 const ROLE_CONFIG = {

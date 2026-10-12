@@ -15,7 +15,7 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 
 const BG = OB_BG;
-const ZAPCOLOR = '#6366F1';
+const ZAPCOLOR = '#1F9E70';
 const TIME_LIMIT = 15;
 const POINTS_CORRECT = 100;
 const POINTS_SPEED_BONUS = 50;
@@ -168,7 +168,7 @@ function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
         <Animated.View style={{ opacity: podiumAnim, transform: [{ scale: podiumAnim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }] }}>
           <Text style={styles.finalEmoji}>✨</Text>
           <Text style={styles.finalTitle}>QUIZ TERMINÉ !</Text>
-          <Text style={styles.finalSub}>Hermione Granger a parlé</Text>
+          <Text style={styles.finalSub}>La Première de la classe a parlé</Text>
         </Animated.View>
 
         <View style={styles.rankList}>
@@ -209,7 +209,7 @@ function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
         <View style={styles.finalBtns}>
           <TouchableOpacity onPress={onPlayAgain} style={styles.finalBtnPrimary} activeOpacity={0.88}>
             <LinearGradient
-              colors={[ZAPCOLOR, '#0369A1']}
+              colors={[ZAPCOLOR, '#0B6B4A']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.finalBtnGrad}
@@ -399,7 +399,7 @@ export default function QuizGameScreen({ navigation, route }) {
 
           <TouchableOpacity onPress={handleStartQuestion} style={styles.startBtn} activeOpacity={0.88}>
             <LinearGradient
-              colors={[ZAPCOLOR, '#0369A1']}
+              colors={[ZAPCOLOR, '#0B6B4A']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.startBtnGrad}
@@ -516,7 +516,7 @@ export default function QuizGameScreen({ navigation, route }) {
 
               <TouchableOpacity onPress={handleNext} style={styles.nextBtn} activeOpacity={0.88}>
                 <LinearGradient
-                  colors={[ZAPCOLOR, '#0369A1']}
+                  colors={[ZAPCOLOR, '#0B6B4A']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.nextBtnGrad}

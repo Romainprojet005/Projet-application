@@ -148,7 +148,7 @@ export default function LolSelectMultiSetupScreen({ navigation, route }) {
             activeOpacity={0.8}
           >
             <LinearGradient colors={[ACCENT_LIGHT, ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-              {loading ? <ActivityIndicator color="#0A0815" /> : <Text style={styles.mainBtnText}>✨ CRÉER LA SALLE</Text>}
+              {loading ? <ActivityIndicator color="#08070F" /> : <Text style={styles.mainBtnText}>✨ CRÉER LA SALLE</Text>}
             </LinearGradient>
           </TouchableOpacity>
         ) : (
@@ -172,7 +172,7 @@ export default function LolSelectMultiSetupScreen({ navigation, route }) {
               activeOpacity={0.8}
             >
               <LinearGradient colors={[ACCENT_LIGHT, ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                {loading ? <ActivityIndicator color="#0A0815" /> : <Text style={styles.mainBtnText}>🚀 REJOINDRE</Text>}
+                {loading ? <ActivityIndicator color="#08070F" /> : <Text style={styles.mainBtnText}>🚀 REJOINDRE</Text>}
               </LinearGradient>
             </TouchableOpacity>
           </>
@@ -187,12 +187,12 @@ const styles = StyleSheet.create({
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
   backRow: { marginBottom: spacing.lg },
   backText: { color: colors.textMuted, fontSize: 14 },
-  title: { fontSize: 24, fontWeight: '700', fontFamily: 'Cinzel_700Bold', color: colors.text, textAlign: 'center', letterSpacing: 1.5 },
+  title: { fontSize: 24, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, textAlign: 'center', letterSpacing: 1.5 },
   subtitle: { fontSize: 13, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl, lineHeight: 19 },
   tabs: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.lg, padding: 4, marginBottom: spacing.xl },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.md },
   tabText: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
-  tabTextActive: { color: '#0A0815' },
+  tabTextActive: { color: '#08070F' },
   field: { marginBottom: spacing.lg },
   label: { fontSize: 11, fontWeight: '800', color: colors.text, letterSpacing: 2, marginBottom: spacing.sm },
   input: {
@@ -204,5 +204,5 @@ const styles = StyleSheet.create({
   mainBtn: { borderRadius: radius.full, overflow: 'hidden', marginTop: spacing.md },
   mainBtnDisabled: { opacity: 0.4 },
   mainBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  mainBtnText: { fontSize: 15, fontWeight: '900', color: '#0A0815', letterSpacing: 2 },
+  mainBtnText: { fontSize: 15, fontWeight: '900', color: '#08070F', letterSpacing: 2 },
 });
