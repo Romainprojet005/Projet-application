@@ -160,7 +160,7 @@ export function BoosterFront({ character, idx, width, className = '', locked = f
         </span>
       </div>
       <div className="bc-medal has-art" style={{ color: fam.color, background: '#0E0C1A' }}>
-        <img className="bc-art" src={`/legendes/${character.game}.webp`} alt="" loading="lazy" draggable={false} />
+        <img className="bc-art" src={`/legendes/${character.game}.webp`} alt="" decoding="async" draggable={false} />
       </div>
       <span className="bc-who">{character.title}</span>
       <span className="bc-title" style={titleSize(character.gameName)}>{character.gameName}</span>
