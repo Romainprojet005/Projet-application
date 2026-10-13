@@ -14,10 +14,6 @@ const BEAT_LIGHT = '#4FD8A4';
 const BG = OB_BG;
 const MEDALS = ['🥇', '🥈', '🥉'];
 
-const isMobileWeb = Platform.OS === 'web' &&
-  typeof navigator !== 'undefined' &&
-  /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-
 function normalize(s) {
   return s.toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -446,18 +442,11 @@ export default function BlindMultiGameScreen({ navigation, route }) {
         )}
       </ScrollView>
 
-      {Platform.OS === 'web' && !isMobileWeb && !!ytSrc && React.createElement('iframe', {
-        key: ytSrc,
-        src: ytSrc,
+      {/* Lecteur caché : son src est posé dans le clic (handlePlay), ce qui autorise l'autoplay sur mobile */}
+      {Platform.OS === 'web' && React.createElement('iframe', {
+        ref: iframeRef,
         allow: 'autoplay; encrypted-media',
         style: { position: 'fixed', bottom: -1, left: -1, width: 1, height: 1, opacity: 0, border: 'none', pointerEvents: 'none' },
-      })}
-      {Platform.OS === 'web' && isMobileWeb && !!ytSrc && React.createElement('iframe', {
-        key: ytSrc,
-        src: ytSrc,
-        allow: 'autoplay; encrypted-media',
-        allowFullScreen: true,
-        style: { position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', width: '92%', height: 180, border: 'none', borderRadius: 12, zIndex: 10 },
       })}
     </LinearGradient>
   );
