@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, TextInput,
-  ScrollView, Platform, ActivityIndicator, Alert,
+  ScrollView, Platform, ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
+import alerte from '../../utils/alerte';
 import { getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 
 function generateCode() {
@@ -60,7 +61,7 @@ export default function LolSelectMultiSetupScreen({ navigation, route }) {
 
       navigation.replace('LolSelectMultiLobby', { roomId: room.id, playerId: player.id, isHost: true, gameId });
     } catch (e) {
-      Alert.alert('Erreur', e.message);
+      alerte('Erreur', e.message);
     } finally {
       setLoading(false);
     }
@@ -93,7 +94,7 @@ export default function LolSelectMultiSetupScreen({ navigation, route }) {
 
       navigation.replace('LolSelectMultiLobby', { roomId: room.id, playerId: player.id, isHost: false, gameId: room.game || DEFAULT_GAME_ID });
     } catch (e) {
-      Alert.alert('Erreur', e.message);
+      alerte('Erreur', e.message);
     } finally {
       setLoading(false);
     }

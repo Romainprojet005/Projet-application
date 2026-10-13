@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  ActivityIndicator, Platform, Alert,
+  ActivityIndicator, Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { supabase } from '../../services/supabase';
+import alerte from '../../utils/alerte';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import { ANSWERS, QUESTIONS, initCards } from '../../data/blancMangerData';
 
@@ -86,7 +87,7 @@ export default function BlancMultiLobbyScreen({ navigation, route }) {
       }).eq('id', roomId);
 
     } catch (e) {
-      Alert.alert('Erreur', e.message);
+      alerte('Erreur', e.message);
     } finally {
       setLoading(false);
       loadingRef.current = false;

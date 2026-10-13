@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, TextInput,
-  ScrollView, Platform, ActivityIndicator, Alert,
+  ScrollView, Platform, ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { supabase } from '../../services/supabase';
+import alerte from '../../utils/alerte';
 import { VOTE_CATEGORIES } from '../../data/voteData';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
@@ -66,7 +67,7 @@ export default function VoteMultiSetupScreen({ navigation }) {
 
       navigation.replace('VoteMultiLobby', { roomId: room.id, playerId: player.id, isHost: true });
     } catch (e) {
-      Alert.alert('Erreur', e.message);
+      alerte('Erreur', e.message);
     } finally {
       setLoading(false);
     }
@@ -93,7 +94,7 @@ export default function VoteMultiSetupScreen({ navigation }) {
 
       navigation.replace('VoteMultiLobby', { roomId: room.id, playerId: player.id, isHost: false });
     } catch (e) {
-      Alert.alert('Erreur', e.message);
+      alerte('Erreur', e.message);
     } finally {
       setLoading(false);
     }
