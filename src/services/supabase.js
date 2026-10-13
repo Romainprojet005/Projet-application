@@ -5,10 +5,34 @@ const SUPABASE_KEY = 'sb_publishable_oSmPF4n_PyzC8DyzlSDD6Q_kCPweM4A';
 
 export const isSupabaseConfigured = true;
 
+// Clé secrète propre à ce téléphone : la base n'en garde que l'empreinte (voir supabase_securite.sql)
+// et n'autorise à modifier une salle que les téléphones qui y ont rejoint.
+let memorySecret = null;
+function getClientSecret() {
+  try {
+    let s = localStorage.getItem('sdl_client_secret');
+    if (!s) {
+      s = newSecret();
+      localStorage.setItem('sdl_client_secret', s);
+    }
+    return s;
+  } catch {
+    return memorySecret || (memorySecret = newSecret());
+  }
+}
+
+function newSecret() {
+  const bytes = new Uint8Array(24);
+  if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(bytes);
+  else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 const customFetch = async (url, options = {}) => {
   const headers = new Headers(options.headers || {});
   headers.set('apikey', SUPABASE_KEY);
   headers.set('Authorization', `Bearer ${SUPABASE_KEY}`);
+  headers.set('x-client-secret', getClientSecret());
   return fetch(url, { ...options, headers });
 };
 
