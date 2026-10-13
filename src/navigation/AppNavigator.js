@@ -4,6 +4,7 @@ import GameSkin from '../components/GameSkin';
 import { createStackNavigator } from '@react-navigation/stack';
 import { characters } from '../data/characters';
 import { HOME_TITLE, gamePath, gameTitle } from '../data/seo';
+import { trackRouteChange } from '../services/stats';
 
 import WelcomeScreen from '../screens/WelcomeScreen';
 import MenuScreen from '../screens/MenuScreen';
@@ -164,7 +165,13 @@ const documentTitle = {
 export default function AppNavigator() {
   const [routeName, setRouteName] = useState(null);
   const navRef = React.useRef(null);
-  const syncRoute = () => setRouteName(navRef.current?.getCurrentRoute()?.name ?? null);
+  const prevRoute = React.useRef(null);
+  const syncRoute = () => {
+    const route = navRef.current?.getCurrentRoute() ?? null;
+    if (route?.key !== prevRoute.current?.key) trackRouteChange(prevRoute.current, route, linking.config.screens);
+    prevRoute.current = route;
+    setRouteName(route?.name ?? null);
+  };
   return (
     <NavigationContainer ref={navRef} linking={linking} documentTitle={documentTitle} onReady={syncRoute} onStateChange={syncRoute}>
       <Stack.Navigator
