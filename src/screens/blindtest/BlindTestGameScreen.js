@@ -8,6 +8,8 @@ import { colors, spacing, radius } from '../../theme';
 import { selectSongs } from '../../data/blindTestSongs';
 import { OB_BG } from '../../theme/obsidian';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
+import { isCorrectTitle } from '../../utils/reponseBlindTest';
+import useKeepTyping from '../../utils/useKeepTyping';
 
 const BG         = OB_BG;
 const BEAT       = '#1F9E70';
@@ -18,19 +20,6 @@ const BEAT_LIGHT = '#4FD8A4';
 const isMobileWeb = Platform.OS === 'web' &&
   typeof navigator !== 'undefined' &&
   /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-
-function normalize(s) {
-  return s.toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, ' ');
-}
-
-function isCorrectGuess(input, title) {
-  const inp = normalize(input);
-  const tit = normalize(title);
-  if (!inp || inp.length < 2) return false;
-  return tit === inp || (inp.length >= 4 && tit.includes(inp));
-}
 
 function openYoutube(song) {
   const q = encodeURIComponent(`${song.title} ${song.artist}`);
@@ -99,6 +88,8 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const phaseRef  = useRef('idle');
   const songRef   = useRef(songs[0]);
   const iframeRef = useRef(null);
+  const inputRef  = useRef(null);
+  useKeepTyping(inputRef, phase === 'playing');
   const answerSlide   = useRef(new Animated.Value(300)).current;
   const answerOpacity = useRef(new Animated.Value(0)).current;
   const feedbackScale = useRef(new Animated.Value(0)).current;
@@ -219,7 +210,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
   const handleGuess = (currentText) => {
     const text = typeof currentText === 'string' ? currentText : inputText;
     if (phase !== 'playing' || !text.trim()) return;
-    if (isCorrectGuess(text, song.title)) {
+    if (isCorrectTitle(text, song.title)) {
       stopTimer();
       const pts = currentPts;
       setFoundPts(pts);
@@ -472,6 +463,8 @@ export default function BlindTestGameScreen({ navigation, route }) {
           <View style={styles.inputContainer}>
             <View style={styles.inputRow}>
               <TextInput
+                ref={inputRef}
+                blurOnSubmit={false}
                 style={[styles.textInput, wrongFlash && styles.textInputWrong]}
                 placeholder="Tapez le titre de la chanson..."
                 placeholderTextColor={`${BEAT}66`}

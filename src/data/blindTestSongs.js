@@ -2,6 +2,7 @@
 // Une vidéo devenue indisponible est remplacée automatiquement en cours de partie.
 
 export const CATEGORIES = [
+  { id: 'tout',        name: 'Tout mélangé',        emoji: '🎲', color: '#D4AF37' },
   { id: 'france',      name: 'Chansons Françaises', emoji: '🇫🇷', color: '#2563EB' },
   { id: 'rock',        name: 'Rock',                emoji: '🎸',  color: '#10B981' },
   { id: 'annees80',    name: 'Années 80',            emoji: '🕺',  color: '#F59E0B' },
@@ -157,12 +158,22 @@ export function getCategoryMeta(id) {
   return CATEGORIES.find(c => c.id === id) ?? CATEGORIES[0];
 }
 
+// « Tout mélangé » : toutes les catégories réunies. Les id se répètent d'une catégorie à l'autre,
+// on les préfixe pour qu'ils restent uniques dans une même partie.
+const ALL_SONGS = Object.entries(SONGS_BY_CATEGORY)
+  .flatMap(([cat, songs]) => songs.map(s => ({ ...s, id: `${cat}-${s.id}` })));
+
+function songsOf(id) {
+  if (id === 'tout') return ALL_SONGS;
+  return SONGS_BY_CATEGORY[id] ?? SONGS_BY_CATEGORY.france;
+}
+
 export function getSongsCount(id) {
-  return (SONGS_BY_CATEGORY[id] ?? SONGS_BY_CATEGORY.france).length;
+  return songsOf(id).length;
 }
 
 export function selectSongs(count, categoryId = 'france') {
-  const songs = SONGS_BY_CATEGORY[categoryId] ?? SONGS_BY_CATEGORY.france;
+  const songs = songsOf(categoryId);
   const shuffled = [...songs].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, Math.min(count, songs.length));
 }

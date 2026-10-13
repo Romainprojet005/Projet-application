@@ -8,6 +8,9 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase, channelName } from '../../services/supabase';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
+import { isCorrectTitle } from '../../utils/reponseBlindTest';
+import useKeepTyping from '../../utils/useKeepTyping';
+import alerte from '../../utils/alerte';
 
 const BEAT       = '#1F9E70';
 const BEAT_DARK  = '#0B6B4A';
@@ -15,19 +18,6 @@ const BEAT_LIGHT = '#4FD8A4';
 const BG = OB_BG;
 const MEDALS = ['🥇', '🥈', '🥉'];
 const REVEAL_MS = 4000; // temps pour lire la réponse quand personne n'a trouvé
-
-function normalize(s) {
-  return s.toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, ' ');
-}
-
-function isCorrect(input, title) {
-  const inp = normalize(input);
-  const tit = normalize(title);
-  if (!inp || inp.length < 2) return false;
-  return tit === inp || (inp.length >= 4 && tit.includes(inp));
-}
 
 function songUrl(song) {
   return `https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${song.startAt ?? 0}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
@@ -47,12 +37,14 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   const [timer, setTimer]         = useState(null);
   const [inputText, setInputText] = useState('');
   const [wrongFlash, setWrongFlash] = useState(false);
-  const [roundResult, setRoundResult] = useState(null); // 'won' | 'lost' | null
+  const [roundResult, setRoundResult] = useState(null); // 'won' | 'lost' | 'passed' | null
 
   const isHostRef  = useRef(false);
   const channelRef = useRef(null);
   const timerRef   = useRef(null);
   const iframeRef  = useRef(null);
+  const inputRef  = useRef(null);
+  useKeepTyping(inputRef, room?.phase === 'playing' && !roundResult);
   const roomRef    = useRef(null);
   const playersRef = useRef([]);
   const autoNextRef = useRef(null);
@@ -158,13 +150,27 @@ export default function BlindMultiGameScreen({ navigation, route }) {
     }).eq('id', roomId);
   };
 
-  const handleTimeout = async () => {
-    const idx = roomRef.current?.current_song_idx;
+  const handleTimeout = () => endRoundNobody(roomRef.current?.current_song_idx);
+
+  // Personne n'a trouvé (chrono écoulé ou tout le monde a passé) : on montre la réponse,
+  // puis la chanson suivante démarre toute seule
+  const endRoundNobody = async (idx) => {
     const { data } = await supabase.from('blind_rooms')
       .update({ phase: 'found', found_player_id: null, found_pts: 0 })
-      .eq('id', roomId).eq('phase', 'playing').select('id');
-    // Personne n'a trouvé : on montre la réponse, puis la chanson suivante démarre toute seule
+      .eq('id', roomId).eq('phase', 'playing').eq('current_song_idx', idx).select('id');
     if (data?.length) autoNextRef.current = setTimeout(() => autoNext(idx), REVEAL_MS);
+  };
+
+  const handlePass = async () => {
+    const r = roomRef.current;
+    if (!r || r.phase !== 'playing' || roundResult) return;
+    const idx = r.current_song_idx;
+    setRoundResult('passed');
+    const { error } = await supabase.from('blind_players').update({ passed_idx: idx }).eq('id', playerId);
+    if (error) { setRoundResult(null); alerte('Erreur', error.message); return; }
+    // Le dernier à passer termine la manche
+    const { data: ps } = await supabase.from('blind_players').select('id, passed_idx').eq('room_id', roomId);
+    if (ps && ps.every(p => p.passed_idx === idx)) endRoundNobody(idx);
   };
 
   const autoNext = async (idx) => {
@@ -205,7 +211,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
     const song = r.songs[r.current_song_idx];
     if (!song) return;
 
-    if (!isCorrect(inputText, song.title)) {
+    if (!isCorrectTitle(inputText, song.title)) {
       setInputText('');
       setWrongFlash(true);
       setTimeout(() => setWrongFlash(false), 600);
@@ -367,6 +373,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
               )}
               {roundResult === 'won' && <Text style={styles.statusWon}>✅ Trouvé ! En attente des autres…</Text>}
               {roundResult === 'lost' && <Text style={styles.statusLost}>😅 Quelqu'un a été plus rapide !</Text>}
+              {roundResult === 'passed' && <Text style={styles.statusLost}>Tu as passé. En attente des autres…</Text>}
               {song && (
                 <TouchableOpacity
                   onPress={() => {
@@ -395,7 +402,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
                 <>
                   <Text style={styles.foundEmoji}>😅</Text>
                   <Text style={styles.foundWho}>Personne n'a trouvé !</Text>
-                  {!!tl && <Text style={styles.waitNextText}>Chanson suivante dans un instant…</Text>}
+                  <Text style={styles.waitNextText}>Chanson suivante dans un instant…</Text>
                 </>
               )}
               <View style={styles.songReveal}>
@@ -420,7 +427,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>
-              ) : (foundPlayer || !tl) && (
+              ) : foundPlayer && (
                 <Text style={styles.waitNextText}>L'hôte va lancer la chanson suivante…</Text>
               )}
             </View>
@@ -432,6 +439,8 @@ export default function BlindMultiGameScreen({ navigation, route }) {
           <View style={styles.inputSection}>
             <View style={styles.inputRow}>
               <TextInput
+                ref={inputRef}
+                blurOnSubmit={false}
                 style={[styles.textInput, wrongFlash && styles.textInputWrong]}
                 placeholder="Tapez le titre de la chanson..."
                 placeholderTextColor={BEAT + '66'}
@@ -451,6 +460,9 @@ export default function BlindMultiGameScreen({ navigation, route }) {
                 <Text style={styles.validateBtnText}>✓</Text>
               </TouchableOpacity>
             </View>
+            <TouchableOpacity style={styles.passBtn} onPress={handlePass} activeOpacity={0.8}>
+              <Text style={styles.passBtnText}>Je ne sais pas</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -551,6 +563,8 @@ const styles = StyleSheet.create({
   validateBtn:    { backgroundColor: BEAT, borderRadius: radius.md, paddingVertical: spacing.md, paddingHorizontal: spacing.lg, alignItems: 'center', justifyContent: 'center' },
   validateBtnOff: { backgroundColor: BEAT + '44' },
   validateBtnText:{ fontSize: 20, fontWeight: '900', color: '#fff' },
+  passBtn:        { alignSelf: 'center', paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderRadius: radius.full, borderWidth: 1, borderColor: colors.border },
+  passBtnText:    { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
 
   scoresSection: { gap: spacing.sm, marginTop: spacing.md },
   scoresLabel:   { fontSize: 11, fontWeight: '800', color: colors.textMuted, letterSpacing: 2 },
