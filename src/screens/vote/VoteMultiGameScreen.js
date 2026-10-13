@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const VOTE_COLOR = '#2F74B5';
@@ -60,7 +60,7 @@ export default function VoteMultiGameScreen({ navigation, route }) {
     }
 
     channelRef.current = supabase
-      .channel(`vote_game:${roomId}`)
+      .channel(channelName(`vote_game:${roomId}`))
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'vote_rooms', filter: `id=eq.${roomId}` },
         async ({ new: nr }) => {

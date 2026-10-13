@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import { simulateBo3 } from '../../data/lolSimulation';
 import { getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
@@ -21,7 +21,7 @@ export default function LolSelectMultiWaitScreen({ navigation, route }) {
   useEffect(() => {
     loadAndMaybeCompute();
     channelRef.current = supabase
-      .channel(`lolselect_wait:${roomId}`)
+      .channel(channelName(`lolselect_wait:${roomId}`))
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'lolselect_players', filter: `room_id=eq.${roomId}` },
         () => loadAndMaybeCompute()

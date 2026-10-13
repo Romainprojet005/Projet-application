@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import { pickWord } from '../../data/mimeWords';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
 
@@ -35,7 +35,7 @@ export default function MimeLobbyScreen({ navigation, route }) {
     loadPlayers();
 
     channelRef.current = supabase
-      .channel(`lobby:${roomId}`)
+      .channel(channelName(`lobby:${roomId}`))
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'mime_players', filter: `room_id=eq.${roomId}` },
         () => loadPlayers()

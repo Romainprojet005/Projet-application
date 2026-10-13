@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const ACCENT       = '#D4AF37';
@@ -23,7 +23,7 @@ export default function LolSelectMultiLobbyScreen({ navigation, route }) {
   useEffect(() => {
     loadData();
     channelRef.current = supabase
-      .channel(`lolselect_lobby:${roomId}`)
+      .channel(channelName(`lolselect_lobby:${roomId}`))
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'lolselect_players', filter: `room_id=eq.${roomId}` },
         () => loadData()

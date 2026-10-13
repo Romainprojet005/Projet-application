@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import { pickWord } from '../../data/mimeWords';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
 
@@ -92,7 +92,7 @@ export default function MimeGameScreen({ navigation, route }) {
   useEffect(() => {
     loadState();
     channelRef.current = supabase
-      .channel(`game:${roomId}`)
+      .channel(channelName(`game:${roomId}`))
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'mime_rooms', filter: `id=eq.${roomId}` },
         ({ new: r }) => {

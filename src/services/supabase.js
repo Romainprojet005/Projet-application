@@ -48,3 +48,8 @@ try {
 }
 
 export const supabase = _client;
+
+// Nom de canal temps réel unique par écran ouvert. supabase.channel() renvoie le canal existant
+// si le nom est déjà pris (écran remonté, ancien canal pas encore fermé) : y ajouter des écouteurs
+// après subscribe() échoue et l'écran ne reçoit plus aucune mise à jour.
+export const channelName = (name) => `${name}:${Math.random().toString(36).slice(2, 10)}`;

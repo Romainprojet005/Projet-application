@@ -183,7 +183,7 @@ export default function BlindMultiSetupScreen({ navigation }) {
 
             <View style={styles.infoBox}>
               <Text style={styles.infoText}>
-                L'hôte joue la musique depuis son téléphone.{'\n'}
+                L'hôte lance l'extrait, la musique joue sur tous les téléphones.{'\n'}
                 Tous les joueurs tapent la réponse en même temps.{'\n'}
                 Le premier à trouver gagne les points !
               </Text>

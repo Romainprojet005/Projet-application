@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import { selectQuestions } from '../../data/voteData';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
 
@@ -25,7 +25,7 @@ export default function VoteMultiLobbyScreen({ navigation, route }) {
   useEffect(() => {
     loadData();
     channelRef.current = supabase
-      .channel(`vote_lobby:${roomId}`)
+      .channel(channelName(`vote_lobby:${roomId}`))
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'vote_players', filter: `room_id=eq.${roomId}` },
         () => loadData()

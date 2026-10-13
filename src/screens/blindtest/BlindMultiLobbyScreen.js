@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import { selectSongs } from '../../data/blindTestSongs';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
 
@@ -25,7 +25,7 @@ export default function BlindMultiLobbyScreen({ navigation, route }) {
   useEffect(() => {
     loadData();
     channelRef.current = supabase
-      .channel(`blind_lobby:${roomId}`)
+      .channel(channelName(`blind_lobby:${roomId}`))
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'blind_players', filter: `room_id=eq.${roomId}` },
         () => loadData()
@@ -96,7 +96,7 @@ export default function BlindMultiLobbyScreen({ navigation, route }) {
         <View style={styles.rules}>
           <Text style={styles.rulesTitle}>Comment jouer</Text>
           <Text style={styles.rulesText}>
-            L'hôte lance la musique depuis son téléphone.{'\n'}
+            L'hôte lance l'extrait, la musique joue sur tous les téléphones.{'\n'}
             Tous tapent le titre de la chanson simultanément.{'\n'}
             Le premier à trouver gagne les points !{'\n'}
             Plus vite tu trouves, plus tu gagnes de points.

@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import { getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 import LolTournamentView from './LolTournamentView';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
@@ -25,7 +25,7 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
   useEffect(() => {
     load();
     channelRef.current = supabase
-      .channel(`lolselect_result:${roomId}`)
+      .channel(channelName(`lolselect_result:${roomId}`))
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'lolselect_rooms', filter: `id=eq.${roomId}` },
         ({ new: r }) => {

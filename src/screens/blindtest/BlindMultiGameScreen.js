@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const BEAT       = '#1F9E70';
@@ -14,6 +14,7 @@ const BEAT_DARK  = '#0B6B4A';
 const BEAT_LIGHT = '#4FD8A4';
 const BG = OB_BG;
 const MEDALS = ['🥇', '🥈', '🥉'];
+const REVEAL_MS = 4000; // temps pour lire la réponse quand personne n'a trouvé
 
 function normalize(s) {
   return s.toLowerCase()
@@ -26,6 +27,10 @@ function isCorrect(input, title) {
   const tit = normalize(title);
   if (!inp || inp.length < 2) return false;
   return tit === inp || (inp.length >= 4 && tit.includes(inp));
+}
+
+function songUrl(song) {
+  return `https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${song.startAt ?? 0}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
 }
 
 function parseSongs(raw) {
@@ -50,12 +55,22 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   const iframeRef  = useRef(null);
   const roomRef    = useRef(null);
   const playersRef = useRef([]);
+  const autoNextRef = useRef(null);
+  const aliveRef    = useRef(true);
+
+  const playSong = (song) => {
+    if (!song || !iframeRef.current) return;
+    const url = songUrl(song);
+    if (iframeRef.current.src !== url) iframeRef.current.src = url;
+  };
 
   useEffect(() => {
     init();
     return () => {
+      aliveRef.current = false;
       supabase.removeChannel(channelRef.current);
       clearInterval(timerRef.current);
+      clearTimeout(autoNextRef.current);
     };
   }, []);
 
@@ -77,9 +92,10 @@ export default function BlindMultiGameScreen({ navigation, route }) {
       roomRef.current = roomData;
       if (r.phase === 'playing' && r.round_started_at) startLocalTimer(r);
     }
+    if (!aliveRef.current) return;
 
     channelRef.current = supabase
-      .channel(`blind_game:${roomId}`)
+      .channel(channelName(`blind_game:${roomId}`))
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'blind_rooms', filter: `id=eq.${roomId}` },
         async ({ new: nr }) => {
@@ -98,13 +114,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
           if (nr.phase === 'playing') {
             setInputText('');
             setRoundResult(null);
-            if (isHostRef.current) {
-              const song = songs[nr.current_song_idx];
-              if (song && iframeRef.current) {
-                const start = song.startAt ?? 0;
-                iframeRef.current.src = `https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
-              }
-            }
+            playSong(songs[nr.current_song_idx]);
             startLocalTimer(nr);
           }
           if (nr.phase === 'found' || nr.status === 'finished') {
@@ -138,11 +148,8 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   const handlePlay = async () => {
     const r = roomRef.current;
     if (!r) return;
-    const song = r.songs[r.current_song_idx];
-    if (song && iframeRef.current) {
-      const start = song.startAt ?? 0;
-      iframeRef.current.src = `https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
-    }
+    // Dans le clic : le navigateur autorise le son
+    playSong(r.songs[r.current_song_idx]);
     await supabase.from('blind_rooms').update({
       phase: 'playing',
       round_started_at: new Date().toISOString(),
@@ -152,9 +159,32 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   };
 
   const handleTimeout = async () => {
-    await supabase.from('blind_rooms')
+    const idx = roomRef.current?.current_song_idx;
+    const { data } = await supabase.from('blind_rooms')
       .update({ phase: 'found', found_player_id: null, found_pts: 0 })
-      .eq('id', roomId).eq('phase', 'playing');
+      .eq('id', roomId).eq('phase', 'playing').select('id');
+    // Personne n'a trouvé : on montre la réponse, puis la chanson suivante démarre toute seule
+    if (data?.length) autoNextRef.current = setTimeout(() => autoNext(idx), REVEAL_MS);
+  };
+
+  const autoNext = async (idx) => {
+    const r = roomRef.current;
+    if (!r) return;
+    // .eq('phase', 'found').eq('current_song_idx', idx) : rien ne change si l'hôte a déjà cliqué « Chanson suivante »
+    const nextIdx = idx + 1;
+    if (nextIdx >= r.songs.length) {
+      await supabase.from('blind_rooms').update({ status: 'finished', phase: 'found' })
+        .eq('id', roomId).eq('phase', 'found').eq('current_song_idx', idx);
+    } else {
+      // phase 'playing' : chaque téléphone lance l'extrait en recevant la mise à jour
+      await supabase.from('blind_rooms').update({
+        current_song_idx: nextIdx,
+        phase: 'playing',
+        round_started_at: new Date().toISOString(),
+        found_player_id: null,
+        found_pts: 0,
+      }).eq('id', roomId).eq('phase', 'found').eq('current_song_idx', idx);
+    }
   };
 
   const handleNext = async () => {
@@ -337,15 +367,12 @@ export default function BlindMultiGameScreen({ navigation, route }) {
               )}
               {roundResult === 'won' && <Text style={styles.statusWon}>✅ Trouvé ! En attente des autres…</Text>}
               {roundResult === 'lost' && <Text style={styles.statusLost}>😅 Quelqu'un a été plus rapide !</Text>}
-              {isHost && song && (
+              {song && (
                 <TouchableOpacity
                   onPress={() => {
                     if (!iframeRef.current) return;
-                    const start = song.startAt ?? 0;
                     iframeRef.current.src = '';
-                    setTimeout(() => {
-                      iframeRef.current.src = `https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&start=${start}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
-                    }, 100);
+                    setTimeout(() => playSong(song), 100);
                   }}
                   style={styles.relancerBtn}
                 >
@@ -368,6 +395,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
                 <>
                   <Text style={styles.foundEmoji}>😅</Text>
                   <Text style={styles.foundWho}>Personne n'a trouvé !</Text>
+                  {!!tl && <Text style={styles.waitNextText}>Chanson suivante dans un instant…</Text>}
                 </>
               )}
               <View style={styles.songReveal}>
@@ -392,7 +420,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>
-              ) : (
+              ) : (foundPlayer || !tl) && (
                 <Text style={styles.waitNextText}>L'hôte va lancer la chanson suivante…</Text>
               )}
             </View>

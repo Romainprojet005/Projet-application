@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { GOLD, GOLD_DARK, GOLD_LIGHT, OB_BG } from '../../theme/obsidian';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const BG = OB_BG;
@@ -31,7 +31,7 @@ export default function TribunalLobbyScreen({ navigation, route }) {
   useEffect(() => {
     load();
     channelRef.current = supabase
-      .channel(`tribunal_lobby:${roomId}`)
+      .channel(channelName(`tribunal_lobby:${roomId}`))
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'tribunal_players', filter: `room_id=eq.${roomId}` },
         () => load()

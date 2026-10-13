@@ -6,7 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { GOLD, GOLD_DARK, GOLD_LIGHT, OB_BG } from '../../theme/obsidian';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const CRIMSON    = '#EF4444';
@@ -35,7 +35,7 @@ export default function TribunalGameScreen({ navigation, route }) {
   useEffect(() => {
     loadState();
     const ch = supabase
-      .channel(`tribunal:${roomId}`)
+      .channel(channelName(`tribunal:${roomId}`))
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'tribunal_rooms', filter: `id=eq.${roomId}` },
         ({ new: r }) => {

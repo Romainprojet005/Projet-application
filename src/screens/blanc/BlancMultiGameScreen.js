@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import { OB_BG, GOLD, GOLD_LIGHT, GOLD_DARK, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import { ANSWERS } from '../../data/blancMangerData';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
@@ -160,7 +160,7 @@ export default function BlancMultiGameScreen({ navigation, route }) {
     reloadAll();
 
     channelRef.current = supabase
-      .channel(`blanc_game:${roomId}`)
+      .channel(channelName(`blanc_game:${roomId}`))
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'blanc_rooms', filter: `id=eq.${roomId}` },
         async ({ new: r }) => {

@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
-import { supabase } from '../../services/supabase';
+import { supabase, channelName } from '../../services/supabase';
 import alerte from '../../utils/alerte';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import { ANSWERS, QUESTIONS, initCards } from '../../data/blancMangerData';
@@ -34,7 +34,7 @@ export default function BlancMultiLobbyScreen({ navigation, route }) {
   useEffect(() => {
     loadData();
     channelRef.current = supabase
-      .channel(`blanc_lobby:${roomId}`)
+      .channel(channelName(`blanc_lobby:${roomId}`))
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'blanc_players', filter: `room_id=eq.${roomId}` },
         () => loadData()
