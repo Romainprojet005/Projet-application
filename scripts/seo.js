@@ -71,7 +71,7 @@ const base = fs.readFileSync(indexPath, 'utf8');
 
 // ── Accueil ──
 const gameLinks = characters
-  .map((c) => `<li><a href="/${gamePath(c)}">${esc(gameLabel(c))}</a> — ${esc(c.description)}</li>`)
+  .map((c) => `<li><a href="/${gamePath(c)}/">${esc(gameLabel(c))}</a> — ${esc(c.description)}</li>`)
   .join('\n        ');
 
 fs.writeFileSync(indexPath, render(base, {
@@ -99,7 +99,8 @@ fs.writeFileSync(indexPath, render(base, {
 // ── Une page par jeu ──
 for (const c of characters) {
   const p = gamePath(c);
-  const url = `${SITE_URL}/${p}`;
+  // Netlify sert dist/<jeu>/index.html à /<jeu>/ (et redirige /<jeu> vers /<jeu>/)
+  const url = `${SITE_URL}/${p}/`;
   const dir = path.join(dist, p);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'index.html'), render(base, {
@@ -126,7 +127,7 @@ fs.writeFileSync(path.join(dist, 'robots.txt'),
   `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`, 'utf8');
 
 const today = new Date().toISOString().slice(0, 10);
-const urls = [`${SITE_URL}/`, ...characters.map((c) => `${SITE_URL}/${gamePath(c)}`)];
+const urls = [`${SITE_URL}/`, ...characters.map((c) => `${SITE_URL}/${gamePath(c)}/`)];
 fs.writeFileSync(path.join(dist, 'sitemap.xml'),
   '<?xml version="1.0" encoding="UTF-8"?>\n' +
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
