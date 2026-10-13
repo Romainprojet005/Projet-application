@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import GameSkin from '../components/GameSkin';
 import { createStackNavigator } from '@react-navigation/stack';
+import { characters } from '../data/characters';
+import { HOME_TITLE, gamePath, gameTitle } from '../data/seo';
 
 import WelcomeScreen from '../screens/WelcomeScreen';
 import MenuScreen from '../screens/MenuScreen';
@@ -150,12 +152,21 @@ const linking = {
   },
 };
 
+// Titre de l'onglet (et pour Google) : sans ça, React Navigation affiche le nom de l'écran (« Menu »)
+const documentTitle = {
+  formatter: (options, route) => {
+    const path = linking.config.screens[route?.name];
+    const game = typeof path === 'string' && characters.find((c) => gamePath(c) === path.split('/')[0]);
+    return game ? gameTitle(game) : HOME_TITLE;
+  },
+};
+
 export default function AppNavigator() {
   const [routeName, setRouteName] = useState(null);
   const navRef = React.useRef(null);
   const syncRoute = () => setRouteName(navRef.current?.getCurrentRoute()?.name ?? null);
   return (
-    <NavigationContainer ref={navRef} linking={linking} onReady={syncRoute} onStateChange={syncRoute}>
+    <NavigationContainer ref={navRef} linking={linking} documentTitle={documentTitle} onReady={syncRoute} onStateChange={syncRoute}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
