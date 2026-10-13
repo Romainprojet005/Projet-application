@@ -8,6 +8,7 @@ import { colors, spacing, radius } from '../../theme';
 import { supabase } from '../../services/supabase';
 import alerte from '../../utils/alerte';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const PRP       = '#D4AF37';
 const PRP_LIGHT = '#E6C766';
@@ -105,7 +106,7 @@ export default function BlancMultiSetupScreen({ navigation }) {
       <ScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
-        style={Platform.OS === 'web' && { height: '100vh' }}
+        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
       >
         <TouchableOpacity style={styles.backRow} onPress={() => navigation.navigate('BlancSetup')}>
           <Text style={styles.backText}>← Retour</Text>
@@ -236,7 +237,7 @@ export default function BlancMultiSetupScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
 
   backRow: { paddingVertical: 12, paddingRight: 20, marginTop: -12, paddingTop: Platform.OS === 'ios' ? 56 : 36, paddingBottom: spacing.md },

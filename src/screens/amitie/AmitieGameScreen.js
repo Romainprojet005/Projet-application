@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const ROSE = '#2F74B5';
 const ROSE_DARK = '#1B5A97';
@@ -292,7 +293,7 @@ function ResultsScreen({ players, scores, rounds, mode, navigation, route }) {
       <ScrollView
         contentContainerStyle={styles.resultsScroll}
         showsVerticalScrollIndicator={false}
-        style={Platform.OS === 'web' && { height: '100vh' }}
+        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
       >
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
           {/* Compatibility score */}
@@ -361,7 +362,7 @@ function ResultsScreen({ players, scores, rounds, mode, navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
 
   progressTrack: {
     height: 3,

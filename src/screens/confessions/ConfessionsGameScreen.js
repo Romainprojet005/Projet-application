@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const ACCENT       = '#7E62E0';
 const ACCENT_LIGHT = '#B9A2FF';
@@ -298,10 +299,10 @@ export default function ConfessionsGameScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container:  { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container:  { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   fullCenter: {
     flex: 1, alignItems: 'center', justifyContent: 'center',
-    padding: spacing.xl, ...Platform.select({ web: { height: '100vh' } }),
+    padding: spacing.xl, ...Platform.select({ web: { height: FULL_HEIGHT } }),
   },
 
   // COLLECT

@@ -15,6 +15,7 @@ import { OB_BG } from '../../theme/obsidian';
 import characterImages from '../../data/characterImages';
 
 import goBackOrMenu from '../../navigation/goBack';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 const BG = OB_BG;
 
 // Small helper: shows a character image, or nothing if URL is missing / fails to load
@@ -514,7 +515,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   content: {
     flex: 1,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,

@@ -7,6 +7,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { GOLD, GOLD_DARK, GOLD_LIGHT, OB_BG } from '../../theme/obsidian';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const SCREEN_W = Dimensions.get('window').width;
 const PC_IMG_W = Platform.OS === 'web' ? Math.min(380, SCREEN_W - 48) : undefined;
@@ -234,7 +235,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
       </View>
 
       <ScrollView
-        style={[styles.innerScroll, Platform.OS === 'web' && { height: '100vh' }]}
+        style={[styles.innerScroll, Platform.OS === 'web' && { height: FULL_HEIGHT }]}
         contentContainerStyle={styles.inner}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -443,7 +444,7 @@ function ResultsScreen({ players, scores, rounds, navigation }) {
       <ScrollView
         contentContainerStyle={styles.resultsScroll}
         showsVerticalScrollIndicator={false}
-        style={Platform.OS === 'web' && { height: '100vh' }}
+        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
       >
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
           {/* Global score */}
@@ -510,7 +511,7 @@ function ResultsScreen({ players, scores, rounds, navigation }) {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
 
   progressTrack: { height: 3, backgroundColor: colors.border, width: '100%' },
   progressFill: { height: '100%', backgroundColor: ORANGE, borderRadius: 2 },

@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { selectSongs } from '../../data/blindTestSongs';
 import { OB_BG } from '../../theme/obsidian';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const BG         = OB_BG;
 const BEAT       = '#1F9E70';
@@ -291,7 +292,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
         <ScrollView
           contentContainerStyle={styles.finalScroll}
           showsVerticalScrollIndicator={false}
-          style={Platform.OS === 'web' && { height: '100vh' }}
+          style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
         >
           <View style={styles.compatCard}>
             <LinearGradient colors={[`${BEAT}30`, `${BEAT}18`]} style={styles.compatInner}>
@@ -363,7 +364,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
       </View>
 
       <ScrollView
-        style={[styles.innerScroll, Platform.OS === 'web' && { height: '100vh' }]}
+        style={[styles.innerScroll, Platform.OS === 'web' && { height: FULL_HEIGHT }]}
         contentContainerStyle={styles.inner}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -556,7 +557,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
 
   progressTrack: { height: 3, backgroundColor: colors.border, width: '100%' },
   progressFill:  { height: '100%', backgroundColor: BEAT, borderRadius: 2 },

@@ -1,11 +1,12 @@
 import React from 'react';
 import { ScrollView, Platform } from 'react-native';
+import { FULL_HEIGHT } from '../utils/fullHeight';
 
 export default function PageScroll({ children, contentContainerStyle, keyboardShouldPersistTaps, ...props }) {
   if (Platform.OS === 'web') {
     return (
       <div style={{
-        height: '100vh',
+        height: FULL_HEIGHT,
         overflowY: 'scroll',
         overflowX: 'hidden',
         display: 'flex',

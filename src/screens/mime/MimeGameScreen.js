@@ -8,6 +8,7 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 import { pickWord } from '../../data/mimeWords';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const PINK = '#D0475B';
 const PINK_LIGHT = '#FF8A8A';
@@ -268,7 +269,7 @@ export default function MimeGameScreen({ navigation, route }) {
       </View>
 
       <ScrollView
-        style={Platform.OS === 'web' && { height: '100vh' }}
+        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
       >
@@ -383,7 +384,7 @@ export default function MimeGameScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   progressTrack: { height: 4, backgroundColor: colors.border, width: '100%' },
   progressFill: { height: '100%', borderRadius: 2 },
   scroll: { padding: spacing.lg, paddingTop: 20, paddingBottom: spacing.xxl },

@@ -13,6 +13,7 @@ import AdBanner, { AD_ENABLED } from '../components/AdBanner';
 import { BoosterFront, BoosterBack, FamilyEmblem, FAMILIES, familyOf, PhoneIcon, LockIcon } from '../components/BoosterCard';
 import { OffresModal, IdeeModal, CodeModal } from '../components/WebModals';
 import { statutAcces, gratuitsDuJour, PHONE_LABELS } from '../services/acces';
+import { FULL_HEIGHT } from '../utils/fullHeight';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 const N = characters.length;
@@ -1361,7 +1362,7 @@ export default function MenuScreen({ navigation }) {
 }
 
 const s = StyleSheet.create({
-  container:    { flex: 1, ...Platform.select({ web: { height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' } }) },
+  container:    { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT, display: 'flex', flexDirection: 'column', overflow: 'hidden' } }) },
   header:       { flexDirection: 'row', alignItems: 'center', paddingTop: Platform.OS === 'ios' ? 60 : IS_MOBILE_WEB ? 18 : 40, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm, position: 'relative', zIndex: 2 },
   backBtn:      { width: 70 },
   backBtnText:  { color: colors.primaryLight, fontSize: 14, fontWeight: '600' },

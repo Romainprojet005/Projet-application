@@ -9,6 +9,7 @@ import { selectQuestions } from '../../data/oracleQuestions';
 import { OB_BG } from '../../theme/obsidian';
 
 import goBackOrMenu from '../../navigation/goBack';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 const ACCENT       = '#D0475B';
 const ACCENT_LIGHT = '#FF8A8A';
 const ACCENT_DARK  = '#A81F2D';
@@ -528,7 +529,7 @@ export default function OracleGameScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
 
   progressRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',

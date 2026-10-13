@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { supabase } from '../../services/supabase';
 import { OB_BG, GOLD, GOLD_LIGHT, GOLD_DARK, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 export default function BlancMultiFinalScreen({ navigation, route }) {
   const { roomId } = route.params;
@@ -23,7 +24,7 @@ export default function BlancMultiFinalScreen({ navigation, route }) {
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
-        style={Platform.OS === 'web' && { height: '100vh' }}
+        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
       >
         <Text style={styles.title}>🏆 RÉSULTATS FINAUX</Text>
         <Text style={styles.sub}>La partie est terminée !</Text>
@@ -59,7 +60,7 @@ export default function BlancMultiFinalScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll: {
     paddingHorizontal: spacing.lg,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,

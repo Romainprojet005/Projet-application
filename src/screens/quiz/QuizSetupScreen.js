@@ -15,6 +15,7 @@ import { quizCategories, buildQuestions } from '../../data/quizQuestions';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import sansEmoji from '../../utils/sansEmoji';
 import goBackOrMenu from '../../navigation/goBack';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 const ZAPCOLOR  = '#D4AF37';
 const HOT_COLOR = '#EF4444';
 const MIN_PLAYERS = 2;
@@ -75,7 +76,7 @@ export default function QuizSetupScreen({ navigation, route }) {
   }, [replayToken]);
 
   return (
-    <LinearGradient colors={OB_BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+    <LinearGradient colors={OB_BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
       <PageScroll contentContainerStyle={styles.scroll}>
 
         {/* Header */}
@@ -265,7 +266,7 @@ const summaryRowStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll: { paddingBottom: spacing.xl },
 
   header: {

@@ -8,6 +8,7 @@ import { spacing, radius } from '../theme';
 import { OB_BG } from '../theme/obsidian';
 import { characters } from '../data/characters';
 import { BoosterFront } from '../components/BoosterCard';
+import { FULL_HEIGHT } from '../utils/fullHeight';
 
 // Web: inject fonts (partagé avec MenuScreen via même id)
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -488,7 +489,7 @@ const GOLD = '#D4AF37';
 const GOLD_LIGHT = '#F4DC8C';
 
 const st = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   nebula:    { position: 'absolute' },
   content:   {
     flex: 1, alignItems: 'center', justifyContent: 'center',

@@ -8,6 +8,7 @@ import { TRIO_SIZE } from '../../data/lolDraftEngine';
 import { GAME_LIST, getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 
 import goBackOrMenu from '../../navigation/goBack';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 const HEXTECH = '#0AC8B9';
 
 export default function LolSelectSetupScreen({ navigation }) {
@@ -123,7 +124,7 @@ export default function LolSelectSetupScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll:    { paddingBottom: spacing.xl },
 
   header: {

@@ -10,6 +10,7 @@ import { OB_BG } from '../../theme/obsidian';
 import PageScroll from '../../components/PageScroll';
 
 import goBackOrMenu from '../../navigation/goBack';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 const BG         = OB_BG;
 const VOTE_COLOR = '#2F74B5';
 const VOTE_DARK  = '#1B5A97';
@@ -357,7 +358,7 @@ export default function VoteGameScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
 
   // Progress header
   progressWrap: {

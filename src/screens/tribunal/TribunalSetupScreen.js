@@ -8,6 +8,7 @@ import { colors, spacing, radius } from '../../theme';
 import { supabase, isSupabaseConfigured } from '../../services/supabase';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 const BG = OB_BG;
 
 function generateCode() {
@@ -187,7 +188,7 @@ export default function TribunalSetupScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
   backRow: { paddingVertical: 12, paddingRight: 20, marginTop: -12, marginBottom: spacing.lg },
   backText: { color: colors.textMuted, fontSize: 14 },

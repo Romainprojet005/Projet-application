@@ -10,6 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import PageScroll from '../../components/PageScroll';
 import { OB_BG } from '../../theme/obsidian';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const HEXTECH      = '#0AC8B9';
 
@@ -342,7 +343,7 @@ export default function LolTournamentView({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll: { paddingHorizontal: spacing.lg, paddingTop: Platform.OS === 'ios' ? 56 : 36, paddingBottom: 48, flexGrow: 1 },
 
   vsTitle: { fontSize: 20, fontWeight: '900', color: colors.text, letterSpacing: 1.5, textAlign: 'center' },

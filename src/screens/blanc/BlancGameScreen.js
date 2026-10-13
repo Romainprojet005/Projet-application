@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG, GOLD, GOLD_LIGHT, GOLD_DARK, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import { ANSWERS, initCards } from '../../data/blancMangerData';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const PRP       = colors.primary;
 const PRP_LIGHT = colors.primaryLight;
@@ -136,7 +137,7 @@ export default function BlancGameScreen({ navigation, route }) {
         <ScrollView
           contentContainerStyle={styles.resultsScroll}
           showsVerticalScrollIndicator={false}
-          style={Platform.OS === 'web' && { height: '100vh' }}
+          style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
         >
           <Text style={styles.resultsTitle}>🏆 RÉSULTATS FINAUX</Text>
           <Text style={styles.resultsSub}>Qui a fait le plus rire le jury ?</Text>
@@ -422,7 +423,7 @@ export default function BlancGameScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
 
   // Header
   header: {

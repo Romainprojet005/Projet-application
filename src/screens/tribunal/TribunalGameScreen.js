@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { GOLD, GOLD_DARK, GOLD_LIGHT, OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const CRIMSON    = '#EF4444';
 const GREEN      = '#10B981';
@@ -568,7 +569,7 @@ export default function TribunalGameScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll: { padding: spacing.lg, paddingTop: Platform.OS === 'ios' ? 56 : 36, paddingBottom: spacing.xxl },
 
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.md },

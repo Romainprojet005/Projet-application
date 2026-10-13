@@ -13,6 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const BG = OB_BG;
 const ZAPCOLOR = '#1F9E70';
@@ -163,8 +164,8 @@ function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
   const medals = ['🥇', '🥈', '🥉'];
 
   return (
-    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
-      <ScrollView contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={true} style={Platform.OS === 'web' && { flex: 1, height: '100vh' }}>
+    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
+      <ScrollView contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={true} style={Platform.OS === 'web' && { flex: 1, height: FULL_HEIGHT }}>
         <Animated.View style={{ opacity: podiumAnim, transform: [{ scale: podiumAnim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }] }}>
           <Text style={styles.finalEmoji}>✨</Text>
           <Text style={styles.finalTitle}>QUIZ TERMINÉ !</Text>
@@ -341,7 +342,7 @@ export default function QuizGameScreen({ navigation, route }) {
   // --- INTRO phase ---
   if (phase === 'intro') {
     return (
-      <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+      <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
         <Animated.View
           style={[styles.introBox, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
         >
@@ -418,7 +419,7 @@ export default function QuizGameScreen({ navigation, route }) {
   const wasTimeout = selected === -1;
 
   return (
-    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
       {/* Timer bar */}
       <View style={styles.topBar}>
         <Text style={styles.topBarPlayer}>{players[currentPlayer]}</Text>
@@ -431,7 +432,7 @@ export default function QuizGameScreen({ navigation, route }) {
         onExpire={handleTimeout}
       />
 
-      <ScrollView contentContainerStyle={styles.gameScroll} showsVerticalScrollIndicator={true} style={Platform.OS === 'web' && { flex: 1, height: '100vh' }}>
+      <ScrollView contentContainerStyle={styles.gameScroll} showsVerticalScrollIndicator={true} style={Platform.OS === 'web' && { flex: 1, height: FULL_HEIGHT }}>
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 
           {/* Category badge */}
@@ -537,7 +538,7 @@ export default function QuizGameScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
 
   topBar: {
     flexDirection: 'row',

@@ -10,6 +10,7 @@ import { BUZZER_MODES } from '../../data/buzzerQuestions';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import goBackOrMenu from '../../navigation/goBack';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 const BUZZ_COLOR = '#D4AF37';
 const BUZZ_DARK  = '#B8962E';
 const BUZZ_LIGHT = '#F4DC8C';
@@ -156,7 +157,7 @@ export default function BuzzerSetupScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll:    { paddingBottom: spacing.xl },
 
   header: {

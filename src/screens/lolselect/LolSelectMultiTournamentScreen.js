@@ -7,6 +7,7 @@ import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 import { getGame, DEFAULT_GAME_ID } from '../../data/selectGames';
 import LolTournamentView from './LolTournamentView';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const ACCENT = '#1F9E70';
 
@@ -117,7 +118,7 @@ export default function LolSelectMultiTournamentScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   loadingScroll: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
   loadingText: { color: colors.textSecondary, fontSize: 13 },
 });

@@ -8,6 +8,7 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
 import { pickWord } from '../../data/mimeWords';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const PINK = '#D4AF37';
 const PINK_DARK = '#B8962E';
@@ -88,7 +89,7 @@ export default function MimeLobbyScreen({ navigation, route }) {
     <LinearGradient colors={BG} style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scroll}
-        style={Platform.OS === 'web' && { height: '100vh' }}
+        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
       >
         <Text style={styles.title}>SALLE D'ATTENTE</Text>
 
@@ -169,7 +170,7 @@ export default function MimeLobbyScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
   title: { fontSize: 22, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
   codeCard: {

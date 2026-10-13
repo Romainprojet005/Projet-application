@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { DEFI_CATEGORIES, pickDefi, pickConsequence } from '../../data/defisData';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const ACCENT       = '#D0475B';
 const ACCENT_LIGHT = '#FF8A8A';
@@ -208,9 +209,9 @@ export default function DefisGameScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container:   { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container:   { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   fullCenter:  { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl,
-                 ...Platform.select({ web: { height: '100vh' } }) },
+                 ...Platform.select({ web: { height: FULL_HEIGHT } }) },
 
   roundBadge: {
     position: 'absolute', top: Platform.OS === 'ios' ? 60 : 40, right: spacing.xl,

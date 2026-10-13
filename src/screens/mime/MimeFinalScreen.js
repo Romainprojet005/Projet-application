@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const PINK = '#D0475B';
 const PINK_DARK = '#A81F2D';
@@ -33,7 +34,7 @@ export default function MimeFinalScreen({ navigation, route }) {
     <LinearGradient colors={BG} style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scroll}
-        style={Platform.OS === 'web' && { height: '100vh' }}
+        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
       >
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
           <Text style={styles.title}>🎭 FIN DE PARTIE !</Text>
@@ -89,7 +90,7 @@ export default function MimeFinalScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
   title: { fontSize: 28, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: PINK_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
   winnerCard: { borderRadius: radius.xl, overflow: 'hidden', marginBottom: spacing.xl, borderWidth: 1, borderColor: PINK + '55' },

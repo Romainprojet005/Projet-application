@@ -9,6 +9,7 @@ import { supabase } from '../../services/supabase';
 import alerte from '../../utils/alerte';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import { ANSWERS, QUESTIONS, initCards } from '../../data/blancMangerData';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const PRP       = '#D4AF37';
 const PRP_LIGHT = '#E6C766';
@@ -159,7 +160,7 @@ export default function BlancMultiLobbyScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   inner: {
     flex: 1,
     paddingHorizontal: spacing.lg,

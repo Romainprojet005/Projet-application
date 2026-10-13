@@ -10,6 +10,7 @@ import alerte from '../../utils/alerte';
 import { CATEGORIES } from '../../data/blindTestSongs';
 
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 const BEAT       = '#D4AF37';
 const BEAT_DARK  = '#B8962E';
 const BEAT_LIGHT = '#F4DC8C';
@@ -106,7 +107,7 @@ export default function BlindMultiSetupScreen({ navigation }) {
       <ScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
-        style={Platform.OS === 'web' && { height: '100vh' }}
+        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
       >
         <TouchableOpacity style={styles.backRow} onPress={() => navigation.navigate('BlindTestSetup')}>
           <Text style={styles.backText}>← Retour</Text>
@@ -229,7 +230,7 @@ export default function BlindMultiSetupScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
   backRow: { paddingVertical: 12, paddingRight: 20, marginTop: -12, marginBottom: spacing.lg },
   backText: { color: colors.textMuted, fontSize: 14 },

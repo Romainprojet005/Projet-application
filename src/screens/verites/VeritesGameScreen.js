@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { VERITES_PROMPTS, VERITES_HOT_PROMPTS, VERITES_TRES_HOT_PROMPTS, VERITES_HOT_JOKER } from '../../data/veritesVoleesData';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const PROMPTS_BY_MODE = {
   classique: VERITES_PROMPTS,
@@ -403,10 +404,10 @@ export default function VeritesGameScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container:  { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container:  { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   fullCenter: {
     flex: 1, alignItems: 'center', justifyContent: 'center',
-    padding: spacing.xl, ...Platform.select({ web: { height: '100vh' } }),
+    padding: spacing.xl, ...Platform.select({ web: { height: FULL_HEIGHT } }),
   },
   scrollCenter: {
     paddingTop: Platform.OS === 'ios' ? 60 : 40,

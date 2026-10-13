@@ -10,6 +10,7 @@ import { QUESTIONS, ANSWERS } from '../../data/blancMangerData';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 
 import goBackOrMenu from '../../navigation/goBack';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 const PRP       = '#D4AF37';
 const PRP_LIGHT = '#E6C766';
 
@@ -201,7 +202,7 @@ function SummaryRow({ label, value }) {
 }
 
 const styles = StyleSheet.create({
-  container:  { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container:  { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll:     { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
 
   header: {

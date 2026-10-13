@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const VOTE_COLOR = '#2F74B5';
 const VOTE_DARK  = '#1B5A97';
@@ -29,7 +30,7 @@ export default function VoteMultiFinalScreen({ navigation, route }) {
 
   return (
     <LinearGradient colors={BG} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { height: '100vh' }}>
+      <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { height: FULL_HEIGHT }}>
         <Text style={styles.title}>🏆 RÉSULTATS FINAUX</Text>
         <Text style={styles.subtitle}>Vote Majorité Multi-Téléphones</Text>
 
@@ -72,7 +73,7 @@ export default function VoteMultiFinalScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll: { padding: spacing.lg, paddingTop: 60, paddingBottom: spacing.xxl },
   title:    { fontSize: 28, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: VOTE_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xs },
   subtitle: { fontSize: 13, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl },

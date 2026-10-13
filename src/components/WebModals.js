@@ -13,7 +13,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined' && !document.getEle
   st.textContent = `
     .sdl-modal { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center;
       padding: 16px; background: rgba(8,7,15,.78); font-family: 'Outfit', system-ui, sans-serif; color: #F3EEE2; }
-    .sdl-box { position: relative; width: min(100%, 860px); max-height: calc(100vh - 32px); overflow: auto; box-sizing: border-box;
+    .sdl-box { position: relative; width: min(100%, 860px); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow: auto; box-sizing: border-box;
       background: #1A1730; border: 1px solid #2E2A4A; border-radius: 16px; padding: 28px;
       box-shadow: 0 30px 80px -20px #000; }
     .sdl-box.small { width: min(100%, 520px); }

@@ -8,6 +8,7 @@ import { colors, spacing, radius } from '../../theme';
 import { supabase } from '../../services/supabase';
 import { OB_BG, GOLD, GOLD_LIGHT, GOLD_DARK, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import { ANSWERS } from '../../data/blancMangerData';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const PRP       = colors.primary;
 const PRP_LIGHT = colors.primaryLight;
@@ -507,7 +508,7 @@ export default function BlancMultiGameScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
 
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',

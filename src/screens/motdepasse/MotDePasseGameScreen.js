@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { GOLD, GOLD_DARK, GOLD_LIGHT, OB_BG } from '../../theme/obsidian';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const CYAN       = GOLD;
 const CYAN_DARK  = GOLD_DARK;
@@ -27,7 +28,7 @@ function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
   }, []);
 
   return (
-    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
       <ScrollView contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={false}
         style={Platform.OS === 'web' && { flex: 1 }}>
         <Animated.View style={[styles.finalHeader, {
@@ -210,7 +211,7 @@ export default function MotDePasseGameScreen({ navigation, route }) {
   // ── HANDOFF ──────────────────────────────────────────────────────
   if (phase === 'handoff') {
     return (
-      <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+      <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
         <Animated.View style={[styles.handoffBox, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.cancelTop}>
             <Text style={styles.cancelTopText}>✕  Quitter</Text>
@@ -254,7 +255,7 @@ export default function MotDePasseGameScreen({ navigation, route }) {
   // ── PLAYING ──────────────────────────────────────────────────────
   if (phase === 'playing') {
     return (
-      <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+      <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
         {/* Top bar */}
         <View style={styles.topBar}>
           <Text style={[styles.topBarPlayer, { color: CYAN }]}>{players[playerIdx]}</Text>
@@ -322,7 +323,7 @@ export default function MotDePasseGameScreen({ navigation, route }) {
 
   // ── TURN END ─────────────────────────────────────────────────────
   return (
-    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
       <Animated.View style={[styles.turnEndBox, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
         <Text style={styles.turnEndTitle}>⏱️  Fin du tour</Text>
         <Text style={[styles.turnEndPlayer, { color: CYAN }]}>{players[playerIdx]}</Text>
@@ -364,7 +365,7 @@ export default function MotDePasseGameScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
 
   // Handoff
   handoffBox: { flex: 1, paddingTop: Platform.OS === 'ios' ? 56 : 36, paddingHorizontal: spacing.xl, alignItems: 'center' },

@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { pickPromptAndDecoys } from '../../data/quiEstLePlusPrompts';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const ACCENT       = '#2F74B5';
 const ACCENT_LIGHT = '#7CC4FF';
@@ -96,7 +97,7 @@ export default function TriPotesGameScreen({ navigation, route }) {
     return (
       <LinearGradient colors={OB_BG} style={styles.container}>
         <ScrollView contentContainerStyle={styles.finalScroll}
-          style={Platform.OS === 'web' && { height: '100vh' }}>
+          style={Platform.OS === 'web' && { height: FULL_HEIGHT }}>
           <Animated.View style={{ opacity: fadeIn }}>
             <Text style={styles.finalTitle}>🏆 FIN DU JUGEMENT</Text>
             <View style={[styles.winnerCard, { borderColor: ACCENT + '60', backgroundColor: ACCENT + '18' }]}>
@@ -142,7 +143,7 @@ export default function TriPotesGameScreen({ navigation, route }) {
   return (
     <LinearGradient colors={OB_BG} style={styles.container}>
       <ScrollView
-        style={[{ flex: 1 }, Platform.OS === 'web' && { height: '100vh' }]}
+        style={[{ flex: 1 }, Platform.OS === 'web' && { height: FULL_HEIGHT }]}
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
@@ -381,7 +382,7 @@ export default function TriPotesGameScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   scroll: { flexGrow: 1, paddingBottom: 60 },
 
   progressTrack: { height: 3, backgroundColor: colors.border, width: '100%' },

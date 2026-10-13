@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { EMOJI_QUIZ_ITEMS } from '../../data/emojiQuizData';
+import { FULL_HEIGHT } from '../../utils/fullHeight';
 
 const AMB       = '#1F9E70';
 const AMB_DARK  = '#0B6B4A';
@@ -46,7 +47,7 @@ function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
   }, []);
 
   return (
-    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
       <ScrollView contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={false}
         style={Platform.OS === 'web' && { flex: 1 }}>
         <Animated.View style={[styles.finalHeader, { opacity: podiumAnim, transform: [{ scale: podiumAnim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }] }]}>
@@ -239,7 +240,7 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
   // ── INTRO ────────────────────────────────────────────────────────
   if (phase === 'intro') {
     return (
-      <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+      <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
         <Animated.View style={[styles.introBox, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.cancelTop}>
             <Text style={styles.cancelTopText}>✕  Quitter</Text>
@@ -289,7 +290,7 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
   const isMcq    = phase === 'mcq';
 
   return (
-    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: '100vh' }]}>
+    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
       <View style={styles.topBar}>
         <Text style={[styles.topBarPlayer, { color: AMB }]}>{players[currentPlayer]}</Text>
         <Text style={styles.topBarCount}>{qIndex + 1}/{totalQ}</Text>
@@ -480,7 +481,7 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: '100vh' } }) },
+  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
 
   topBar: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
