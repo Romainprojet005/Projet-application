@@ -1004,6 +1004,9 @@ export default function MenuScreen({ navigation }) {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     const onKey = (e) => {
+      // L'accueil reste monté sous les écrans de jeu : sans ce test, Entrée pendant une partie
+      // lançait la carte de l'accueil et faisait quitter le jeu
+      if (!navigation.isFocused()) return;
       if (document.querySelector('.sdl-modal')) return;
       const tag = e.target?.tagName;
       if (tag === 'BUTTON' || tag === 'INPUT' || tag === 'TEXTAREA') return;
