@@ -16,9 +16,28 @@ import { useInstall } from '../utils/appMode';
 import { statutAcces, gratuitsDuJour, PHONE_LABELS } from '../services/acces';
 import { FULL_HEIGHT } from '../utils/fullHeight';
 
-const { width: SW, height: SH } = Dimensions.get('window');
+// Taille de référence de l'écran pour dimensionner les cartes.
+// Web : on mesure 100svh (hauteur visible AVEC les barres du navigateur affichées) plutôt
+// que la hauteur du moment — au rechargement, Brave/Chrome mobile peuvent démarrer barre
+// d'adresse masquée, ce qui donnait des cartes plus grandes que d'habitude.
+function measureScreen() {
+  if (Platform.OS !== 'web' || typeof window === 'undefined' || !document.body) return Dimensions.get('window');
+  let h = window.innerHeight;
+  try {
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:100svh;visibility:hidden;pointer-events:none';
+    document.body.appendChild(probe);
+    const svh = probe.offsetHeight;
+    probe.remove();
+    if (svh > 0) h = Math.min(h, svh);
+  } catch {}
+  return { width: window.innerWidth, height: h };
+}
+
+let { width: SW, height: SH } = measureScreen();
 const N = characters.length;
 
+// Mode mobile / PC fixé au chargement (la mise en page entière en dépend)
 const IS_MOBILE_WEB = Platform.OS === 'web' && SW < 600;
 const IS_DESKTOP_WEB = Platform.OS === 'web' && !IS_MOBILE_WEB;
 
@@ -27,38 +46,47 @@ const IS_DESKTOP_WEB = Platform.OS === 'web' && !IS_MOBILE_WEB;
 // Sur mobile la carte prend ~68 % de la largeur, comme sur la maquette.
 const REFLECT_SHIFT = 0.08;
 // En-tête + titre + familles + fiche du jeu (refonte « écran unique »)
-const STAGE_EST = SH - (IS_MOBILE_WEB ? 330 : 320 + (AD_ENABLED ? 90 : 0));
-const FIT_H = Math.floor((STAGE_EST / 2 - 8) / (0.5 + REFLECT_SHIFT));
-const WEB_H = IS_MOBILE_WEB
-  ? Math.max(220, Math.min(400, FIT_H, Math.round(SW * 0.68 * 310 / 210)))
-  : Math.max(260, Math.min(540, FIT_H, Math.round(SW * 0.26 * 310 / 210)));
-const CARD_W = Platform.OS === 'web' ? Math.round(WEB_H * 210 / 310)
-             : Math.min(SW * 0.75, 300);
-const CARD_H = Platform.OS === 'web' ? WEB_H
-             : Math.min(Math.round(CARD_W * 1.55), SH - 210);
+let CARD_W, CARD_H;
 
-const RADIUS = IS_MOBILE_WEB ? 430
-             : IS_DESKTOP_WEB ? 640
-             : CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15;
+const RADIUS_WEB = IS_MOBILE_WEB ? 430 : 640;
 
 const STEP = (2 * Math.PI) / N;
 // Mobile : il faut glisser ~1,2 largeur de carte pour passer à la suivante
-const DRAG_FACTOR = STEP / (IS_MOBILE_WEB ? CARD_W * 1.2 : CARD_W);
+let DRAG_FACTOR;
 // Vitesse du glissement vers la carte cible (plus petit = plus doux)
 const EASE = IS_MOBILE_WEB ? 0.09 : 0.14;
 
 // Mobile — éventail : chaque carte s'écarte un peu plus que la précédente, toujours dans
 // l'ordre (la n°2 à droite reste plus loin du centre que la n°1).
-const FAN_X1   = CARD_W * 0.78;                       // décalage de la 1re voisine
-const FAN_XN   = CARD_W * 0.5;                        // écart des suivantes
+let FAN_X1, FAN_XN;                                  // décalage de la 1re voisine, écart des suivantes
 const FAN_Z    = 140;                                  // recul par carte (px)
 const FAN_RY   = IS_MOBILE_WEB ? 18 : 24;              // inclinaison des voisines (deg)
 const RING_VIS  = IS_MOBILE_WEB ? 2 : 3;
 // PC : vrai tambour 3D. Les cartes sont posées sur un cylindre (face vers
 // l'extérieur) ; on n'en montre que la moitié avant (≤ ~80°), ce qui garde
 // l'ordre visuel des cartes de gauche à droite.
-const DRUM_R    = CARD_W * 2.6;
+let DRUM_R;
 const DRUM_STEP = 26 * Math.PI / 180;
+
+// (Re)calcule tout ce qui dépend de la taille de l'écran ; renvoie true si la taille des cartes change
+function computeSizes() {
+  ({ width: SW, height: SH } = measureScreen());
+  const STAGE_EST = SH - (IS_MOBILE_WEB ? 330 : 320 + (AD_ENABLED ? 90 : 0));
+  const FIT_H = Math.floor((STAGE_EST / 2 - 8) / (0.5 + REFLECT_SHIFT));
+  const WEB_H = IS_MOBILE_WEB
+    ? Math.max(220, Math.min(400, FIT_H, Math.round(SW * 0.68 * 310 / 210)))
+    : Math.max(260, Math.min(540, FIT_H, Math.round(SW * 0.26 * 310 / 210)));
+  const w = Platform.OS === 'web' ? Math.round(WEB_H * 210 / 310) : Math.min(SW * 0.75, 300);
+  const h = Platform.OS === 'web' ? WEB_H : Math.min(Math.round(w * 1.55), SH - 210);
+  const changed = w !== CARD_W || h !== CARD_H;
+  CARD_W = w; CARD_H = h;
+  DRAG_FACTOR = STEP / (IS_MOBILE_WEB ? CARD_W * 1.2 : CARD_W);
+  FAN_X1 = CARD_W * 0.78;
+  FAN_XN = CARD_W * 0.5;
+  DRUM_R = CARD_W * 2.6;
+  return changed;
+}
+computeSizes();
 
 // ── Calcul position d'une carte ──────────────────────────────────────
 function cardPos(rot, i) {
@@ -105,7 +133,7 @@ function cardPos(rot, i) {
   const sc = 0.28 + 0.72 * t;
   const op = 0.18 + 0.82 * t;
   return {
-    x: RADIUS * sinA, z: 0, depth: cosA, sc, op,
+    x: (Platform.OS === 'web' ? RADIUS_WEB : CARD_W / (2 * Math.tan(Math.PI / N)) * 1.15) * sinA, z: 0, depth: cosA, sc, op,
     ry: alpha * 180 / Math.PI,
   };
 }
@@ -842,6 +870,28 @@ export default function MenuScreen({ navigation }) {
   const [flipped, setFlipped]     = useState({});
   const [modal, setModal]         = useState(null); // { type: 'offres', game } | { type: 'idee' }
   const install = useInstall();
+
+  // Web : si la fenêtre change de taille (rotation, barre du navigateur, fenêtre PC
+  // redimensionnée…), on recalcule la taille des cartes au lieu de garder celle du chargement
+  const [sizeVersion, setSizeVersion] = useState(0);
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    let timer;
+    const onResize = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => { if (computeSizes()) setSizeVersion(v => v + 1); }, 120);
+    };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('pageshow', onResize);
+    window.visualViewport?.addEventListener('resize', onResize);
+    onResize(); // re-mesure une fois la page affichée (la mesure du chargement peut être fausse)
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('pageshow', onResize);
+      window.visualViewport?.removeEventListener('resize', onResize);
+    };
+  }, []);
   const gratuits = useMemo(() => gratuitsDuJour(), []);
   const acces = (c) => statutAcces(c, gratuits);
 
@@ -1070,8 +1120,8 @@ export default function MenuScreen({ navigation }) {
         el.style.marginTop  = `-${CARD_H / 2 + Math.round(CARD_H * REFLECT_SHIFT)}px`;
       }
     });
-    updateCarousel(0);
-  }, [updateCarousel]);
+    updateCarousel(rotRef.current);
+  }, [updateCarousel, sizeVersion]);
 
   // ── Animations ───────────────────────────────────────────────────
   useEffect(() => {
