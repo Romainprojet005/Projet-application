@@ -269,7 +269,7 @@ export default function MimeGameScreen({ navigation, route }) {
       </View>
 
       <ScrollView
-        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
+        style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
       >

@@ -63,7 +63,7 @@ export default function LolSelectMultiLobbyScreen({ navigation, route }) {
 
   return (
     <LinearGradient colors={OB_BG} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { height: FULL_HEIGHT }}>
+      <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}>
         <Text style={styles.title}>SALLE D'ATTENTE</Text>
 
         <View style={styles.codeCard}>

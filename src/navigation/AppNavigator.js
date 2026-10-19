@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import GameSkin from '../components/GameSkin';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -177,7 +178,11 @@ export default function AppNavigator() {
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
-          cardStyle: { backgroundColor: '#0E0C1A' },
+          // Web : chaque écran prend exactement la hauteur de la fenêtre et fait défiler
+          // son propre contenu. Sans ça, React Navigation laisse l'écran grandir pour que
+          // la page entière défile — or #root est en overflow: hidden (anti-zoom/rebond),
+          // donc le bas des écrans longs était coupé et impossible à atteindre.
+          cardStyle: { backgroundColor: '#0E0C1A', ...Platform.select({ web: { flex: 1, minHeight: 0 } }) },
           gestureEnabled: true,
         }}
       >

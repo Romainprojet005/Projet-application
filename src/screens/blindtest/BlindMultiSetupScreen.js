@@ -107,7 +107,7 @@ export default function BlindMultiSetupScreen({ navigation }) {
       <ScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
-        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
+        style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
       >
         <TouchableOpacity style={styles.backRow} onPress={() => navigation.navigate('BlindTestSetup')}>
           <Text style={styles.backText}>← Retour</Text>

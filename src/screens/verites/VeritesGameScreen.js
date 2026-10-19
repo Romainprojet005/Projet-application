@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   container:  { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   fullCenter: {
     flex: 1, alignItems: 'center', justifyContent: 'center',
-    padding: spacing.xl, ...Platform.select({ web: { height: FULL_HEIGHT } }),
+    padding: spacing.xl, ...Platform.select({ web: { height: FULL_HEIGHT, overflowY: 'auto', justifyContent: 'safe center' } }),
   },
   scrollCenter: {
     paddingTop: Platform.OS === 'ios' ? 60 : 40,

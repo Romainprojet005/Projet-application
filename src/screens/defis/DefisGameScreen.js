@@ -211,7 +211,7 @@ export default function DefisGameScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container:   { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
   fullCenter:  { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl,
-                 ...Platform.select({ web: { height: FULL_HEIGHT } }) },
+                 ...Platform.select({ web: { height: FULL_HEIGHT, overflowY: 'auto', justifyContent: 'safe center' } }) },
 
   roundBadge: {
     position: 'absolute', top: Platform.OS === 'ios' ? 60 : 40, right: spacing.xl,

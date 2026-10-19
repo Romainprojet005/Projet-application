@@ -273,7 +273,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
     const sorted = [...players].sort((a, b) => b.score - a.score);
     return (
       <LinearGradient colors={BG} style={styles.container}>
-        <ScrollView contentContainerStyle={styles.finalScroll} style={Platform.OS === 'web' && { height: FULL_HEIGHT }}>
+        <ScrollView contentContainerStyle={styles.finalScroll} style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}>
           <Text style={styles.finalTitle}>🏆 RÉSULTATS FINAUX</Text>
           <Text style={styles.finalSub}>Blind Test Multi-Téléphones</Text>
           {sorted[0] && (
@@ -315,7 +315,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
       </View>
 
       <ScrollView
-        style={[styles.inner, Platform.OS === 'web' && { height: FULL_HEIGHT }]}
+        style={[styles.inner, Platform.OS === 'web' && { flex: 1, minHeight: 0 }]}
         contentContainerStyle={styles.innerContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}

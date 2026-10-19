@@ -30,7 +30,7 @@ export default function VoteMultiFinalScreen({ navigation, route }) {
 
   return (
     <LinearGradient colors={BG} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { height: FULL_HEIGHT }}>
+      <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}>
         <Text style={styles.title}>🏆 RÉSULTATS FINAUX</Text>
         <Text style={styles.subtitle}>Vote Majorité Multi-Téléphones</Text>
 

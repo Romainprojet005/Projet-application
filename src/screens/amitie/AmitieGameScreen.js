@@ -293,7 +293,7 @@ function ResultsScreen({ players, scores, rounds, mode, navigation, route }) {
       <ScrollView
         contentContainerStyle={styles.resultsScroll}
         showsVerticalScrollIndicator={false}
-        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
+        style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
       >
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
           {/* Compatibility score */}

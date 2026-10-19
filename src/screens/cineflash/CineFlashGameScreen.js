@@ -221,7 +221,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
         <ScrollView
           contentContainerStyle={styles.finalScroll}
           showsVerticalScrollIndicator={false}
-          style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
+          style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
         >
           {/* Score global */}
           <View style={styles.compatCard}>
@@ -304,7 +304,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
       </View>
 
       <ScrollView
-        style={[styles.innerScroll, Platform.OS === 'web' && { height: FULL_HEIGHT }]}
+        style={[styles.innerScroll, Platform.OS === 'web' && { flex: 1, minHeight: 0 }]}
         contentContainerStyle={styles.inner}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"

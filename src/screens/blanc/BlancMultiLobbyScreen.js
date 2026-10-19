@@ -166,6 +166,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: Platform.OS === 'ios' ? 56 : 36,
     paddingBottom: spacing.xl,
+    ...Platform.select({ web: { minHeight: 0, overflowY: 'auto' } }),
   },
 
   quitBtn:  { alignSelf: 'flex-start', marginBottom: spacing.lg },

@@ -283,7 +283,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
         <ScrollView
           contentContainerStyle={styles.finalScroll}
           showsVerticalScrollIndicator={false}
-          style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
+          style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
         >
           <View style={styles.compatCard}>
             <LinearGradient colors={[`${BEAT}30`, `${BEAT}18`]} style={styles.compatInner}>
@@ -355,7 +355,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
       </View>
 
       <ScrollView
-        style={[styles.innerScroll, Platform.OS === 'web' && { height: FULL_HEIGHT }]}
+        style={[styles.innerScroll, Platform.OS === 'web' && { flex: 1, minHeight: 0 }]}
         contentContainerStyle={styles.inner}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"

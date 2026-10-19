@@ -24,7 +24,7 @@ export default function BlancMultiFinalScreen({ navigation, route }) {
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
-        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
+        style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
       >
         <Text style={styles.title}>🏆 RÉSULTATS FINAUX</Text>
         <Text style={styles.sub}>La partie est terminée !</Text>

@@ -478,6 +478,7 @@ const styles = StyleSheet.create({
   finalContainer: {
     flex: 1, alignItems: 'center', justifyContent: 'center',
     padding: spacing.xl,
+    ...Platform.select({ web: { minHeight: 0, overflowY: 'auto', justifyContent: 'safe center' } }),
   },
   finalTitle: { fontSize: 36, fontWeight: '900', color: '#fff', letterSpacing: 4, marginBottom: 4 },
   finalSub:   { fontSize: 13, color: BUZZ_LIGHT, marginBottom: spacing.xl },

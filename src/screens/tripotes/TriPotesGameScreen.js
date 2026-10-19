@@ -97,7 +97,7 @@ export default function TriPotesGameScreen({ navigation, route }) {
     return (
       <LinearGradient colors={OB_BG} style={styles.container}>
         <ScrollView contentContainerStyle={styles.finalScroll}
-          style={Platform.OS === 'web' && { height: FULL_HEIGHT }}>
+          style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}>
           <Animated.View style={{ opacity: fadeIn }}>
             <Text style={styles.finalTitle}>🏆 FIN DU JUGEMENT</Text>
             <View style={[styles.winnerCard, { borderColor: ACCENT + '60', backgroundColor: ACCENT + '18' }]}>
@@ -143,7 +143,7 @@ export default function TriPotesGameScreen({ navigation, route }) {
   return (
     <LinearGradient colors={OB_BG} style={styles.container}>
       <ScrollView
-        style={[{ flex: 1 }, Platform.OS === 'web' && { height: FULL_HEIGHT }]}
+        style={[{ flex: 1 }, Platform.OS === 'web' && { flex: 1, minHeight: 0 }]}
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >

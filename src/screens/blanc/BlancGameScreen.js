@@ -137,7 +137,7 @@ export default function BlancGameScreen({ navigation, route }) {
         <ScrollView
           contentContainerStyle={styles.resultsScroll}
           showsVerticalScrollIndicator={false}
-          style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
+          style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
         >
           <Text style={styles.resultsTitle}>🏆 RÉSULTATS FINAUX</Text>
           <Text style={styles.resultsSub}>Qui a fait le plus rire le jury ?</Text>

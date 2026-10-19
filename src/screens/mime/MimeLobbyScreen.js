@@ -89,7 +89,7 @@ export default function MimeLobbyScreen({ navigation, route }) {
     <LinearGradient colors={BG} style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scroll}
-        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
+        style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
       >
         <Text style={styles.title}>SALLE D'ATTENTE</Text>
 

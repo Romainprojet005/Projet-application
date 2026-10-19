@@ -224,7 +224,7 @@ export default function VoteMultiGameScreen({ navigation, route }) {
 
   return (
     <LinearGradient colors={BG} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { height: FULL_HEIGHT }}>
+      <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}>
 
         <View style={styles.header}>
           <Text style={styles.qCount}>

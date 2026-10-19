@@ -235,7 +235,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
       </View>
 
       <ScrollView
-        style={[styles.innerScroll, Platform.OS === 'web' && { height: FULL_HEIGHT }]}
+        style={[styles.innerScroll, Platform.OS === 'web' && { flex: 1, minHeight: 0 }]}
         contentContainerStyle={styles.inner}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -444,7 +444,7 @@ function ResultsScreen({ players, scores, rounds, navigation }) {
       <ScrollView
         contentContainerStyle={styles.resultsScroll}
         showsVerticalScrollIndicator={false}
-        style={Platform.OS === 'web' && { height: FULL_HEIGHT }}
+        style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
       >
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
           {/* Global score */}
