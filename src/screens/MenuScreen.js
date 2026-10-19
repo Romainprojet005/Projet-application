@@ -11,7 +11,8 @@ import { OB_BG } from '../theme/obsidian';
 import { characters } from '../data/characters';
 import AdBanner, { AD_ENABLED } from '../components/AdBanner';
 import { BoosterFront, BoosterBack, FamilyEmblem, FAMILIES, familyOf, PhoneIcon, LockIcon } from '../components/BoosterCard';
-import { OffresModal, IdeeModal, CodeModal } from '../components/WebModals';
+import { OffresModal, IdeeModal, CodeModal, InstallModal } from '../components/WebModals';
+import { useInstall } from '../utils/appMode';
 import { statutAcces, gratuitsDuJour, PHONE_LABELS } from '../services/acces';
 import { FULL_HEIGHT } from '../utils/fullHeight';
 
@@ -266,6 +267,9 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-play { width: auto; min-width: 200px; padding: 0 26px; white-space: nowrap; height: 46px; margin-top: 0; }
         .sdl-meta-hint { flex-basis: 100%; text-align: center; }
       }
+      @media (max-width: 359px) {
+        .sdl-install { display: none; }
+      }
       @media (max-width: 600px) {
         /* Bouton éco en haut à droite pour ne pas couvrir le bouton JOUER */
         .sdl-eco-btn.sdl-eco-top { bottom: auto; top: 16px; right: 16px; }
@@ -275,6 +279,8 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-top-btn { min-height: 36px; padding: 6px 12px; font-size: 13px; }
         .sdl-lg { display: none; }
         .sdl-sm { display: inline; }
+        .sdl-install { padding: 6px 9px; }
+        .sdl-install svg { display: block; }
         .sdl-logo-main { font-size: 16px; }
         .sdl-chip-phone { display: none; }
         .sdl-hero { gap: 8px; padding-top: 10px; }
@@ -823,6 +829,7 @@ export default function MenuScreen({ navigation }) {
   const [positions, setPositions] = useState(() => computePositions(0));
   const [flipped, setFlipped]     = useState({});
   const [modal, setModal]         = useState(null); // { type: 'offres', game } | { type: 'idee' }
+  const install = useInstall();
   const gratuits = useMemo(() => gratuitsDuJour(), []);
   const acces = (c) => statutAcces(c, gratuits);
 
@@ -1156,6 +1163,12 @@ export default function MenuScreen({ navigation }) {
                   {characters.filter(c => c.available).length} jeux · 2 à 12 joueurs
                 </span>
                 <button className="sdl-top-btn" onClick={() => setModal({ type: 'idee' })}><span className="sdl-lg">Proposer un jeu</span><span className="sdl-sm">Idée</span></button>
+                {install.show && (
+                  <button className="sdl-top-btn sdl-install" aria-label="Installer l'appli" onClick={() => (install.ios ? setModal({ type: 'install' }) : install.install())}>
+                    <span className="sdl-lg">Installer</span>
+                    <svg className="sdl-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>
+                  </button>
+                )}
                 <button className="sdl-top-btn gold" onClick={() => setModal({ type: 'offres', game: null })}>Offres</button>
               </div>
             </div>
@@ -1356,6 +1369,9 @@ export default function MenuScreen({ navigation }) {
       )}
       {Platform.OS === 'web' && modal?.type === 'code' && (
         <CodeModal onClose={() => setModal(null)} onUnlock={() => setFlipped(f => ({ ...f }))} />
+      )}
+      {Platform.OS === 'web' && modal?.type === 'install' && (
+        <InstallModal onClose={() => setModal(null)} />
       )}
       {Platform.OS === 'web' && modal?.type === 'idee' && (
         <IdeeModal onClose={() => setModal(null)} />

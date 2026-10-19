@@ -30,6 +30,20 @@ const spaScript = `
   </script>`;
 html = html.replace('<script', spaScript + '\n  <script');
 
+// Mode hors ligne (dist/sw.js, généré par scripts/build-sw.js) + appli plein écran
+// une fois ajoutée à l'écran d'accueil de l'iPhone.
+const appHead = `
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="Légendes" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });
+    }
+  </script>`;
+html = html.replace('</head>', appHead + '\n</head>');
+
 fs.writeFileSync(htmlPath, html, 'utf8');
 console.log('Patched dist/index.html (no-zoom + SPA redirect)');
 

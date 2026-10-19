@@ -202,4 +202,22 @@ export function CodeModal({ onClose, onUnlock }) {
   );
 }
 
+// iPhone/iPad : Safari n'a pas de bouton d'installation, on explique la marche à suivre.
+export function InstallModal({ onClose }) {
+  return (
+    <Modal onClose={onClose} small label="Installer l'appli">
+      <span className="sdl-kick">Appli</span>
+      <h2 className="sdl-mh">Installer sur l’iPhone</h2>
+      <p className="sdl-mp">
+        1. Touchez <strong>Partager</strong> (le carré avec une flèche vers le haut) dans Safari.<br />
+        2. Choisissez <strong>Sur l’écran d’accueil</strong>, puis <strong>Ajouter</strong>.
+      </p>
+      <p className="sdl-mp" style={{ marginTop: 12 }}>
+        Les jeux s’ouvrent alors en plein écran, sans barre d’adresse, et restent jouables si le réseau coupe.
+      </p>
+      <div style={{ marginTop: 20 }}><button className="sdl-btn or" onClick={onClose}>Compris</button></div>
+    </Modal>
+  );
+}
+
 export { LockIcon };
