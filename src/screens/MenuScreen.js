@@ -266,7 +266,10 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         padding: 12px 16px 14px; text-align: center; background: transparent; }
       .sdl-info-kicker { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 500;
         letter-spacing: .2em; text-transform: uppercase; color: #E6C766; }
-      .sdl-info-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: inherit; gap: 8px; }
+      /* Toujours sur une seule ligne : une étiquette en plus (18+…) ne doit pas agrandir le panneau */
+      .sdl-info-line { display: flex; flex-wrap: nowrap; align-items: center; justify-content: inherit; gap: 8px; max-width: 100%; min-width: 0; }
+      .sdl-info-kicker { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .sdl-info-fam, .sdl-info-age, .sdl-info-tag { flex: none; white-space: nowrap; }
       .sdl-info-fam { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 6px; border-radius: 6px;
         font-family: 'Outfit', system-ui, sans-serif; font-size: 12px; font-weight: 500; }
       .sdl-info-fam svg { width: 13px; height: 13px; }
@@ -1380,7 +1383,7 @@ export default function MenuScreen({ navigation }) {
                 <span className="sdl-info-fam" style={{ color: fam.color, background: fam.veil }}>
                   <FamilyEmblem family={c.family} size="13px" />{fam.label}
                 </span>
-                {c.adult && <span className="sdl-info-age">18+ ou sans alcool</span>}
+                {c.adult && <span className="sdl-info-age" title="18+ ou version sans alcool"><span className="sdl-lg">18+ ou sans alcool</span><span className="sdl-sm">18+</span></span>}
                 {(() => {
                   const st = acces(c);
                   if (st === 'libre') return null;
