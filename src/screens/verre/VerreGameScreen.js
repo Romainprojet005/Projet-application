@@ -8,6 +8,7 @@ import { colors, spacing, radius } from '../../theme';
 import { OB_BG } from '../../theme/obsidian';
 import { randomTours, dealCards, START_GLASS, FILL_STEP } from '../../data/verreData';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
+import VerreTable from './VerreTable';
 
 const ACCENT       = '#7E62E0';
 const ACCENT_LIGHT = '#B9A2FF';
@@ -77,19 +78,20 @@ export default function VerreGameScreen({ route, navigation }) {
     setPhase('drink');
   };
 
+  // Chaque joueur qui passe remplit le verre d'une gorgée
   const handlePass = () => {
     const nextPasses  = passesThisLap + 1;
     const nextTurnPos = (turnPos + 1) % turnOrder.length;
+    const newGlass    = glass + FILL_STEP;
 
     if (nextTurnPos !== 0) {
+      setGlass(newGlass);
       setPassesThisLap(nextPasses);
       setTurnPos(nextTurnPos);
       return;
     }
 
     // Un tour complet vient de se terminer
-    const lapFilled       = nextPasses === turnOrder.length;
-    const newGlass        = lapFilled ? glass + FILL_STEP : glass;
     const newLapsCompleted = lapsCompleted + 1;
 
     if (newLapsCompleted >= toursMax) {
@@ -212,34 +214,19 @@ export default function VerreGameScreen({ route, navigation }) {
       <LinearGradient colors={OB_BG} style={styles.fullCenter}>
         <Text style={styles.roundBadge}>Manche {mancheIdx} · Tour {Math.min(lapsCompleted + 1, toursMax)}/{toursMax}</Text>
 
-        <View style={styles.glassZone}>
-          <Text style={styles.glassEmoji}>🥂</Text>
-          <Text style={styles.glassValue}>{glass}</Text>
-          <Text style={styles.glassLabel}>gorgée{glass > 1 ? 's' : ''} sur la table</Text>
-        </View>
+        <Text style={styles.tableTurn}>Au tour de <Text style={styles.tableTurnName}>{activePlayer}</Text></Text>
 
-        <Text style={styles.turnLabel}>Au tour de</Text>
-        <Text style={styles.turnName}>{activePlayer}</Text>
-
-        <View style={styles.actionCol}>
-          <TouchableOpacity onPress={handleDrinkSelf} style={styles.drinkBtn} activeOpacity={0.85}>
-            <LinearGradient colors={['#EF4444', '#B91C1C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.drinkInner}>
-              <Text style={styles.drinkBtnText}>🍺  Boire le verre ({glass})</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          {alive.length > 1 && (
-            <TouchableOpacity onPress={openChallenge} style={styles.challengeBtn} activeOpacity={0.85}>
-              <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.drinkInner}>
-                <Text style={styles.drinkBtnText}>⚔️  Challenger</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          )}
-
-          <TouchableOpacity onPress={handlePass} style={styles.passBtn} activeOpacity={0.82}>
-            <Text style={styles.passBtnText}>➡️  Passer</Text>
-          </TouchableOpacity>
-        </View>
+        <VerreTable
+          playerNames={playerNames}
+          alive={alive}
+          activeIdx={activePlayerIdx}
+          glass={glass}
+          totalSips={totalSips}
+          canChallenge={alive.length > 1}
+          onChallenge={openChallenge}
+          onDrink={handleDrinkSelf}
+          onPass={handlePass}
+        />
 
         <Text style={styles.lapHint}>{passesThisLap} / {turnOrder.length} joueurs ont passé ce tour-ci</Text>
         {isElim ? (
@@ -454,7 +441,7 @@ export default function VerreGameScreen({ route, navigation }) {
             <Text style={styles.finalName}>
               {name}{isElim && eliminated.includes(playerNames.indexOf(name)) ? ' 💀' : ''}
             </Text>
-            <Text style={styles.finalSips}>{totalSips[name]} 🥃</Text>
+            <Text style={styles.finalSips}>🍺 {totalSips[name]}</Text>
           </View>
         ))}
 
@@ -509,28 +496,13 @@ const styles = StyleSheet.create({
   peekNextBtnText: { color: colors.text, fontSize: 15, fontWeight: '700' },
 
   // TABLE
-  glassZone: { alignItems: 'center', marginBottom: spacing.xl },
-  glassEmoji: { fontSize: 52 },
-  glassValue: { fontSize: 44, fontWeight: '900', color: GOLD, marginTop: spacing.xs },
-  glassLabel: { fontSize: 13, color: colors.textMuted },
-
+  tableTurn: { fontSize: 15, color: colors.textSecondary, marginTop: 28, marginBottom: 2, textAlign: 'center' },
+  tableTurnName: { fontSize: 20, fontWeight: '900', color: GOLD },
   turnLabel: { fontSize: 14, color: colors.textSecondary, marginBottom: spacing.xs, textAlign: 'center' },
-  turnName:  { fontSize: 30, fontWeight: '900', color: colors.text, marginBottom: spacing.xl, textAlign: 'center' },
 
-  actionCol: { width: '100%', maxWidth: 340, gap: spacing.sm },
-  drinkBtn: { borderRadius: radius.lg, overflow: 'hidden' },
-  challengeBtn: { borderRadius: radius.lg, overflow: 'hidden' },
-  drinkInner: { paddingVertical: spacing.md, alignItems: 'center' },
-  drinkBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
-  passBtn: {
-    paddingVertical: spacing.md, borderRadius: radius.lg, alignItems: 'center',
-    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
-  },
-  passBtnText: { color: colors.text, fontSize: 15, fontWeight: '700' },
-
-  lapHint: { fontSize: 12, color: colors.textMuted, marginTop: spacing.lg, fontStyle: 'italic' },
+  lapHint: { fontSize: 12, color: colors.textMuted, marginTop: spacing.xs, fontStyle: 'italic' },
   warnHint: { fontSize: 11, color: colors.textMuted, marginTop: spacing.xs, textAlign: 'center', maxWidth: 300 },
-  endGameLink: { marginTop: spacing.lg, paddingVertical: spacing.sm },
+  endGameLink: { marginTop: spacing.sm, paddingVertical: spacing.sm },
   endGameLinkText: { color: colors.textMuted, fontSize: 12, fontWeight: '600', textDecorationLine: 'underline' },
 
   // CHALLENGE TARGET

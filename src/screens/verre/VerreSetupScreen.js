@@ -69,7 +69,7 @@ export default function VerreSetupScreen({ navigation }) {
             <Text style={styles.rulesLine}>À ton tour : <Text style={styles.rulesAccent}>bois le verre</Text>, <Text style={styles.rulesAccent}>passe</Text>, ou <Text style={styles.rulesAccent}>challenge</Text> un joueur</Text>
             <Text style={styles.rulesLine}>Si tu challenges, parie que ta carte est <Text style={styles.rulesAccent}>plus haute</Text> ou <Text style={styles.rulesAccent}>plus basse</Text></Text>
             <Text style={styles.rulesLine}>Si un joueur boit (ou perd un duel), <Text style={styles.rulesAccent}>la manche se termine</Text> et de nouvelles cartes sont distribuées</Text>
-            <Text style={styles.rulesLine}>Si tout le monde passe, le verre <Text style={styles.rulesAccent}>se remplit encore un peu</Text></Text>
+            <Text style={styles.rulesLine}>Chaque fois qu'un joueur passe, le verre <Text style={styles.rulesAccent}>se remplit d'une gorgée</Text></Text>
             <Text style={styles.rulesLine}>Un nombre de tours est <Text style={styles.rulesAccent}>tiré au sort</Text> à chaque manche ({MIN_TOURS}-{MAX_TOURS})</Text>
             <Text style={styles.rulesLine}>Si personne n'a bu au bout de ces tours, les cartes sont <Text style={styles.rulesAccent}>révélées</Text> et la <Text style={styles.rulesAccent}>plus petite carte boit le verre</Text></Text>
             {mode === 'battleRoyale' ? (
