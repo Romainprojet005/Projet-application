@@ -3,6 +3,10 @@ import { Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import GameSkin from '../components/GameSkin';
 import HomeButton from '../components/HomeButton';
+import { SCREEN_ENTER } from '../components/SiteAnimations';
+
+// Fondu d'entrée des écrans (web), sauf si l'appareil demande moins d'animations
+const REDUCED_MOTION = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 import { createStackNavigator } from '@react-navigation/stack';
 import { characters } from '../data/characters';
 import { HOME_TITLE, gamePath, gameTitle } from '../data/seo';
@@ -185,7 +189,7 @@ export default function AppNavigator() {
           // son propre contenu. Sans ça, React Navigation laisse l'écran grandir pour que
           // la page entière défile — or #root est en overflow: hidden (anti-zoom/rebond),
           // donc le bas des écrans longs était coupé et impossible à atteindre.
-          cardStyle: { backgroundColor: '#0E0C1A', ...Platform.select({ web: { flex: 1, minHeight: 0 } }) },
+          cardStyle: { backgroundColor: '#0E0C1A', ...Platform.select({ web: { flex: 1, minHeight: 0, ...(REDUCED_MOTION ? null : SCREEN_ENTER) } }) },
           gestureEnabled: true,
         }}
       >

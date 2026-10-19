@@ -14,7 +14,7 @@ export default function PageScroll({ children, contentContainerStyle, keyboardSh
       }}>
         {/* View et non <div> : le style est un style React Native (paddingHorizontal,
             flex en colonne, gap…) qu'une simple balise HTML ne comprend pas */}
-        <View style={[{ flexGrow: 1 }, contentContainerStyle]}>
+        <View style={[{ flexGrow: 1 }, contentContainerStyle]} dataSet={{ anim: 'rise' }}>
           {children}
         </View>
       </div>
