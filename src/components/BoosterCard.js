@@ -126,6 +126,8 @@ if (Platform.OS === 'web' && typeof document !== 'undefined' && !document.getEle
       align-items: center; justify-content: center; z-index: 5; }
     .bc-soon span { font-size: 1em; letter-spacing: .3em; color: #F3EEE2;
       border: 1px solid #6B6590; padding: .6em 1.4em; border-radius: 99em; background: #08070F; }
+    .bc-build { background: repeating-linear-gradient(-45deg, rgba(8,7,15,.82) 0 18px, rgba(212,175,55,.16) 18px 36px); }
+    .bc-build span { text-align: center; line-height: 1.6; letter-spacing: .22em; border-color: #D4AF37; color: #E6C766; border-radius: 1em; }
   `;
   document.head.appendChild(st);
 }
@@ -144,7 +146,7 @@ function titleSize(name = '') {
   return longest > 10 ? { fontSize: `${Math.max(1.4, 2.05 * 10 / longest).toFixed(2)}em` } : undefined;
 }
 
-export function BoosterFront({ character, idx, width, className = '', locked = false }) {
+export function BoosterFront({ character, idx, width, className = '', locked = false, building = false }) {
   const n = String(idx + 1).padStart(2, '0');
   const fam = familyOf(character);
   const mode = character.phones || 'one';
@@ -167,6 +169,7 @@ export function BoosterFront({ character, idx, width, className = '', locked = f
       <span className="bc-meta">{character.players || '2–12'} joueurs · {character.time || '15 min'}</span>
       <span className="bc-phones"><PhoneIcon mode={mode} />{mode === 'both' ? '1 ou + téléphones' : PHONE_LABELS[mode]}</span>
       {!character.available && <div className="bc-soon"><span>BIENTÔT</span></div>}
+      {character.available && building && <div className="bc-soon bc-build"><span>🚧<br />EN CONSTRUCTION</span></div>}
     </div>
   );
 }

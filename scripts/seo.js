@@ -72,7 +72,9 @@ const indexPath = path.join(dist, 'index.html');
 const base = fs.readFileSync(indexPath, 'utf8');
 
 // ── Accueil ──
-const gameLinks = characters
+// Jeux « en construction » : ni listés sur l'accueil, ni dans le plan du site
+const visibles = characters.filter((c) => !c.construction);
+const gameLinks = visibles
   .map((c) => `<li><a href="/${gamePath(c)}/">${esc(gameLabel(c))}</a> — ${esc(c.description)}</li>`)
   .join('\n        ');
 
@@ -120,7 +122,7 @@ for (const c of characters) {
     body: `<h1>${esc(gameLabel(c))} — ${esc(c.title)}</h1>
       <p>${esc(c.description)}</p>
       <p>${esc(c.players)} joueurs · ${esc(c.time)}</p>
-      <p><a href="/">Voir les 22 jeux de ${esc(SITE_NAME)}</a></p>`,
+      <p><a href="/">Voir les ${visibles.length} jeux de ${esc(SITE_NAME)}</a></p>`,
   }), 'utf8');
 }
 
@@ -129,7 +131,7 @@ fs.writeFileSync(path.join(dist, 'robots.txt'),
   `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`, 'utf8');
 
 const today = new Date().toISOString().slice(0, 10);
-const urls = [`${SITE_URL}/`, ...characters.map((c) => `${SITE_URL}/${gamePath(c)}/`)];
+const urls = [`${SITE_URL}/`, ...visibles.map((c) => `${SITE_URL}/${gamePath(c)}/`)];
 fs.writeFileSync(path.join(dist, 'sitemap.xml'),
   '<?xml version="1.0" encoding="UTF-8"?>\n' +
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +

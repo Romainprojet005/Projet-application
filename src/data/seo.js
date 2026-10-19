@@ -5,10 +5,10 @@ export const SITE_URL = 'https://soireedeslegendes.com';
 
 export const SITE_NAME = 'La Soirée des Légendes';
 
-export const HOME_TITLE = 'La Soirée des Légendes — 22 jeux de soirée entre amis sur téléphone';
+export const HOME_TITLE = 'La Soirée des Légendes — 19 jeux de soirée entre amis sur téléphone';
 
 export const HOME_DESCRIPTION =
-  "22 jeux de soirée à jouer entre amis sur un seul téléphone : Undercover, blind test, quiz, mime, " +
+  "19 jeux de soirée à jouer entre amis sur un seul téléphone : Undercover, blind test, quiz, mime, " +
   'confessions, défis… De 2 à 12 joueurs, directement dans le navigateur, sans application à installer.';
 
 // Chemin du jeu dans l'URL : identique à son écran de paramétrage dans AppNavigator (linking).

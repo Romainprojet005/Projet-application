@@ -13,7 +13,7 @@ import AdBanner, { AD_ENABLED } from '../components/AdBanner';
 import { BoosterFront, BoosterBack, FamilyEmblem, FAMILIES, familyOf, PhoneIcon, LockIcon } from '../components/BoosterCard';
 import { OffresModal, IdeeModal, CodeModal } from '../components/WebModals';
 import { useInstall } from '../utils/appMode';
-import { statutAcces, gratuitsDuJour, PHONE_LABELS } from '../services/acces';
+import { statutAcces, gratuitsDuJour, PHONE_LABELS, enConstruction } from '../services/acces';
 import { FULL_HEIGHT } from '../utils/fullHeight';
 
 // Taille de référence de l'écran pour dimensionner les cartes.
@@ -1091,7 +1091,7 @@ export default function MenuScreen({ navigation }) {
       }
       if (e.key === 'Enter') {
         const frontChar = characters[getFrontIdx(rotRef.current)];
-        if (frontChar?.available) handleSelectGameRef.current?.(frontChar);
+        if (frontChar?.available && !enConstruction(frontChar)) handleSelectGameRef.current?.(frontChar);
       }
     };
     window.addEventListener('keydown', onKey);
@@ -1160,6 +1160,7 @@ export default function MenuScreen({ navigation }) {
   }, [activeIdx]);
 
   const handleSelectGame = (character) => {
+    if (enConstruction(character)) return;
     const routes = {
       undercover: 'UndercoverSetup', quiz: 'QuizSetup', amitie: 'AmitieSetup',
       personality: 'PersonalitySetup', cineflash: 'CineFlashSetup', emojiquiz: 'EmojiQuizSetup',
@@ -1231,7 +1232,7 @@ export default function MenuScreen({ navigation }) {
               </div>
               <div className="sdl-top-actions">
                 <span className="sdl-top-count">
-                  {characters.filter(c => c.available).length} jeux · 2 à 12 joueurs
+                  {characters.filter(c => c.available && !enConstruction(c)).length} jeux · 2 à 12 joueurs
                 </span>
                 <button className="sdl-top-btn" onClick={() => setModal({ type: 'idee' })}><span className="sdl-lg">Proposer un jeu</span><span className="sdl-sm">Idée</span></button>
                 {install.show && (
@@ -1273,7 +1274,7 @@ export default function MenuScreen({ navigation }) {
             </View>
           </Animated.View>
           <Animated.Text style={[s.countLine, { opacity: headerAnim }]}>
-            {characters.filter(c => c.available).length} jeux disponibles
+            {characters.filter(c => c.available && !enConstruction(c)).length} jeux disponibles
           </Animated.Text>
         </>
       )}
@@ -1304,7 +1305,7 @@ export default function MenuScreen({ navigation }) {
                   role="button"
                   aria-label={`${char.gameName} — ${char.title}`}
                 >
-                  <BoosterFront character={char} idx={i} width={CARD_W} className="sdl-front" locked={acces(char) === 'verrouille'} />
+                  <BoosterFront character={char} idx={i} width={CARD_W} className="sdl-front" locked={acces(char) === 'verrouille'} building={enConstruction(char)} />
                   <BoosterBack character={char} idx={i} width={CARD_W} className="sdl-back-face" />
                 </div>
               </div>
@@ -1403,13 +1404,14 @@ export default function MenuScreen({ navigation }) {
             </div>
             <button
               className="sdl-play"
-              disabled={!c.available}
+              disabled={!c.available || enConstruction(c)}
               onClick={() => {
                 const target = characters[getFrontIdx(targetRef.current)] ?? c;
-                if (target.available) handleSelectGame(target);
+                if (target.available && !enConstruction(target)) handleSelectGame(target);
               }}
             >
               {!c.available ? 'Bientôt'
+                : enConstruction(c) ? '🚧 En construction'
                 : acces(c) === 'verrouille' ? <><LockIcon size="15px" />Débloquer</>
                 : '▶  Jouer'}
             </button>

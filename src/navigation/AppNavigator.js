@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import GameSkin from '../components/GameSkin';
+import GameSkin, { gameForRoute } from '../components/GameSkin';
+import { enConstruction } from '../services/acces';
 import HomeButton from '../components/HomeButton';
 import { SCREEN_ENTER } from '../components/SiteAnimations';
 
@@ -175,6 +176,11 @@ export default function AppNavigator() {
   const prevRoute = React.useRef(null);
   const syncRoute = () => {
     const route = navRef.current?.getCurrentRoute() ?? null;
+    // Jeu « en construction » ouvert par son adresse (lien, favori…) sans le code : retour au menu
+    if (route && enConstruction(gameForRoute(route.name))) {
+      navRef.current?.reset({ index: 0, routes: [{ name: 'Menu' }] });
+      return;
+    }
     if (route?.key !== prevRoute.current?.key) trackRouteChange(prevRoute.current, route, linking.config.screens);
     prevRoute.current = route;
     setRouteName(route?.name ?? null);

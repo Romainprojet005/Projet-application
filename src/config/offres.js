@@ -25,7 +25,7 @@ export const OFFRES = [
     titre: 'Pass Soirée',
     prix: '2,99 €',
     duree: '24 h',
-    detail: 'Les 22 jeux débloqués pendant 24 heures.',
+    detail: 'Tous les jeux débloqués pendant 24 heures.',
     recommande: true,
     lien: '',
   },

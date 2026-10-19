@@ -206,7 +206,7 @@ function Fan({ desktop }) {
 }
 
 function WelcomeWeb({ onStart }) {
-  const nGames = characters.filter(c => c.available).length;
+  const nGames = characters.filter(c => c.available && !c.construction).length;
   if (IS_MOBILE_WEB) {
     return (
       <div className="sdl-wl m">

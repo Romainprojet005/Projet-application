@@ -39,6 +39,7 @@ export const characters = [
     players: '2–8',
     time: '10 min',
     available: true,
+    construction: true, // masqué : accessible seulement après le code d'accès (logo du menu)
     stats: {
       Culture: 95,
       Mémoire: 88,
@@ -223,6 +224,7 @@ export const characters = [
     players: '3–10',
     time: '15 min',
     available: true,
+    construction: true, // masqué : accessible seulement après le code d'accès (logo du menu)
     stats: {
       Rapidité: 99,
       Réflexes: 97,
@@ -499,6 +501,7 @@ export const characters = [
     players: '1+',
     time: '15 min',
     available: true,
+    construction: true, // masqué : accessible seulement après le code d'accès (logo du menu)
     stats: {
       Stratégie: 97,
       Culture: 93,

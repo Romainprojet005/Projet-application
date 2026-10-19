@@ -86,6 +86,9 @@ export async function verifierCode(code) {
   }
 }
 
+// Jeux « en construction » : verrouillés tant que le code d'accès n'a pas été saisi sur cet appareil
+export const enConstruction = (c) => !!c?.construction && !lire().code;
+
 // Statut d'accès d'un jeu :
 //  'libre'    → cadenas désactivé (PAYWALL_ACTIF = false)
 //  'multi'    → toujours gratuit (multi-téléphones)
