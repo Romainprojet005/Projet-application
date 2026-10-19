@@ -233,7 +233,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
 
       /* Panneau d'infos sous le carrousel */
       .sdl-info { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px;
-        padding: 12px 16px 14px; text-align: center; background: #1A1730; border-top: 1px solid #2E2A4A; }
+        padding: 12px 16px 14px; text-align: center; background: transparent; }
       .sdl-info-kicker { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 500;
         letter-spacing: .2em; text-transform: uppercase; color: #E6C766; }
       .sdl-info-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: inherit; gap: 8px; }
@@ -249,12 +249,12 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       .sdl-info-chips { display: flex; gap: 8px; }
       .sdl-info-chip { font-family: 'Outfit', system-ui, sans-serif; padding: 8px 12px; border-radius: 6px;
         border: 1px solid #2E2A4A; font-size: 14px; font-weight: 500; color: #F3EEE2; }
-      .sdl-play { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        width: min(100%, 340px); height: 48px; margin-top: 4px; border: 0; border-radius: 99px;
-        background: #D4AF37; color: #1A1408;
-        font-family: 'Outfit', system-ui, sans-serif; font-weight: 600; font-size: 16px; letter-spacing: .04em;
-        cursor: pointer; box-shadow: 0 0 0 1px rgba(212,175,55,.5), 0 10px 30px -8px rgba(212,175,55,.4);
-        transition: transform .15s, background .15s; }
+      /* Bouton Jouer : discret et toujours de la même taille, quel que soit le jeu ou le libellé */
+      .sdl-play { display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex: none;
+        width: 168px; height: 40px; margin-top: 4px; padding: 0 12px; box-sizing: border-box; border: 0; border-radius: 99px;
+        background: #D4AF37; color: #1A1408; white-space: nowrap; overflow: hidden;
+        font-family: 'Outfit', system-ui, sans-serif; font-weight: 600; font-size: 15px; letter-spacing: .04em;
+        cursor: pointer; transition: transform .15s, background .15s; }
       .sdl-play:hover { transform: translateY(-1px); background: #E0BD4C; }
       .sdl-play:disabled { opacity: .45; cursor: default; transform: none; }
       .sdl-info-head { display: flex; flex-direction: column; align-items: center; gap: inherit; }
@@ -264,7 +264,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
           column-gap: 32px; row-gap: 6px; padding: 14px 24px 12px; }
         .sdl-info-head { align-items: flex-start; text-align: left; gap: 4px; flex: 0 1 560px; min-width: 0; }
         .sdl-info-line { justify-content: flex-start; }
-        .sdl-play { width: auto; min-width: 200px; padding: 0 26px; white-space: nowrap; height: 46px; margin-top: 0; }
+        .sdl-play { margin-top: 0; }
         .sdl-meta-hint { flex-basis: 100%; text-align: center; }
       }
       @media (max-width: 359px) {
@@ -290,7 +290,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-info-desc { display: none; }
         .sdl-info-kicker { font-size: 10.5px; }
         .sdl-info-chip { padding: 4px 10px; font-size: 12px; }
-        .sdl-play { height: 46px; font-size: 15px; margin-top: 2px; }
+        .sdl-play { margin-top: 2px; }
         .sdl-dots { padding: 4px 0 4px; gap: 6px; }
         .sdl-dot { height: 5px; }
       }
@@ -1342,7 +1342,7 @@ export default function MenuScreen({ navigation }) {
               }}
             >
               {!c.available ? 'Bientôt'
-                : acces(c) === 'verrouille' ? <><LockIcon size="16px" />Débloquer · dès 0,99 €</>
+                : acces(c) === 'verrouille' ? <><LockIcon size="15px" />Débloquer</>
                 : '▶  Jouer'}
             </button>
             <span className="sdl-meta-hint">
