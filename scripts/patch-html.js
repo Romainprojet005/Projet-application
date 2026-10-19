@@ -13,7 +13,10 @@ html = html.replace(
 // Also inject touch-action CSS to block double-tap zoom
 html = html.replace(
   '</style>',
-  '      * { touch-action: manipulation; }\n      #root { overflow: hidden; }\n      #root > div { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }\n    </style>'
+  '      * { touch-action: manipulation; }\n      #root { overflow: hidden; }\n      #root > div { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }\n' +
+  // iPhone : un champ de saisie sous 16 px fait zoomer la page au toucher, et elle reste
+  // zoomée (cartes du menu trop grandes au retour). L'appli Google ignore maximum-scale=1.
+  '      @supports (-webkit-touch-callout: none) { input, textarea, select { font-size: 16px !important; } }\n    </style>'
 );
 
 // Inject SPA redirect handler: restores path encoded by 404.html

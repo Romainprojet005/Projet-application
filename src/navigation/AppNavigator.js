@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import GameSkin from '../components/GameSkin';
+import HomeButton from '../components/HomeButton';
 import { createStackNavigator } from '@react-navigation/stack';
 import { characters } from '../data/characters';
 import { HOME_TITLE, gamePath, gameTitle } from '../data/seo';
@@ -255,6 +256,7 @@ export default function AppNavigator() {
         <Stack.Screen name="LolSelectMultiTournament" component={LolSelectMultiTournamentScreen} />
       </Stack.Navigator>
       <GameSkin routeName={routeName} />
+      <HomeButton routeName={routeName} onHome={() => navRef.current?.navigate('Menu')} />
     </NavigationContainer>
   );
 }

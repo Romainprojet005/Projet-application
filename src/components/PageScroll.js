@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Platform } from 'react-native';
+import { ScrollView, View, Platform } from 'react-native';
 import { FULL_HEIGHT } from '../utils/fullHeight';
 
 export default function PageScroll({ children, contentContainerStyle, keyboardShouldPersistTaps, ...props }) {
@@ -12,9 +12,11 @@ export default function PageScroll({ children, contentContainerStyle, keyboardSh
         display: 'flex',
         flexDirection: 'column',
       }}>
-        <div style={contentContainerStyle}>
+        {/* View et non <div> : le style est un style React Native (paddingHorizontal,
+            flex en colonne, gap…) qu'une simple balise HTML ne comprend pas */}
+        <View style={[{ flexGrow: 1 }, contentContainerStyle]}>
           {children}
-        </div>
+        </View>
       </div>
     );
   }
