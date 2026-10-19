@@ -25,7 +25,9 @@ const page = (slug, title, description, body) => `<!DOCTYPE html>
 <meta name="description" content="${description}" />
 <link rel="canonical" href="${URL}/${slug}/" />
 <meta name="theme-color" content="#0E0C1A" />
-<link rel="icon" type="image/png" href="/favicon.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 <style>
   :root { --bg: #0E0C1A; --card: #16132A; --line: #2A2545; --text: #F3EEE2; --muted: #A9A3BF; --gold: #D4AF37; --gold-l: #E6C766; }
   * { box-sizing: border-box; }

@@ -32,7 +32,7 @@ const fonts = walk(path.join(dist, 'assets')).filter((p) =>
   p.endsWith('.ttf') && FONTS.some((f) => path.basename(p).startsWith(f + '.')));
 
 const precache = [
-  '/', '/manifest.webmanifest', '/favicon.png', '/app-icon.png', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png',
+  '/', '/manifest.webmanifest', '/favicon.png', '/favicon-32.png', '/favicon-48.png', '/app-icon.png', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png',
   ...code.map(url), ...fonts.map(url),
 ];
 

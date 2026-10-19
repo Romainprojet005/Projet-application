@@ -11,7 +11,7 @@ import { OB_BG } from '../theme/obsidian';
 import { characters } from '../data/characters';
 import AdBanner, { AD_ENABLED } from '../components/AdBanner';
 import { BoosterFront, BoosterBack, FamilyEmblem, FAMILIES, familyOf, PhoneIcon, LockIcon } from '../components/BoosterCard';
-import { OffresModal, IdeeModal, CodeModal, InstallModal } from '../components/WebModals';
+import { OffresModal, IdeeModal, CodeModal } from '../components/WebModals';
 import { useInstall } from '../utils/appMode';
 import { statutAcces, gratuitsDuJour, PHONE_LABELS } from '../services/acces';
 import { FULL_HEIGHT } from '../utils/fullHeight';
@@ -193,10 +193,12 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         gap: 12px; padding: 14px 24px; border-bottom: 1px solid #2E2A4A; background: #0E0C1A; }
       .sdl-logo { display: flex; flex-direction: column; line-height: 1; text-decoration: none; color: #F3EEE2; }
       .sdl-logo-main { font-family: 'Bodoni Moda', Didot, Georgia, serif; font-weight: 700; font-size: 18px; letter-spacing: .06em; }
-      .sdl-logo-crown { color: #D4AF37; margin-right: 6px; padding: 0; border: 0; background: none; font: inherit; cursor: pointer; }
-      .sdl-logo-crown:focus-visible { outline: 2px solid #F4DC8C; outline-offset: 2px; }
+      .sdl-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .sdl-logo-img { flex: none; display: block; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 9px; }
+      .sdl-logo-img img { display: block; width: 34px; height: 34px; border-radius: 9px; box-shadow: 0 0 0 1px rgba(212,175,55,.35); }
+      .sdl-logo-img:focus-visible { outline: 2px solid #F4DC8C; outline-offset: 2px; }
       .sdl-logo-sub { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: .3em;
-        text-transform: uppercase; color: #A9A3BF; margin: 4px 0 0 24px; }
+        text-transform: uppercase; color: #A9A3BF; margin: 4px 0 0 1px; }
       .sdl-top-actions { display: flex; align-items: center; gap: 10px; }
       .sdl-top-count { margin-right: 10px; }
       .sdl-top-btn { min-height: 40px; box-sizing: border-box; padding: 8px 16px; border-radius: 99px; cursor: pointer;
@@ -269,6 +271,10 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       }
       @media (max-width: 359px) {
         .sdl-install { display: none; }
+        .sdl-brand { gap: 6px !important; }
+        .sdl-logo-img, .sdl-logo-img img { width: 26px !important; height: 26px !important; }
+        .sdl-logo-main { font-size: 14px !important; }
+        .sdl-logo-sub { font-size: 8px !important; letter-spacing: .18em !important; }
       }
       @media (max-width: 600px) {
         /* Bouton éco en haut à droite pour ne pas couvrir le bouton JOUER */
@@ -282,6 +288,9 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-install { padding: 6px 9px; }
         .sdl-install svg { display: block; }
         .sdl-logo-main { font-size: 16px; }
+        .sdl-brand { gap: 8px; }
+        .sdl-logo-img, .sdl-logo-img img { width: 30px; height: 30px; border-radius: 8px; }
+        .sdl-logo-sub { letter-spacing: .24em; }
         .sdl-chip-phone { display: none; }
         .sdl-hero { gap: 8px; padding-top: 10px; }
         .sdl-fam { min-height: 32px; padding: 4px 11px 4px 8px; font-size: 13px; }
@@ -1157,9 +1166,15 @@ export default function MenuScreen({ navigation }) {
         return (
           <>
             <div className="sdl-top">
-              <div className="sdl-logo" aria-label="La Soirée des Légendes">
-                <span className="sdl-logo-main"><button className="sdl-logo-crown" aria-label="Code d'accès" onClick={() => setModal({ type: 'code' })}>♛</button>LA SOIRÉE</span>
-                <span className="sdl-logo-sub">des légendes</span>
+              <div className="sdl-brand">
+                {/* Le logo sert aussi d'accès discret à la saisie du code (ex-couronne ♛) */}
+                <button className="sdl-logo-img" aria-label="Code d'accès" onClick={() => setModal({ type: 'code' })}>
+                  <img src="/icon-192.png" alt="" width="34" height="34" />
+                </button>
+                <div className="sdl-logo" aria-label="La Soirée des Légendes">
+                  <span className="sdl-logo-main">LA SOIRÉE</span>
+                  <span className="sdl-logo-sub">des légendes</span>
+                </div>
               </div>
               <div className="sdl-top-actions">
                 <span className="sdl-top-count">
@@ -1167,7 +1182,7 @@ export default function MenuScreen({ navigation }) {
                 </span>
                 <button className="sdl-top-btn" onClick={() => setModal({ type: 'idee' })}><span className="sdl-lg">Proposer un jeu</span><span className="sdl-sm">Idée</span></button>
                 {install.show && (
-                  <button className="sdl-top-btn sdl-install" aria-label="Installer l'appli" onClick={() => (install.ios ? setModal({ type: 'install' }) : install.install())}>
+                  <button className="sdl-top-btn sdl-install" aria-label="Installer l'appli" onClick={install.install}>
                     <span className="sdl-lg">Installer</span>
                     <svg className="sdl-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>
                   </button>
@@ -1375,9 +1390,6 @@ export default function MenuScreen({ navigation }) {
       )}
       {Platform.OS === 'web' && modal?.type === 'code' && (
         <CodeModal onClose={() => setModal(null)} onUnlock={() => setFlipped(f => ({ ...f }))} />
-      )}
-      {Platform.OS === 'web' && modal?.type === 'install' && (
-        <InstallModal onClose={() => setModal(null)} />
       )}
       {Platform.OS === 'web' && modal?.type === 'idee' && (
         <IdeeModal onClose={() => setModal(null)} />

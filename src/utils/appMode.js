@@ -12,10 +12,6 @@ export const isInstalled = () => isWeb && (
   || window.navigator.standalone === true
 );
 
-// iPhone/iPad : pas d'installation automatique, il faut passer par « Partager → Sur l'écran d'accueil ».
-export const isIos = () => isWeb && /iPhone|iPad|iPod/.test(navigator.userAgent)
-  || (isWeb && navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
 // ── Plein écran pendant les parties ──
 // Le navigateur n'accepte le plein écran qu'après un geste du joueur : en entrant dans
 // une partie on « arme » la demande, qui part au toucher suivant. Si le joueur quitte le
@@ -67,7 +63,8 @@ if (isWeb) {
   });
 }
 
-// { show, ios, install } — show : afficher le bouton ; ios : expliquer la marche à suivre.
+// { show, install } — le bouton n'apparaît que là où le navigateur sait installer tout seul
+// (Android, Chrome/Edge sur ordinateur). Sur iPhone, rien : l'ajout à l'écran d'accueil y est manuel.
 export function useInstall() {
   const [, refresh] = useState(0);
   useEffect(() => {
@@ -75,10 +72,8 @@ export function useInstall() {
     subscribers.add(fn);
     return () => subscribers.delete(fn);
   }, []);
-  const ios = isIos() && !isInstalled();
   return {
-    show: !!deferredPrompt || ios,
-    ios,
+    show: !!deferredPrompt,
     install: async () => {
       if (!deferredPrompt) return false;
       deferredPrompt.prompt();

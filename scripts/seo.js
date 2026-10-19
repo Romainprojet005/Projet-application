@@ -33,8 +33,10 @@ function head({ title, description, url, jsonLd }) {
     <meta name="description" content="${esc(description)}" />
     <link rel="canonical" href="${url}" />
     <meta name="theme-color" content="#0E0C1A" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="${esc(SITE_NAME)}" />
@@ -154,8 +156,13 @@ fs.writeFileSync(path.join(dist, 'manifest.webmanifest'), JSON.stringify({
 }, null, 2), 'utf8');
 
 const assets = path.join(root, 'assets');
-fs.copyFileSync(path.join(assets, 'icon.png'), path.join(dist, 'favicon.png'));
-fs.copyFileSync(path.join(assets, 'icon.png'), path.join(dist, 'apple-touch-icon.png'));
+// Icônes d'onglet aux tailles attendues (Google : multiple de 48 px ; iPhone : 180 px).
+// favicon.ico : demandé d'office par certains navigateurs (le PNG y est accepté).
+fs.copyFileSync(path.join(assets, 'icon-48.png'), path.join(dist, 'favicon.png'));
+fs.copyFileSync(path.join(assets, 'icon-48.png'), path.join(dist, 'favicon.ico'));
+fs.copyFileSync(path.join(assets, 'icon-32.png'), path.join(dist, 'favicon-32.png'));
+fs.copyFileSync(path.join(assets, 'icon-48.png'), path.join(dist, 'favicon-48.png'));
+fs.copyFileSync(path.join(assets, 'icon-180.png'), path.join(dist, 'apple-touch-icon.png'));
 fs.copyFileSync(path.join(assets, 'icon.png'), path.join(dist, 'app-icon.png'));
 fs.copyFileSync(path.join(assets, 'icon-192.png'), path.join(dist, 'icon-192.png'));
 fs.copyFileSync(path.join(assets, 'icon-512.png'), path.join(dist, 'icon-512.png'));
