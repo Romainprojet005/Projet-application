@@ -143,13 +143,22 @@ fs.writeFileSync(path.join(dist, 'manifest.webmanifest'), JSON.stringify({
   display: 'standalone',
   background_color: '#0E0C1A',
   theme_color: '#0E0C1A',
-  icons: [{ src: '/app-icon.png', sizes: '1024x1024', type: 'image/png' }],
+  // Chrome (Android) exige des icônes 192 et 512 px pour proposer l'installation
+  id: '/',
+  scope: '/',
+  icons: [
+    { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+    { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+    { src: '/app-icon.png', sizes: '1024x1024', type: 'image/png', purpose: 'any' },
+  ],
 }, null, 2), 'utf8');
 
 const assets = path.join(root, 'assets');
 fs.copyFileSync(path.join(assets, 'icon.png'), path.join(dist, 'favicon.png'));
 fs.copyFileSync(path.join(assets, 'icon.png'), path.join(dist, 'apple-touch-icon.png'));
 fs.copyFileSync(path.join(assets, 'icon.png'), path.join(dist, 'app-icon.png'));
+fs.copyFileSync(path.join(assets, 'icon-192.png'), path.join(dist, 'icon-192.png'));
+fs.copyFileSync(path.join(assets, 'icon-512.png'), path.join(dist, 'icon-512.png'));
 fs.copyFileSync(path.join(assets, 'og-image.png'), path.join(dist, 'og-image.png'));
 
 console.log(`SEO : accueil + ${characters.length} pages de jeux, robots.txt, sitemap.xml, manifest`);

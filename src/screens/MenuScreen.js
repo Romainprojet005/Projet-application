@@ -485,6 +485,9 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         font-family:'JetBrains Mono','Courier New',monospace;
         font-size:10px; letter-spacing:1.5px; color:rgba(255,255,255,.32);
       }
+      .sdl-legal { font-size:11px; color:rgba(255,255,255,.32); }
+      .sdl-legal a { color:rgba(255,255,255,.5); text-decoration:none; }
+      .sdl-legal a:hover, .sdl-legal a:focus-visible { color:#E6C766; text-decoration:underline; }
 
       @media (max-width: 768px) {
         .sdl-nav-prev { left: 8px; }
@@ -1346,6 +1349,9 @@ export default function MenuScreen({ navigation }) {
               {IS_MOBILE_WEB
                 ? 'glissez pour changer · touchez la carte pour la retourner'
                 : 'cliquer la carte pour la retourner · ← → pour naviguer · entrée pour jouer'}
+            </span>
+            <span className="sdl-legal">
+              <a href="/mentions-legales/">Mentions légales</a> · <a href="/confidentialite/">Confidentialité</a>
             </span>
           </div>
         );

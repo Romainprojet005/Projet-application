@@ -52,6 +52,15 @@ if (Platform.OS === 'web' && typeof document !== 'undefined' && !document.getEle
     .sdl-field textarea { min-height: 120px; resize: vertical; }
     .sdl-msg { font-size: 14px; line-height: 20px; padding: 10px 12px; border-radius: 8px; }
     .sdl-msg.err { color: #FF8A8A; border: 1px solid #FF8A8A; }
+    .sdl-steps { margin: 18px 0 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 14px; }
+    .sdl-steps li { position: relative; padding-left: 40px; font-size: 15px; line-height: 22px; counter-increment: s; }
+    .sdl-steps li::before { content: counter(s); position: absolute; left: 0; top: -2px; width: 28px; height: 28px; border-radius: 50%;
+      background: #D4AF37; color: #1A1408; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+    .sdl-steps strong { color: #F3EEE2; }
+    .sdl-ico { display: inline-block; vertical-align: -3px; color: #4DA3FF; }
+    .sdl-tip { display: block; margin-top: 4px; font-size: 13px; line-height: 19px; color: #A9A3BF; }
+    .sdl-copy { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+    .sdl-copy code { padding: 10px 12px; border-radius: 8px; background: #0E0C1A; border: 1px solid #2E2A4A; font-size: 14px; }
     @media (max-width: 600px) { .sdl-box { padding: 22px 18px; } .sdl-mh { font-size: 24px; } }
   `;
   document.head.appendChild(st);
@@ -163,6 +172,9 @@ export function IdeeModal({ onClose }) {
         <label className="sdl-field"><span>Prénom ou email <em>(facultatif, pour vous recontacter)</em></span>
           <input value={form.contact} onChange={set('contact')} maxLength={120} />
         </label>
+        <p className="sdl-note" style={{ textAlign: 'left', margin: 0 }}>
+          Votre idée est conservée 2 ans au maximum. <a href="/confidentialite/" target="_blank" rel="noopener" style={{ color: '#E6C766' }}>Confidentialité</a>
+        </p>
         {etat === 'erreur' && <div className="sdl-msg err" role="alert">L’envoi n’a pas fonctionné. Réessayez dans un instant.</div>}
         <div><button className="sdl-btn or" type="submit" disabled={etat === 'envoi'}>
           {etat === 'envoi' ? 'Envoi…' : 'Envoyer mon idée'}
@@ -202,20 +214,76 @@ export function CodeModal({ onClose, onUnlock }) {
   );
 }
 
-// iPhone/iPad : Safari n'a pas de bouton d'installation, on explique la marche à suivre.
+// iPhone/iPad : aucun navigateur n'a de bouton d'installation, et le plein écran n'existe
+// que pour le site ajouté à l'écran d'accueil. On guide pas à pas, selon le navigateur.
+const ShareIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="sdl-ico">
+    <path d="M12 3v12M8 7l4-4 4 4" /><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" />
+  </svg>
+);
+const AddIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="sdl-ico">
+    <rect x="4" y="4" width="16" height="16" rx="3" /><path d="M12 8v8M8 12h8" />
+  </svg>
+);
+
+function iosBrowser() {
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  if (/CriOS/.test(ua)) return 'chrome';
+  if (/GSA\/|FxiOS|EdgiOS|OPiOS|DuckDuckGo|Instagram|FBAN|FBAV/.test(ua)) return 'autre';
+  return 'safari';
+}
+
 export function InstallModal({ onClose }) {
+  const browser = iosBrowser();
+  const [copie, setCopie] = useState(false);
+  const lien = typeof window !== 'undefined' ? window.location.origin + '/' : 'https://soireedeslegendes.com/';
+  const copier = async () => {
+    try { await navigator.clipboard.writeText(lien); setCopie(true); } catch { setCopie(false); }
+  };
+
   return (
     <Modal onClose={onClose} small label="Installer l'appli">
-      <span className="sdl-kick">Appli</span>
-      <h2 className="sdl-mh">Installer sur l’iPhone</h2>
+      <span className="sdl-kick">Appli · plein écran</span>
+      <h2 className="sdl-mh">Ajouter à l’écran d’accueil</h2>
       <p className="sdl-mp">
-        1. Touchez <strong>Partager</strong> (le carré avec une flèche vers le haut) dans Safari.<br />
-        2. Choisissez <strong>Sur l’écran d’accueil</strong>, puis <strong>Ajouter</strong>.
+        Sur iPhone, c’est le seul moyen de jouer <strong>en plein écran, sans barre d’adresse</strong>.
+        Le site s’ouvre ensuite comme une vraie appli, avec son icône.
       </p>
-      <p className="sdl-mp" style={{ marginTop: 12 }}>
-        Les jeux s’ouvrent alors en plein écran, sans barre d’adresse, et restent jouables si le réseau coupe.
-      </p>
-      <div style={{ marginTop: 20 }}><button className="sdl-btn or" onClick={onClose}>Compris</button></div>
+
+      {browser === 'autre' ? (
+        <>
+          <ol className="sdl-steps">
+            <li>Cette appli ne permet pas d’ajouter un site à l’écran d’accueil : il faut passer par <strong>Safari</strong>.</li>
+            <li>Copiez le lien ci-dessous, ouvrez <strong>Safari</strong>, collez-le dans la barre d’adresse.</li>
+            <li>Touchez à nouveau <strong>Installer</strong> sur le site : les étapes pour Safari s’afficheront.</li>
+          </ol>
+          <div className="sdl-copy">
+            <code>{lien.replace('https://', '')}</code>
+            <button className="sdl-btn or" onClick={copier}>{copie ? 'Lien copié ✓' : 'Copier le lien'}</button>
+          </div>
+        </>
+      ) : (
+        <ol className="sdl-steps">
+          {browser === 'chrome' ? (
+            <li>Touchez <strong>Partager</strong> <ShareIcon /> à droite de la barre d’adresse, en haut de l’écran.</li>
+          ) : (
+            <li>
+              Touchez <strong>Partager</strong> <ShareIcon /> dans la barre en bas de l’écran.
+              <span className="sdl-tip">Vous ne le voyez pas ? Touchez d’abord <strong>•••</strong> en bas à droite, ou faites
+              défiler la page vers le haut pour faire réapparaître la barre.</span>
+            </li>
+          )}
+          <li>
+            Faites défiler la liste et touchez <strong>Sur l’écran d’accueil</strong> <AddIcon />.
+            <span className="sdl-tip">Pas dans la liste ? Touchez <strong>Afficher plus</strong> ou <strong>Modifier les actions</strong>.</span>
+          </li>
+          <li>Touchez <strong>Ajouter</strong>, en haut à droite.</li>
+          <li>Lancez <strong>Légendes</strong> depuis l’icône de votre écran d’accueil.</li>
+        </ol>
+      )}
+
+      <div style={{ marginTop: 20 }}><button className="sdl-btn" onClick={onClose}>Fermer</button></div>
     </Modal>
   );
 }
