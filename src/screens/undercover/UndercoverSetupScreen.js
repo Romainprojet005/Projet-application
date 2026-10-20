@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { wordThemes, generateRandomPair } from '../../data/wordLists';
 import sansEmoji from '../../utils/sansEmoji';
 import goBackOrMenu from '../../navigation/goBack';
-import { SetupLayout, Section, ChoiceChips, StepperRow, ToggleRow, Panel, T, F } from '../../components/game/Legende';
+import { SetupLayout, Section, ChoiceChips, StepperRow, ToggleRow, Panel, PlayerEditor, T, F } from '../../components/game/Legende';
 
 // Persiste en mémoire tant que l'app n'est pas fermée
 const usedPairsPerTheme = {};
@@ -12,22 +12,28 @@ const MIN_PLAYERS = 3;
 const MAX_PLAYERS = 12;
 
 export default function UndercoverSetupScreen({ navigation, route }) {
-  const [playerCount, setPlayerCount] = useState(5);
+  const [nbSansNoms, setNbSansNoms] = useState(5);
+  const [noms, setNoms] = useState([]);
   const [undercoverCount, setUndercoverCount] = useState(1);
   const [hasMrWhite, setHasMrWhite] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState('classique');
 
-  const maxUndercover = Math.max(1, Math.floor(playerCount / 3));
+  // Prénoms facultatifs : s'il y en a, ils fixent le nombre de joueurs ; sinon « Joueur 1, 2… »
+  const nomsValides = noms.map((n) => n.trim()).filter(Boolean);
+  const avecNoms = nomsValides.length > 0;
+  const playerCount = avecNoms ? nomsValides.length : nbSansNoms;
+  const uniques = new Set(nomsValides.map((n) => n.toLowerCase())).size === nomsValides.length;
+  const canStart = playerCount >= MIN_PLAYERS && uniques;
 
-  const changePlayers = (next) => {
-    setPlayerCount(next);
-    const nextMaxUC = Math.max(1, Math.floor(next / 3));
-    if (undercoverCount > nextMaxUC) setUndercoverCount(nextMaxUC);
-  };
+  const maxUndercover = Math.max(1, Math.floor(playerCount / 3));
+  useEffect(() => {
+    if (undercoverCount > maxUndercover) setUndercoverCount(maxUndercover);
+  }, [maxUndercover]);
 
   const civilianCount = playerCount - undercoverCount - (hasMrWhite ? 1 : 0);
 
   const handleStart = () => {
+    if (!canStart) return;
     let randomPair;
 
     if (selectedTheme === 'aleatoire') {
@@ -52,6 +58,7 @@ export default function UndercoverSetupScreen({ navigation, route }) {
 
     navigation.navigate('UndercoverDistribute', {
       playerCount,
+      playerNames: avecNoms ? nomsValides : null,
       wordPair: randomPair,
       undercoverCount,
       hasMrWhite,
@@ -76,7 +83,10 @@ export default function UndercoverSetupScreen({ navigation, route }) {
       onBack={() => goBackOrMenu(navigation)}
       onStart={handleStart}
       startLabel="Lancer la mission"
-      note={`${civilianCount} villageois · ${undercoverCount} espion${undercoverCount > 1 ? 's' : ''}${hasMrWhite ? ' · 1 Monsieur Blanc' : ''}`}
+      canStart={canStart}
+      note={avecNoms && playerCount < MIN_PLAYERS ? `Ajoutez au moins ${MIN_PLAYERS} joueurs, ou effacez les prénoms.`
+        : !uniques ? 'Deux joueurs ont le même prénom : ajoutez une initiale.'
+        : `${civilianCount} villageois · ${undercoverCount} espion${undercoverCount > 1 ? 's' : ''}${hasMrWhite ? ' · 1 Monsieur Blanc' : ''}`}
       rules={[
         'Chaque joueur découvre son mot en secret. Les villageois ont tous le même ; les espions en ont un proche.',
         'Monsieur Blanc, s’il est en jeu, n’a aucun mot : il écoute et bluffe.',
@@ -86,10 +96,15 @@ export default function UndercoverSetupScreen({ navigation, route }) {
       ]}
     >
       <Section label="Équipe">
-        <StepperRow label="Joueurs" hint={`De ${MIN_PLAYERS} à ${MAX_PLAYERS}`} value={playerCount} min={MIN_PLAYERS} max={MAX_PLAYERS} onChange={changePlayers} />
+        {avecNoms ? null : (
+          <StepperRow label="Joueurs" hint="Sans prénoms : Joueur 1, Joueur 2…" value={nbSansNoms} min={MIN_PLAYERS} max={MAX_PLAYERS} onChange={setNbSansNoms} />
+        )}
         <StepperRow label="Espions" hint="Recommandé : 1 espion pour 3 joueurs" value={undercoverCount} min={1} max={maxUndercover} onChange={setUndercoverCount} />
         <ToggleRow label="Monsieur Blanc" hint="Un joueur sans mot qui doit bluffer" value={hasMrWhite} onChange={setHasMrWhite} />
       </Section>
+
+      <PlayerEditor names={noms} onChange={setNoms} min={MIN_PLAYERS} max={MAX_PLAYERS} />
+      <Text style={[s.desc, { marginTop: -12 }]}>Facultatif : sans prénoms, les joueurs sont numérotés.</Text>
 
       <Section label="Thème des mots">
         <ChoiceChips

@@ -4,7 +4,7 @@ import characterImages from '../../data/characterImages';
 import goBackOrMenu from '../../navigation/goBack';
 import {
   GameScreen, GameTopBar, ActionBar, PrimaryButton, SecondaryButton, TextLink, Heading, Overlay,
-  PlayerToken, tokenColor, Icon, SoireeActions, T, F,
+  PlayerToken, PlayerChoice, PlayerGrid, tokenColor, Icon, SoireeActions, T, F,
 } from '../../components/game/Legende';
 import { dansLaSoiree } from '../../services/soiree';
 
@@ -25,7 +25,9 @@ const ROLE_CONFIG = {
   mrwhite:    { label: 'Monsieur Blanc', color: T.orTexte, message: 'Vous n’avez aucun mot. Écoutez les autres et inventez un bluff parfait.' },
 };
 const roleName = (t) => (t === 'civilian' ? 'Villageois' : t === 'undercover' ? 'Espion' : 'M. Blanc');
-const P = (i) => `Joueur ${i + 1}`;
+// Nom affiché d'un joueur : son prénom s'il a été saisi, sinon « Joueur N »
+const nommer = (names) => (i) => names?.[i] || `Joueur ${i + 1}`;
+const jeton = (names) => (i) => (names?.[i] ? names[i] : String(i + 1));
 
 function distributeRoles(playerCount, wordPair, undercoverCount, hasMrWhite) {
   const roles = [];
@@ -59,7 +61,9 @@ function WordCard({ role, themeName }) {
 }
 
 // ── Plateau : éliminations et fin de partie ──
-function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigation }) {
+function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigation, names }) {
+  const P = nommer(names);
+  const tok = jeton(names);
   const [eliminated, setEliminated] = useState(new Set());
   const [modalIdx, setModalIdx]     = useState(null);
   const [winner, setWinner]         = useState(null); // null | 'spies' | 'civilians' | 'ended'
@@ -114,8 +118,8 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
               <Pressable key={idx} onPress={out ? undefined : () => setModalIdx(idx)} accessibilityRole="button"
                 accessibilityLabel={out ? `${P(idx)}, éliminé, ${cfg.label}` : `Éliminer ${P(idx)}`}
                 style={({ pressed }) => [styles.seat, out && styles.seatOut, idx === starter && !out && { borderColor: T.or }, pressed && !out && { backgroundColor: T.orVoile }]}>
-                <PlayerToken name={String(idx + 1)} index={idx} size={36} />
-                <Text style={styles.seatName}>{P(idx)}</Text>
+                <PlayerToken name={tok(idx)} index={idx} size={36} />
+                <Text style={styles.seatName} numberOfLines={1}>{P(idx)}</Text>
                 <Text style={[styles.seatState, out && { color: cfg.color }]}>{out ? cfg.label : 'En jeu'}</Text>
               </Pressable>
             );
@@ -135,7 +139,14 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
         <Overlay onClose={closePeek}>
           {peekPlayer === -1 ? (
             <>
-              <Heading title="Quel est votre numéro ?" sub="Assurez-vous d’être seul à regarder." />
+              <Heading title={names ? 'Qui êtes-vous ?' : 'Quel est votre numéro ?'} sub="Assurez-vous d’être seul à regarder." />
+              {names ? (
+                <PlayerGrid>
+                  {roles.map((_, idx) => !eliminated.has(idx) && (
+                    <PlayerChoice key={idx} name={P(idx)} index={idx} onPress={() => { setPeekPlayer(idx); setPeekRevealed(false); }} label={`Je suis ${P(idx)}`} />
+                  ))}
+                </PlayerGrid>
+              ) : (
               <View style={styles.peekGrid}>
                 {roles.map((_, idx) => !eliminated.has(idx) && (
                   <Pressable key={idx} onPress={() => { setPeekPlayer(idx); setPeekRevealed(false); }} accessibilityRole="button"
@@ -144,6 +155,7 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
                   </Pressable>
                 ))}
               </View>
+              )}
               <TextLink label="Annuler" onPress={closePeek} color={T.encreDouce} />
             </>
           ) : !peekRevealed ? (
@@ -181,7 +193,7 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
           <View style={styles.revealList}>
             {roles.map((r, i) => (
               <View key={i} style={styles.revealChip}>
-                <Text style={styles.revealNum}>J{i + 1}</Text>
+                <Text style={styles.revealNum}>{names ? P(i) : `J${i + 1}`}</Text>
                 <Text style={[styles.revealRole, { color: ROLE_CONFIG[r.type].color }]}>{roleName(r.type)}</Text>
                 {eliminated.has(i) ? <Icon name="close" size={12} color={T.encreDouce} /> : null}
               </View>
@@ -201,7 +213,9 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
 
 // ── Distribution des mots ──
 export default function UndercoverDistributeScreen({ navigation, route }) {
-  const { playerCount, wordPair, undercoverCount, hasMrWhite, themeName } = route.params;
+  const { playerCount, wordPair, undercoverCount, hasMrWhite, themeName, playerNames: names = null } = route.params;
+  const P = nommer(names);
+  const tok = jeton(names);
 
   const [roles] = useState(() => distributeRoles(playerCount, wordPair, undercoverCount, hasMrWhite));
   const [currentPlayer, setCurrentPlayer] = useState(0);
@@ -212,6 +226,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
     return (
       <GameBoard
         roles={roles}
+        names={names}
         navigation={navigation}
         themeName={themeName}
         onQuit={quit}
@@ -236,7 +251,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
         <ActionBar note={phase === 'waiting' ? 'Prenez le téléphone seul.' : 'Mémorisez-le, puis passez le téléphone.'}>
           {phase === 'waiting'
             ? <PrimaryButton label="Révéler mon mot" onPress={() => setPhase('revealed')} />
-            : <PrimaryButton label={isLast ? 'Tout le monde a vu' : `Au joueur ${currentPlayer + 2}`} onPress={handleNext} />}
+            : <PrimaryButton label={isLast ? 'Tout le monde a vu' : (names ? `À ${P(currentPlayer + 1)}` : `Au joueur ${currentPlayer + 2}`)} onPress={handleNext} />}
         </ActionBar>
       )}
     >
@@ -245,13 +260,13 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
           <View style={styles.card}>
             <View style={[styles.cardInner, { paddingVertical: 34 }]}>
               <Text style={styles.kicker}>DISTRIBUTION SECRÈTE</Text>
-              <PlayerToken name={String(currentPlayer + 1)} index={currentPlayer} size={88} />
+              <PlayerToken name={tok(currentPlayer)} index={currentPlayer} size={88} />
               <Text style={styles.word}>{P(currentPlayer)}</Text>
               <View style={styles.rule} />
               <Text style={styles.kicker}>{currentPlayer + 1} SUR {playerCount}</Text>
             </View>
           </View>
-          <Heading title={`Passez le téléphone au joueur ${currentPlayer + 1}`} sub="Les autres joueurs détournent le regard." />
+          <Heading title={names ? `Passez le téléphone à ${P(currentPlayer)}` : `Passez le téléphone au joueur ${currentPlayer + 1}`} sub="Les autres joueurs détournent le regard." />
         </View>
       ) : (
         <WordCard role={role} themeName={themeName} />
