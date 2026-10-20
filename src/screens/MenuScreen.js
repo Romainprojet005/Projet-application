@@ -71,11 +71,11 @@ const DRUM_STEP = 26 * Math.PI / 180;
 // (Re)calcule tout ce qui dépend de la taille de l'écran ; renvoie true si la taille des cartes change
 function computeSizes() {
   ({ width: SW, height: SH } = measureScreen());
-  // Ordinateur : titre, familles, panneau d'infos et lien « Soirée enchaînée » au-dessus et en dessous du carrousel
-  const STAGE_EST = SH - (IS_MOBILE_WEB ? 330 : 395 + (AD_ENABLED ? 90 : 0));
+  // Place prise par le titre, les familles, le panneau d'infos et le lien « Soirée enchaînée »
+  const STAGE_EST = SH - (IS_MOBILE_WEB ? 360 : 395 + (AD_ENABLED ? 90 : 0));
   const FIT_H = Math.floor((STAGE_EST / 2 - 8) / (0.5 + REFLECT_SHIFT));
   const WEB_H = IS_MOBILE_WEB
-    ? Math.max(220, Math.min(400, FIT_H, Math.round(SW * 0.68 * 310 / 210)))
+    ? Math.max(170, Math.min(400, FIT_H, Math.round(SW * 0.68 * 310 / 210)))
     : Math.max(260, Math.min(540, FIT_H, Math.round(SW * 0.26 * 310 / 210)));
   const w = Platform.OS === 'web' ? Math.round(WEB_H * 210 / 310) : Math.min(SW * 0.75, 300);
   const h = Platform.OS === 'web' ? WEB_H : Math.min(Math.round(w * 1.55), SH - 210);
