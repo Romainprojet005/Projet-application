@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { VERITES_PROMPTS, VERITES_HOT_PROMPTS, VERITES_TRES_HOT_PROMPTS, VERITES_HOT_JOKER } from '../../data/veritesVoleesData';
 import goBackOrMenu from '../../navigation/goBack';
+import { tirer } from '../../utils/dejaVu';
 import {
   GameScreen, GameTopBar, ActionBar, PrimaryButton, QuestionCard, PassPhone, Heading, Notice,
   PlayerChoice, PlayerGrid, PlayerToken, Ranking, EndActions, Field, AdultTag, T, F,
@@ -29,7 +30,7 @@ export default function VeritesGameScreen({ route, navigation }) {
   const isHot = mode !== 'classique';
 
   // Une question différente par manche, tirée une fois pour toute la partie
-  const [prompts] = useState(() => shuffle(PROMPTS_BY_MODE[mode] ?? VERITES_PROMPTS).slice(0, rounds));
+  const [prompts] = useState(() => tirer('verites-' + mode, PROMPTS_BY_MODE[mode] ?? VERITES_PROMPTS, rounds));
   const [roundIdx, setRoundIdx] = useState(0);
   const prompt = prompts[roundIdx];
   const isQuestion = prompt.trim().endsWith('?') || prompt.trim().endsWith('.');
@@ -248,7 +249,7 @@ export default function VeritesGameScreen({ route, navigation }) {
   // ── Classement final ──
   return (
     <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={rounds} total={rounds} />}
-      footer={<EndActions navigation={navigation} route={route} />}>
+      footer={<EndActions navigation={navigation} route={route} game={GAME} scores={scores} />}>
       <Heading kicker="Fin de partie" title="Le classement" sub="Qui sait le mieux mentir… et démasquer ?" />
       <Ranking players={playerNames} scores={scores} suffix=" pts" />
     </GameScreen>

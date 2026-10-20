@@ -17,7 +17,7 @@ export const gamePath = (c) => (c.game === 'blanc_manger' ? 'blanc' : c.game.toL
 // « CINÉ-FLASH » → « Ciné-flash »
 export const gameLabel = (c) => c.gameName.charAt(0) + c.gameName.slice(1).toLowerCase();
 
-export const gameTitle = (c) => `${gameLabel(c)} — jeu de soirée en ligne | ${SITE_NAME}`;
+export const gameTitle = (c) => `${gameLabel(c)} : jeu de soirée gratuit en ligne | ${SITE_NAME}`;
 
 export const gameDescription = (c) =>
   `${c.description} ${c.players} joueurs · ${c.time}. À jouer sur téléphone, sans application.`;

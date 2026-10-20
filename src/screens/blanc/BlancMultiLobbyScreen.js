@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { supabase, channelName } from '../../services/supabase';
 import alerte from '../../utils/alerte';
 import { ANSWERS, QUESTIONS, initCards } from '../../data/blancMangerData';
+import { tirer } from '../../utils/dejaVu';
 import { LobbyScreen } from '../../components/game/Legende';
 
 export default function BlancMultiLobbyScreen({ navigation, route }) {
@@ -58,8 +59,7 @@ export default function BlancMultiLobbyScreen({ navigation, route }) {
       const answerPool = ANSWERS.filter(a => !a.adulte || category === 'adulte');
       const { hands, deck } = initCards(ps.length, answerPool);
 
-      const questionPool = [...QUESTIONS[category]].sort(() => Math.random() - 0.5);
-      const questions    = questionPool.slice(0, Math.min(totalRounds, questionPool.length));
+      const questions = tirer('blanc-' + category, QUESTIONS[category], totalRounds);
 
       await Promise.all(
         ps.map((p, i) =>

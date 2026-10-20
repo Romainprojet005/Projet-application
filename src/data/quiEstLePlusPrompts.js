@@ -1,3 +1,4 @@
+import { tirer, tirerUn } from '../utils/dejaVu';
 export const QUELPLUS_CATEGORIES = [
   { id: 'all', name: 'Tous', emoji: '🎲', color: '#F59E0B' },
   { id: 'soiree', name: 'Soirée', emoji: '🍺', color: '#F59E0B' },
@@ -150,29 +151,16 @@ export function selectPrompts(count, categoryId) {
       ? QUELPLUS_PROMPTS.filter((p) => !EXPLICIT_CATS.has(p.category))
       : QUELPLUS_PROMPTS.filter((p) => p.category === categoryId);
 
-  for (let i = filtered.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
-  }
-
-  return filtered.slice(0, count);
+  return tirer('quiestleplus', filtered, count);
 }
 
-let _tripotesUsedIds = new Set();
 
 export function pickPromptAndDecoys(categoryId = 'all') {
   const pool = categoryId === 'all'
     ? QUELPLUS_PROMPTS.filter(p => !EXPLICIT_CATS.has(p.category))
     : QUELPLUS_PROMPTS.filter(p => p.category === categoryId);
 
-  let available = pool.filter(p => !_tripotesUsedIds.has(p.id));
-  if (available.length === 0) {
-    _tripotesUsedIds = new Set();
-    available = [...pool];
-  }
-
-  const prompt = available[Math.floor(Math.random() * available.length)];
-  _tripotesUsedIds.add(prompt.id);
+  const prompt = tirerUn('tripotes', pool);
 
   const sameCat = pool.filter(p => p.category === prompt.category && p.id !== prompt.id);
   const decoys  = [...sameCat].sort(() => Math.random() - 0.5).slice(0, 3);

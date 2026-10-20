@@ -1,3 +1,4 @@
+import { tirer, tirerUn } from '../utils/dejaVu';
 export const REGLE_CATEGORIES = [
   { id: 'parole',       name: 'Parole',       emoji: '🗣️', color: '#8B5CF6' },
   { id: 'geste',        name: 'Geste',        emoji: '🤝', color: '#10B981' },
@@ -69,17 +70,9 @@ const ALL_RULES = [
   { id: 54, cat: 'comportement', text: 'Toujours relier la réponse à son enfance' },
 ];
 
-let _usedIds = new Set();
 
 export function pickRuleAndDecoys() {
-  let available = ALL_RULES.filter(r => !_usedIds.has(r.id));
-  if (available.length === 0) {
-    _usedIds = new Set();
-    available = [...ALL_RULES];
-  }
-
-  const rule = available[Math.floor(Math.random() * available.length)];
-  _usedIds.add(rule.id);
+  const rule = tirerUn('trouvelaregle', ALL_RULES);
 
   const sameCat = ALL_RULES.filter(r => r.cat === rule.cat && r.id !== rule.id);
   const decoys  = [...sameCat].sort(() => Math.random() - 0.5).slice(0, 3);

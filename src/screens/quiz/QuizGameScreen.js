@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import goBackOrMenu from '../../navigation/goBack';
 import {
-  GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, Notice, PassPhone,
+  EndActions, GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, Notice, PassPhone,
   AnswerChoice, TimeBar, Ranking, PlayerToken, T, F,
 } from '../../components/game/Legende';
 
@@ -79,12 +79,7 @@ export default function QuizGameScreen({ navigation, route }) {
     const byName = Object.fromEntries(players.map((n, i) => [n, scores[i] || 0]));
     return (
       <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={totalQ} total={totalQ} />}
-        footer={(
-          <ActionBar>
-            <PrimaryButton label="Rejouer" onPress={() => navigation.navigate('QuizSetup', { replay: Date.now() })} />
-            <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
-          </ActionBar>
-        )}>
+        footer={<EndActions navigation={navigation} route={route} replay={() => navigation.navigate('QuizSetup', { replay: Date.now() })} game={GAME} scores={byName} />}>
         <Heading kicker="Quiz terminé" title="Le classement" sub="La première de la classe a parlé." />
         <Ranking players={players} scores={byName} suffix=" pts" />
       </GameScreen>

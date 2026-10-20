@@ -4,8 +4,9 @@ import characterImages from '../../data/characterImages';
 import goBackOrMenu from '../../navigation/goBack';
 import {
   GameScreen, GameTopBar, ActionBar, PrimaryButton, SecondaryButton, TextLink, Heading, Overlay,
-  PlayerToken, tokenColor, Icon, T, F,
+  PlayerToken, tokenColor, Icon, SoireeActions, T, F,
 } from '../../components/game/Legende';
+import { dansLaSoiree } from '../../services/soiree';
 
 const GAME = 'undercover';
 
@@ -58,7 +59,7 @@ function WordCard({ role, themeName }) {
 }
 
 // ── Plateau : éliminations et fin de partie ──
-function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay }) {
+function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigation }) {
   const [eliminated, setEliminated] = useState(new Set());
   const [modalIdx, setModalIdx]     = useState(null);
   const [winner, setWinner]         = useState(null); // null | 'spies' | 'civilians' | 'ended'
@@ -186,8 +187,12 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay }) {
               </View>
             ))}
           </View>
-          <PrimaryButton label="Rejouer" onPress={onReplay} />
-          <TextLink label="Retour aux jeux" onPress={onBackToMenu} />
+          {dansLaSoiree(GAME) ? <SoireeActions navigation={navigation} game={GAME} /> : (
+            <>
+              <PrimaryButton label="Rejouer" onPress={onReplay} />
+              <TextLink label="Retour aux jeux" onPress={onBackToMenu} />
+            </>
+          )}
         </Overlay>
       )}
     </View>
@@ -207,6 +212,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
     return (
       <GameBoard
         roles={roles}
+        navigation={navigation}
         themeName={themeName}
         onQuit={quit}
         onBackToMenu={() => navigation.navigate('Menu')}

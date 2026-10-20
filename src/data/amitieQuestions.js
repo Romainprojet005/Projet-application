@@ -1,3 +1,4 @@
+import { tirer, tirerUn } from '../utils/dejaVu';
 export const amitieQuestions = [
   { id: 1, question: "Quelle est la couleur préférée de {nom} ?" },
   { id: 2, question: "Quel est le plat que {nom} pourrait manger tous les jours ?" },
@@ -94,6 +95,5 @@ export const adulteQuestions = [
 
 export function getQuestions(mode, count) {
   const pool = mode === 'couple' ? coupleQuestions : mode === 'adulte' ? adulteQuestions : amitieQuestions;
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, Math.min(count, shuffled.length));
+  return tirer('amitie-' + mode, pool, Math.min(count, pool.length));
 }

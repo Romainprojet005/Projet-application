@@ -1,3 +1,4 @@
+import { tirer, tirerUn } from '../utils/dejaVu';
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -122,12 +123,6 @@ export const EMOJI_CATEGORIES = {
 let _usedIds = new Set();
 
 export function buildEmojiRound(count, categories = ['film', 'musique', 'serie', 'personnalite']) {
-  let pool = EMOJI_QUIZ_ITEMS.filter(item => categories.includes(item.category) && !_usedIds.has(item.id));
-  if (pool.length < count) {
-    _usedIds.clear();
-    pool = EMOJI_QUIZ_ITEMS.filter(item => categories.includes(item.category));
-  }
-  const selected = shuffle([...pool]).slice(0, count);
-  selected.forEach(item => _usedIds.add(item.id));
-  return selected;
+  const pool = EMOJI_QUIZ_ITEMS.filter(item => categories.includes(item.category));
+  return tirer('emojiquiz', pool, count);
 }

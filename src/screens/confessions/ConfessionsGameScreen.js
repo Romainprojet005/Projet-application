@@ -200,7 +200,7 @@ export default function ConfessionsGameScreen({ route, navigation }) {
   // ── Classement ──
   return (
     <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={confessions.length} total={confessions.length} />}
-      footer={<EndActions navigation={navigation} route={route} />}>
+      footer={<EndActions navigation={navigation} route={route} game={GAME} scores={scores} />}>
       <Heading kicker="Fin de partie" title="Le classement" sub="Qui a le mieux gardé ses secrets ?" />
       <Ranking players={playerNames} scores={scores} suffix=" pts" />
     </GameScreen>

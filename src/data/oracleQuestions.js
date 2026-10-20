@@ -1,3 +1,4 @@
+import { tirer, tirerUn } from '../utils/dejaVu';
 export const ORACLE_CATEGORIES = [
   { id: 'all',     name: 'Tout',     emoji: '🔮', color: '#8B5CF6' },
   { id: 'fun',     name: 'Fun',      emoji: '🎉', color: '#F59E0B' },
@@ -163,21 +164,11 @@ const ALL_QUESTIONS = [
   { id: 144, text: 'C\'est quoi le truc qui t\'excite le plus mais que tu n\'as jamais osé dire à voix haute ?', cat: 'adulte' },
 ];
 
-let _used = new Set();
 
 export function selectQuestions(count, categoryId = 'all') {
   const pool = categoryId === 'all'
     ? ALL_QUESTIONS
     : ALL_QUESTIONS.filter(q => q.cat === categoryId);
 
-  let available = pool.filter(q => !_used.has(q.id));
-  if (available.length < count) {
-    _used = new Set();
-    available = [...pool];
-  }
-
-  const shuffled = [...available].sort(() => Math.random() - 0.5);
-  const selected = shuffled.slice(0, Math.min(count, shuffled.length));
-  selected.forEach(q => _used.add(q.id));
-  return selected;
+  return tirer('oracle', pool, Math.min(count, pool.length));
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { QUESTIONS } from '../../data/blancMangerData';
 import goBackOrMenu from '../../navigation/goBack';
+import { tirer } from '../../utils/dejaVu';
 import { SetupLayout, Section, ChoicePills, AmbianceSelector, PlayerEditor, SecondaryButton } from '../../components/game/Legende';
 
 const MIN_PLAYERS = 3;
@@ -26,8 +27,7 @@ export default function BlancSetupScreen({ navigation, route }) {
 
   const handleLaunch = () => {
     if (!canLaunch) return;
-    const pool = [...QUESTIONS[category]].sort(() => Math.random() - 0.5);
-    const questions = pool.slice(0, Math.min(rounds, pool.length));
+    const questions = tirer('blanc-' + category, QUESTIONS[category], rounds);
     navigation.navigate('BlancGame', { players: trimmed, category, totalRounds: questions.length, questions });
   };
 

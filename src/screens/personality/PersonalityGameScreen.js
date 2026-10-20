@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Animated, Platform, Image, Dimensions, Pressabl
 import personalityImages from '../../data/personalityImages';
 import goBackOrMenu from '../../navigation/goBack';
 import {
-  GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, Notice, Field,
+  EndActions, GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, Notice, Field,
   Ranking, PlayerToken, Icon, T, F,
 } from '../../components/game/Legende';
 
@@ -153,12 +153,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
     const byName = Object.fromEntries(players.map((n, i) => [n, scores[i] || 0]));
     return (
       <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={rounds.length} total={rounds.length} />}
-        footer={(
-          <ActionBar>
-            <PrimaryButton label="Rejouer" onPress={() => navigation.navigate('PersonalitySetup', { replay: Date.now() })} />
-            <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
-          </ActionBar>
-        )}>
+        footer={<EndActions navigation={navigation} route={route} replay={() => navigation.navigate('PersonalitySetup', { replay: Date.now() })} game={GAME} scores={byName} />}>
         <View style={s.score}>
           <Text style={s.kicker}>FIN DE PARTIE</Text>
           <Text style={s.pct}>{successPct} %</Text>

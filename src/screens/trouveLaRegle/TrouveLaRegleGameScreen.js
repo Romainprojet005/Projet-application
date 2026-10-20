@@ -96,7 +96,7 @@ export default function TrouveLaRegleGameScreen({ navigation, route }) {
     const winner = sorted[0]?.[0];
     return (
       <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={roundCount} total={roundCount} />}
-        footer={<EndActions navigation={navigation} route={route} />}>
+        footer={<EndActions navigation={navigation} route={route} game={GAME} scores={scores} />}>
         <Heading kicker="Fin de l’enquête" title={winner ? `${winner}, meilleur détective` : 'Le classement'} />
         <Ranking players={playerNames} scores={scores} suffix=" pts" />
       </GameScreen>

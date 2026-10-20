@@ -160,7 +160,7 @@ export default function DefisGameScreen({ route, navigation }) {
   const done = Object.fromEntries(playerNames.map(n => [n, playerStats[n].completed]));
   return (
     <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={roundCount} total={roundCount} />}
-      footer={<EndActions navigation={navigation} route={route} />}>
+      footer={<EndActions navigation={navigation} route={route} game={GAME} scores={done} />}>
       <Heading kicker="Fin de partie" title="Qui a tout osé ?" sub={`${totalCompleted} défi${totalCompleted > 1 ? 's' : ''} réussi${totalCompleted > 1 ? 's' : ''} · ${totalRefused} refusé${totalRefused > 1 ? 's' : ''}`} />
       <Text style={s.kickerMuted}>DÉFIS RÉUSSIS PAR JOUEUR</Text>
       <Ranking players={playerNames} scores={done} />

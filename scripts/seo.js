@@ -22,6 +22,7 @@ const {
   SITE_URL, SITE_NAME, HOME_TITLE, HOME_DESCRIPTION,
   gamePath, gameLabel, gameTitle, gameDescription,
 } = loadData('seo.js');
+const { SEO_JEUX } = loadData('seoJeux.js');
 
 const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
@@ -101,6 +102,48 @@ fs.writeFileSync(indexPath, render(base, {
 }), 'utf8');
 
 // ── Une page par jeu ──
+// Questions fréquentes communes, complétées par celles propres à chaque jeu (src/data/seoJeux.js)
+function faqJeu(c) {
+  const multi = c.phones === 'multi';
+  const commun = [
+    [`Comment jouer à ${gameLabel(c)} en ligne ?`, `Ouvrez la page sur ${SITE_URL.replace('https://', '')}, ajoutez les prénoms des joueurs et lancez la partie : tout se passe dans le navigateur, sans application à installer.`],
+    [`Combien de joueurs pour ${gameLabel(c)} ?`, `De ${String(c.players).replace('–', ' à ')} joueurs, pour une partie d’environ ${c.time}.`],
+    [`${gameLabel(c)} est-il gratuit ?`, multi ? 'Oui, les jeux à plusieurs téléphones sont toujours gratuits, sans inscription.' : 'Oui, sans inscription.'],
+  ];
+  return [...((SEO_JEUX[c.game] || {}).faq || []), ...commun];
+}
+function jsonLdJeu(c, url) {
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: `${SITE_URL}/` },
+        { '@type': 'ListItem', position: 2, name: gameLabel(c), item: url },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqJeu(c).map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+    },
+  ];
+}
+function corpsJeu(c) {
+  const d = SEO_JEUX[c.game] || {};
+  const memeFamille = visibles.filter((x) => x.family === c.family && x.game !== c.game).slice(0, 5);
+  return `<h1>${esc(gameLabel(c))} — ${esc(d.motCle || 'jeu de soirée en ligne')}</h1>
+      <p>${esc(d.intro || c.description)}</p>
+      <p>${esc(c.players)} joueurs · ${esc(c.time)} · sur ${c.phones === 'multi' ? 'un téléphone par joueur' : c.phones === 'both' ? 'un ou plusieurs téléphones' : 'un seul téléphone'}</p>
+      ${d.regles ? `<h2>Règles du jeu</h2>
+      <ol>${d.regles.map((r) => `<li>${esc(r)}</li>`).join('')}</ol>` : ''}
+      <h2>Questions fréquentes</h2>
+      <dl>${faqJeu(c).map(([q, a]) => `<dt>${esc(q)}</dt><dd>${esc(a)}</dd>`).join('')}</dl>
+      ${memeFamille.length ? `<h2>Jeux du même genre</h2>
+      <ul>${memeFamille.map((x) => `<li><a href="/${gamePath(x)}/">${esc(gameLabel(x))}</a></li>`).join('')}</ul>` : ''}
+      <p><a href="/">Voir les ${visibles.length} jeux de ${esc(SITE_NAME)}</a></p>`;
+}
+
 for (const c of characters) {
   const p = gamePath(c);
   // Netlify sert dist/<jeu>/index.html à /<jeu>/ (et redirige /<jeu> vers /<jeu>/)
@@ -111,18 +154,8 @@ for (const c of characters) {
     title: gameTitle(c),
     description: gameDescription(c),
     url,
-    jsonLd: {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: `${SITE_URL}/` },
-        { '@type': 'ListItem', position: 2, name: gameLabel(c), item: url },
-      ],
-    },
-    body: `<h1>${esc(gameLabel(c))} — ${esc(c.title)}</h1>
-      <p>${esc(c.description)}</p>
-      <p>${esc(c.players)} joueurs · ${esc(c.time)}</p>
-      <p><a href="/">Voir les ${visibles.length} jeux de ${esc(SITE_NAME)}</a></p>`,
+    jsonLd: jsonLdJeu(c, url),
+    body: corpsJeu(c),
   }), 'utf8');
 }
 

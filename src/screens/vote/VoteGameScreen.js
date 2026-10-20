@@ -161,7 +161,7 @@ export default function VoteGameScreen({ route, navigation }) {
   // ── Classement final ──
   return (
     <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={questions.length} total={questions.length} />}
-      footer={<EndActions navigation={navigation} route={route} />}>
+      footer={<EndActions navigation={navigation} route={route} game={GAME} scores={scores} />}>
       <Heading kicker="Fin de partie" title="Le classement" sub="Qui a pensé comme la majorité ?" />
       <Ranking players={playerNames} scores={scores} suffix=" pts" />
     </GameScreen>

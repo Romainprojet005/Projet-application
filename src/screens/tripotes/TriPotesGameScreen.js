@@ -109,7 +109,7 @@ export default function TriPotesGameScreen({ navigation, route }) {
     const winner = sorted[0]?.[0];
     return (
       <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={roundCount} total={roundCount} />}
-        footer={<EndActions navigation={navigation} route={route} />}>
+        footer={<EndActions navigation={navigation} route={route} game={GAME} scores={scores} />}>
         <Heading kicker="Fin du jugement" title={winner ? `${winner} l’emporte` : 'Le classement'} sub="Meilleur juge de potes de la soirée." />
         <Ranking players={playerNames} scores={scores} suffix=" pts" />
       </GameScreen>

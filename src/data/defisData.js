@@ -1,3 +1,4 @@
+import { tirer, tirerUn } from '../utils/dejaVu';
 export const DEFI_CATEGORIES = [
   { id: 'physique',  name: 'Physique',   emoji: '🏃', color: '#10B981' },
   { id: 'social',   name: 'Social',     emoji: '🗣️', color: '#3B82F6' },
@@ -149,18 +150,11 @@ export const CONSEQUENCES = [
   'Tu dois dire quelque chose d\'embarrassant 😳',
 ];
 
-let _usedDefiIds = new Set();
 
 export function pickDefi(activeCats) {
-  let available = DEFIS.filter(d => activeCats.includes(d.cat) && !_usedDefiIds.has(d.id));
-  if (available.length === 0) {
-    _usedDefiIds = new Set();
-    available = DEFIS.filter(d => activeCats.includes(d.cat));
-  }
+  const available = DEFIS.filter(d => activeCats.includes(d.cat));
   if (available.length === 0) return DEFIS[0];
-  const picked = available[Math.floor(Math.random() * available.length)];
-  _usedDefiIds.add(picked.id);
-  return picked;
+  return tirerUn('defis', available);
 }
 
 export function pickConsequence() {

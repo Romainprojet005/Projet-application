@@ -339,7 +339,7 @@ export default function VerreGameScreen({ route, navigation }) {
   const elimWinner = isElim && alive.length === 1 ? playerNames[alive[0]] : null;
 
   return (
-    <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} />} footer={<EndActions navigation={navigation} route={route} />}>
+    <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} />} footer={<EndActions navigation={navigation} route={route} game={GAME} scores={totalSips} moinsGagne />}>
       <Heading kicker="Résultats finaux" title={elimWinner ? `${elimWinner}, dernier debout` : `${sorted[0]} l’emporte`}
         sub={`${mancheIdx} manche${mancheIdx > 1 ? 's' : ''} jouée${mancheIdx > 1 ? 's' : ''} · ${isElim ? 'le dernier en lice gagne' : 'moins vous avez bu, mieux c’est'}`} />
       <View style={{ gap: 8 }}>

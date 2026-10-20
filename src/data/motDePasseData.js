@@ -1,3 +1,4 @@
+import { tirer, tirerUn } from '../utils/dejaVu';
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -295,17 +296,9 @@ const _usedAdult  = new Set();
 
 export function getMotDePasseCards(count, category = 'normal') {
   const isAdult = category === 'adult';
-  const used = isAdult ? _usedAdult : _usedNormal;
   const pool = MOT_DE_PASSE_CARDS
     .map((c, i) => ({ ...c, _i: i }))
     .filter(c => isAdult ? c.category === 'adult' : c.category !== 'adult');
 
-  let available = pool.filter(c => !used.has(c._i));
-  if (available.length < count) {
-    used.clear();
-    available = pool;
-  }
-  const selected = shuffle([...available]).slice(0, Math.min(count, available.length));
-  selected.forEach(c => used.add(c._i));
-  return selected;
+  return tirer('motdepasse', pool, Math.min(count, pool.length), (c) => c.word);
 }

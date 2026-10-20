@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
 import { EMOJI_QUIZ_ITEMS } from '../../data/emojiQuizData';
 import goBackOrMenu from '../../navigation/goBack';
 import {
-  GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, Notice, PassPhone, Field,
+  EndActions, GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, Notice, PassPhone, Field,
   AnswerChoice, Ranking, PlayerToken, Icon, T, F,
 } from '../../components/game/Legende';
 
@@ -115,12 +115,7 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
     const byName = Object.fromEntries(players.map((n, i) => [n, scores[i] || 0]));
     return (
       <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={totalQ} total={totalQ} />}
-        footer={(
-          <ActionBar>
-            <PrimaryButton label="Rejouer" onPress={() => navigation.navigate('EmojiQuizSetup', { replay: Date.now() })} />
-            <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
-          </ActionBar>
-        )}>
+        footer={<EndActions navigation={navigation} route={route} replay={() => navigation.navigate('EmojiQuizSetup', { replay: Date.now() })} game={GAME} scores={byName} />}>
         <Heading kicker="Partie terminée" title="Le classement" sub="Le Confiseur est fier de vous." />
         <Ranking players={players} scores={byName} suffix=" pts" />
       </GameScreen>

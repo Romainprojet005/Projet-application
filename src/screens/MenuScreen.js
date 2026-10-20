@@ -11,7 +11,7 @@ import { OB_BG } from '../theme/obsidian';
 import { characters } from '../data/characters';
 import AdBanner, { AD_ENABLED } from '../components/AdBanner';
 import { BoosterFront, BoosterBack, FamilyEmblem, FAMILIES, familyOf, PhoneIcon, LockIcon } from '../components/BoosterCard';
-import { OffresModal, IdeeModal, CodeModal } from '../components/WebModals';
+import { OffresModal, IdeeModal, CodeModal, ReglagesModal } from '../components/WebModals';
 import { useInstall } from '../utils/appMode';
 import { statutAcces, gratuitsDuJour, PHONE_LABELS, enConstruction } from '../services/acces';
 import { FULL_HEIGHT } from '../utils/fullHeight';
@@ -236,6 +236,13 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       .sdl-sm { display: none; }
       .sdl-top-btn:hover { border-color: #F3EEE2; }
       .sdl-top-btn.gold { border-color: #D4AF37; color: #E6C766; }
+      .sdl-top-btn.sdl-desk { padding: 8px 11px; display: inline-flex; align-items: center; }
+      .sdl-eco-btn { color: #F3EEE2; }
+      .sdl-eco-btn svg { display: block; margin: auto; }
+      .sdl-soiree-link { background: none; border: 0; padding: 6px 8px; cursor: pointer; color: #A9A3BF;
+        font-family: 'Outfit', system-ui, sans-serif; font-size: 14px; }
+      .sdl-soiree-link span { color: #E6C766; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+      .sdl-soiree-link:focus-visible { outline: 2px solid #F4DC8C; outline-offset: 2px; border-radius: 6px; }
       .sdl-top-btn:focus-visible { outline: 2px solid #F4DC8C; outline-offset: 2px; }
       .sdl-info-tag { display: inline-flex; align-items: center; gap: 4px; font-family: 'Outfit', system-ui, sans-serif;
         font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 6px; color: #F3EEE2; border: 1px solid #2E2A4A; }
@@ -312,6 +319,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-eco-btn.sdl-eco-top { bottom: auto; top: 16px; right: 16px; }
         .sdl-top { padding: 12px 64px 12px 16px; }
         .sdl-top-count { display: none; }
+        .sdl-desk { display: none !important; }
         .sdl-top-actions { gap: 6px; }
         .sdl-top-btn { min-height: 36px; padding: 6px 12px; font-size: 13px; }
         .sdl-lg { display: none; }
@@ -851,6 +859,15 @@ const ob = StyleSheet.create({
 });
 
 // ── MenuScreen ────────────────────────────────────────────────────────
+function GearIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+    </svg>
+  );
+}
+
 export default function MenuScreen({ navigation }) {
   const headerAnim = useRef(new Animated.Value(0)).current;
   const starSlow   = useRef(new Animated.Value(0)).current;
@@ -1241,6 +1258,7 @@ export default function MenuScreen({ navigation }) {
                     <svg className="sdl-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>
                   </button>
                 )}
+                <button className="sdl-top-btn sdl-desk" aria-label="Réglages" onClick={() => setModal({ type: 'reglages' })}><GearIcon /></button>
                 <button className="sdl-top-btn gold" onClick={() => setModal({ type: 'offres', game: null })}>Offres</button>
               </div>
             </div>
@@ -1415,6 +1433,9 @@ export default function MenuScreen({ navigation }) {
                 : acces(c) === 'verrouille' ? <><LockIcon size="15px" />Débloquer</>
                 : '▶  Jouer'}
             </button>
+            <button className="sdl-soiree-link" onClick={() => navigation.navigate('Soiree')}>
+              Ou enchaînez plusieurs jeux : <span>Soirée enchaînée</span>
+            </button>
             <span className="sdl-meta-hint">
               {IS_MOBILE_WEB
                 ? 'glissez pour changer · touchez la carte pour la retourner'
@@ -1429,11 +1450,12 @@ export default function MenuScreen({ navigation }) {
 
       {Platform.OS === 'web' && IS_MOBILE_WEB && (
         <button
-          onClick={toggleEco}
-          className={`sdl-eco-btn sdl-eco-top${ecoMode ? ' active' : ''}`}
-          title={ecoMode ? 'Mode éco actif — appuyer pour désactiver' : 'Activer le mode éco'}
+          onClick={() => setModal({ type: 'reglages' })}
+          className="sdl-eco-btn sdl-eco-top"
+          aria-label="Réglages"
+          title="Réglages : sons, vibrations, écran"
         >
-          {ecoMode ? '🌿' : '🔋'}
+          <GearIcon />
         </button>
       )}
 
@@ -1442,6 +1464,9 @@ export default function MenuScreen({ navigation }) {
 
       {Platform.OS === 'web' && modal?.type === 'offres' && (
         <OffresModal game={modal.game} onClose={() => setModal(null)} />
+      )}
+      {Platform.OS === 'web' && modal?.type === 'reglages' && (
+        <ReglagesModal onClose={() => setModal(null)} ecoMode={ecoMode} onToggleEco={toggleEco} />
       )}
       {Platform.OS === 'web' && modal?.type === 'code' && (
         <CodeModal onClose={() => setModal(null)} onUnlock={() => setFlipped(f => ({ ...f }))} />

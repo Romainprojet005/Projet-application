@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { selectPrompts } from '../../data/quiEstLePlusPrompts';
 import goBackOrMenu from '../../navigation/goBack';
 import {
-  GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, QuestionCard, PlayerToken, AdultTag, T, F, gameInfo,
+  EndActions, GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, QuestionCard, PlayerToken, AdultTag, T, F, gameInfo,
 } from '../../components/game/Legende';
 
 const GAME = 'quiestleplus';
@@ -67,12 +67,7 @@ export default function QuiEstLePlusGameScreen({ route, navigation }) {
     return (
       <GameScreen
         top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={prompts.length} total={prompts.length} />}
-        footer={(
-          <ActionBar>
-            <PrimaryButton label="Rejouer" onPress={() => navigation.replace(route.name, route.params)} />
-            <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
-          </ActionBar>
-        )}
+        footer={<EndActions navigation={navigation} route={route} game={GAME} scores={scores} />}
       >
         <View style={{ alignItems: 'center', gap: 6 }}>
           <Text style={s.kicker}>FIN DE PARTIE</Text>

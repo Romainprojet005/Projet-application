@@ -1,3 +1,4 @@
+import { tirer, tirerUn } from '../utils/dejaVu';
 export const VOTE_CATEGORIES = [
   { id: 'all',        name: 'Tout mélangé',    emoji: '🎲', color: '#6366F1' },
   { id: 'cible',      name: 'Ciblé 🎯',        emoji: '🎯', color: '#F43F5E', needsPlayers: true },
@@ -461,7 +462,6 @@ export function selectQuestions(count, categoryId = 'all', playerNames = []) {
   } else {
     pool = QUESTIONS[categoryId] ?? Object.values(QUESTIONS).flat();
   }
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  const selected = shuffled.slice(0, Math.min(count, pool.length));
+  const selected = tirer('vote', pool, Math.min(count, pool.length));
   return selected.map(q => injectPlayers(q, playerNames)).filter(Boolean);
 }

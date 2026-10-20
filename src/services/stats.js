@@ -53,3 +53,27 @@ export function trackRouteChange(prev, cur, screens) {
     });
   }
 }
+
+// ── Fréquentation (table `visites`, voir supabase_visites.sql) ──
+// Une ligne par visite (une fois par onglet) : page d'arrivée, site d'origine (domaine seulement),
+// type d'écran, site installé ou non. Ni cookie, ni adresse IP, ni identifiant.
+function trackVisite() {
+  if (!ENABLED || !supabase || Platform.OS !== 'web') return;
+  try {
+    if (sessionStorage.getItem('sdl-visite')) return;
+    sessionStorage.setItem('sdl-visite', '1');
+  } catch { return; }
+  let source = null;
+  try {
+    const ref = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, '') : '';
+    if (ref && ref !== window.location.hostname) source = ref.slice(0, 60);
+  } catch {}
+  const page = (window.location.pathname.split('/')[1] || 'accueil').slice(0, 40);
+  const ecran = window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1100 ? 'tablette' : 'ordinateur';
+  let installe = false;
+  try { installe = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch {}
+  supabase.from('visites').insert({ page, source, ecran, installe }).then(({ error }) => {
+    if (error) console.warn('Stats visites :', error.message);
+  });
+}
+trackVisite();

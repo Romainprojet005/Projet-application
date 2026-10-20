@@ -3,9 +3,13 @@ import {
   View, Text, StyleSheet, Pressable, TextInput, Image, Platform, ScrollView, ActivityIndicator,
 } from 'react-native';
 import { characters } from '../../data/characters';
+import { SEO_JEUX } from '../../data/seoJeux';
 import { FAMILIES, FamilyEmblem } from '../BoosterCard';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
 import sansEmoji from '../../utils/sansEmoji';
+import { retour } from '../../utils/feedback';
+import { garderEcranAllume } from '../../services/preferences';
+import { useSoiree, dansLaSoiree, enregistrerResultat, jeuSuivant, abandonnerSoiree, nomDuJeu } from '../../services/soiree';
 
 // ── Pièces communes des écrans de jeu (refonte « La Soirée des Légendes ») ──
 // Un seul vocabulaire pour les 19 jeux : barre du haut, en-tête de légende,
@@ -65,6 +69,8 @@ export function Icon({ name, size = 20, color = T.encre, circle = false }) {
 // puisque la barre a déjà son bouton Jeux / Quitter au même endroit.
 let topBars = 0; const topBarListeners = new Set();
 const notifyTopBars = () => topBarListeners.forEach((fn) => fn(topBars > 0));
+// Pour un écran qui a sa propre barre du haut
+export function useMasqueMenu() { useEffect(() => { topBars++; notifyTopBars(); return () => { topBars--; notifyTopBars(); }; }, []); }
 export function subscribeTopBar(fn) { topBarListeners.add(fn); fn(topBars > 0); return () => topBarListeners.delete(fn); }
 
 // ── Barre du haut ──
@@ -72,11 +78,13 @@ export function subscribeTopBar(fn) { topBarListeners.add(fn); fn(topBars > 0); 
 export function GameTopBar({ game, mode = 'game', onBack, onHelp, current, total, right, confirmQuit = true }) {
   const g = gameInfo(game);
   const setup = mode === 'setup';
+  const soiree = useSoiree();
   // En partie : un 1er toucher demande « Quitter ? », le 2e quitte (évite de perdre la partie par erreur)
   const [confirm, setConfirm] = useState(false);
   const timer = useRef(null);
   useEffect(() => () => clearTimeout(timer.current), []);
   useEffect(() => { topBars++; notifyTopBars(); return () => { topBars--; notifyTopBars(); }; }, []);
+  useEffect(() => (setup ? undefined : garderEcranAllume()), [setup]);
   const press = () => {
     if (setup || !confirmQuit || confirm) { setConfirm(false); onBack && onBack(); return; }
     setConfirm(true); clearTimeout(timer.current); timer.current = setTimeout(() => setConfirm(false), 3000);
@@ -90,7 +98,8 @@ export function GameTopBar({ game, mode = 'game', onBack, onHelp, current, total
           <Text style={[st.topLeftText, confirm && { color: T.orTexte }]}>{setup ? 'Jeux' : confirm ? 'Quitter ?' : 'Quitter'}</Text>
         </Pressable>
         {setup
-          ? <Text style={st.numero}>N° {String(g.numero).padStart(2, '0')}</Text>
+          ? <Text style={st.numero}>{soiree && !soiree.fini && soiree.jeux[soiree.idx] === game
+            ? `SOIRÉE · ${soiree.idx + 1} / ${soiree.jeux.length}` : `N° ${String(g.numero).padStart(2, '0')}`}</Text>
           : <Text style={st.topTitle} numberOfLines={1}>{titleCase(g.gameName)}</Text>}
         <View style={st.topRight}>
           {right !== undefined ? right
@@ -297,9 +306,28 @@ export function PlayerToken({ name, index = 0, size = 32 }) {
 }
 
 // Liste de joueurs : jetons + champ « Ajouter un joueur » (Entrée pour valider)
+// Les prénoms de la dernière partie sont gardés sur l'appareil et reproposés au jeu suivant
+const JOUEURS_KEY = 'sdl-joueurs';
+export function joueursMemorises() {
+  try { const l = JSON.parse(localStorage.getItem(JOUEURS_KEY)); return Array.isArray(l) ? l.filter((n) => typeof n === 'string' && n.trim()) : []; } catch { return []; }
+}
+export function memoriserJoueurs(list) {
+  try { localStorage.setItem(JOUEURS_KEY, JSON.stringify(list.slice(0, 20))); } catch {}
+}
 export function PlayerEditor({ names, onChange, min = 2, max = 12 }) {
   const [draft, setDraft] = useState('');
   const filled = names.map((n) => n.trim()).filter(Boolean);
+  // Au premier affichage, liste vide → on reprend les prénoms mémorisés
+  useEffect(() => {
+    if (filled.length) return;
+    const saved = joueursMemorises().slice(0, max);
+    if (saved.length) onChange(saved);
+  }, []);
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    memoriserJoueurs(filled);
+  }, [filled.join('|')]);
   const add = () => {
     const n = draft.trim();
     if (!n || filled.length >= max) return;
@@ -339,7 +367,7 @@ export function PlayerEditor({ names, onChange, min = 2, max = 12 }) {
 // ── Boutons ──
 export function PrimaryButton({ label, onPress, disabled, style }) {
   return (
-    <Pressable onPress={disabled ? undefined : onPress} accessibilityRole="button" accessibilityState={{ disabled: !!disabled }}
+    <Pressable onPress={disabled ? undefined : () => { retour('tap'); onPress && onPress(); }} accessibilityRole="button" accessibilityState={{ disabled: !!disabled }}
       style={({ pressed }) => [st.primary, disabled ? { opacity: 0.4 } : shadow(HALO), pressed && !disabled && { transform: [{ scale: 0.98 }] }, style]}>
       <Text style={st.primaryText}>{label}</Text>
     </Pressable>
@@ -385,6 +413,7 @@ export function QuestionCard({ kicker, children, footer, style }) {
 
 // ── Écran « Passez le téléphone à … » ──
 export function PassPhone({ game, name, index = 0, order = [], kicker = 'À vous de jouer', instruction = 'Les autres joueurs détournent le regard.', extra }) {
+  useEffect(() => { retour('passe'); }, [name]);
   return (
     <View style={st.pass}>
       <View style={[st.passCard, shadow('0 18px 40px -12px rgba(0,0,0,0.8)')]}>
@@ -475,19 +504,56 @@ export function Ranking({ players, scores, order, suffix = '' }) {
 }
 
 // Barre de fin de partie : Rejouer (or) + Retour aux jeux
-export function EndActions({ navigation, route, replay, children }) {
+// En soirée enchaînée : enregistre le résultat et propose le jeu suivant.
+// scores : { prénom: points } ; moinsGagne : true quand le plus petit score gagne (Verre maudit).
+export function SoireeActions({ navigation, game, scores, moinsGagne }) {
+  const soiree = useSoiree();
+  const actif = !!soiree && !soiree.fini && soiree.jeux[soiree.idx] === game;
+  useEffect(() => { if (actif && scores) enregistrerResultat(game, scores, { moinsGagne }); }, [actif]);
+  if (!actif) return null;
+  const dernier = soiree.idx + 1 >= soiree.jeux.length;
+  const suivant = () => {
+    const r = jeuSuivant();
+    navigation.navigate(r || 'Soiree');
+  };
+  return (
+    <>
+      <PrimaryButton label={dernier ? 'Classement de la soirée' : `Jeu suivant : ${nomDuJeu(soiree.jeux[soiree.idx + 1])}`} onPress={suivant} />
+      <TextLink label="Voir le classement de la soirée" onPress={() => navigation.navigate('Soiree')} />
+    </>
+  );
+}
+
+export function EndActions({ navigation, route, replay, children, game, scores, moinsGagne }) {
+  useEffect(() => { retour('victoire'); }, []);
+  const enSoiree = !!game && dansLaSoiree(game);
   return (
     <ActionBar>
       {children}
-      <PrimaryButton label="Rejouer" onPress={replay || (() => navigation.replace(route.name, route.params))} />
-      <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
+      {enSoiree ? (
+        <SoireeActions navigation={navigation} game={game} scores={scores} moinsGagne={moinsGagne} />
+      ) : (
+        <>
+          <PrimaryButton label="Rejouer" onPress={replay || (() => navigation.replace(route.name, route.params))} />
+          <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
+        </>
+      )}
     </ActionBar>
   );
 }
 
 // Réponse à choix (A, B, C, D) : état null | 'correct' | 'wrong' | 'neutral' | 'selected'
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
+let dernierFaux = 0;
 export function AnswerChoice({ label, index, state, onPress, disabled }) {
+  useEffect(() => {
+    if (state === 'wrong') { dernierFaux = Date.now(); retour('faux'); }
+    if (state === 'correct') {
+      const t = setTimeout(() => { if (Date.now() - dernierFaux > 300) retour('bon'); }, 40);
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, [state]);
   const c = state === 'correct' ? { b: '#4FD8A4', bg: 'rgba(79,216,164,0.12)', t: T.encre, l: '#4FD8A4' }
     : state === 'wrong' ? { b: T.alerte, bg: T.alerteVoile, t: T.encre, l: T.alerte }
       : state === 'selected' ? { b: T.or, bg: T.orVoile, t: T.orTexte, l: T.or }
@@ -515,10 +581,13 @@ export function TimeBar({ running, duration, onExpire, resetKey, color = '#4FD8A
     setLeft(1);
     if (!running) return undefined;
     const t0 = Date.now();
+    let derniereSec = Math.ceil(duration);
     const id = setInterval(() => {
       const r = Math.max(0, 1 - (Date.now() - t0) / (duration * 1000));
       setLeft(r);
-      if (r <= 0) { clearInterval(id); cb.current && cb.current(); }
+      const sec = Math.ceil(r * duration);
+      if (sec !== derniereSec) { derniereSec = sec; if (sec > 0 && sec <= 3) retour('tic'); }
+      if (r <= 0) { clearInterval(id); retour('fin'); cb.current && cb.current(); }
     }, 100);
     return () => clearInterval(id);
   }, [resetKey, running]);
@@ -617,6 +686,13 @@ export function SetupLayout({ game, navigation, onBack, rules = [], children, st
       <ScrollView style={{ flex: 1, minHeight: 0 }} contentContainerStyle={st.content} keyboardShouldPersistTaps="handled">
         <LegendHeader game={game} subtitle={subtitle} />
         {children}
+        {SEO_JEUX[game]?.intro ? (
+          <View style={st.about}>
+            <Text style={st.sectionLabel}>LE JEU</Text>
+            <Text style={st.aboutText}>{SEO_JEUX[game].intro}</Text>
+            {rules.length ? <TextLink label="Lire les règles complètes" onPress={() => setShowRules(true)} /> : null}
+          </View>
+        ) : null}
       </ScrollView>
       <ActionBar note={note}>
         {secondary}
@@ -766,6 +842,8 @@ const st = StyleSheet.create({
   lobbyTag: { color: T.encreDouce, fontSize: 11, letterSpacing: 1.6 },
   lobbyWait: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 52 },
   lobbyWaitText: { color: T.encre, fontSize: 15 },
+  about: { gap: 8, paddingTop: 16, borderTopWidth: 1, borderTopColor: T.trait, alignItems: 'flex-start' },
+  aboutText: { color: T.encreDouce, fontSize: 14, lineHeight: 21 },
   roomCode: { color: T.encre, fontFamily: F.chiffre, fontSize: 48, letterSpacing: 12, paddingLeft: 12 },
 
   sheetBack: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(8,7,15,0.78)', justifyContent: 'flex-end' },

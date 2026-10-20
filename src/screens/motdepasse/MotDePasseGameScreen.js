@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import goBackOrMenu from '../../navigation/goBack';
 import {
-  GameScreen, GameTopBar, ActionBar, PrimaryButton, SecondaryButton, TextLink, Heading, QuestionCard, PassPhone,
+  EndActions, GameScreen, GameTopBar, ActionBar, PrimaryButton, SecondaryButton, TextLink, Heading, QuestionCard, PassPhone,
   PlayerToken, Ranking, T, F,
 } from '../../components/game/Legende';
 
@@ -132,12 +132,7 @@ export default function MotDePasseGameScreen({ navigation, route }) {
     const byName = Object.fromEntries(players.map((n, i) => [n, scores[i] || 0]));
     return (
       <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={cards.length} total={cards.length} />}
-        footer={(
-          <ActionBar>
-            <PrimaryButton label="Rejouer" onPress={() => navigation.navigate('MotDePasseSetup', { replay: Date.now() })} />
-            <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
-          </ActionBar>
-        )}>
+        footer={<EndActions navigation={navigation} route={route} replay={() => navigation.navigate('MotDePasseSetup', { replay: Date.now() })} game={GAME} scores={byName} />}>
         <Heading kicker="Partie terminée" title="Le classement" sub="Le Poète applaudit. Mots devinés par joueur :" />
         <Ranking players={players} scores={byName} />
       </GameScreen>

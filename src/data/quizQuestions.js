@@ -1,3 +1,4 @@
+import { tirer, tirerUn } from '../utils/dejaVu';
 const _usedIndices = {};
 
 export const quizCategories = {
@@ -294,31 +295,14 @@ export function buildQuestions(selectedCategories, count, difficulty = 'normal')
     const cat = quizCategories[key];
     if (!cat) return;
     const hardSet = new Set(HARD_INDICES[key] || []);
-    if (!_usedIndices[key]) _usedIndices[key] = new Set();
     const diffFilter = (q) => {
       if (difficulty === 'facile')    return !hardSet.has(q._i);
       if (difficulty === 'difficile') return  hardSet.has(q._i);
       return true;
     };
-    let avail = cat.questions
-      .map((q, i) => ({ ...q, cat: key, _i: i }))
-      .filter((q) => !_usedIndices[key].has(q._i) && diffFilter(q));
-    if (!avail.length) {
-      _usedIndices[key].clear();
-      avail = cat.questions.map((q, i) => ({ ...q, cat: key, _i: i })).filter(diffFilter);
-    }
-    pool.push(...avail);
+    pool.push(...cat.questions.map((q, i) => ({ ...q, cat: key, _i: i })).filter(diffFilter));
   });
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
-  }
-  const selected = pool.slice(0, count);
-  selected.forEach((q) => {
-    if (!_usedIndices[q.cat]) _usedIndices[q.cat] = new Set();
-    _usedIndices[q.cat].add(q._i);
-  });
-  return selected;
+  return tirer('quiz', pool, count, (q) => q.cat + ':' + q._i);
 }
 
 export function getCategories() {

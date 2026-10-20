@@ -279,7 +279,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
     const pct        = Math.round((totalPts / Math.max(maxPts, 1)) * 100);
     screen = (
       <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={songs.length} total={songs.length} />}
-        footer={<EndActions navigation={navigation} route={route} />}>
+        footer={<EndActions navigation={navigation} route={route} game={GAME} scores={scores} />}>
         <View style={styles.score}>
           <Text style={styles.kicker}>FIN DE PARTIE</Text>
           <Text style={styles.pct}>{pct} %</Text>

@@ -71,6 +71,8 @@ import BlancMultiFinalScreen from '../screens/blanc/BlancMultiFinalScreen';
 import TriPotesSetupScreen from '../screens/tripotes/TriPotesSetupScreen';
 import TriPotesGameScreen from '../screens/tripotes/TriPotesGameScreen';
 import VerreSetupScreen from '../screens/verre/VerreSetupScreen';
+import SoireeScreen from '../screens/soiree/SoireeScreen';
+import '../services/preferences';
 import VerreGameScreen from '../screens/verre/VerreGameScreen';
 import LolSelectSetupScreen from '../screens/lolselect/LolSelectSetupScreen';
 import LolSelectDraftScreen from '../screens/lolselect/LolSelectDraftScreen';
@@ -93,6 +95,7 @@ const linking = {
     screens: {
       // Écran unique : le carrousel des jeux est la page d'accueil
       Menu: '',
+      Soiree: 'soiree',
       Welcome: 'bienvenue',
       UndercoverSetup: 'undercover',
       UndercoverDistribute: 'undercover/distribute',
@@ -200,6 +203,7 @@ export default function AppNavigator() {
         }}
       >
         <Stack.Screen name="Menu" component={MenuScreen} />
+        <Stack.Screen name="Soiree" component={SoireeScreen} />
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="UndercoverSetup" component={UndercoverSetupScreen} />
         <Stack.Screen name="UndercoverDistribute" component={UndercoverDistributeScreen} />

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
 import { ANSWERS, initCards } from '../../data/blancMangerData';
 import goBackOrMenu from '../../navigation/goBack';
 import {
-  GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, QuestionCard, PassPhone, Field, Ranking, T, F,
+  EndActions, GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, QuestionCard, PassPhone, Field, Ranking, T, F,
 } from '../../components/game/Legende';
 
 const GAME = 'blanc_manger';
@@ -128,12 +128,7 @@ export default function BlancGameScreen({ navigation, route }) {
     const byName = Object.fromEntries(players.map((n, i) => [n, scores[i] || 0]));
     return (
       <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={totalRounds} total={totalRounds} />}
-        footer={(
-          <ActionBar>
-            <PrimaryButton label="Rejouer" onPress={() => navigation.navigate('BlancSetup', { replay: Date.now() })} />
-            <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
-          </ActionBar>
-        )}>
+        footer={<EndActions navigation={navigation} route={route} replay={() => navigation.navigate('BlancSetup', { replay: Date.now() })} game={GAME} scores={byName} />}>
         <Heading kicker="Fin de partie" title="Le classement" sub="Qui a fait le plus rire le jury ?" />
         <Ranking players={players} scores={byName} suffix=" pts" />
       </GameScreen>

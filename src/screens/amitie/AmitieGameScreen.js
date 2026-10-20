@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Animated } from 'react-native';
 import { getQuestions } from '../../data/amitieQuestions';
 import goBackOrMenu from '../../navigation/goBack';
 import {
-  GameScreen, GameTopBar, ActionBar, PrimaryButton, SecondaryButton, TextLink, Heading, Notice,
+  EndActions, GameScreen, GameTopBar, ActionBar, PrimaryButton, SecondaryButton, TextLink, Heading, Notice,
   QuestionCard, PlayerToken, Ranking, AdultTag, T, F,
 } from '../../components/game/Legende';
 
@@ -67,12 +67,7 @@ export default function AmitieGameScreen({ navigation, route }) {
     };
     return (
       <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={rounds.length} total={rounds.length} />}
-        footer={(
-          <ActionBar>
-            <PrimaryButton label="Rejouer" onPress={handleReplay} />
-            <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
-          </ActionBar>
-        )}>
+        footer={<EndActions navigation={navigation} route={route} replay={handleReplay} game={GAME} scores={byName} />}>
         <View style={s.score}>
           <Text style={s.kicker}>COMPATIBILITÉ</Text>
           <Text style={s.pct}>{compatibility} %</Text>

@@ -149,7 +149,7 @@ export default function OracleGameScreen({ route, navigation }) {
   if (phase === 'final') {
     return (
       <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={questions.length} total={questions.length} />}
-        footer={<EndActions navigation={navigation} route={route} />}>
+        footer={<EndActions navigation={navigation} route={route} game={GAME} scores={scores} />}>
         <Heading kicker="L’Oracle a parlé" title="Le classement" />
         <Ranking players={playerNames} scores={scores} suffix=" pts" />
       </GameScreen>

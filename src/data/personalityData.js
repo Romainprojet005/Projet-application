@@ -1,3 +1,4 @@
+import { tirer, tirerUn } from '../utils/dejaVu';
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -663,7 +664,7 @@ export function getPersonalities(count, filter = 'all') {
   } else if (filter === 'francais') {
     pool = ALL_PERSONALITIES.filter(p => p.category.startsWith('fr_'));
   }
-  return shuffle(pool).slice(0, Math.min(count, pool.length));
+  return tirer('personality', pool, Math.min(count, pool.length));
 }
 
 export function buildChoices(correct, allUsed) {

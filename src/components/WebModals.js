@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { OFFRES, JEUX_GRATUITS_PAR_JOUR } from '../config/offres';
 import { avantRotation, verifierCode } from '../services/acces';
+import { lirePrefs, changerPref } from '../services/preferences';
+import { retour } from '../utils/feedback';
 import { supabase } from '../services/supabase';
 import { LockIcon } from './BoosterCard';
 
@@ -52,6 +54,17 @@ if (Platform.OS === 'web' && typeof document !== 'undefined' && !document.getEle
     .sdl-field textarea { min-height: 120px; resize: vertical; }
     .sdl-msg { font-size: 14px; line-height: 20px; padding: 10px 12px; border-radius: 8px; }
     .sdl-msg.err { color: #FF8A8A; border: 1px solid #FF8A8A; }
+    .sdl-opts { display: grid; gap: 10px; margin-top: 18px; }
+    .sdl-opt { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 12px; border: 1px solid #2E2A4A;
+      background: #0E0C1A; cursor: pointer; text-align: left; color: #F3EEE2; font: inherit; width: 100%; box-sizing: border-box; }
+    .sdl-opt:hover { border-color: #6B6590; }
+    .sdl-opt:focus-visible { outline: 2px solid #F4DC8C; outline-offset: 2px; }
+    .sdl-opt b { display: block; font-weight: 600; font-size: 15px; }
+    .sdl-opt small { display: block; color: #A9A3BF; font-size: 13px; line-height: 18px; margin-top: 2px; }
+    .sdl-sw { flex: none; margin-left: auto; width: 46px; height: 26px; border-radius: 99px; background: #2E2A4A; position: relative; transition: background .2s; }
+    .sdl-sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #A9A3BF; transition: transform .2s, background .2s; }
+    .sdl-opt[aria-checked="true"] .sdl-sw { background: #D4AF37; }
+    .sdl-opt[aria-checked="true"] .sdl-sw::after { transform: translateX(20px); background: #1A1408; }
     @media (max-width: 600px) { .sdl-box { padding: 22px 18px; } .sdl-mh { font-size: 24px; } }
   `;
   document.head.appendChild(st);
@@ -201,6 +214,37 @@ export function CodeModal({ onClose, onUnlock }) {
           <div><button className="sdl-btn or" type="submit" disabled={code.length !== 4}>Valider</button></div>
         </form>
       )}
+    </Modal>
+  );
+}
+
+// ── Réglages de l'appareil ──
+const Opt = ({ on, onClick, titre, texte }) => (
+  <button type="button" role="switch" aria-checked={on ? 'true' : 'false'} className="sdl-opt" onClick={onClick}>
+    <span><b>{titre}</b><small>{texte}</small></span>
+    <span className="sdl-sw" aria-hidden="true" />
+  </button>
+);
+
+export function ReglagesModal({ onClose, ecoMode, onToggleEco }) {
+  const [p, setP] = useState(lirePrefs());
+  const basculer = (nom) => {
+    changerPref(nom, !p[nom]);
+    setP(lirePrefs());
+    if (!p[nom] && (nom === 'sons' || nom === 'vibrations')) setTimeout(() => retour('bon'), 30);
+  };
+  return (
+    <Modal onClose={onClose} small label="Réglages">
+      <span className="sdl-kick">Cet appareil</span>
+      <h2 className="sdl-mh">Réglages</h2>
+      <div className="sdl-opts">
+        <Opt on={p.sons} onClick={() => basculer('sons')} titre="Sons" texte="Petits sons pendant les parties : bonne réponse, chrono, révélation." />
+        <Opt on={p.vibrations} onClick={() => basculer('vibrations')} titre="Vibrations" texte="Sur les téléphones qui le permettent (Android)." />
+        <Opt on={p.sombre} onClick={() => basculer('sombre')} titre="Écran sombre renforcé" texte="Fond noir et luminosité réduite, pour jouer dans le noir." />
+        <Opt on={p.veille} onClick={() => basculer('veille')} titre="Écran toujours allumé" texte="L’écran ne se met pas en veille pendant une partie." />
+        {onToggleEco ? <Opt on={ecoMode} onClick={onToggleEco} titre="Mode éco" texte="Moins d’animations, pour économiser la batterie." /> : null}
+      </div>
+      <p className="sdl-note" style={{ marginTop: 14 }}>Ces réglages restent sur cet appareil.</p>
     </Modal>
   );
 }

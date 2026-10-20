@@ -115,13 +115,15 @@ const confidentialite = page('confidentialite', 'Politique de confidentialité',
   <div class="scroll"><table>
     <tr><th>Quoi</th><th>Pourquoi</th><th>Durée</th></tr>
     <tr><td><strong>Jeux sur un seul téléphone</strong> : prénoms des joueurs, réponses</td>
-        <td>Faire fonctionner la partie</td><td>Rien n’est envoyé : tout reste sur le téléphone, le temps de la partie</td></tr>
+        <td>Faire fonctionner la partie, et reproposer les mêmes prénoms au jeu suivant</td><td>Rien n’est envoyé : tout reste sur le téléphone</td></tr>
     <tr><td><strong>Jeux multi-téléphones</strong> : prénom ou pseudo choisi, code de la salle, votes, réponses et textes écrits pendant la partie</td>
         <td>Partager la partie entre les téléphones des joueurs</td><td>Supprimés automatiquement 24 heures après la création de la salle</td></tr>
     <tr><td><strong>« Proposer un jeu »</strong> : nom et description du jeu, nombre de joueurs, et si vous le donnez, un prénom ou un e-mail</td>
         <td>Lire votre idée et, si vous l’avez souhaité, vous répondre</td><td>2 ans au maximum</td></tr>
     <tr><td><strong>Statistiques</strong> : jeu ouvert ou lancé, mode (un ou plusieurs téléphones), nombre de joueurs</td>
         <td>Savoir quels jeux plaisent</td><td>Aucune donnée personnelle (ni nom, ni adresse IP, ni identifiant d’appareil)</td></tr>
+    <tr><td><strong>Fréquentation</strong> : une ligne par visite avec la page d’arrivée, le site d’où vous venez (son nom de domaine seulement), le type d’écran et si le site est installé</td>
+        <td>Savoir combien de personnes viennent et comment elles trouvent le site</td><td>Aucune donnée personnelle, aucun cookie ; effacé au bout de 2 ans</td></tr>
     <tr><td><strong>Mesure de performance</strong> de l’hébergeur (Netlify) : vitesse de chargement des pages</td>
         <td>Suivre la rapidité du site</td><td>Mesures anonymes, sans cookie</td></tr>
   </table></div>
@@ -136,7 +138,9 @@ const confidentialite = page('confidentialite', 'Politique de confidentialité',
   <ul>
     <li>une clé secrète qui protège les salles multi-téléphones que vous rejoignez ;</li>
     <li>vos accès aux jeux (jeux gratuits du jour, code d’accès) ;</li>
-    <li>votre préférence d’affichage (mode économie) ;</li>
+    <li>vos réglages (mode économie, sons, vibrations, écran sombre) ;</li>
+    <li>les prénoms de vos derniers joueurs et les questions déjà vues, pour qu’elles reviennent moins souvent ;</li>
+    <li>pendant la visite seulement : la soirée enchaînée en cours, et le fait que votre visite a déjà été comptée.</li>
     <li>une copie du site, pour qu’il reste utilisable si le réseau coupe.</li>
   </ul>
   <p>Vous pouvez tout effacer à tout moment depuis les réglages de votre navigateur (données du site).</p>
