@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Platform, ActivityIndicator, Pressable } from 'react-native';
 import { supabase, channelName } from '../../services/supabase';
 import { isCorrectTitle } from '../../utils/reponseBlindTest';
+import { selectSongs } from '../../data/blindTestSongs';
 import useKeepTyping from '../../utils/useKeepTyping';
 import alerte from '../../utils/alerte';
 import {
@@ -90,6 +91,11 @@ export default function BlindMultiGameScreen({ navigation, route }) {
           roomRef.current = roomData;
 
           if (nr.phase === 'idle') {
+            // Nouvelle partie dans la même salle : scores remis à zéro par l'hôte
+            if (nr.current_song_idx === 0) {
+              const { data: ps } = await supabase.from('blind_players').select().eq('room_id', roomId).order('created_at');
+              if (ps) { setPlayers(ps); playersRef.current = ps; }
+            }
             clearInterval(timerRef.current);
             setTimer(null);
             setInputText('');
@@ -197,6 +203,32 @@ export default function BlindMultiGameScreen({ navigation, route }) {
     }
   };
 
+  // Rejouer dans la même salle (hôte) : nouvelles chansons, scores remis à zéro, mêmes joueurs
+  const [relance, setRelance] = useState(false);
+  const handleReplay = async () => {
+    const r = roomRef.current;
+    if (!r || relance) return;
+    setRelance(true);
+    try {
+      const { error: pErr } = await supabase.from('blind_players').update({ score: 0, passed_idx: null }).eq('room_id', roomId);
+      if (pErr) throw pErr;
+      const { error: rErr } = await supabase.from('blind_rooms').update({
+        status: 'playing',
+        phase: 'idle',
+        current_song_idx: 0,
+        songs: selectSongs(r.song_count, r.category_id),
+        round_started_at: null,
+        found_player_id: null,
+        found_pts: 0,
+      }).eq('id', roomId);
+      if (rErr) throw rErr;
+    } catch (e) {
+      alerte('Erreur', e.message);
+    } finally {
+      setRelance(false);
+    }
+  };
+
   const handleGuess = async () => {
     const r = roomRef.current;
     if (!inputText.trim() || !r || r.phase !== 'playing' || roundResult) return;
@@ -267,9 +299,13 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   if (finished) {
     return (
       <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={songs.length} total={songs.length} />}
-        footer={(
-          <ActionBar>
-            <PrimaryButton label="Nouvelle partie" onPress={() => navigation.navigate('BlindMultiSetup')} />
+        footer={isHost ? (
+          <ActionBar note="Mêmes joueurs, nouvelles chansons : personne n’a besoin de revenir dans la salle.">
+            <PrimaryButton label={relance ? 'Relance…' : 'Rejouer dans la même salle'} onPress={handleReplay} disabled={relance} />
+            <TextLink label="Créer une nouvelle salle" onPress={() => navigation.navigate('BlindMultiSetup')} />
+          </ActionBar>
+        ) : (
+          <ActionBar note="L’hôte peut relancer une partie dans la même salle : restez sur cet écran.">
             <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
           </ActionBar>
         )}>
