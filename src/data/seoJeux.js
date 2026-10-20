@@ -47,7 +47,7 @@ export const SEO_JEUX = {
   },
   blindtest: {
     motCle: 'quiz musical en ligne gratuit',
-    intro: 'Un blind test musical gratuit, directement dans le navigateur : un extrait se lance, tapez le titre de la chanson le plus vite possible. Chansons françaises, années 80, rock, dessins animés et plus.',
+    intro: 'Un blind test musical gratuit, directement dans le navigateur : un extrait se lance, tapez le titre de la chanson le plus vite possible. Rap français, chansons françaises, années 80 et 90, rock, pop, dessins animés : près de 200 titres.',
     regles: [
       'Choisissez une catégorie, le nombre de chansons et le temps par chanson.',
       'Lancez l’extrait, puis tapez le titre : les fautes de frappe légères sont acceptées.',
