@@ -77,17 +77,27 @@ export async function verifierCode(code) {
     const buf = await crypto.subtle.digest('SHA-256', data);
     const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
     if (hex !== CODE_HASH) return false;
-    const d = lire();
-    d.code = true;
-    try { localStorage.setItem(KEY, JSON.stringify(d)); } catch {}
+    try { sessionStorage.setItem(CODE_KEY, '1'); } catch {}
     return true;
   } catch {
     return false;
   }
 }
 
-// Jeux « en construction » : verrouillés tant que le code d'accès n'a pas été saisi sur cet appareil
-export const enConstruction = (c) => !!c?.construction && !lire().code;
+// Le code ne vaut que pour la visite en cours (onglet ouvert) : en revenant sur le site,
+// les jeux « en construction » sont de nouveau verrouillés.
+const CODE_KEY = 'sdl-code';
+function codeActif() {
+  try { return sessionStorage.getItem(CODE_KEY) === '1'; } catch { return false; }
+}
+// Ancienne version : le code était gardé pour toujours sur l'appareil → on l'efface
+try {
+  const d = lire();
+  if (d.code) { delete d.code; localStorage.setItem(KEY, JSON.stringify(d)); }
+} catch {}
+
+// Jeux « en construction » : verrouillés tant que le code d'accès n'a pas été saisi pendant cette visite
+export const enConstruction = (c) => !!c?.construction && !codeActif();
 
 // Statut d'accès d'un jeu :
 //  'libre'    → cadenas désactivé (PAYWALL_ACTIF = false)
@@ -101,6 +111,6 @@ export function statutAcces(c, gratuits = gratuitsDuJour()) {
   if (gratuits.has(c.game)) return 'gratuit';
   const d = lire();
   const now = Date.now();
-  if (d.code || (d.abonnement || 0) > now || (d.tous || 0) > now || (d.jeux?.[c.game] || 0) > now) return 'debloque';
+  if (codeActif() || (d.abonnement || 0) > now || (d.tous || 0) > now || (d.jeux?.[c.game] || 0) > now) return 'debloque';
   return 'verrouille';
 }
