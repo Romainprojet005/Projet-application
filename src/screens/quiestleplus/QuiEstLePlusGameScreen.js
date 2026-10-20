@@ -67,7 +67,7 @@ export default function QuiEstLePlusGameScreen({ route, navigation }) {
     return (
       <GameScreen
         top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={prompts.length} total={prompts.length} />}
-        footer={<EndActions navigation={navigation} route={route} game={GAME} scores={scores} />}
+        footer={<EndActions navigation={navigation} route={route} game={GAME} scores={scores} moinsGagne />}
       >
         <View style={{ alignItems: 'center', gap: 6 }}>
           <Text style={s.kicker}>FIN DE PARTIE</Text>
