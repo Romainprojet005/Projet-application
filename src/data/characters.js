@@ -1,4 +1,4 @@
-export const characters = [
+const TOUS = [
   {
     id: 'agent_ombre',
     name: "Le Détective",
@@ -509,3 +509,10 @@ export const characters = [
     },
   },
 ];
+
+// Ordre du carrousel. Il tourne en boucle (la fin touche le début) : les jeux « en construction »
+// sont placés à l'opposé de la 1re carte, pour n'être jamais visibles à l'ouverture du menu.
+const DISPOS = TOUS.filter((c) => !c.construction), CHANTIER = TOUS.filter((c) => c.construction);
+const OPPOSE = Math.round((DISPOS.length + CHANTIER.length) / 2) - Math.ceil(CHANTIER.length / 2);
+export const characters = [...DISPOS.slice(0, OPPOSE), ...CHANTIER, ...DISPOS.slice(OPPOSE)];
+
