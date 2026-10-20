@@ -1,20 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
-import { OB_BG } from '../../theme/obsidian';
 import { supabase } from '../../services/supabase';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
-
-const VOTE_COLOR = '#2F74B5';
-const VOTE_DARK  = '#1B5A97';
-const VOTE_LIGHT = '#7CC4FF';
-const BG = OB_BG;
-
-const MEDALS = ['🥇', '🥈', '🥉'];
+import { GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, Ranking } from '../../components/game/Legende';
 
 export default function VoteMultiFinalScreen({ navigation, route }) {
-  const { roomId, playerId } = route.params;
+  const { roomId } = route.params;
   const [players, setPlayers] = useState([]);
 
   useEffect(() => {
@@ -26,80 +15,23 @@ export default function VoteMultiFinalScreen({ navigation, route }) {
       .then(({ data }) => { if (data) setPlayers(data); });
   }, []);
 
+  const names = players.map((p) => p.name);
+  const scores = Object.fromEntries(players.map((p) => [p.name, p.score || 0]));
   const winner = players[0];
 
   return (
-    <LinearGradient colors={BG} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}>
-        <Text style={styles.title}>🏆 RÉSULTATS FINAUX</Text>
-        <Text style={styles.subtitle}>Vote Majorité Multi-Téléphones</Text>
-
-        {winner && (
-          <View style={styles.winnerCard}>
-            <Text style={styles.winnerEmoji}>🥇</Text>
-            <Text style={styles.winnerName}>{winner.name}</Text>
-            <Text style={styles.winnerScore}>{winner.score} point{winner.score !== 1 ? 's' : ''}</Text>
-          </View>
-        )}
-
-        <View style={styles.rankList}>
-          {players.map((p, i) => (
-            <View key={p.id} style={[styles.rankRow, p.id === playerId && styles.rankRowMe]}>
-              <Text style={styles.rankMedal}>{MEDALS[i] ?? `${i + 1}.`}</Text>
-              <Text style={[styles.rankName, p.id === playerId && { color: VOTE_LIGHT }]}>
-                {p.name}{p.id === playerId ? ' (toi)' : ''}
-              </Text>
-              <Text style={styles.rankScore}>{p.score} pts</Text>
-            </View>
-          ))}
-        </View>
-
-        <TouchableOpacity
-          style={styles.mainBtn}
-          onPress={() => navigation.navigate('VoteMultiSetup')}
-          activeOpacity={0.8}
-        >
-          <LinearGradient colors={[VOTE_COLOR, VOTE_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-            <Text style={styles.mainBtnText}>⚖️ NOUVELLE PARTIE</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuBtn} onPress={() => navigation.navigate('Menu')}>
-          <Text style={styles.menuBtnText}>🏠 Retour au menu</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </LinearGradient>
+    <GameScreen
+      top={<GameTopBar game="vote" onBack={() => navigation.navigate('Menu')} confirmQuit={false} />}
+      footer={(
+        <ActionBar>
+          <PrimaryButton label="Nouvelle partie" onPress={() => navigation.navigate('VoteMultiSetup')} />
+          <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
+        </ActionBar>
+      )}
+    >
+      <Heading kicker="Résultats finaux" title={winner ? `${winner.name} l’emporte` : 'Le classement'}
+        sub={winner ? `${winner.score} point${winner.score !== 1 ? 's' : ''}` : null} />
+      <Ranking players={names} scores={scores} order={names} suffix=" pts" />
+    </GameScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-  scroll: { padding: spacing.lg, paddingTop: 60, paddingBottom: spacing.xxl },
-  title:    { fontSize: 28, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: VOTE_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xs },
-  subtitle: { fontSize: 13, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl },
-
-  winnerCard: {
-    backgroundColor: VOTE_COLOR + '22', borderRadius: radius.xl, padding: spacing.xl,
-    alignItems: 'center', borderWidth: 1, borderColor: VOTE_COLOR + '55', marginBottom: spacing.xl,
-  },
-  winnerEmoji: { fontSize: 64, marginBottom: spacing.md },
-  winnerName:  { fontSize: 28, fontWeight: '900', color: colors.text, marginBottom: spacing.xs },
-  winnerScore: { fontSize: 20, fontWeight: '700', color: VOTE_LIGHT },
-
-  rankList: { gap: spacing.sm, marginBottom: spacing.xl },
-  rankRow: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.md,
-    padding: spacing.md, borderWidth: 1, borderColor: colors.border, gap: spacing.md,
-  },
-  rankRowMe:  { borderColor: VOTE_COLOR + '66' },
-  rankMedal:  { fontSize: 22, width: 36 },
-  rankName:   { flex: 1, fontSize: 16, fontWeight: '700', color: colors.text },
-  rankScore:  { fontSize: 16, fontWeight: '900', color: VOTE_LIGHT },
-
-  mainBtn: { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.md },
-  mainBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  mainBtnText: { fontSize: 15, fontWeight: '900', color: colors.text, letterSpacing: 2 },
-
-  menuBtn:    { alignItems: 'center', paddingVertical: spacing.md },
-  menuBtnText: { color: colors.textMuted, fontSize: 15, fontWeight: '700' },
-});

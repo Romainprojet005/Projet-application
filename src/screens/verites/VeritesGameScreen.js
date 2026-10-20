@@ -1,24 +1,18 @@
-import React, { useState, useRef } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity,
-  TextInput, Animated, Platform, ScrollView,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
-import { OB_BG } from '../../theme/obsidian';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { VERITES_PROMPTS, VERITES_HOT_PROMPTS, VERITES_TRES_HOT_PROMPTS, VERITES_HOT_JOKER } from '../../data/veritesVoleesData';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
+import goBackOrMenu from '../../navigation/goBack';
+import {
+  GameScreen, GameTopBar, ActionBar, PrimaryButton, QuestionCard, PassPhone, Heading, Notice,
+  PlayerChoice, PlayerGrid, PlayerToken, Ranking, EndActions, Field, AdultTag, T, F,
+} from '../../components/game/Legende';
 
+const GAME = 'verites';
 const PROMPTS_BY_MODE = {
   classique: VERITES_PROMPTS,
   hot:       VERITES_HOT_PROMPTS,
   tres_hot:  VERITES_TRES_HOT_PROMPTS,
 };
-
-const ACCENT       = '#7E62E0';
-const ACCENT_LIGHT = '#B9A2FF';
-const ACCENT_DARK  = '#5B3FB8';
-const DANGER       = '#F87171';
 
 const shuffle = (arr) => {
   const a = [...arr];
@@ -54,8 +48,6 @@ export default function VeritesGameScreen({ route, navigation }) {
   const [roundPoints, setRoundPoints] = useState({});
   const [scores, setScores] = useState(Object.fromEntries(playerNames.map(n => [n, 0])));
 
-  const revealAnim = useRef(new Animated.Value(0)).current;
-
   const readerTruthIdx = (i) => {
     const [a, b] = swapped;
     if (i === a) return b;
@@ -74,7 +66,6 @@ export default function VeritesGameScreen({ route, navigation }) {
     }
   };
 
-  // ── WRITE ─────────────────────────────────────────────────────────────
   const handleSubmitTruth = () => {
     if (!currentText.trim()) return;
     const next = [...truths];
@@ -88,7 +79,6 @@ export default function VeritesGameScreen({ route, navigation }) {
     });
   };
 
-  // ── VOTE ──────────────────────────────────────────────────────────────
   const toggleSuspect = (idx) => {
     if (selection.includes(idx)) setSelection(selection.filter(s => s !== idx));
     else if (selection.length < 2) setSelection([...selection, idx]);
@@ -112,411 +102,175 @@ export default function VeritesGameScreen({ route, navigation }) {
       });
       setRoundPoints(pts);
       setScores(s => Object.fromEntries(playerNames.map(n => [n, (s[n] || 0) + pts[n]])));
-      revealAnim.setValue(0);
-      Animated.spring(revealAnim, { toValue: 1, tension: 40, friction: 8, useNativeDriver: true }).start();
       setPhase('reveal');
     });
   };
 
-  // ── NEXT ROUND ────────────────────────────────────────────────────────
   const handleNextRound = () => {
-    if (roundIdx + 1 >= rounds) {
-      setPhase('final');
-      return;
-    }
+    if (roundIdx + 1 >= rounds) { setPhase('final'); return; }
     setRoundIdx(r => r + 1);
-    setTruths([]);
-    setSwapped([]);
-    setVotes([]);
-    setSelection([]);
-    setTurnIdx(0);
-    setUnlocked(false);
+    setTruths([]); setSwapped([]); setVotes([]); setSelection([]);
+    setTurnIdx(0); setUnlocked(false);
     setPhase('write');
   };
 
-  const roundLabel = `Manche ${roundIdx + 1} / ${rounds}`;
+  const quit = () => goBackOrMenu(navigation);
+  const top = <GameTopBar game={GAME} onBack={quit} current={roundIdx + 1} total={rounds} />;
+  const kicker = `Manche ${roundIdx + 1} sur ${rounds}`;
+  const one = (label, onPress, disabled) => <ActionBar><PrimaryButton label={label} onPress={onPress} disabled={disabled} /></ActionBar>;
 
-  // ── RENDER: HANDOFF (écran masqué entre deux joueurs) ─────────────────
-  const renderHandoff = (subtitle) => (
-    <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-      <Text style={styles.counter}>{roundLabel}</Text>
-      <View style={styles.progressRow}>
-        {playerNames.map((_, i) => (
-          <View key={i} style={[styles.progressDot, i < turnIdx && styles.progressDotActive]} />
-        ))}
-      </View>
-      <Text style={styles.bigEmoji}>📱</Text>
-      <Text style={styles.handoffLabel}>Passe le téléphone à</Text>
-      <Text style={styles.handoffName}>{playerNames[turnIdx]}</Text>
-      <Text style={styles.hint}>{subtitle}</Text>
-      <TouchableOpacity onPress={() => setUnlocked(true)} style={styles.mainBtn} activeOpacity={0.85}>
-        <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnInner}>
-          <Text style={styles.mainBtnText}>C'est moi, {playerNames[turnIdx]} !</Text>
-        </LinearGradient>
-      </TouchableOpacity>
-    </LinearGradient>
+  const handoff = (instruction) => (
+    <GameScreen top={top} scroll={false} footer={one(`Je suis ${playerNames[turnIdx]}`, () => setUnlocked(true))}>
+      <PassPhone game={GAME} name={playerNames[turnIdx]} index={turnIdx} order={playerNames} kicker={kicker} instruction={instruction} />
+    </GameScreen>
   );
 
-  // ── RENDER: WRITE ─────────────────────────────────────────────────────
+  // ── Écrire sa vérité ──
   if (phase === 'write') {
-    if (!unlocked) return renderHandoff('Les autres, regardez ailleurs ! 👀');
+    if (!unlocked) return handoff('Les autres joueurs détournent le regard.');
     return (
-      <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={styles.counter}>{roundLabel}</Text>
-        <Text style={styles.title}>À toi, {playerNames[turnIdx]} !</Text>
-        <Text style={styles.hint}>Dis la vérité, rien que la vérité 🤞</Text>
-
-        <View style={[styles.inputCard, { borderColor: ACCENT + '50' }]}>
-          <Text style={styles.inputLabel}>{isQuestion ? 'Réponds en secret :' : 'Complète la phrase :'}</Text>
-          <Text style={styles.promptText}>{prompt}</Text>
-          <TextInput
-            value={currentText}
-            onChangeText={setCurrentText}
-            placeholder="Ta vérité…"
-            placeholderTextColor={colors.textMuted}
-            style={styles.truthInput}
-            multiline
-            maxLength={160}
-            autoFocus
-          />
-          <Text style={styles.charCount}>{currentText.length}/160</Text>
+      <GameScreen top={top} footer={one('Valider ma vérité', handleSubmitTruth, !currentText.trim())}>
+        <View style={s.who}>
+          <PlayerToken name={playerNames[turnIdx]} index={turnIdx} size={28} />
+          <Text style={s.whoText}>{playerNames[turnIdx]}, dites la vérité</Text>
+          {isHot ? <AdultTag /> : null}
         </View>
-        {isHot && <Text style={styles.hint}>🃏 Joker : {VERITES_HOT_JOKER}</Text>}
-
-        <TouchableOpacity
-          onPress={handleSubmitTruth}
-          disabled={!currentText.trim()}
-          style={[styles.mainBtn, !currentText.trim() && { opacity: 0.4 }]}
-          activeOpacity={0.85}
-        >
-          <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnInner}>
-            <Text style={styles.mainBtnText}>✓  Valider ma vérité</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </LinearGradient>
+        <QuestionCard kicker={isQuestion ? 'Répondez en secret' : 'Complétez la phrase'}>{prompt}</QuestionCard>
+        <View style={{ gap: 6 }}>
+          <Field value={currentText} onChangeText={setCurrentText} placeholder="Votre vérité…" multiline maxLength={160} autoFocus
+            accessibilityLabel="Votre vérité" />
+          <Text style={s.count}>{currentText.length} / 160</Text>
+        </View>
+        {isHot ? <Text style={s.small}>Joker : {VERITES_HOT_JOKER}</Text> : null}
+      </GameScreen>
     );
   }
 
-  // ── RENDER: READ ──────────────────────────────────────────────────────
+  // ── Lire « sa » vérité ──
   if (phase === 'read') {
-    if (!unlocked) return renderHandoff('Regarde ta vérité en secret avant de la lire');
+    if (!unlocked) return handoff('Découvrez votre vérité en secret avant de la lire.');
     const isLiar    = swapped.includes(turnIdx);
     const truthText = truths[readerTruthIdx(turnIdx)];
 
     if (!aloud) {
       return (
-        <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-          <Text style={styles.counter}>{roundLabel}</Text>
-          <Text style={styles.bigEmoji}>{isLiar ? '🤥' : '😇'}</Text>
+        <GameScreen top={top} footer={one('Lire à voix haute', () => setAloud(true))}>
           {isLiar ? (
-            <View style={[styles.alertCard, { borderColor: DANGER + '70', backgroundColor: DANGER + '18' }]}>
-              <Text style={[styles.alertTitle, { color: DANGER }]}>Ce n'est PAS ta vérité !</Text>
-              <Text style={styles.alertText}>
-                Le jeu te l'a échangée. Assume-la comme si c'était la tienne et bluffe pour ne pas te faire démasquer.
-              </Text>
-            </View>
+            <Notice tone="alerte" title="Ce n’est pas votre vérité">
+              Le jeu vous l’a échangée. Assumez-la comme si c’était la vôtre et bluffez pour ne pas être démasqué.
+            </Notice>
           ) : (
-            <View style={[styles.alertCard, { borderColor: ACCENT + '60', backgroundColor: ACCENT + '15' }]}>
-              <Text style={[styles.alertTitle, { color: ACCENT_LIGHT }]}>C'est bien ta vérité</Text>
-              <Text style={styles.alertText}>À toi de trouver les 2 joueurs qui mentent…</Text>
-            </View>
+            <Notice tone="neutre" title="C’est bien votre vérité">À vous de trouver les deux joueurs qui mentent.</Notice>
           )}
-          <View style={[styles.truthCard, { borderColor: ACCENT + '40' }]}>
-            <Text style={styles.truthPrompt}>{prompt}</Text>
-            <Text style={styles.truthText}>« {truthText} »</Text>
-          </View>
-          <TouchableOpacity onPress={() => setAloud(true)} style={styles.mainBtn} activeOpacity={0.85}>
-            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnInner}>
-              <Text style={styles.mainBtnText}>🗣️  Lire à voix haute</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </LinearGradient>
+          <QuestionCard kicker={prompt}>{`« ${truthText} »`}</QuestionCard>
+        </GameScreen>
       );
     }
 
     return (
-      <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={styles.counter}>{roundLabel}</Text>
-        <Text style={styles.title}>La vérité de {playerNames[turnIdx]}</Text>
-        <View style={[styles.truthCard, { borderColor: ACCENT + '40' }]}>
-          <Text style={styles.truthPrompt}>{prompt}</Text>
-          <Text style={styles.truthText}>« {truthText} »</Text>
-        </View>
-        <TouchableOpacity onPress={() => nextTurn(() => setPhase('discuss'))} style={styles.mainBtn} activeOpacity={0.85}>
-          <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnInner}>
-            <Text style={styles.mainBtnText}>{turnIdx + 1 < N ? 'Joueur suivant →' : 'Place au débat →'}</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </LinearGradient>
+      <GameScreen top={top} footer={one(turnIdx + 1 < N ? 'Joueur suivant' : 'Place au débat', () => nextTurn(() => setPhase('discuss')))}>
+        <Heading kicker={kicker} title={`La vérité de ${playerNames[turnIdx]}`} />
+        <QuestionCard kicker={prompt}>{`« ${truthText} »`}</QuestionCard>
+      </GameScreen>
     );
   }
 
-  // ── RENDER: DISCUSS ───────────────────────────────────────────────────
+  // ── Débat ──
   if (phase === 'discuss') {
     return (
-      <LinearGradient colors={OB_BG} style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollCenter}>
-          <Text style={styles.counter}>{roundLabel}</Text>
-          <Text style={styles.bigEmoji}>🕵️</Text>
-          <Text style={styles.title}>Qui ment ?</Text>
-          <Text style={styles.hint}>Questionnez-vous, demandez des détails… 2 joueurs bluffent !</Text>
-
-          <View style={styles.recapBox}>
-            <Text style={styles.truthPrompt}>{prompt}</Text>
-            {playerNames.map((name, i) => (
-              <View key={name} style={styles.recapRow}>
-                <Text style={styles.recapName}>{name}</Text>
-                <Text style={styles.recapText}>« {truths[readerTruthIdx(i)]} »</Text>
+      <GameScreen top={top} footer={one('Passer au vote', () => { setTurnIdx(0); setUnlocked(false); setPhase('vote'); })}>
+        <Heading kicker={kicker} title="Qui ment ?" sub="Questionnez-vous, demandez des détails : deux joueurs bluffent." />
+        <View style={s.recap}>
+          <Text style={s.recapPrompt}>{prompt}</Text>
+          {playerNames.map((name, i) => (
+            <View key={name} style={s.recapRow}>
+              <PlayerToken name={name} index={i} size={28} />
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={s.recapName}>{name}</Text>
+                <Text style={s.recapText}>« {truths[readerTruthIdx(i)]} »</Text>
               </View>
-            ))}
-          </View>
-
-          <TouchableOpacity onPress={() => { setTurnIdx(0); setUnlocked(false); setPhase('vote'); }} style={styles.mainBtn} activeOpacity={0.85}>
-            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnInner}>
-              <Text style={styles.mainBtnText}>🗳️  Passer au vote</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </ScrollView>
-      </LinearGradient>
+            </View>
+          ))}
+        </View>
+      </GameScreen>
     );
   }
 
-  // ── RENDER: VOTE ──────────────────────────────────────────────────────
+  // ── Vote secret ──
   if (phase === 'vote') {
-    if (!unlocked) return renderHandoff('Vote en secret pour 2 suspects');
+    if (!unlocked) return handoff('Votez en secret pour deux suspects.');
     return (
-      <LinearGradient colors={OB_BG} style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollCenter}>
-          <Text style={styles.counter}>{roundLabel}</Text>
-          <Text style={styles.title}>À toi, {playerNames[turnIdx]} !</Text>
-          <Text style={styles.hint}>Qui a lu une vérité qui n'était pas la sienne ? Choisis 2 suspects.</Text>
-
-          <View style={styles.voteGrid}>
-            {playerNames.map((name, idx) => {
-              if (idx === turnIdx) return null;
-              const picked = selection.includes(idx);
-              return (
-                <TouchableOpacity
-                  key={idx}
-                  onPress={() => toggleSuspect(idx)}
-                  style={[styles.voteBtn, picked && styles.voteBtnPicked]}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.voteBtnText}>{picked ? '🎯 ' : ''}{name}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          <TouchableOpacity
-            onPress={handleConfirmVote}
-            disabled={selection.length !== 2}
-            style={[styles.mainBtn, selection.length !== 2 && { opacity: 0.4 }]}
-            activeOpacity={0.85}
-          >
-            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnInner}>
-              <Text style={styles.mainBtnText}>✓  Valider mon vote ({selection.length}/2)</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </ScrollView>
-      </LinearGradient>
+      <GameScreen top={top} footer={one(`Valider mon vote (${selection.length} / 2)`, handleConfirmVote, selection.length !== 2)}>
+        <Heading kicker={`${playerNames[turnIdx]} vote`} title="Choisissez deux suspects" sub="Qui a lu une vérité qui n’était pas la sienne ?" />
+        <PlayerGrid>
+          {playerNames.map((name, idx) => (idx === turnIdx ? null : (
+            <PlayerChoice key={idx} name={name} index={idx} selected={selection.includes(idx)} onPress={() => toggleSuspect(idx)} label={`Suspecter ${name}`} />
+          )))}
+        </PlayerGrid>
+      </GameScreen>
     );
   }
 
-  // ── RENDER: REVEAL ────────────────────────────────────────────────────
+  // ── Révélation ──
   if (phase === 'reveal') {
     const [a, b] = swapped;
     const suspicion = playerNames.map((_, i) => votes.filter(v => v.includes(i)).length);
     const ranked = [...playerNames.keys()].sort((x, y) => suspicion[y] - suspicion[x]);
-
     return (
-      <LinearGradient colors={OB_BG} style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollCenter}>
-          <Text style={styles.counter}>{roundLabel}</Text>
-          <Text style={styles.title}>Les tricheurs étaient…</Text>
-
-          <Animated.View style={[styles.liarCard, { opacity: revealAnim, transform: [{ scale: revealAnim }] }]}>
-            <Text style={styles.liarNames}>🤥 {playerNames[a]} & {playerNames[b]}</Text>
-            <Text style={styles.liarLine}>
-              <Text style={styles.liarStrong}>{playerNames[a]}</Text> a lu la vérité de {playerNames[b]} : « {truths[b]} »
-            </Text>
-            <Text style={styles.liarLine}>
-              <Text style={styles.liarStrong}>{playerNames[b]}</Text> a lu la vérité de {playerNames[a]} : « {truths[a]} »
-            </Text>
-          </Animated.View>
-
-          <View style={styles.resultsBox}>
-            {ranked.map(i => (
-              <View key={i} style={styles.resultRow}>
-                <Text style={swapped.includes(i) ? styles.resultLiar : styles.resultName}>
-                  {swapped.includes(i) ? '🤥' : '😇'}  {playerNames[i]}
-                </Text>
-                <Text style={styles.resultVotes}>{suspicion[i]} vote{suspicion[i] > 1 ? 's' : ''}</Text>
-                <Text style={styles.resultPts}>+{roundPoints[playerNames[i]] || 0}</Text>
-              </View>
-            ))}
+      <GameScreen top={top} footer={one(roundIdx + 1 >= rounds ? 'Voir le classement' : 'Manche suivante', handleNextRound)}>
+        <Heading kicker="Les tricheurs étaient" />
+        <View style={s.verdict}>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <PlayerToken name={playerNames[a]} index={a} size={60} />
+            <PlayerToken name={playerNames[b]} index={b} size={60} />
           </View>
-
-          <TouchableOpacity onPress={handleNextRound} style={styles.mainBtn} activeOpacity={0.85}>
-            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnInner}>
-              <Text style={styles.mainBtnText}>
-                {roundIdx + 1 >= rounds ? '🏆 Voir les résultats' : 'Manche suivante →'}
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </ScrollView>
-      </LinearGradient>
+          <Text style={s.verdictName}>{playerNames[a]} & {playerNames[b]}</Text>
+          <Text style={s.verdictLine}><Text style={s.strong}>{playerNames[a]}</Text> a lu la vérité de {playerNames[b]} : « {truths[b]} »</Text>
+          <Text style={s.verdictLine}><Text style={s.strong}>{playerNames[b]}</Text> a lu la vérité de {playerNames[a]} : « {truths[a]} »</Text>
+        </View>
+        <View style={{ gap: 8 }}>
+          {ranked.map(i => {
+            const liar = swapped.includes(i);
+            return (
+              <View key={i} style={s.row}>
+                <PlayerToken name={playerNames[i]} index={i} size={28} />
+                <Text style={[s.rowName, liar && { color: T.alerte }]} numberOfLines={1}>{playerNames[i]}{liar ? ' · tricheur' : ''}</Text>
+                <Text style={s.rowVotes}>{suspicion[i]} vote{suspicion[i] > 1 ? 's' : ''}</Text>
+                <Text style={s.rowPts}>+{roundPoints[playerNames[i]] || 0}</Text>
+              </View>
+            );
+          })}
+        </View>
+      </GameScreen>
     );
   }
 
-  // ── RENDER: FINAL ─────────────────────────────────────────────────────
-  const sorted = [...playerNames].sort((x, y) => (scores[y] || 0) - (scores[x] || 0));
-  const medals = ['🥇', '🥈', '🥉'];
-
+  // ── Classement final ──
   return (
-    <LinearGradient colors={OB_BG} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollCenter}>
-        <Text style={styles.bigEmoji}>🏆</Text>
-        <Text style={styles.title}>Résultats finaux</Text>
-        <Text style={styles.hint}>Qui sait le mieux mentir… et démasquer ?</Text>
-
-        {sorted.map((name, idx) => (
-          <View key={name} style={[styles.finalRow, idx === 0 && styles.finalRowFirst]}>
-            <Text style={styles.finalMedal}>{medals[idx] ?? `${idx + 1}.`}</Text>
-            <Text style={styles.finalName}>{name}</Text>
-            <Text style={styles.finalScore}>{scores[name] || 0} pts</Text>
-          </View>
-        ))}
-
-        <View style={styles.finalBtns}>
-          <TouchableOpacity onPress={() => navigation.replace(route.name, route.params)} style={styles.replayBtn} activeOpacity={0.85}>
-            <Text style={styles.replayBtnText}>🔄 Rejouer</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.menuBtn} activeOpacity={0.85}>
-            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.menuInner}>
-              <Text style={styles.menuBtnText}>Retour au menu</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </LinearGradient>
+    <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={rounds} total={rounds} />}
+      footer={<EndActions navigation={navigation} route={route} />}>
+      <Heading kicker="Fin de partie" title="Le classement" sub="Qui sait le mieux mentir… et démasquer ?" />
+      <Ranking players={playerNames} scores={scores} suffix=" pts" />
+    </GameScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  container:  { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-  fullCenter: {
-    flex: 1, alignItems: 'center', justifyContent: 'center',
-    padding: spacing.xl, ...Platform.select({ web: { height: FULL_HEIGHT, overflowY: 'auto', justifyContent: 'safe center' } }),
-  },
-  scrollCenter: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingHorizontal: spacing.xl, paddingBottom: 40, alignItems: 'center',
-  },
-
-  counter:  { fontSize: 13, color: ACCENT_LIGHT, fontWeight: '700', letterSpacing: 1, marginBottom: spacing.md },
-  bigEmoji: { fontSize: 56, marginBottom: spacing.sm },
-  title:    { fontSize: 24, fontWeight: '900', color: colors.text, marginBottom: spacing.xs, textAlign: 'center' },
-  hint:     { fontSize: 13, color: colors.textMuted, marginBottom: spacing.xl, fontStyle: 'italic', textAlign: 'center', maxWidth: 380 },
-
-  progressRow: { flexDirection: 'row', gap: 8, marginBottom: spacing.xl },
-  progressDot: {
-    width: 10, height: 10, borderRadius: 5,
-    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
-  },
-  progressDotActive: { backgroundColor: ACCENT, borderColor: ACCENT },
-
-  handoffLabel: { fontSize: 15, color: colors.textSecondary, marginBottom: spacing.xs },
-  handoffName:  { fontSize: 32, fontWeight: '900', color: colors.text, marginBottom: spacing.sm },
-
-  mainBtn:      { width: '100%', maxWidth: 400, borderRadius: radius.full, overflow: 'hidden' },
-  mainBtnInner: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  mainBtnText:  { color: '#fff', fontSize: 15, fontWeight: '800', letterSpacing: 1 },
-
-  // WRITE
-  inputCard: {
-    width: '100%', maxWidth: 400, backgroundColor: colors.card,
-    borderRadius: radius.xl, borderWidth: 1, padding: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  inputLabel: { fontSize: 12, color: ACCENT_LIGHT, fontWeight: '700', marginBottom: spacing.sm, letterSpacing: 1 },
-  promptText: { fontSize: 18, color: colors.text, fontWeight: '700', marginBottom: spacing.md, lineHeight: 24 },
-  truthInput: {
-    color: colors.text, fontSize: 16, minHeight: 80, textAlignVertical: 'top',
-    ...Platform.select({ web: { outlineStyle: 'none', resize: 'none' } }),
-  },
-  charCount: { fontSize: 11, color: colors.textMuted, textAlign: 'right', marginTop: spacing.xs },
-
-  // READ
-  alertCard:  { width: '100%', maxWidth: 400, borderRadius: radius.lg, borderWidth: 1, padding: spacing.md, marginBottom: spacing.lg },
-  alertTitle: { fontSize: 16, fontWeight: '900', marginBottom: 4, textAlign: 'center' },
-  alertText:  { fontSize: 13, color: colors.textSecondary, textAlign: 'center', lineHeight: 19 },
-
-  truthCard: {
-    width: '100%', maxWidth: 400, backgroundColor: ACCENT + '12',
-    borderRadius: radius.xl, borderWidth: 1, padding: spacing.lg, marginBottom: spacing.xl,
-  },
-  truthPrompt: { fontSize: 13, color: ACCENT_LIGHT, fontWeight: '700', marginBottom: spacing.sm },
-  truthText:   { fontSize: 20, color: colors.text, fontStyle: 'italic', lineHeight: 28 },
-
-  // DISCUSS
-  recapBox: {
-    width: '100%', maxWidth: 400, backgroundColor: colors.card, borderRadius: radius.lg,
-    borderWidth: 1, borderColor: colors.border, padding: spacing.lg, marginBottom: spacing.xl,
-  },
-  recapRow:  { paddingVertical: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border },
-  recapName: { fontSize: 13, fontWeight: '800', color: ACCENT_LIGHT, marginBottom: 2 },
-  recapText: { fontSize: 15, color: colors.text, fontStyle: 'italic' },
-
-  // VOTE
-  voteGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center', marginBottom: spacing.xl, maxWidth: 420 },
-  voteBtn: {
-    minWidth: 130, paddingVertical: spacing.md, paddingHorizontal: spacing.lg, alignItems: 'center',
-    borderRadius: radius.lg, borderWidth: 1, borderColor: ACCENT + '50', backgroundColor: ACCENT + '18',
-  },
-  voteBtnPicked: { borderColor: ACCENT, backgroundColor: ACCENT + '55' },
-  voteBtnText:   { color: colors.text, fontSize: 16, fontWeight: '700' },
-
-  // REVEAL
-  liarCard: {
-    width: '100%', maxWidth: 400, backgroundColor: DANGER + '15',
-    borderRadius: radius.xl, borderWidth: 1.5, borderColor: DANGER + '60',
-    padding: spacing.lg, marginBottom: spacing.lg, marginTop: spacing.md,
-  },
-  liarNames:  { fontSize: 24, fontWeight: '900', color: colors.text, textAlign: 'center', marginBottom: spacing.md },
-  liarLine:   { fontSize: 14, color: colors.textSecondary, marginBottom: spacing.sm, lineHeight: 20 },
-  liarStrong: { color: colors.text, fontWeight: '800' },
-
-  resultsBox: { width: '100%', maxWidth: 400, marginBottom: spacing.xl },
-  resultRow: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.border,
-  },
-  resultName:  { flex: 1, fontSize: 15, fontWeight: '700', color: colors.text },
-  resultLiar:  { flex: 1, fontSize: 15, fontWeight: '800', color: DANGER },
-  resultVotes: { fontSize: 12, color: colors.textMuted, marginRight: spacing.md },
-  resultPts:   { fontSize: 14, fontWeight: '800', color: ACCENT_LIGHT, minWidth: 30, textAlign: 'right' },
-
-  // FINAL
-  finalRow: {
-    flexDirection: 'row', alignItems: 'center', width: '100%', maxWidth: 380,
-    backgroundColor: colors.card, borderRadius: radius.lg,
-    padding: spacing.md, marginBottom: spacing.sm,
-    borderWidth: 1, borderColor: colors.border,
-  },
-  finalRowFirst: { borderColor: ACCENT + '70', backgroundColor: ACCENT + '15' },
-  finalMedal:    { fontSize: 22, width: 36 },
-  finalName:     { flex: 1, fontSize: 16, fontWeight: '700', color: colors.text },
-  finalScore:    { fontSize: 18, fontWeight: '900', color: ACCENT_LIGHT },
-
-  finalBtns: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xl, width: '100%', maxWidth: 380 },
-  replayBtn: {
-    flex: 1, paddingVertical: spacing.md, borderRadius: radius.lg,
-    backgroundColor: colors.surface, alignItems: 'center',
-    borderWidth: 1, borderColor: colors.border,
-  },
-  replayBtnText: { color: colors.text, fontSize: 14, fontWeight: '700' },
-  menuBtn:       { flex: 2, borderRadius: radius.full, overflow: 'hidden' },
-  menuInner:     { paddingVertical: spacing.md + 2, alignItems: 'center' },
-  menuBtnText:   { color: '#fff', fontSize: 14, fontWeight: '800' },
+const s = StyleSheet.create({
+  who: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  whoText: { flex: 1, color: T.encre, fontSize: 15 },
+  count: { color: T.encreDouce, fontFamily: F.chiffre, fontSize: 11, textAlign: 'right' },
+  small: { color: T.encreDouce, fontSize: 13, lineHeight: 19, textAlign: 'center' },
+  recap: { borderRadius: 14, borderWidth: 1, borderColor: T.trait, backgroundColor: T.carte, padding: 16, gap: 12 },
+  recapPrompt: { color: T.orTexte, fontFamily: F.texteFort, fontSize: 14 },
+  recapRow: { flexDirection: 'row', gap: 10, paddingTop: 12, borderTopWidth: 1, borderTopColor: T.trait },
+  recapName: { color: T.encreDouce, fontFamily: F.texteFort, fontSize: 13 },
+  recapText: { color: T.encre, fontSize: 16, lineHeight: 22 },
+  verdict: { borderRadius: 18, borderWidth: 1, borderColor: T.or, backgroundColor: T.orVoile, padding: 20, alignItems: 'center', gap: 10 },
+  verdictName: { color: T.encre, fontFamily: F.affiche, fontSize: 30, lineHeight: 34, textAlign: 'center' },
+  verdictLine: { color: T.encreDouce, fontSize: 14, lineHeight: 20, textAlign: 'center' },
+  strong: { color: T.encre, fontFamily: F.texteFort },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: T.trait },
+  rowName: { flex: 1, color: T.encre, fontFamily: F.texteMoyen, fontSize: 15 },
+  rowVotes: { color: T.encreDouce, fontSize: 13 },
+  rowPts: { minWidth: 30, textAlign: 'right', color: T.orTexte, fontFamily: F.chiffre, fontSize: 14 },
 });

@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity, TextInput,
-  ScrollView, Platform, ActivityIndicator,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
+import { Text } from 'react-native';
 import { supabase, isSupabaseConfigured } from '../../services/supabase';
-
-import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
-const BG = OB_BG;
+import goBackOrMenu from '../../navigation/goBack';
+import { SetupLayout, Section, ChoicePills, Field, Notice, GameScreen, GameTopBar, Heading, T } from '../../components/game/Legende';
 
 function generateCode() {
   return Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random() * 23)]).join('');
 }
+
+const TABS = [{ value: 'create', label: 'Créer une salle' }, { value: 'join', label: 'Rejoindre' }];
+const errorText = (e) => {
+  const msg = e.message || '';
+  return msg.includes('fetch') || msg.includes('network') || msg.includes('ECONN')
+    ? 'Serveur inaccessible pour le moment. Réessayez dans quelques minutes.'
+    : msg || 'Erreur de connexion. Réessayez.';
+};
 
 export default function TribunalSetupScreen({ navigation }) {
   const [tab,      setTab]      = useState('create');
@@ -24,21 +25,9 @@ export default function TribunalSetupScreen({ navigation }) {
 
   if (!isSupabaseConfigured) {
     return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <View style={styles.configWrap}>
-          <Text style={styles.configTitle}>Configuration requise</Text>
-          <Text style={styles.configText}>
-            Tribunal nécessite Supabase.{'\n\n'}
-            Ajoute dans .env :{'\n\n'}
-            EXPO_PUBLIC_SUPABASE_URL=https://xxx.supabase.co{'\n'}
-            EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...{'\n\n'}
-            Puis exécute la migration SQL tribunal dans Supabase.
-          </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.backBtn}>
-            <Text style={styles.backBtnText}>← Retour</Text>
-          </TouchableOpacity>
-        </View>
-      </LinearGradient>
+      <GameScreen top={<GameTopBar game="tribunal" mode="setup" onBack={() => navigation.navigate('Menu')} />}>
+        <Heading title="Indisponible" sub="Ce jeu a besoin d’une connexion au serveur, qui n’est pas configurée." />
+      </GameScreen>
     );
   }
 
@@ -57,14 +46,7 @@ export default function TribunalSetupScreen({ navigation }) {
         .select().single();
       if (pErr) throw pErr;
       navigation.replace('TribunalLobby', { roomId: room.id, playerId: player.id, isHost: true });
-    } catch (e) {
-      const msg = e.message || '';
-      setErrorMsg(
-        msg.includes('fetch') || msg.includes('network') || msg.includes('ECONN')
-          ? 'Serveur inaccessible. Le projet Supabase est en pause — va sur app.supabase.com et clique "Restore project".'
-          : msg || 'Erreur de connexion. Réessaie.'
-      );
-    }
+    } catch (e) { setErrorMsg(errorText(e)); }
     finally { setLoading(false); }
   };
 
@@ -75,7 +57,7 @@ export default function TribunalSetupScreen({ navigation }) {
     try {
       const { data: room, error: rErr } = await supabase
         .from('tribunal_rooms').select().eq('code', joinCode.toUpperCase()).single();
-      if (rErr || !room) throw new Error('Salle introuvable. Vérifie le code.');
+      if (rErr || !room) throw new Error('Salle introuvable. Vérifiez le code.');
       if (room.status !== 'lobby') throw new Error('La partie a déjà commencé.');
       const { data: player, error: pErr } = await supabase
         .from('tribunal_players')
@@ -83,148 +65,45 @@ export default function TribunalSetupScreen({ navigation }) {
         .select().single();
       if (pErr) throw pErr;
       navigation.replace('TribunalLobby', { roomId: room.id, playerId: player.id, isHost: false });
-    } catch (e) {
-      const msg = e.message || '';
-      setErrorMsg(
-        msg.includes('fetch') || msg.includes('network') || msg.includes('ECONN')
-          ? 'Serveur inaccessible. Le projet Supabase est en pause — va sur app.supabase.com et clique "Restore project".'
-          : msg || 'Erreur de connexion. Réessaie.'
-      );
-    }
+    } catch (e) { setErrorMsg(errorText(e)); }
     finally { setLoading(false); }
   };
 
-  const canProceed = tab === 'create' ? !!name.trim() : name.trim() && joinCode.length === 4;
+  const create = tab === 'create';
+  const canProceed = create ? !!name.trim() : !!name.trim() && joinCode.length === 4;
 
   return (
-    <LinearGradient colors={BG} style={styles.container}>
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={styles.scroll}
-        keyboardShouldPersistTaps="handled"
-      >
-        <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.backRow}>
-          <Text style={styles.backText}>← Menu</Text>
-        </TouchableOpacity>
+    <SetupLayout
+      game="tribunal"
+      navigation={navigation}
+      onBack={() => goBackOrMenu(navigation)}
+      onStart={create ? handleCreate : handleJoin}
+      canStart={canProceed && !loading}
+      startLabel={loading ? 'Connexion…' : create ? 'Créer la salle' : 'Rejoindre la salle'}
+      note="Chaque joueur utilise son propre téléphone."
+      rules={[
+        'Chacun écrit une vérité sur un autre joueur.',
+        'L’accusé découvre ce qu’on a écrit sur lui, devine qui l’a écrit, puis se défend à voix haute.',
+        'Le jury vote : « C’est vrai » ou « C’est faux ».',
+        'Majorité « faux » : acquitté. Sinon : +1 point de malus.',
+        'Le joueur avec le moins de malus gagne.',
+      ]}
+    >
+      <ChoicePills options={TABS} value={tab} onChange={(t) => { setTab(t); setErrorMsg(''); }} />
 
-        <Text style={styles.title}>TRIBUNAL</Text>
-        <Text style={styles.subtitle}>La vérité sera jugée !</Text>
+      <Section label="Votre prénom">
+        <Field placeholder="Votre prénom…" value={name} onChangeText={setName} autoCapitalize="words" maxLength={20} accessibilityLabel="Votre prénom" />
+      </Section>
 
-        {/* Tabs */}
-        <View style={styles.tabs}>
-          {['create', 'join'].map(t => (
-            <TouchableOpacity key={t} style={[styles.tab, tab === t && styles.tabActive]} onPress={() => setTab(t)}>
-              <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t === 'create' ? 'Créer' : 'Rejoindre'}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+      {!create && (
+        <Section label="Code de la salle">
+          <Field placeholder="ABCD" value={joinCode} onChangeText={(t) => setJoinCode(t.toUpperCase())} autoCapitalize="characters" maxLength={4}
+            accessibilityLabel="Code de la salle" style={{ textAlign: 'center', fontSize: 28, letterSpacing: 10, height: 64 }} />
+          <Text style={{ color: T.encreDouce, fontSize: 13 }}>Demandez le code au joueur qui a créé la salle.</Text>
+        </Section>
+      )}
 
-        {/* Nom */}
-        <View style={styles.field}>
-          <Text style={styles.label}>TON PRÉNOM</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Entre ton prénom..."
-            placeholderTextColor={colors.textMuted}
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-            maxLength={20}
-          />
-        </View>
-
-        {/* Code de la salle */}
-        {tab === 'join' && (
-          <View style={styles.field}>
-            <Text style={styles.label}>CODE DE LA SALLE</Text>
-            <TextInput
-              style={[styles.input, styles.codeInput]}
-              placeholder="ABCD"
-              placeholderTextColor={colors.textMuted}
-              value={joinCode}
-              onChangeText={t => setJoinCode(t.toUpperCase())}
-              autoCapitalize="characters"
-              maxLength={4}
-            />
-          </View>
-        )}
-
-        {!!errorMsg && (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{errorMsg}</Text>
-          </View>
-        )}
-
-        <TouchableOpacity
-          style={[styles.mainBtn, (!canProceed || loading) && styles.mainBtnDisabled]}
-          onPress={tab === 'create' ? handleCreate : handleJoin}
-          disabled={!canProceed || loading}
-          activeOpacity={0.8}
-        >
-          <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-            {loading
-              ? <ActivityIndicator color="#000" />
-              : <Text style={styles.mainBtnText}>{tab === 'create' ? 'CRÉER LA SALLE' : 'REJOINDRE'}</Text>
-            }
-          </LinearGradient>
-        </TouchableOpacity>
-
-        {/* Règles */}
-        <View style={styles.rules}>
-          <Text style={styles.rulesTitle}>Règles du Tribunal</Text>
-          <Text style={styles.rulesLine}>Chacun écrit une vérité sur un autre joueur</Text>
-          <Text style={styles.rulesLine}>L'accusé découvre ce qu'on a écrit sur lui</Text>
-          <Text style={styles.rulesLine}>Il devine qui a écrit, puis se défend à voix haute</Text>
-          <Text style={styles.rulesLine}>Le jury vote : "C'est vrai" ou "C'est faux"</Text>
-          <Text style={styles.rulesLine}>Majorité "Faux" → acquitté, pas de malus</Text>
-          <Text style={styles.rulesLine}>Sinon → +1 point de malus</Text>
-          <Text style={styles.rulesLine}>Le moins de malus gagne !</Text>
-        </View>
-      </ScrollView>
-    </LinearGradient>
+      {errorMsg ? <Notice tone="alerte">{errorMsg}</Notice> : null}
+    </SetupLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-  scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  backRow: { paddingVertical: 12, paddingRight: 20, marginTop: -12, marginBottom: spacing.lg },
-  backText: { color: colors.textMuted, fontSize: 14 },
-  title: { fontSize: 34, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, textAlign: 'center', letterSpacing: 3 },
-  subtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
-  tabs: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.lg, padding: 4, marginBottom: spacing.xl },
-  tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.md },
-  tabActive: { backgroundColor: GOLD_LIGHT },
-  tabText: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
-  tabTextActive: { color: '#000' },
-  field: { marginBottom: spacing.lg },
-  label: { fontSize: 11, fontWeight: '800', color: GOLD_LIGHT, letterSpacing: 2, marginBottom: spacing.sm },
-  input: {
-    backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1, borderColor: GOLD + '44',
-    paddingVertical: spacing.md, paddingHorizontal: spacing.lg,
-    fontSize: 16, fontWeight: '700', color: colors.text,
-  },
-  codeInput: { fontSize: 28, fontWeight: '900', textAlign: 'center', letterSpacing: 8 },
-  errorBox: {
-    backgroundColor: '#EF444420', borderRadius: radius.md, borderWidth: 1, borderColor: '#EF4444',
-    padding: spacing.md, marginBottom: spacing.md,
-  },
-  errorText: { color: '#FCA5A5', fontSize: 13, fontWeight: '600', textAlign: 'center' },
-  mainBtn: { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.xl },
-  mainBtnDisabled: { opacity: 0.4 },
-  mainBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  mainBtnText: { fontSize: 15, fontWeight: '900', color: '#000', letterSpacing: 2 },
-  rules: {
-    backgroundColor: GOLD + '15', borderRadius: radius.lg, padding: spacing.lg,
-    borderWidth: 1, borderColor: GOLD + '30',
-  },
-  rulesTitle: { fontSize: 14, fontWeight: '800', color: GOLD_LIGHT, marginBottom: spacing.md },
-  rulesLine: { fontSize: 13, color: colors.textSecondary, marginBottom: 6, lineHeight: 20 },
-  configWrap: { flex: 1, justifyContent: 'center', padding: spacing.xl },
-  configTitle: { fontSize: 22, fontWeight: '900', color: GOLD_LIGHT, marginBottom: spacing.lg, textAlign: 'center' },
-  configText: { fontSize: 13, color: colors.textSecondary, lineHeight: 22, fontFamily: Platform.OS === 'web' ? 'monospace' : 'Courier' },
-  backBtn: { paddingVertical: 12, paddingRight: 20, marginTop: -12, marginTop: spacing.xl, alignItems: 'center' },
-  backBtnText: { color: GOLD_LIGHT, fontSize: 15, fontWeight: '700' },
-});

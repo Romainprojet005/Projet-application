@@ -1,82 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, Animated } from 'react-native';
+import goBackOrMenu from '../../navigation/goBack';
 import {
-  View, Text, StyleSheet, TouchableOpacity,
-  Animated, ScrollView, Platform,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
-import { GOLD, GOLD_DARK, GOLD_LIGHT, OB_BG } from '../../theme/obsidian';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
+  GameScreen, GameTopBar, ActionBar, PrimaryButton, SecondaryButton, TextLink, Heading, QuestionCard, PassPhone,
+  PlayerToken, Ranking, T, F,
+} from '../../components/game/Legende';
 
-const CYAN       = GOLD;
-const CYAN_DARK  = GOLD_DARK;
-const CYAN_LIGHT = GOLD_LIGHT;
-const BG         = OB_BG;
+const GAME = 'motdepasse';
 
-// ── Final leaderboard ──────────────────────────────────────────────
-function FinalScreen({ players, scores, onPlayAgain, onMenu }) {
-  const ranked = [...players].map((name, i) => ({ name, score: scores[i] || 0 })).sort((a, b) => b.score - a.score);
-  const podiumAnim = useRef(new Animated.Value(0)).current;
-  const rowAnims   = useRef(ranked.map(() => new Animated.Value(0))).current;
-  const medals = ['🥇', '🥈', '🥉'];
-
-  useEffect(() => {
-    Animated.sequence([
-      Animated.timing(podiumAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
-      Animated.stagger(100, rowAnims.map(a => Animated.spring(a, { toValue: 1, tension: 50, friction: 8, useNativeDriver: true }))),
-    ]).start();
-  }, []);
-
-  return (
-    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
-      <ScrollView contentContainerStyle={styles.finalScroll} showsVerticalScrollIndicator={false}
-        style={Platform.OS === 'web' && { flex: 1 }}>
-        <Animated.View style={[styles.finalHeader, {
-          opacity: podiumAnim,
-          transform: [{ scale: podiumAnim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }],
-        }]}>
-          <Text style={styles.finalEmoji}>🎭</Text>
-          <Text style={styles.finalTitle}>MOT DE PASSE TERMINÉ !</Text>
-          <Text style={styles.finalSub}>Le Poète applaudit</Text>
-        </Animated.View>
-
-        <View style={styles.rankList}>
-          {ranked.map((player, i) => (
-            <Animated.View key={i} style={{
-              opacity: rowAnims[i],
-              transform: [{ translateX: rowAnims[i].interpolate({ inputRange: [0, 1], outputRange: [60, 0] }) }],
-            }}>
-              <LinearGradient
-                colors={i === 0 ? ['#1A1400', '#252000'] : ['#141414', '#1A1A1A']}
-                style={[styles.rankRow, i === 0 && styles.rankRowFirst]}
-              >
-                <Text style={styles.rankMedal}>{medals[i] || `#${i + 1}`}</Text>
-                <Text style={[styles.rankName, i === 0 && { color: CYAN_LIGHT }]}>{player.name}</Text>
-                <View style={styles.rankScoreWrap}>
-                  <Text style={[styles.rankScore, i === 0 && { color: CYAN }]}>{player.score}</Text>
-                  <Text style={styles.rankScorePts}>mots</Text>
-                </View>
-              </LinearGradient>
-            </Animated.View>
-          ))}
-        </View>
-
-        <View style={styles.finalBtns}>
-          <TouchableOpacity onPress={onPlayAgain} style={styles.finalBtnPrimary} activeOpacity={0.88}>
-            <LinearGradient colors={[CYAN, CYAN_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.finalBtnGrad}>
-              <Text style={styles.finalBtnText}>🎭  REJOUER</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onMenu} style={styles.finalBtnSecondary} activeOpacity={0.88}>
-            <Text style={styles.finalBtnSecondaryText}>Retour au menu</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </LinearGradient>
-  );
-}
-
-// ── Main game ──────────────────────────────────────────────────────
 export default function MotDePasseGameScreen({ navigation, route }) {
   const { players, cards, timerSecs } = route.params;
 
@@ -194,277 +125,125 @@ export default function MotDePasseGameScreen({ navigation, route }) {
     setPhase('handoff');
   };
 
+  const quit = () => goBackOrMenu(navigation);
+
+  // ── Classement ──
   if (phase === 'gameEnd') {
+    const byName = Object.fromEntries(players.map((n, i) => [n, scores[i] || 0]));
     return (
-      <FinalScreen
-        players={players} scores={scores}
-        onPlayAgain={() => navigation.navigate('MotDePasseSetup', { replay: Date.now() })}
-        onMenu={() => navigation.navigate('Menu')}
-      />
+      <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={cards.length} total={cards.length} />}
+        footer={(
+          <ActionBar>
+            <PrimaryButton label="Rejouer" onPress={() => navigation.navigate('MotDePasseSetup', { replay: Date.now() })} />
+            <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
+          </ActionBar>
+        )}>
+        <Heading kicker="Partie terminée" title="Le classement" sub="Le Poète applaudit. Mots devinés par joueur :" />
+        <Ranking players={players} scores={byName} />
+      </GameScreen>
     );
   }
 
   const currentCard = cards[cardIdxDisplay] || cards[cards.length - 1];
   const timerPct    = timeLeft / timerSecs;
-  const timerColor  = timerPct > 0.5 ? CYAN : timerPct > 0.25 ? '#F59E0B' : '#EF4444';
+  const timerColor  = timerPct > 0.5 ? '#FF8A8A' : timerPct > 0.25 ? T.orTexte : T.alerte;
+  const top = <GameTopBar game={GAME} onBack={quit} current={cardIdxDisplay} total={cards.length} />;
 
-  // ── HANDOFF ──────────────────────────────────────────────────────
+  // ── Au tour de… ──
   if (phase === 'handoff') {
     return (
-      <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
-        <Animated.View style={[styles.handoffBox, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-          <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.cancelTop}>
-            <Text style={styles.cancelTopText}>✕  Quitter</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.progressLabel}>{cardIdxDisplay} / {cards.length} mots</Text>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${(cardIdxDisplay / cards.length) * 100}%`, backgroundColor: CYAN }]} />
-          </View>
-
-          <LinearGradient colors={[CYAN + '25', CYAN + '10']} style={[styles.handoffCard, { borderColor: CYAN + '30' }]}>
-            <View style={[styles.handoffAvatar, { borderColor: CYAN + '60', backgroundColor: CYAN + '20' }]}>
-              <Text style={styles.handoffAvatarEmoji}>🎭</Text>
+      <GameScreen top={top} scroll={false} footer={<ActionBar><PrimaryButton label="Je suis prêt" onPress={startTurn} /></ActionBar>}>
+        <PassPhone game={GAME} name={players[playerIdx]} index={playerIdx} order={players} kicker={`${cardIdxDisplay} mots sur ${cards.length}`}
+          instruction={`Faites deviner les mots sans dire les mots interdits. Vous avez ${timerSecs} secondes.`}
+          extra={(
+            <View style={s.scores}>
+              {players.map((name, i) => (
+                <View key={i} style={[s.scoreChip, i === playerIdx && { borderColor: T.or }]}>
+                  <Text style={s.scoreName} numberOfLines={1}>{name}</Text>
+                  <Text style={[s.scoreVal, i === playerIdx && { color: T.orTexte }]}>{scores[i] || 0}</Text>
+                </View>
+              ))}
             </View>
-            <Text style={styles.handoffLabel}>C'est le tour de</Text>
-            <Text style={[styles.handoffName, { color: CYAN }]}>{players[playerIdx]}</Text>
-            <Text style={styles.handoffInstruction}>
-              Prends le téléphone !{'\n'}Fais deviner les mots sans dire les mots interdits.{'\n'}Tu as {timerSecs} secondes.
-            </Text>
-          </LinearGradient>
-
-          <View style={styles.scoreRow}>
-            {players.map((name, i) => (
-              <View key={i} style={styles.scoreChip}>
-                <Text style={styles.scoreChipName}>{name.length > 7 ? name.slice(0, 7) + '…' : name}</Text>
-                <Text style={[styles.scoreChipScore, i === playerIdx && { color: CYAN }]}>{scores[i] || 0}</Text>
-              </View>
-            ))}
-          </View>
-
-          <TouchableOpacity onPress={startTurn} style={styles.startBtn} activeOpacity={0.88}>
-            <LinearGradient colors={[CYAN, CYAN_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.startBtnGrad}>
-              <Text style={styles.startBtnText}>🎭  JE SUIS PRÊT !</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </Animated.View>
-      </LinearGradient>
+          )} />
+      </GameScreen>
     );
   }
 
-  // ── PLAYING ──────────────────────────────────────────────────────
+  // ── Le tour ──
   if (phase === 'playing') {
     return (
-      <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
-        {/* Top bar */}
-        <View style={styles.topBar}>
-          <Text style={[styles.topBarPlayer, { color: CYAN }]}>{players[playerIdx]}</Text>
-          <View style={[styles.timerBadge, { borderColor: timerColor + '80', backgroundColor: timerColor + '20' }]}>
-            <Text style={[styles.timerNum, { color: timerColor }]}>{timeLeft}</Text>
-            <Text style={[styles.timerSec, { color: timerColor }]}>s</Text>
+      <GameScreen top={top} footer={(
+        <ActionBar>
+          <View style={s.duo}>
+            <SecondaryButton label="Passer" onPress={handleSkip} style={{ flex: 1, width: 'auto' }} />
+            <PrimaryButton label="Trouvé" onPress={handleCorrect} style={{ flex: 1.4, width: 'auto' }} />
           </View>
-          <Text style={styles.topBarCount}>{cardIdxDisplay}/{cards.length}</Text>
+          <TextLink label="Terminer le tour" color={T.encreDouce} onPress={() => doEndTurnRef.current()} />
+        </ActionBar>
+      )}>
+        <View style={s.status}>
+          <PlayerToken name={players[playerIdx]} index={playerIdx} size={28} />
+          <Text style={s.player}>{players[playerIdx]}</Text>
+          <Text style={s.turn}>{turnCorrectRef.current} trouvé{turnCorrectRef.current > 1 ? 's' : ''}</Text>
+          <View style={[s.timer, { borderColor: timerColor }]}><Text style={[s.timerText, { color: timerColor }]}>{timeLeft}</Text></View>
         </View>
+        <View style={s.track}><View style={[s.fill, { width: `${timerPct * 100}%`, backgroundColor: timerColor }]} /></View>
 
-        {/* Timer bar */}
-        <View style={styles.timerBarTrack}>
-          <Animated.View style={[styles.timerBarFill, { width: `${timerPct * 100}%`, backgroundColor: timerColor }]} />
-        </View>
-
-        <ScrollView contentContainerStyle={styles.playScroll} showsVerticalScrollIndicator={false}
-          style={Platform.OS === 'web' && { flex: 1 }}>
-
-          {/* Turn score */}
-          <View style={styles.turnScoreRow}>
-            <View style={[styles.turnScoreBadge, { borderColor: CYAN + '50' }]}>
-              <Text style={styles.turnScoreNum}>{turnCorrectRef.current}</Text>
-              <Text style={styles.turnScoreLabel}>✓ ce tour</Text>
+        <Animated.View style={{ opacity: cardAnim, gap: 16 }}>
+          <QuestionCard kicker="Faites deviner">{currentCard.word}</QuestionCard>
+          <View style={s.forbidden}>
+            <Text style={s.forbiddenTitle}>MOTS INTERDITS</Text>
+            <View style={s.chips}>
+              {currentCard.forbidden.map((w, i) => (
+                <View key={i} style={s.chip}><Text style={s.chipText}>{w}</Text></View>
+              ))}
             </View>
           </View>
-
-          {/* Word card */}
-          <Animated.View style={{ opacity: cardAnim }}>
-            <LinearGradient colors={[CYAN + '20', CYAN + '08']} style={[styles.wordCard, { borderColor: CYAN + '50' }]}>
-              <Text style={styles.wordText}>{currentCard.word}</Text>
-            </LinearGradient>
-
-            {/* Forbidden words */}
-            <View style={styles.forbiddenBox}>
-              <Text style={styles.forbiddenTitle}>🚫  Mots interdits</Text>
-              <View style={styles.forbiddenList}>
-                {currentCard.forbidden.map((w, i) => (
-                  <View key={i} style={styles.forbiddenChip}>
-                    <Text style={styles.forbiddenWord}>{w}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          </Animated.View>
-
-          {/* Action buttons */}
-          <View style={styles.actionRow}>
-            <TouchableOpacity onPress={handleSkip} style={styles.skipBtn} activeOpacity={0.8}>
-              <Text style={styles.skipBtnIcon}>✗</Text>
-              <Text style={styles.skipBtnText}>Passer</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleCorrect} style={styles.correctBtn} activeOpacity={0.8}>
-              <Text style={styles.correctBtnIcon}>✓</Text>
-              <Text style={styles.correctBtnText}>Deviné !</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity onPress={doEndTurnRef.current} style={styles.endTurnLink}>
-            <Text style={styles.endTurnLinkText}>Terminer le tour</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </LinearGradient>
+        </Animated.View>
+      </GameScreen>
     );
   }
 
-  // ── TURN END ─────────────────────────────────────────────────────
+  // ── Fin du tour ──
+  const next = players[(playerIdx + 1) % players.length];
+  const byName = Object.fromEntries(players.map((n, i) => [n, scores[i] || 0]));
   return (
-    <LinearGradient colors={BG} style={[styles.container, Platform.OS === 'web' && { height: FULL_HEIGHT }]}>
-      <Animated.View style={[styles.turnEndBox, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-        <Text style={styles.turnEndTitle}>⏱️  Fin du tour</Text>
-        <Text style={[styles.turnEndPlayer, { color: CYAN }]}>{players[playerIdx]}</Text>
-
-        <LinearGradient colors={[CYAN + '25', CYAN + '10']} style={[styles.turnEndResult, { borderColor: CYAN + '30' }]}>
-          <View style={styles.turnEndStat}>
-            <Text style={[styles.turnEndStatNum, { color: '#4ADE80' }]}>{lastTurnResult.correct}</Text>
-            <Text style={styles.turnEndStatLabel}>✓ mot{lastTurnResult.correct > 1 ? 's' : ''} deviné{lastTurnResult.correct > 1 ? 's' : ''}</Text>
-          </View>
-          {lastTurnResult.skipped > 0 && (
-            <View style={styles.turnEndStat}>
-              <Text style={[styles.turnEndStatNum, { color: colors.textMuted }]}>{lastTurnResult.skipped}</Text>
-              <Text style={styles.turnEndStatLabel}>passé{lastTurnResult.skipped > 1 ? 's' : ''}</Text>
-            </View>
-          )}
-        </LinearGradient>
-
-        <View style={styles.miniScoreList}>
-          {players.map((name, i) => (
-            <View key={i} style={[styles.miniScoreRow, i === playerIdx && styles.miniScoreRowActive]}>
-              <Text style={[styles.miniScoreName, i === playerIdx && { color: CYAN }]}>{name}</Text>
-              <Text style={[styles.miniScoreVal, i === playerIdx && { color: CYAN }]}>{scores[i] || 0} mot{(scores[i] || 0) !== 1 ? 's' : ''}</Text>
-            </View>
-          ))}
+    <GameScreen top={top} footer={<ActionBar note={`${cards.length - cardIdxDisplay} mots restants`}><PrimaryButton label={`Au tour de ${next}`} onPress={handleNextTurn} /></ActionBar>}>
+      <Heading kicker="Fin du tour" title={players[playerIdx]} />
+      <View style={s.result}>
+        <View style={{ alignItems: 'center', flex: 1 }}>
+          <Text style={[s.resultNum, { color: T.orTexte }]}>{lastTurnResult.correct}</Text>
+          <Text style={s.resultLabel}>trouvé{lastTurnResult.correct > 1 ? 's' : ''}</Text>
         </View>
-
-        <TouchableOpacity onPress={handleNextTurn} style={styles.nextBtn} activeOpacity={0.88}>
-          <LinearGradient colors={[CYAN, CYAN_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextBtnGrad}>
-            <Text style={styles.nextBtnText}>
-              {`Tour de ${players[(playerIdx + 1) % players.length]}  →`}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <Text style={styles.remainText}>{cards.length - cardIdxDisplay} mots restants</Text>
-      </Animated.View>
-    </LinearGradient>
+        <View style={{ alignItems: 'center', flex: 1 }}>
+          <Text style={s.resultNum}>{lastTurnResult.skipped}</Text>
+          <Text style={s.resultLabel}>passé{lastTurnResult.skipped > 1 ? 's' : ''}</Text>
+        </View>
+      </View>
+      <Ranking players={players} scores={byName} />
+    </GameScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-
-  // Handoff
-  handoffBox: { flex: 1, paddingTop: Platform.OS === 'ios' ? 56 : 36, paddingHorizontal: spacing.xl, alignItems: 'center' },
-  cancelTop: { alignSelf: 'flex-start', marginBottom: spacing.md },
-  cancelTopText: { fontSize: 13, color: colors.danger, fontWeight: '600' },
-  progressLabel: { fontSize: 11, color: colors.textMuted, marginBottom: 6, fontWeight: '600' },
-  progressTrack: { width: '100%', height: 4, backgroundColor: colors.border, borderRadius: 2, overflow: 'hidden', marginBottom: spacing.xl },
-  progressFill: { height: '100%', borderRadius: 2 },
-  handoffCard: { width: '100%', borderRadius: radius.xl, padding: spacing.xl, alignItems: 'center', borderWidth: 1, marginBottom: spacing.xl },
-  handoffAvatar: { width: 72, height: 72, borderRadius: 36, borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md },
-  handoffAvatarEmoji: { fontSize: 38 },
-  handoffLabel: { fontSize: 13, color: colors.textSecondary, marginBottom: spacing.xs },
-  handoffName: { fontSize: 32, fontWeight: '900', marginBottom: spacing.md },
-  handoffInstruction: { fontSize: 13, color: colors.textSecondary, textAlign: 'center', lineHeight: 20 },
-  scoreRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center', marginBottom: spacing.xl },
-  scoreChip: { backgroundColor: colors.card, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: 6, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  scoreChipName: { fontSize: 10, color: colors.textMuted, fontWeight: '600' },
-  scoreChipScore: { fontSize: 16, fontWeight: '900', color: colors.text },
-  startBtn: { width: '100%', borderRadius: radius.full, overflow: 'hidden', shadowColor: CYAN, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12 },
-  startBtnGrad: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  startBtnText: { fontSize: 16, fontWeight: '800', color: '#000', letterSpacing: 2 },
-
-  // Playing
-  topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: Platform.OS === 'ios' ? 56 : 36, paddingHorizontal: spacing.xl, paddingBottom: spacing.sm },
-  topBarPlayer: { fontSize: 13, fontWeight: '700', flex: 1 },
-  topBarCount: { fontSize: 13, color: colors.textMuted, fontWeight: '600', flex: 1, textAlign: 'right' },
-  timerBadge: { borderWidth: 1.5, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: 4, flexDirection: 'row', alignItems: 'baseline', gap: 2 },
-  timerNum: { fontSize: 22, fontWeight: '900' },
-  timerSec: { fontSize: 12, fontWeight: '700' },
-  timerBarTrack: { height: 5, backgroundColor: colors.border, borderRadius: 3, overflow: 'hidden', marginHorizontal: spacing.xl, marginBottom: spacing.md },
-  timerBarFill: { height: '100%', borderRadius: 3 },
-
-  playScroll: { paddingHorizontal: spacing.xl, paddingBottom: 48 },
-  turnScoreRow: { alignItems: 'center', marginBottom: spacing.md },
-  turnScoreBadge: { borderWidth: 1, borderRadius: radius.full, paddingHorizontal: spacing.lg, paddingVertical: 6, flexDirection: 'row', alignItems: 'baseline', gap: spacing.sm },
-  turnScoreNum: { fontSize: 28, fontWeight: '900', color: '#4ADE80' },
-  turnScoreLabel: { fontSize: 13, color: colors.textSecondary, fontWeight: '600' },
-
-  wordCard: { borderRadius: radius.xl, padding: spacing.xl, alignItems: 'center', borderWidth: 1.5, marginBottom: spacing.md },
-  wordText: { fontSize: 46, fontWeight: '900', color: colors.text, letterSpacing: 2, textAlign: 'center' },
-
-  forbiddenBox: { backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1, borderColor: '#EF4444' + '40', marginBottom: spacing.xl },
-  forbiddenTitle: { fontSize: 13, fontWeight: '700', color: '#EF4444', marginBottom: spacing.sm },
-  forbiddenList: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
-  forbiddenChip: { backgroundColor: '#EF4444' + '15', borderRadius: radius.md, paddingHorizontal: spacing.sm, paddingVertical: 4, borderWidth: 1, borderColor: '#EF4444' + '40' },
-  forbiddenWord: { fontSize: 13, fontWeight: '700', color: '#FCA5A5' },
-
-  actionRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md },
-  skipBtn: {
-    flex: 1, backgroundColor: '#EF4444' + '20', borderRadius: radius.lg,
-    paddingVertical: spacing.lg + 4, alignItems: 'center', borderWidth: 2, borderColor: '#EF4444' + '70',
-  },
-  skipBtnIcon: { fontSize: 32, marginBottom: 4 },
-  skipBtnText: { fontSize: 14, fontWeight: '700', color: '#FCA5A5' },
-  correctBtn: {
-    flex: 1, backgroundColor: '#10B981' + '20', borderRadius: radius.lg,
-    paddingVertical: spacing.lg + 4, alignItems: 'center', borderWidth: 2, borderColor: '#10B981' + '70',
-  },
-  correctBtnIcon: { fontSize: 32, marginBottom: 4 },
-  correctBtnText: { fontSize: 14, fontWeight: '700', color: '#6EE7B7' },
-  endTurnLink: { alignItems: 'center', paddingVertical: spacing.md },
-  endTurnLinkText: { fontSize: 12, color: colors.textMuted, textDecorationLine: 'underline' },
-
-  // Turn end
-  turnEndBox: { flex: 1, paddingTop: Platform.OS === 'ios' ? 70 : 50, paddingHorizontal: spacing.xl, alignItems: 'center' },
-  turnEndTitle: { fontSize: 18, fontWeight: '800', color: colors.text, marginBottom: spacing.xs },
-  turnEndPlayer: { fontSize: 36, fontWeight: '900', marginBottom: spacing.xl },
-  turnEndResult: { width: '100%', borderRadius: radius.xl, padding: spacing.xl, borderWidth: 1, flexDirection: 'row', justifyContent: 'space-around', marginBottom: spacing.xl },
-  turnEndStat: { alignItems: 'center' },
-  turnEndStatNum: { fontSize: 56, fontWeight: '900' },
-  turnEndStatLabel: { fontSize: 12, color: colors.textSecondary, fontWeight: '600', marginTop: 2 },
-  miniScoreList: { width: '100%', gap: spacing.xs, marginBottom: spacing.xl },
-  miniScoreRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, paddingHorizontal: spacing.md, borderRadius: radius.md },
-  miniScoreRowActive: { backgroundColor: CYAN + '15' },
-  miniScoreName: { fontSize: 14, fontWeight: '600', color: colors.text },
-  miniScoreVal: { fontSize: 14, fontWeight: '700', color: colors.textSecondary },
-  nextBtn: { width: '100%', borderRadius: radius.full, overflow: 'hidden', shadowColor: CYAN, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.5, shadowRadius: 14, elevation: 10, marginBottom: spacing.md },
-  nextBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  nextBtnText: { fontSize: 15, fontWeight: '800', color: '#000', letterSpacing: 1 },
-  remainText: { fontSize: 11, color: colors.textMuted, marginTop: spacing.xs },
-
-  // Final
-  finalScroll: { paddingTop: Platform.OS === 'ios' ? 70 : 50, paddingHorizontal: spacing.xl, paddingBottom: 60, alignItems: 'center' },
-  finalHeader: { alignItems: 'center', marginBottom: spacing.xl },
-  finalEmoji: { fontSize: 72, textAlign: 'center', marginBottom: spacing.md },
-  finalTitle: { fontSize: 24, fontWeight: '900', color: colors.text, letterSpacing: 3, textAlign: 'center' },
-  finalSub: { fontSize: 13, color: CYAN_LIGHT, letterSpacing: 2, marginTop: spacing.xs, textAlign: 'center' },
-  rankList: { width: '100%', gap: spacing.sm, marginBottom: spacing.xl },
-  rankRow: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, gap: spacing.md },
-  rankRowFirst: { borderColor: CYAN + '50' },
-  rankMedal: { fontSize: 26 },
-  rankName: { flex: 1, fontSize: 16, fontWeight: '700', color: colors.text },
-  rankScoreWrap: { alignItems: 'flex-end' },
-  rankScore: { fontSize: 26, fontWeight: '900', color: colors.text },
-  rankScorePts: { fontSize: 11, color: colors.textMuted },
-  finalBtns: { width: '100%', gap: spacing.md },
-  finalBtnPrimary: { borderRadius: radius.full, overflow: 'hidden', shadowColor: CYAN, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 12 },
-  finalBtnGrad: { paddingVertical: spacing.md + 6, alignItems: 'center' },
-  finalBtnText: { fontSize: 16, fontWeight: '800', color: '#000', letterSpacing: 2 },
-  finalBtnSecondary: { backgroundColor: colors.surface, paddingVertical: spacing.md, borderRadius: radius.full, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
-  finalBtnSecondaryText: { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
+const s = StyleSheet.create({
+  scores: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'center', marginTop: 8 },
+  scoreChip: { flexDirection: 'row', gap: 6, alignItems: 'center', height: 30, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: T.trait, maxWidth: 160 },
+  scoreName: { color: T.encreDouce, fontSize: 13, flexShrink: 1 },
+  scoreVal: { color: T.encre, fontFamily: F.chiffre, fontSize: 13 },
+  status: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  player: { flex: 1, color: T.encre, fontFamily: F.texteFort, fontSize: 15 },
+  turn: { color: T.encreDouce, fontSize: 13 },
+  timer: { width: 48, height: 48, borderRadius: 999, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  timerText: { fontFamily: F.chiffre, fontSize: 17 },
+  track: { height: 6, borderRadius: 999, backgroundColor: T.trait, overflow: 'hidden' },
+  fill: { height: 6, borderRadius: 999 },
+  forbidden: { borderRadius: 14, borderWidth: 1, borderColor: T.alerte, backgroundColor: T.alerteVoile, padding: 16, gap: 10 },
+  forbiddenTitle: { color: T.alerte, fontFamily: F.chiffre, fontSize: 11, letterSpacing: 2.4, textAlign: 'center' },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
+  chip: { height: 34, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,138,138,0.5)', justifyContent: 'center' },
+  chipText: { color: T.encre, fontFamily: F.texteMoyen, fontSize: 15 },
+  duo: { flexDirection: 'row', gap: 8, width: '100%' },
+  result: { flexDirection: 'row', borderRadius: 14, borderWidth: 1, borderColor: T.trait, backgroundColor: T.carte, padding: 16 },
+  resultNum: { color: T.encre, fontFamily: F.affiche, fontSize: 40, lineHeight: 44 },
+  resultLabel: { color: T.encreDouce, fontSize: 13 },
 });

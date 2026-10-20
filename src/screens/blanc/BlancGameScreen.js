@@ -1,17 +1,12 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, Animated, Platform, TextInput, KeyboardAvoidingView,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
-import { OB_BG, GOLD, GOLD_LIGHT, GOLD_DARK, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
+import React, { useState, useMemo, useRef } from 'react';
+import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
 import { ANSWERS, initCards } from '../../data/blancMangerData';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
+import goBackOrMenu from '../../navigation/goBack';
+import {
+  GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, QuestionCard, PassPhone, Field, Ranking, T, F,
+} from '../../components/game/Legende';
 
-const PRP       = colors.primary;
-const PRP_LIGHT = colors.primaryLight;
-const PRP_DARK  = colors.primaryDark;
+const GAME = 'blanc_manger';
 
 export default function BlancGameScreen({ navigation, route }) {
   const { players, category, totalRounds, questions } = route.params;
@@ -125,551 +120,147 @@ export default function BlancGameScreen({ navigation, route }) {
     });
   };
 
-  // ── Results screen ─────────────────────────────────────────────────────────
+  const quit = () => goBackOrMenu(navigation);
+  const one = (label, onPress, disabled) => <ActionBar><PrimaryButton label={label} onPress={onPress} disabled={disabled} /></ActionBar>;
 
+  // ── Classement ──
   if (phase === 'results') {
-    const sorted = players
-      .map((name, i) => ({ name, score: scores[i] || 0, idx: i }))
-      .sort((a, b) => b.score - a.score);
-
+    const byName = Object.fromEntries(players.map((n, i) => [n, scores[i] || 0]));
     return (
-      <LinearGradient colors={OB_BG} style={styles.container}>
-        <ScrollView
-          contentContainerStyle={styles.resultsScroll}
-          showsVerticalScrollIndicator={false}
-          style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
-        >
-          <Text style={styles.resultsTitle}>🏆 RÉSULTATS FINAUX</Text>
-          <Text style={styles.resultsSub}>Qui a fait le plus rire le jury ?</Text>
-
-          {sorted.map((p, idx) => (
-            <LinearGradient
-              key={p.name}
-              colors={idx === 0 ? ['#2A1800', '#1A0D00'] : ['transparent', 'transparent']}
-              style={[styles.resultRow, idx === 0 && styles.resultRowWinner]}
-            >
-              <Text style={styles.resultRank}>
-                {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}.`}
-              </Text>
-              <Text style={[styles.resultName, idx === 0 && { color: GOLD_LIGHT }]}>{p.name}</Text>
-              <Text style={[styles.resultScore, idx === 0 && { color: GOLD_LIGHT }]}>
-                {p.score} pt{p.score > 1 ? 's' : ''}
-              </Text>
-            </LinearGradient>
-          ))}
-
-          <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={{ marginTop: spacing.xl }}>
-            <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-              <Text style={styles.mainBtnText}>🏠 Retour au menu</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('BlancSetup', { replay: Date.now() })} style={{ marginTop: spacing.md }}>
-            <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-              <Text style={styles.mainBtnText}>🔄 Rejouer</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </ScrollView>
-      </LinearGradient>
+      <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={totalRounds} total={totalRounds} />}
+        footer={(
+          <ActionBar>
+            <PrimaryButton label="Rejouer" onPress={() => navigation.navigate('BlancSetup', { replay: Date.now() })} />
+            <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
+          </ActionBar>
+        )}>
+        <Heading kicker="Fin de partie" title="Le classement" sub="Qui a fait le plus rire le jury ?" />
+        <Ranking players={players} scores={byName} suffix=" pts" />
+      </GameScreen>
     );
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  const parts = currentQuestion.split('___');
+  const Sentence = ({ fill }) => (
+    <QuestionCard kicker={`Phrase à trou · tour ${round + 1}`}>
+      <Text style={s.sentence}>
+        {parts[0]}
+        <Text style={fill ? s.fill : s.blank}>{fill ? ` ${fill} ` : ' ________ '}</Text>
+        {parts[1] || ''}
+      </Text>
+    </QuestionCard>
+  );
+  const top = (
+    <GameTopBar game={GAME} onBack={quit} current={round + 1} total={totalRounds}
+      right={<Text style={s.judgeTag} numberOfLines={1}>JURY · {players[judgeIdx].toUpperCase()}</Text>} />
+  );
 
-  function renderQuestionCard(full = true) {
-    const parts = currentQuestion.split('___');
-    return full ? (
-      <LinearGradient colors={['#1A1730', '#0E0C1A']} style={styles.blackCard}>
-        <Text style={styles.blackCardText}>
-          {parts[0]}
-          <Text style={styles.blackCardBlank}>___________</Text>
-          {parts[1] || ''}
-        </Text>
-      </LinearGradient>
-    ) : (
-      <View style={styles.miniBlack}>
-        <Text style={styles.miniBlackText}>
-          {parts[0]}<Text style={styles.miniBlackBlank}> ___ </Text>{parts[1] || ''}
-        </Text>
-      </View>
+  let body = null;
+  let footer = null;
+  let scroll = true;
+
+  if (phase === 'question') {
+    footer = one('Lancez vos réponses', handleStartPicking);
+    body = (
+      <>
+        <Sentence />
+        <Text style={s.instr}>{players[judgeIdx]}, lisez la phrase à voix haute. Tout le monde écoute avant de choisir sa réponse.</Text>
+      </>
+    );
+  } else if (phase === 'picker_lock') {
+    const pi = pickers[pickerStep];
+    scroll = false;
+    footer = one(`Je suis ${players[pi]}`, handlePickerLockOK);
+    body = <PassPhone game={GAME} name={players[pi]} index={pi} kicker={`Carte ${pickerStep + 1} sur ${pickers.length}`} instruction="Choisissez votre carte en secret : les autres joueurs détournent le regard." />;
+  } else if (phase === 'picker_active') {
+    const playerIdx = pickers[pickerStep];
+    const hand = gameCards.hands[playerIdx] || [];
+    const selectedIsRare = selectedCard !== null && rareSet.has(selectedCard);
+    const canSubmit = selectedCard !== null && (!selectedIsRare || rareDraft.trim().length > 0);
+    footer = one(selectedIsRare ? 'Jouer ma réponse' : 'Choisir cette carte', handlePickerSubmit, !canSubmit);
+    body = (
+      <>
+        <Sentence />
+        <Heading kicker={`${players[playerIdx]} choisit`} sub="Laquelle fera le plus rire le jury ?" />
+        <View style={s.grid}>
+          {hand.map(cardId => {
+            const isRare = rareSet.has(cardId);
+            const on = selectedCard === cardId;
+            return (
+              <Pressable key={cardId} onPress={() => { handleCardSelect(cardId); if (!isRare) setRareDraft(''); }}
+                accessibilityRole="button" accessibilityState={{ selected: on }}
+                accessibilityLabel={isRare ? 'Carte rare : écrivez votre propre réponse' : answerMap[cardId]}
+                style={[s.card, isRare && s.cardRare, on && s.cardOn]}>
+                {isRare ? (
+                  <>
+                    <Text style={s.rareKicker}>CARTE RARE</Text>
+                    <Text style={[s.cardText, { color: T.encre }]}>Écrivez votre propre réponse</Text>
+                  </>
+                ) : <Text style={[s.cardText, on && { color: T.orTexte }]}>{answerMap[cardId]}</Text>}
+              </Pressable>
+            );
+          })}
+        </View>
+        {selectedIsRare && (
+          <Field value={rareDraft} onChangeText={setRareDraft} placeholder="Votre réponse la plus drôle…" multiline autoFocus
+            accessibilityLabel="Votre réponse libre" />
+        )}
+      </>
+    );
+  } else if (phase === 'judge_lock') {
+    scroll = false;
+    footer = one('Voir les réponses', handleJudgeLockOK);
+    body = <PassPhone game={GAME} name={players[judgeIdx]} index={judgeIdx} kicker="Le jury" instruction="Tout le monde a choisi : reprenez le téléphone et désignez la réponse la plus drôle." />;
+  } else if (phase === 'judge_active') {
+    footer = one('Couronner cette réponse', handleJudgeConfirm, judgeSelected === null);
+    body = (
+      <>
+        <Sentence />
+        <Heading kicker={`${players[judgeIdx]} juge`} sub="Lisez les réponses à voix haute, puis touchez votre préférée." />
+        <View style={s.grid}>
+          {shuffledSubs.map(({ cardId }) => {
+            const on = judgeSelected === cardId;
+            return (
+              <Pressable key={cardId} onPress={() => handleJudgePickCard(cardId)} accessibilityRole="button" accessibilityState={{ selected: on }}
+                accessibilityLabel={getAnswerText(cardId)} style={[s.card, on && s.cardOn]}>
+                <Text style={[s.cardText, on && { color: T.orTexte }]}>{getAnswerText(cardId)}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </>
+    );
+  } else if (phase === 'reveal') {
+    const winnerName = players[winnerIdx];
+    const winnerText = getAnswerText(submissions[winnerIdx]);
+    const byName = Object.fromEntries(players.map((n, i) => [n, scores[i] || 0]));
+    footer = one(round + 1 >= totalRounds ? 'Voir les résultats' : 'Tour suivant', handleNextRound);
+    body = (
+      <>
+        <Heading kicker="Le jury a tranché" title={`${winnerName} gagne ce tour`} />
+        <Sentence fill={winnerText} />
+        <Ranking players={players} scores={byName} suffix=" pts" />
+      </>
     );
   }
-
-  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <LinearGradient colors={OB_BG} style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.quitBtn}>
-          <Text style={styles.quitText}>✕ Quitter</Text>
-        </TouchableOpacity>
-        <Text style={styles.roundText}>{round + 1} / {totalRounds}</Text>
-        <View style={styles.judgeTag}>
-          <Text style={styles.judgeTagText}>⚖️ {players[judgeIdx]}</Text>
-        </View>
-      </View>
-
-      <Animated.View style={[{ flex: 1 }, { opacity: fadeAnim }]}>
-
-        {/* ── Phase : QUESTION ─────────────────────────────────────── */}
-        {phase === 'question' && (
-          <ScrollView contentContainerStyle={styles.phaseContent} showsVerticalScrollIndicator={false}>
-            <Text style={styles.phaseLabel}>🃏 CARTE NOIRE — TOUR {round + 1}</Text>
-            {renderQuestionCard(true)}
-            <Text style={styles.instruction}>
-              {players[judgeIdx]}, lis la carte à voix haute !{'\n'}
-              Tout le monde écoute avant de choisir sa réponse.
-            </Text>
-            <TouchableOpacity onPress={handleStartPicking} style={styles.mainBtn}>
-              <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                <Text style={styles.mainBtnText}>Lancez vos réponses ! 🚀</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </ScrollView>
-        )}
-
-        {/* ── Phase : PICKER LOCK ──────────────────────────────────── */}
-        {phase === 'picker_lock' && (
-          <View style={styles.lockContent}>
-            <View style={styles.lockCard}>
-              <Text style={styles.lockEmoji}>🔒</Text>
-              <Text style={styles.lockNum}>JOUEUR {pickers[pickerStep] + 1}</Text>
-              <Text style={styles.lockName}>{players[pickers[pickerStep]]}</Text>
-              <Text style={styles.lockSub}>
-                Prends le téléphone seul(e).{'\n'}Les autres regardent ailleurs !
-              </Text>
-              <TouchableOpacity onPress={handlePickerLockOK} style={styles.mainBtn}>
-                <LinearGradient colors={[PRP, PRP_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                  <Text style={styles.mainBtnText}>Je suis prêt(e) 👀</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
-        {/* ── Phase : PICKER ACTIVE ────────────────────────────────── */}
-        {phase === 'picker_active' && (() => {
-          const playerIdx = pickers[pickerStep];
-          const hand = gameCards.hands[playerIdx] || [];
-          const selectedIsRare = selectedCard !== null && rareSet.has(selectedCard);
-          const canSubmit = selectedCard !== null && (!selectedIsRare || rareDraft.trim().length > 0);
-          return (
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-              <ScrollView contentContainerStyle={styles.phaseContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-                <Text style={styles.phaseLabel}>✋ {players[playerIdx]}, choisis ta carte !</Text>
-                {renderQuestionCard(false)}
-                <Text style={styles.instruction}>Laquelle fera le plus rire le jury ?</Text>
-
-                <View style={styles.handGrid}>
-                  {hand.map(cardId => {
-                    const isRare = rareSet.has(cardId);
-                    const isSelected = selectedCard === cardId;
-                    return (
-                      <TouchableOpacity
-                        key={cardId}
-                        onPress={() => { handleCardSelect(cardId); if (!isRare) setRareDraft(''); }}
-                        style={[
-                          styles.whiteCard,
-                          isRare && styles.whiteCardRare,
-                          isSelected && !isRare && styles.whiteCardSelected,
-                          isSelected && isRare && styles.whiteCardRareSelected,
-                        ]}
-                        activeOpacity={0.75}
-                      >
-                        {isSelected && <Text style={styles.checkMark}>{isRare ? '✨' : '✓'}</Text>}
-                        {isRare ? (
-                          <>
-                            <Text style={styles.rareLabel}>✨ CARTE RARE</Text>
-                            <Text style={styles.rareSubLabel}>Écris ta propre réponse !</Text>
-                          </>
-                        ) : (
-                          <Text style={[styles.whiteCardText, isSelected && styles.whiteCardTextSel]}>
-                            {answerMap[cardId]}
-                          </Text>
-                        )}
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-
-                {selectedIsRare && (
-                  <View style={styles.rareInputWrap}>
-                    <Text style={styles.rareInputLabel}>✨ Ta réponse libre :</Text>
-                    <TextInput
-                      value={rareDraft}
-                      onChangeText={setRareDraft}
-                      placeholder="Écris quelque chose d'hilarant..."
-                      placeholderTextColor={colors.textMuted}
-                      style={styles.rareInput}
-                      multiline
-                      autoFocus
-                    />
-                  </View>
-                )}
-
-                {canSubmit && (
-                  <TouchableOpacity onPress={handlePickerSubmit} style={[styles.mainBtn, { marginTop: spacing.md }]}>
-                    <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                      <Text style={styles.mainBtnText}>
-                        {selectedIsRare ? 'Jouer ma réponse ✨' : 'Choisir cette carte ✓'}
-                      </Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                )}
-              </ScrollView>
-            </KeyboardAvoidingView>
-          );
-        })()}
-
-        {/* ── Phase : JUDGE LOCK ───────────────────────────────────── */}
-        {phase === 'judge_lock' && (
-          <View style={styles.lockContent}>
-            <View style={styles.lockCard}>
-              <Text style={styles.lockEmoji}>⚖️</Text>
-              <Text style={styles.lockNum}>JURY</Text>
-              <Text style={styles.lockName}>{players[judgeIdx]}</Text>
-              <Text style={styles.lockSub}>
-                Tout le monde a voté !{'\n'}Reprends le téléphone et choisis la réponse la plus drôle.
-              </Text>
-              <TouchableOpacity onPress={handleJudgeLockOK} style={styles.mainBtn}>
-                <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                  <Text style={styles.mainBtnText}>Voir les réponses 👁️</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
-        {/* ── Phase : JUDGE ACTIVE ─────────────────────────────────── */}
-        {phase === 'judge_active' && (
-          <ScrollView contentContainerStyle={styles.phaseContent} showsVerticalScrollIndicator={false}>
-            <Text style={styles.phaseLabel}>⚖️ {players[judgeIdx]}, choisis la meilleure !</Text>
-            {renderQuestionCard(false)}
-            <Text style={styles.instruction}>Tape la réponse qui t'a fait le plus rire.</Text>
-
-            <View style={styles.handGrid}>
-              {shuffledSubs.map(({ cardId }) => (
-                <TouchableOpacity
-                  key={cardId}
-                  onPress={() => handleJudgePickCard(cardId)}
-                  style={[styles.whiteCard, judgeSelected === cardId && styles.whiteCardGold]}
-                  activeOpacity={0.75}
-                >
-                  {judgeSelected === cardId && <Text style={styles.checkMark}>👑</Text>}
-                  <Text style={[styles.whiteCardText, judgeSelected === cardId && styles.whiteCardTextGold]}>
-                    {getAnswerText(cardId)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {judgeSelected !== null && (
-              <TouchableOpacity onPress={handleJudgeConfirm} style={[styles.mainBtn, { marginTop: spacing.md }]}>
-                <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                  <Text style={styles.mainBtnText}>Couronner cette réponse 👑</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            )}
-          </ScrollView>
-        )}
-
-        {/* ── Phase : REVEAL ───────────────────────────────────────── */}
-        {phase === 'reveal' && (() => {
-          const winnerName = players[winnerIdx];
-          const winnerCard = submissions[winnerIdx];
-          const winnerText = getAnswerText(winnerCard);
-          const parts = currentQuestion.split('___');
-          return (
-            <ScrollView contentContainerStyle={styles.phaseContent} showsVerticalScrollIndicator={false}>
-              <Text style={styles.winEmoji}>🎉</Text>
-              <Text style={styles.winTitle}>{winnerName} gagne ce tour !</Text>
-
-              <LinearGradient colors={['#1A1730', '#0E0C1A']} style={[styles.blackCard, { marginBottom: spacing.lg }]}>
-                <Text style={styles.blackCardText}>
-                  {parts[0]}
-                  <Text style={{ color: GOLD_LIGHT, fontWeight: '900' }}> {winnerText} </Text>
-                  {parts[1] || ''}
-                </Text>
-              </LinearGradient>
-
-              <View style={styles.scoreCard}>
-                <Text style={styles.scoreCardLabel}>🏅 SCORES</Text>
-                {players.map((name, i) => (
-                  <View key={i} style={styles.scoreRow}>
-                    <Text style={[styles.scoreName, i === winnerIdx && { color: GOLD_LIGHT }]}>
-                      {i === winnerIdx ? '⭐ ' : ''}{name}
-                    </Text>
-                    <Text style={[styles.scoreVal, i === winnerIdx && { color: GOLD_LIGHT }]}>
-                      {scores[i] || 0} pt{(scores[i] || 0) > 1 ? 's' : ''}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-
-              <TouchableOpacity onPress={handleNextRound} style={styles.mainBtn}>
-                <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                  <Text style={styles.mainBtnText}>
-                    {round + 1 >= totalRounds ? 'Voir les résultats 🏆' : `Tour suivant →`}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </ScrollView>
-          );
-        })()}
-
-      </Animated.View>
-    </LinearGradient>
+    <GameScreen top={top} footer={footer} scroll={scroll}>
+      <Animated.View style={{ opacity: fadeAnim, gap: 22, flex: scroll ? undefined : 1 }}>{body}</Animated.View>
+    </GameScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingTop: Platform.OS === 'ios' ? 56 : 36,
-    paddingBottom: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  quitBtn:  { paddingVertical: 4 },
-  quitText: { color: colors.textMuted, fontSize: 13 },
-  roundText: { fontSize: 14, fontWeight: '700', color: colors.textSecondary, letterSpacing: 1 },
-  judgeTag: {
-    backgroundColor: GOLD + '22',
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: GOLD + '44',
-  },
-  judgeTagText: { fontSize: 11, fontWeight: '700', color: GOLD_LIGHT },
-
-  // Phase containers
-  phaseContent: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  phaseLabel: {
-    fontSize: 11, fontWeight: '800', color: PRP_LIGHT,
-    letterSpacing: 2, marginBottom: spacing.md, textAlign: 'center',
-  },
-
-  lockContent: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg },
-  lockCard: {
-    width: '100%',
-    backgroundColor: colors.card,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xl,
-    alignItems: 'center',
-  },
-  lockEmoji: { fontSize: 56, marginBottom: spacing.md },
-  lockNum: { fontSize: 11, fontWeight: '700', color: colors.textMuted, letterSpacing: 3, marginBottom: 4 },
-  lockName: { fontSize: 28, fontWeight: '900', color: colors.text, marginBottom: spacing.sm },
-  lockSub: {
-    fontSize: 14, color: colors.textSecondary, textAlign: 'center',
-    lineHeight: 22, marginBottom: spacing.xl,
-  },
-
-  // Black card (question)
-  blackCard: {
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-    marginBottom: spacing.lg,
-    borderWidth: 1,
-    borderColor: PRP + '55',
-    shadowColor: PRP,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
-  },
-  blackCardText: {
-    fontSize: 20, fontWeight: '700', color: colors.text,
-    textAlign: 'center', lineHeight: 30,
-  },
-  blackCardBlank: { color: PRP_LIGHT, fontWeight: '900', textDecorationLine: 'underline' },
-
-  // Mini black card (during picking)
-  miniBlack: {
-    backgroundColor: '#1A1730',
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: PRP + '44',
-  },
-  miniBlackText: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', lineHeight: 22 },
-  miniBlackBlank: { color: PRP_LIGHT, fontWeight: '900' },
-
-  instruction: {
-    fontSize: 13, color: colors.textSecondary,
-    textAlign: 'center', lineHeight: 20,
-    marginBottom: spacing.lg, fontStyle: 'italic',
-  },
-
-  // Hand grid (answer cards)
-  handGrid: {
-    flexDirection: 'row', flexWrap: 'wrap',
-    gap: spacing.sm, marginBottom: spacing.sm,
-  },
-  whiteCard: {
-    width: '47%',
-    backgroundColor: colors.text,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    minHeight: 80,
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  whiteCardSelected: {
-    borderColor: PRP,
-    backgroundColor: '#EDE9FE',
-    shadowColor: PRP,
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  whiteCardGold: {
-    borderColor: GOLD,
-    backgroundColor: '#FEF3C7',
-    shadowColor: GOLD,
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  checkMark: { fontSize: 14, fontWeight: '900', color: PRP, marginBottom: 4 },
-  whiteCardText:     { fontSize: 13, fontWeight: '700', color: '#1A1A2E', lineHeight: 18 },
-  whiteCardTextSel:  { color: PRP_DARK },
-  whiteCardTextGold: { color: '#78350F' },
-
-  // Main button
-  mainBtn: {
-    borderRadius: radius.full,
-    overflow: 'hidden',
-    shadowColor: GOLD,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  mainBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  mainBtnText: { fontSize: 15, fontWeight: '900', color: LAUNCH_TEXT, letterSpacing: 1 },
-
-  // Reveal
-  winEmoji: { fontSize: 64, textAlign: 'center', marginBottom: spacing.sm },
-  winTitle: {
-    fontSize: 26, fontWeight: '900', color: GOLD_LIGHT,
-    textAlign: 'center', marginBottom: spacing.lg,
-  },
-
-  // Score card (during reveal)
-  scoreCard: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  scoreCardLabel: { fontSize: 11, fontWeight: '800', color: GOLD_LIGHT, letterSpacing: 2, marginBottom: spacing.md },
-  scoreRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  scoreName: { fontSize: 14, fontWeight: '700', color: colors.text },
-  scoreVal:  { fontSize: 14, fontWeight: '800', color: colors.textSecondary },
-
-  // Results screen
-  resultsScroll: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: spacing.xxl,
-  },
-  resultsTitle: {
-    fontSize: 28, fontWeight: '900', color: GOLD_LIGHT,
-    textAlign: 'center', letterSpacing: 3, marginBottom: spacing.xs,
-  },
-  resultsSub: {
-    fontSize: 14, color: colors.textSecondary,
-    textAlign: 'center', marginBottom: spacing.xl,
-  },
-  resultRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    gap: spacing.sm,
-  },
-  resultRowWinner: { borderColor: GOLD + '88' },
-  resultRank:  { fontSize: 22, width: 36 },
-  resultName:  { flex: 1, fontSize: 16, fontWeight: '800', color: colors.text },
-  resultScore: { fontSize: 18, fontWeight: '900', color: colors.textSecondary },
-
-  // Carte rare
-  whiteCardRare: {
-    borderColor: GOLD,
-    backgroundColor: '#1A1200',
-    shadowColor: GOLD,
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  whiteCardRareSelected: {
-    borderColor: GOLD_LIGHT,
-    backgroundColor: '#2A1E00',
-    shadowColor: GOLD_LIGHT,
-    shadowOpacity: 0.7,
-    shadowRadius: 14,
-    elevation: 10,
-  },
-  rareLabel: {
-    fontSize: 13,
-    fontWeight: '900',
-    color: GOLD_LIGHT,
-    letterSpacing: 1,
-    marginBottom: 2,
-  },
-  rareSubLabel: {
-    fontSize: 11,
-    color: GOLD,
-    fontStyle: 'italic',
-  },
-
-  // Input carte rare
-  rareInputWrap: {
-    backgroundColor: '#1A1200',
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: GOLD + '88',
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  rareInputLabel: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: GOLD_LIGHT,
-    letterSpacing: 1,
-    marginBottom: spacing.sm,
-  },
-  rareInput: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '600',
-    minHeight: 60,
-    textAlignVertical: 'top',
-    borderBottomWidth: 1,
-    borderBottomColor: GOLD + '55',
-    paddingBottom: spacing.sm,
-  },
+const s = StyleSheet.create({
+  judgeTag: { color: T.orTexte, fontFamily: F.chiffre, fontSize: 10, letterSpacing: 1.4, maxWidth: 110 },
+  sentence: { color: T.encre, fontFamily: F.afficheSemi, fontSize: 24, lineHeight: 32, textAlign: 'center' },
+  blank: { color: T.encreDouce },
+  fill: { color: T.orTexte },
+  instr: { color: T.encreDouce, fontSize: 15, lineHeight: 22, textAlign: 'center' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  card: { flexBasis: '47%', flexGrow: 1, minHeight: 92, borderRadius: 12, borderWidth: 1, borderColor: T.traitFort, backgroundColor: T.encre, padding: 12, justifyContent: 'center', gap: 4 },
+  cardRare: { backgroundColor: T.carte, borderStyle: 'dashed', borderColor: T.or },
+  cardOn: { borderColor: T.or, borderWidth: 2, backgroundColor: T.orVoile },
+  cardText: { color: T.fond, fontFamily: F.texteFort, fontSize: 15, lineHeight: 20 },
+  rareKicker: { color: T.orTexte, fontFamily: F.chiffre, fontSize: 10, letterSpacing: 2 },
 });

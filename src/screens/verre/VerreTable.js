@@ -102,7 +102,7 @@ export default function VerreTable({
         left: areaW / 2 - tableRx, top: areaH / 2 - tableRy, width: tableRx * 2, height: tableRy * 2,
         borderRadius: Platform.OS === 'web' ? '50%' : tableRx,
       }]}>
-        <LinearGradient colors={['#2B2050', '#1A1433', '#120E24']} style={StyleSheet.absoluteFill} />
+        <LinearGradient colors={['#221E3C', '#1A1730', '#120F24']} style={StyleSheet.absoluteFill} />
         <View style={styles.tableContent}>
           <Glass sips={glass} compact={compact} />
           <Text style={[styles.sipsValue, compact && { fontSize: 28, lineHeight: 32 }]}>{glass}</Text>
@@ -110,19 +110,15 @@ export default function VerreTable({
 
           <View style={{ gap: compact ? 6 : 7, marginTop: compact ? 6 : 10 }}>
             {canChallenge && (
-              <TouchableOpacity onPress={onChallenge} activeOpacity={0.85} style={[styles.btn, { width: btnW }]}>
-                <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.btnInner, { height: btnH }]}>
-                  <Text style={styles.btnText}>⚔️ Challenger</Text>
-                </LinearGradient>
+              <TouchableOpacity onPress={onChallenge} activeOpacity={0.85} accessibilityRole="button" style={[styles.btn, styles.btnChallenge, { width: btnW, height: btnH }]}>
+                <Text style={[styles.btnText, { color: '#E6C766' }]}>Défier</Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity onPress={onDrink} activeOpacity={0.85} style={[styles.btn, { width: btnW }]}>
-              <LinearGradient colors={['#EF4444', '#B91C1C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.btnInner, { height: btnH }]}>
-                <Text style={styles.btnText}>🍺 Boire ({glass})</Text>
-              </LinearGradient>
+            <TouchableOpacity onPress={onDrink} activeOpacity={0.85} accessibilityRole="button" style={[styles.btn, styles.btnDrink, { width: btnW, height: btnH }]}>
+              <Text style={[styles.btnText, { color: '#FF8A8A' }]}>Boire · {glass}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={onPass} activeOpacity={0.82} style={[styles.btn, styles.passBtn, { width: btnW, height: btnH }]}>
-              <Text style={styles.btnText}>➡️ Passer</Text>
+              <Text style={styles.btnText}>Passer</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -149,8 +145,8 @@ export default function VerreTable({
               top: areaH / 2 + seatRy * Math.sin(a) - 21,
             }]}
           >
-            <Text style={[styles.seatName, active && { color: '#1A1408' }]} numberOfLines={1}>{out ? '💀 ' : ''}{name}</Text>
-            <Text style={[styles.seatSips, active && { color: '#3A2C08' }]}>🍺 {totalSips[name]}</Text>
+            <Text style={[styles.seatName, active && { color: '#1A1408' }]} numberOfLines={1}>{name}</Text>
+            <Text style={[styles.seatSips, active && { color: '#3A2C08' }]}>{out ? 'éliminé' : `${totalSips[name]} gorgée${totalSips[name] > 1 ? 's' : ''}`}</Text>
           </View>
         );
       })}
@@ -180,8 +176,10 @@ const styles = StyleSheet.create({
 
   btn: { borderRadius: 99, overflow: 'hidden', alignSelf: 'center' },
   btnInner: { height: 38, alignItems: 'center', justifyContent: 'center' },
-  passBtn: { height: 38, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
-  btnText: { color: '#fff', fontSize: 14, fontWeight: '800' },
+  btnChallenge: { alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#D4AF37', backgroundColor: 'rgba(212,175,55,0.10)' },
+  btnDrink: { alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#FF8A8A', backgroundColor: 'rgba(255,138,138,0.12)' },
+  passBtn: { height: 38, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6B6590' },
+  btnText: { color: '#F3EEE2', fontSize: 14, fontFamily: 'Outfit_600SemiBold' },
 
   arrow: { position: 'absolute', width: 18, height: 18, alignItems: 'center', justifyContent: 'center' },
   // Triangle pointant vers la droite (rotation = direction du joueur)

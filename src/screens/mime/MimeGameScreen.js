@@ -1,20 +1,12 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity, TextInput,
-  ScrollView, Platform, Animated,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
-import { OB_BG } from '../../theme/obsidian';
+import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
 import { supabase, channelName } from '../../services/supabase';
 import { pickWord } from '../../data/mimeWords';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
+import {
+  GameScreen, GameTopBar, ActionBar, TextLink, Heading, Notice, Field, QuestionCard, Section, AdultTag, Icon, T, F,
+} from '../../components/game/Legende';
 
-const PINK = '#D0475B';
-const PINK_LIGHT = '#FF8A8A';
-const GREEN = '#10B981';
-const AMBER = '#F59E0B';
-const BG = OB_BG;
+const GAME = 'mime';
 const ROUND_DURATION = 60;
 
 function normalize(s) {
@@ -54,10 +46,10 @@ function buildHint(word, timeLeft) {
 }
 
 function hintPhaseLabel(timeLeft) {
-  if (timeLeft > 40) return '💡 Nombre de lettres';
-  if (timeLeft > 25) return '💡 Première lettre';
-  if (timeLeft > 10) return '💡 Première & dernière lettre';
-  return '💡 Indices supplémentaires';
+  if (timeLeft > 40) return 'NOMBRE DE LETTRES';
+  if (timeLeft > 25) return 'PREMIÈRE LETTRE';
+  if (timeLeft > 10) return 'PREMIÈRE ET DERNIÈRE LETTRES';
+  return 'INDICES SUPPLÉMENTAIRES';
 }
 
 export default function MimeGameScreen({ navigation, route }) {
@@ -223,13 +215,13 @@ export default function MimeGameScreen({ navigation, route }) {
     if (isHost) await advanceRound(room);
   };
 
+  const quit = () => navigation.navigate('Menu');
+
   if (!room) {
     return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ color: colors.textSecondary }}>Chargement…</Text>
-        </View>
-      </LinearGradient>
+      <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} />}>
+        <Heading sub="Chargement…" />
+      </GameScreen>
     );
   }
 
@@ -238,250 +230,103 @@ export default function MimeGameScreen({ navigation, route }) {
   const guessers = players.filter(p => p.id !== room.current_mime_player_id);
   const myScore = players.find(p => p.id === playerId)?.score ?? 0;
   const myFound = foundIds.includes(playerId);
-  const progress = timeLeft / ROUND_DURATION;
-  const timerColor = timeLeft > 20 ? GREEN : timeLeft > 10 ? AMBER : '#EF4444';
+  const timerColor = timeLeft > 20 ? '#4FD8A4' : timeLeft > 10 ? T.orTexte : T.alerte;
   const hint = buildHint(room.current_word, timeLeft);
+  const top = (
+    <GameTopBar game={GAME} onBack={quit} current={room.round_number} total={room.max_rounds}
+      right={<Text style={s.counter}>{room.round_number} / {room.max_rounds}</Text>} />
+  );
 
   if (roundResult) {
-    const emoji = roundResult.type === 'timeout' ? '⏰' : roundResult.type === 'skip' ? '⏭' : '🏆';
-    const msg = roundResult.type === 'timeout' ? 'Temps écoulé…'
-      : roundResult.type === 'skip' ? 'Mot passé !'
-      : roundResult.count > 1 ? 'Tout le monde a trouvé !' : `${roundResult.lastName} a trouvé !`;
+    const msg = roundResult.type === 'timeout' ? 'Temps écoulé'
+      : roundResult.type === 'skip' ? 'Mot passé'
+        : roundResult.count > 1 ? 'Tout le monde a trouvé' : `${roundResult.lastName} a trouvé`;
     return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <View style={styles.resultOverlay}>
-          <Animated.View style={[styles.resultCard, {
-            transform: [{ scale: feedbackAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] }) }],
-          }]}>
-            <Text style={styles.resultEmoji}>{emoji}</Text>
-            <Text style={styles.resultWord}>{roundResult.word}</Text>
-            <Text style={styles.resultText}>{msg}</Text>
-          </Animated.View>
-        </View>
-      </LinearGradient>
+      <GameScreen top={top}>
+        <Animated.View style={{ transform: [{ scale: feedbackAnim.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }] }}>
+          <QuestionCard kicker={msg} footer="Manche suivante dans un instant…">{roundResult.word}</QuestionCard>
+        </Animated.View>
+      </GameScreen>
     );
   }
 
   return (
-    <LinearGradient colors={isMime ? ['#1F1035', '#1A1730'] : BG} style={styles.container}>
-      <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: timerColor }]} />
+    <GameScreen top={top} footer={isMime ? (
+      <ActionBar><TextLink label="Passer ce mot" color={T.encreDouce} onPress={transitioning ? undefined : handleSkip} /></ActionBar>
+    ) : !myFound ? (
+      <ActionBar>
+        <View style={s.inputRow}>
+          <Field style={{ flex: 1 }} placeholder="Votre réponse…" value={guess} onChangeText={setGuess} onSubmitEditing={submitGuess}
+            returnKeyType="done" autoCorrect={false} autoCapitalize="none" editable={!transitioning} blurOnSubmit={false}
+            accessibilityLabel="Votre réponse" />
+          <Pressable onPress={guess.trim() && !transitioning ? submitGuess : undefined} accessibilityRole="button" accessibilityLabel="Envoyer"
+            style={[s.send, (!guess.trim() || transitioning) && { opacity: 0.4 }]}>
+            <Icon name="check" color={T.surOr} />
+          </Pressable>
+        </View>
+      </ActionBar>
+    ) : null}>
+      <View style={s.status}>
+        <View style={[s.timer, { borderColor: timerColor }]}>
+          <Text style={[s.timerText, { color: timerColor }]}>{timeLeft}</Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <View style={s.track}><View style={[s.fill, { width: `${(timeLeft / ROUND_DURATION) * 100}%`, backgroundColor: timerColor }]} /></View>
+        </View>
+        <Text style={s.score}>{myScore} pts</Text>
+        {room.category === 'adulte' ? <AdultTag /> : null}
       </View>
 
-      <ScrollView
-        style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
-        contentContainerStyle={styles.scroll}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.header}>
-          <Text style={styles.roundLabel}>Manche {room.round_number}/{room.max_rounds}</Text>
-          <View style={[styles.timerBadge, { borderColor: timerColor }]}>
-            <Text style={[styles.timerText, { color: timerColor }]}>{timeLeft}s</Text>
-          </View>
-          <Text style={styles.scoreLabel}>{myScore} pts</Text>
-        </View>
-        {room.category === 'adulte' && (
-          <View style={styles.adultBadge}>
-            <Text style={styles.adultBadgeText}>🔞 Mode Adulte</Text>
-          </View>
-        )}
-
-        {isMime ? (
-          <View style={styles.mimeView}>
-            <Text style={styles.mimeRole}>🎭 TU MIMES !</Text>
-            <Text style={styles.mimeHint}>Fais deviner ce mot sans parler</Text>
-            <LinearGradient colors={[PINK + '33', PINK + '11']} style={styles.wordCard}>
-              <Text style={styles.mimeWord}>{room.current_word?.toUpperCase()}</Text>
-            </LinearGradient>
-
-            <View style={styles.playersList}>
-              {guessers.map(p => (
-                <View key={p.id} style={[styles.playerChip, foundIds.includes(p.id) && styles.playerChipFound]}>
-                  <Text style={[styles.playerChipText, foundIds.includes(p.id) && styles.playerChipTextFound]}>
-                    {foundIds.includes(p.id) ? '✓' : '⌨️'} {p.name}
-                  </Text>
-                </View>
-              ))}
+      {isMime ? (
+        <>
+          <QuestionCard kicker="Vous mimez" footer="Faites deviner ce mot sans parler.">{room.current_word?.toUpperCase()}</QuestionCard>
+          <Section label="Devineurs" aside={foundIds.length ? `${foundIds.length} sur ${guessers.length} ont trouvé` : null}>
+            <View style={s.chips}>
+              {guessers.map((p) => {
+                const ok = foundIds.includes(p.id);
+                return (
+                  <View key={p.id} style={[s.chip, ok && { borderColor: T.or, backgroundColor: T.orVoile }]}>
+                    {ok ? <Icon name="check" size={14} color={T.orTexte} /> : null}
+                    <Text style={[s.chipText, ok && { color: T.orTexte }]}>{p.name}</Text>
+                  </View>
+                );
+              })}
             </View>
-            {foundIds.length > 0 && (
-              <Text style={styles.foundCount}>{foundIds.length}/{guessers.length} ont trouvé</Text>
-            )}
-
-            <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={transitioning}>
-              <Text style={styles.skipBtnText}>⏭  Passer ce mot</Text>
-            </TouchableOpacity>
+          </Section>
+        </>
+      ) : (
+        <>
+          <Heading kicker="Que mime-t-il ?" title={`${mimePlayer?.name ?? '…'} mime…`} />
+          <View style={s.hint}>
+            <Text style={s.hintLabel}>{hintPhaseLabel(timeLeft)}</Text>
+            <Text style={s.hintText}>{hint}</Text>
           </View>
-        ) : (
-          <View style={styles.guesserView}>
-            <Text style={styles.guesserRole}>🤔 QUE MIME-T-IL ?</Text>
-            <View style={styles.mimingCard}>
-              <Text style={styles.mimingEmoji}>🎭</Text>
-              <Text style={styles.mimingText}>
-                <Text style={{ color: PINK_LIGHT, fontWeight: '900' }}>{mimePlayer?.name ?? '…'}</Text>
-                {' '}est en train de mimer…
-              </Text>
-            </View>
-
-            <View style={styles.hintCard}>
-              <Text style={styles.hintLabel}>{hintPhaseLabel(timeLeft)}</Text>
-              <Text style={styles.hintText}>{hint}</Text>
-            </View>
-
-            {foundIds.filter(id => id !== playerId).map(id => {
-              const p = players.find(pp => pp.id === id);
-              return p ? (
-                <View key={id} style={styles.foundBanner}>
-                  <Text style={styles.foundBannerText}>✓ {p.name} a trouvé !</Text>
-                </View>
-              ) : null;
-            })}
-
-            {myFound ? (
-              <View style={styles.myFoundBox}>
-                <Text style={styles.myFoundText}>🎉 Bravo ! Tu as trouvé !</Text>
-                <Text style={styles.myFoundSub}>En attente des autres joueurs…</Text>
-              </View>
-            ) : (
-              <View style={styles.inputRow}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Tapez votre réponse..."
-                  placeholderTextColor={colors.textMuted}
-                  value={guess}
-                  onChangeText={setGuess}
-                  onSubmitEditing={submitGuess}
-                  returnKeyType="done"
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  editable={!transitioning}
-                />
-                <TouchableOpacity
-                  style={[styles.sendBtn, !guess.trim() && styles.sendBtnDisabled]}
-                  onPress={submitGuess}
-                  disabled={!guess.trim() || transitioning}
-                >
-                  <Text style={styles.sendBtnText}>✓</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            <View style={styles.scoresSection}>
-              <Text style={styles.scoresLabel}>SCORES</Text>
-              {[...players].sort((a, b) => b.score - a.score).map(p => (
-                <View key={p.id} style={[styles.scoreRow, p.id === playerId && { borderColor: PINK + '55' }]}>
-                  <Text style={styles.scoreName}>
-                    {foundIds.includes(p.id) ? '✓ ' : ''}{p.name}{p.id === playerId ? ' (toi)' : ''}
-                  </Text>
-                  <Text style={styles.scoreVal}>{p.score} pts</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-      </ScrollView>
-    </LinearGradient>
+          {foundIds.filter(id => id !== playerId).map(id => {
+            const p = players.find(pp => pp.id === id);
+            return p ? <Text key={id} style={s.found}>{p.name} a trouvé</Text> : null;
+          })}
+          {myFound ? <Notice title="Bravo, vous avez trouvé">En attente des autres joueurs…</Notice> : null}
+        </>
+      )}
+    </GameScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-  progressTrack: { height: 4, backgroundColor: colors.border, width: '100%' },
-  progressFill: { height: '100%', borderRadius: 2 },
-  scroll: { padding: spacing.lg, paddingTop: 20, paddingBottom: spacing.xxl },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xl },
-  roundLabel: { fontSize: 13, fontWeight: '700', color: colors.textMuted },
-  timerBadge: { borderWidth: 2, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.xs },
-  timerText: { fontSize: 18, fontWeight: '900' },
-  scoreLabel: { fontSize: 13, fontWeight: '700', color: PINK_LIGHT },
-
-  mimeView: { alignItems: 'center' },
-  mimeRole: { fontSize: 24, fontWeight: '900', color: PINK_LIGHT, letterSpacing: 2, marginBottom: spacing.sm },
-  mimeHint: { fontSize: 13, color: colors.textMuted, marginBottom: spacing.xl },
-  wordCard: {
-    borderRadius: radius.xl, borderWidth: 1, borderColor: PINK + '55',
-    paddingVertical: spacing.xxl, paddingHorizontal: spacing.xl,
-    alignItems: 'center', width: '100%', marginBottom: spacing.xl,
-  },
-  mimeWord: { fontSize: 42, fontWeight: '900', color: colors.text, textAlign: 'center', letterSpacing: 2 },
-  playersList: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center', marginBottom: spacing.sm },
-  playerChip: {
-    backgroundColor: colors.card, borderRadius: radius.full, borderWidth: 1, borderColor: colors.border,
-    paddingHorizontal: spacing.md, paddingVertical: spacing.xs,
-  },
-  playerChipFound: { backgroundColor: GREEN + '22', borderColor: GREEN },
-  playerChipText: { fontSize: 13, color: colors.textSecondary },
-  playerChipTextFound: { color: GREEN, fontWeight: '700' },
-  foundCount: { fontSize: 13, color: GREEN, fontWeight: '700', marginBottom: spacing.lg },
-  skipBtn: {
-    paddingVertical: spacing.md, paddingHorizontal: spacing.xl,
-    borderRadius: radius.full, borderWidth: 1, borderColor: colors.border, marginTop: spacing.lg,
-  },
-  skipBtnText: { fontSize: 13, color: colors.textMuted },
-
-  guesserView: { flex: 1 },
-  guesserRole: { fontSize: 22, fontWeight: '900', color: PINK_LIGHT, letterSpacing: 2, marginBottom: spacing.lg },
-  mimingCard: {
-    backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1, borderColor: PINK + '33',
-    padding: spacing.lg, flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.lg,
-  },
-  mimingEmoji: { fontSize: 36 },
-  mimingText: { flex: 1, fontSize: 15, color: colors.textSecondary, lineHeight: 22 },
-
-  hintCard: {
-    backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: AMBER + '55',
-    padding: spacing.md, alignItems: 'center', marginBottom: spacing.lg,
-  },
-  hintLabel: { fontSize: 11, fontWeight: '800', color: AMBER, letterSpacing: 1, marginBottom: spacing.xs },
-  hintText: { fontSize: 24, fontWeight: '900', color: colors.text, letterSpacing: 6 },
-
-  foundBanner: {
-    backgroundColor: GREEN + '22', borderRadius: radius.md, borderWidth: 1, borderColor: GREEN + '55',
-    padding: spacing.sm, marginBottom: spacing.sm,
-  },
-  foundBannerText: { fontSize: 13, color: GREEN, fontWeight: '700', textAlign: 'center' },
-
-  myFoundBox: {
-    backgroundColor: GREEN + '22', borderRadius: radius.xl, borderWidth: 1, borderColor: GREEN,
-    padding: spacing.xl, alignItems: 'center', marginBottom: spacing.xl,
-  },
-  myFoundText: { fontSize: 20, fontWeight: '900', color: GREEN, marginBottom: spacing.xs },
-  myFoundSub: { fontSize: 13, color: colors.textSecondary },
-
-  inputRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.xl },
-  input: {
-    flex: 1, backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1,
-    borderColor: PINK + '55', paddingVertical: spacing.md, paddingHorizontal: spacing.lg,
-    fontSize: 16, fontWeight: '700', color: colors.text,
-  },
-  sendBtn: {
-    backgroundColor: PINK, borderRadius: radius.md,
-    paddingVertical: spacing.md, paddingHorizontal: spacing.lg,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  sendBtnDisabled: { backgroundColor: PINK + '44' },
-  sendBtnText: { fontSize: 20, fontWeight: '900', color: colors.text },
-  scoresSection: { marginTop: spacing.sm },
-  scoresLabel: { fontSize: 11, fontWeight: '800', color: colors.textMuted, letterSpacing: 2, marginBottom: spacing.sm },
-  scoreRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border,
-    paddingVertical: spacing.sm, paddingHorizontal: spacing.md, marginBottom: spacing.sm,
-  },
-  scoreName: { fontSize: 14, fontWeight: '700', color: colors.text },
-  scoreVal: { fontSize: 13, fontWeight: '700', color: PINK_LIGHT },
-
-  adultBadge: {
-    alignSelf: 'center', borderRadius: radius.full, borderWidth: 1,
-    borderColor: '#FF6B6B88', backgroundColor: '#FF6B6B18',
-    paddingVertical: 4, paddingHorizontal: spacing.md, marginBottom: spacing.md,
-  },
-  adultBadgeText: { fontSize: 11, fontWeight: '800', color: '#FF6B6B', letterSpacing: 1 },
-  resultOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.xl },
-  resultCard: {
-    backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1, borderColor: PINK + '55',
-    padding: spacing.xxl, alignItems: 'center', width: '100%',
-  },
-  resultEmoji: { fontSize: 64, marginBottom: spacing.md },
-  resultWord: { fontSize: 32, fontWeight: '900', color: colors.text, marginBottom: spacing.sm },
-  resultText: { fontSize: 16, color: colors.textSecondary, textAlign: 'center' },
+const s = StyleSheet.create({
+  counter: { color: T.orTexte, fontFamily: F.chiffre, fontSize: 12, letterSpacing: 2.2 },
+  status: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  timer: { width: 52, height: 52, borderRadius: 999, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  timerText: { fontFamily: F.chiffre, fontSize: 18 },
+  track: { height: 6, borderRadius: 999, backgroundColor: T.trait, overflow: 'hidden' },
+  fill: { height: 6, borderRadius: 999 },
+  score: { color: T.encre, fontFamily: F.chiffre, fontSize: 14 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: T.traitFort },
+  chipText: { color: T.encre, fontSize: 14 },
+  hint: { borderRadius: 14, borderWidth: 1, borderColor: T.trait, backgroundColor: T.carte, padding: 18, alignItems: 'center', gap: 10 },
+  hintLabel: { color: T.orTexte, fontFamily: F.chiffre, fontSize: 11, letterSpacing: 2 },
+  hintText: { color: T.encre, fontFamily: F.chiffre, fontSize: 24, letterSpacing: 2, textAlign: 'center' },
+  found: { color: '#4FD8A4', fontSize: 14, textAlign: 'center' },
+  inputRow: { flexDirection: 'row', gap: 8, width: '100%' },
+  send: { width: 52, height: 52, borderRadius: 999, backgroundColor: T.or, alignItems: 'center', justifyContent: 'center' },
 });

@@ -1,405 +1,61 @@
-import React, { useRef, useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Animated,
-  Platform,
-  TextInput,
-  KeyboardAvoidingView,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
-import PageScroll from '../../components/PageScroll';
+import React, { useState } from 'react';
 import { getQuestions } from '../../data/amitieQuestions';
-
-import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import goBackOrMenu from '../../navigation/goBack';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
-const ROSE       = '#D4AF37';
-const ROSE_DARK  = '#B8962E';
-const ROSE_LIGHT = '#F4DC8C';
-const BG         = OB_BG;
+import { SetupLayout, Section, ChoicePills, AmbianceSelector, PlayerEditor } from '../../components/game/Legende';
+
+const MIN_PLAYERS = 2;
+const MAX_PLAYERS = 6;
+const MODES = [
+  { value: 'amitie', label: 'Amitié', sub: 'Entre amis', heat: 1 },
+  { value: 'couple', label: 'Couple', sub: 'En amoureux', heat: 2 },
+  { value: 'adulte', label: 'Adulte', heat: 3, adult: true },
+];
+const COUNTS = [
+  { value: 5, label: '5 · rapide' },
+  { value: 10, label: '10 · standard' },
+  { value: 15, label: '15 · long' },
+];
 
 export default function AmitieSetupScreen({ navigation }) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(40)).current;
-
-  const [players, setPlayers] = useState(['', '']);
+  const [players, setPlayers] = useState([]);
   const [mode, setMode] = useState('amitie');
   const [questionsCount, setQuestionsCount] = useState(10);
-  const [error, setError] = useState('');
 
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-      Animated.spring(slideAnim, { toValue: 0, tension: 55, friction: 10, useNativeDriver: true }),
-    ]).start();
-  }, []);
-
-  const addPlayer = () => {
-    if (players.length < 6) setPlayers([...players, '']);
-  };
-
-  const removePlayer = (idx) => {
-    if (players.length > 2) setPlayers(players.filter((_, i) => i !== idx));
-  };
-
-  const updatePlayer = (idx, text) => {
-    const updated = [...players];
-    updated[idx] = text;
-    setPlayers(updated);
-    if (error) setError('');
-  };
+  const trimmed = players.map((p) => p.trim()).filter(Boolean);
+  const unique = new Set(trimmed.map((n) => n.toLowerCase())).size === trimmed.length;
+  const canLaunch = trimmed.length >= MIN_PLAYERS && unique;
 
   const handleLaunch = () => {
-    const trimmed = players.map((p) => p.trim());
-    if (trimmed.some((p) => !p)) {
-      setError('Tous les joueurs doivent avoir un prénom !');
-      return;
-    }
-    const uniqueNames = new Set(trimmed.map((n) => n.toLowerCase()));
-    if (uniqueNames.size !== trimmed.length) {
-      setError('Deux joueurs ne peuvent pas avoir le même prénom !');
-      return;
-    }
+    if (!canLaunch) return;
     const questions = getQuestions(mode, questionsCount);
     navigation.navigate('AmitieGame', { players: trimmed, mode, questions });
   };
 
-  const canLaunch = players.every((p) => p.trim().length > 0);
-
   return (
-    <LinearGradient colors={BG} style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
-        <PageScroll
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Header */}
-          <Animated.View
-            style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
-          >
-            <TouchableOpacity onPress={() => goBackOrMenu(navigation)} style={styles.backBtn}>
-              <Text style={styles.backBtnText}>← Retour</Text>
-            </TouchableOpacity>
-            <Text style={styles.title}>TEST DU LIEN</Text>
-            <Text style={styles.subtitle}>Configuration du test</Text>
-          </Animated.View>
+    <SetupLayout
+      game="amitie"
+      navigation={navigation}
+      onBack={() => goBackOrMenu(navigation)}
+      onStart={handleLaunch}
+      canStart={canLaunch}
+      startLabel="Lancer le test"
+      note={trimmed.length < MIN_PLAYERS ? `Ajoutez au moins ${MIN_PLAYERS} joueurs pour commencer.`
+        : !unique ? 'Deux joueurs ont le même prénom : ajoutez une initiale.' : `${questionsCount} questions pour mesurer votre lien.`}
+      rules={[
+        'À chaque question, un joueur devine la réponse d’un autre joueur, à voix haute.',
+        'Le joueur visé révèle sa vraie réponse : bonne réponse, +1 point.',
+        'À la fin, le pourcentage de bonnes réponses donne votre taux de compatibilité.',
+      ]}
+    >
+      <Section label="Mode">
+        <AmbianceSelector levels={MODES} value={mode} onChange={setMode} />
+      </Section>
 
-          <Animated.View style={{ opacity: fadeAnim }}>
-            {/* Players Card */}
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>JOUEURS</Text>
-              <Text style={styles.cardHint}>2 à 6 participants</Text>
+      <Section label="Questions">
+        <ChoicePills options={COUNTS} value={questionsCount} onChange={setQuestionsCount} />
+      </Section>
 
-              {players.map((name, idx) => (
-                <View key={idx} style={styles.playerRow}>
-                  <View style={[styles.playerBadge, { backgroundColor: ROSE + '33' }]}>
-                    <Text style={[styles.playerBadgeText, { color: ROSE_LIGHT }]}>{idx + 1}</Text>
-                  </View>
-                  <TextInput
-                    value={name}
-                    onChangeText={(text) => updatePlayer(idx, text)}
-                    placeholder={`Joueur ${idx + 1}`}
-                    placeholderTextColor={colors.textMuted}
-                    style={styles.playerInput}
-                    maxLength={18}
-                  />
-                  {players.length > 2 && (
-                    <TouchableOpacity onPress={() => removePlayer(idx)} style={styles.removeBtn}>
-                      <Text style={styles.removeBtnText}>✕</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              ))}
-
-              {players.length < 6 && (
-                <TouchableOpacity onPress={addPlayer} style={styles.addBtn}>
-                  <Text style={[styles.addBtnText, { color: ROSE_LIGHT }]}>+ Ajouter un joueur</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-
-            {/* Mode Card */}
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>MODE DE JEU</Text>
-              <View style={styles.modeRow}>
-                <TouchableOpacity
-                  style={[
-                    styles.modeBtn,
-                    mode === 'amitie' && { borderColor: ROSE, backgroundColor: ROSE + '22' },
-                  ]}
-                  onPress={() => setMode('amitie')}
-                >
-                  <Text style={styles.modeEmoji}></Text>
-                  <Text style={[styles.modeName, mode === 'amitie' && { color: ROSE_LIGHT }]}>
-                    Amitié
-                  </Text>
-                  <Text style={styles.modeDesc}>Entre amis</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.modeBtn,
-                    mode === 'couple' && { borderColor: ROSE, backgroundColor: ROSE + '22' },
-                  ]}
-                  onPress={() => setMode('couple')}
-                >
-                  <Text style={styles.modeEmoji}></Text>
-                  <Text style={[styles.modeName, mode === 'couple' && { color: ROSE_LIGHT }]}>
-                    Couple
-                  </Text>
-                  <Text style={styles.modeDesc}>En amoureux</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.modeBtn,
-                    mode === 'adulte' && { borderColor: '#FF4500', backgroundColor: '#FF450022' },
-                  ]}
-                  onPress={() => setMode('adulte')}
-                >
-                  <Text style={styles.modeEmoji}></Text>
-                  <Text style={[styles.modeName, mode === 'adulte' && { color: '#FF6B35' }]}>
-                    Adulte
-                  </Text>
-                  <Text style={styles.modeDesc}>18+ hot</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Questions Count */}
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>NOMBRE DE QUESTIONS</Text>
-              <View style={styles.countRow}>
-                {[5, 10, 15].map((n) => (
-                  <TouchableOpacity
-                    key={n}
-                    style={[
-                      styles.countBtn,
-                      questionsCount === n && { borderColor: ROSE, backgroundColor: ROSE + '22' },
-                    ]}
-                    onPress={() => setQuestionsCount(n)}
-                  >
-                    <Text style={[styles.countNum, questionsCount === n && { color: ROSE_LIGHT }]}>
-                      {n}
-                    </Text>
-                    <Text style={styles.countLabel}>
-                      {n === 5 ? 'Rapide' : n === 10 ? 'Standard' : 'Long'}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {/* Summary */}
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>RÉSUMÉ</Text>
-              <SummaryRow label="Joueurs" value={`${players.length} participants`} color={ROSE_LIGHT} />
-              <SummaryRow
-                label="Mode"
-                value={mode === 'amitie' ? 'Amitié' : mode === 'couple' ? 'Couple' : 'Adulte'}
-                color={mode === 'adulte' ? '#FF6B35' : ROSE_LIGHT}
-              />
-              <SummaryRow label="Questions" value={`${questionsCount} questions`} color={ROSE_LIGHT} />
-            </View>
-
-            {/* Error */}
-            {!!error && (
-              <View style={styles.errorBox}>
-                <Text style={styles.errorText}>{error}</Text>
-              </View>
-            )}
-
-            {/* Launch */}
-            <TouchableOpacity
-              onPress={handleLaunch}
-              disabled={!canLaunch}
-              style={{ marginBottom: spacing.xxl }}
-            >
-              <LinearGradient
-                colors={canLaunch ? GOLD_GRADIENT : [colors.border, colors.surface]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.launchBtn}
-              >
-                <Text style={[styles.launchBtnText, !canLaunch && { color: colors.textMuted }]}>
-                  LANCER LE TEST 
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </Animated.View>
-        </PageScroll>
-      </KeyboardAvoidingView>
-    </LinearGradient>
+      <PlayerEditor names={players} onChange={setPlayers} min={MIN_PLAYERS} max={MAX_PLAYERS} />
+    </SetupLayout>
   );
 }
-
-function SummaryRow({ label, value, color }) {
-  return (
-    <View style={styles.summaryRow}>
-      <Text style={styles.summaryKey}>{label}</Text>
-      <Text style={[styles.summaryVal, { color }]}>{value}</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-  scrollContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
-
-  header: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  backBtn: { paddingVertical: 12, paddingRight: 20, marginTop: -12, alignSelf: 'flex-start', marginBottom: spacing.md },
-  backBtnText: { color: ROSE_LIGHT, fontSize: 14, fontWeight: '600' },
-  characterBadge: {
-    alignItems: 'center',
-    backgroundColor: ROSE + '22',
-    borderWidth: 1,
-    borderColor: ROSE + '55',
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  characterEmoji: { fontSize: 40, marginBottom: 4 },
-  characterQuote: {
-    fontSize: 12,
-    color: ROSE_LIGHT,
-    fontStyle: 'italic',
-    textAlign: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700', fontFamily: 'BodoniModa_700Bold',
-    color: colors.text,
-    letterSpacing: 4,
-    marginBottom: 4,
-  },
-  subtitle: { fontSize: 13, color: colors.textSecondary, letterSpacing: 1 },
-
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  cardLabel: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: ROSE_LIGHT,
-    letterSpacing: 2,
-    marginBottom: 4,
-  },
-  cardHint: { fontSize: 12, color: colors.textMuted, marginBottom: spacing.md },
-
-  playerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-    gap: spacing.sm,
-  },
-  playerBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  playerBadgeText: { fontSize: 14, fontWeight: '800' },
-  playerInput: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    color: colors.text,
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  removeBtn: {
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  removeBtnText: { color: colors.textMuted, fontSize: 16 },
-  addBtn: {
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-    marginTop: spacing.xs,
-  },
-  addBtnText: { fontSize: 14, fontWeight: '700' },
-
-  modeRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
-  modeBtn: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  modeEmoji: { fontSize: 28, marginBottom: 4 },
-  modeName: { fontSize: 14, fontWeight: '800', color: colors.text, marginBottom: 2 },
-  modeDesc: { fontSize: 11, color: colors.textMuted },
-
-  countRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
-  countBtn: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  countNum: { fontSize: 28, fontWeight: '900', color: colors.text },
-  countLabel: { fontSize: 10, color: colors.textMuted, marginTop: 2 },
-
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.xs,
-  },
-  summaryKey: { fontSize: 13, color: colors.textSecondary },
-  summaryVal: { fontSize: 13, fontWeight: '700' },
-
-  errorBox: {
-    backgroundColor: colors.danger + '22',
-    borderWidth: 1,
-    borderColor: colors.danger + '55',
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  errorText: { color: colors.danger, fontSize: 13, fontWeight: '600', textAlign: 'center' },
-
-  launchBtn: {
-    paddingVertical: spacing.md + 4,
-    borderRadius: radius.full,
-    alignItems: 'center',
-    shadowColor: ROSE,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  launchBtnText: {
-    fontSize: 15,
-    fontWeight: '900',
-    color: LAUNCH_TEXT,
-    letterSpacing: 2,
-  },
-});

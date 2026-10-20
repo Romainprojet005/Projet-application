@@ -1,19 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, Platform, ActivityIndicator,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
-import { OB_BG } from '../../theme/obsidian';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { supabase, channelName } from '../../services/supabase';
 import { pickWord } from '../../data/mimeWords';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
-
-const PINK = '#D4AF37';
-const PINK_DARK = '#B8962E';
-const PINK_LIGHT = '#F4DC8C';
-const BG = OB_BG;
+import {
+  GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, RoomCode, LobbyPlayers, AdultTag, T,
+} from '../../components/game/Legende';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -83,151 +74,46 @@ export default function MimeLobbyScreen({ navigation, route }) {
     }
   };
 
-  const myPlayer = players.find(p => p.id === playerId);
+  const leave = async () => {
+    await supabase.from('mime_players').delete().eq('id', playerId);
+    navigation.navigate('Menu');
+  };
 
   return (
-    <LinearGradient colors={BG} style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
-      >
-        <Text style={styles.title}>SALLE D'ATTENTE</Text>
-
-        {/* Room code */}
-        <View style={styles.codeCard}>
-          <Text style={styles.codeLabel}>CODE DE LA SALLE</Text>
-          <Text style={styles.code}>{room?.code ?? '…'}</Text>
-          <Text style={styles.codeHint}>Partage ce code avec tes amis</Text>
-        </View>
-
-        {/* Mode badge */}
-        {room && (
-          <View style={[styles.modeBadge, room.category === 'adulte' && styles.modeBadgeAdulte]}>
-            <Text style={styles.modeBadgeText}>
-              {room.category === 'adulte' ? 'MODE ADULTE — 18+ sans filtre' : 'MODE CLASSIQUE — Tout public'}
-            </Text>
-          </View>
-        )}
-
-        {/* Players list */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>
-            JOUEURS CONNECTÉS ({players.length})
-          </Text>
-          {players.map(p => (
-            <View key={p.id} style={[styles.playerRow, p.id === playerId && styles.playerRowMe]}>
-              <Text style={styles.playerEmoji}>{p.is_host ? '' : ''}</Text>
-              <Text style={[styles.playerName, p.id === playerId && { color: PINK_LIGHT }]}>
-                {p.name}{p.id === playerId ? ' (toi)' : ''}
-              </Text>
+    <GameScreen
+      top={<GameTopBar game="mime" onBack={leave} right={<Text style={s.tag}>ATTENTE</Text>} />}
+      footer={(
+        <ActionBar note={isHost ? null : null}>
+          {isHost ? (
+            <PrimaryButton label={starting ? 'Lancement…' : 'Lancer la partie'} onPress={handleStart} disabled={players.length < 2 || starting} />
+          ) : (
+            <View style={s.wait}>
+              <ActivityIndicator color={T.orTexte} />
+              <Text style={s.waitText}>En attente que l’hôte lance la partie…</Text>
             </View>
-          ))}
-          {players.length < 2 && (
-            <Text style={styles.waitText}>En attente d'au moins 2 joueurs…</Text>
           )}
+          <TextLink label="Quitter la salle" color={T.encreDouce} onPress={leave} />
+        </ActionBar>
+      )}
+    >
+      <RoomCode code={room?.code} />
+      {room ? (
+        <View style={s.mode}>
+          <Text style={s.modeText}>{room.category === 'adulte' ? 'Mode adulte' : 'Mode classique · tout public'}</Text>
+          {room.category === 'adulte' ? <AdultTag /> : null}
         </View>
-
-        {/* Rules reminder */}
-        <View style={styles.rules}>
-          <Text style={styles.rulesTitle}>Comment jouer</Text>
-          <Text style={styles.rulesText}>
-            Le mime voit un mot et doit le faire deviner sans parler.{'\n'}
-            Les autres tapent leur réponse sur leur téléphone.{'\n'}
-            +3 pts pour le devineur, +2 pts pour le mime !
-          </Text>
-        </View>
-
-        {isHost ? (
-          <TouchableOpacity
-            style={[styles.startBtn, (players.length < 2 || starting) && styles.startBtnDisabled]}
-            onPress={handleStart}
-            disabled={players.length < 2 || starting}
-            activeOpacity={0.8}
-          >
-            <LinearGradient colors={[PINK, PINK_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.startBtnGrad}>
-              {starting
-                ? <ActivityIndicator color="#fff" />
-                : <Text style={styles.startBtnText}>LANCER LA PARTIE</Text>
-              }
-            </LinearGradient>
-          </TouchableOpacity>
-        ) : (
-          <View style={styles.waitBanner}>
-            <ActivityIndicator color={PINK} />
-            <Text style={styles.waitBannerText}>En attente que l'hôte lance la partie…</Text>
-          </View>
-        )}
-
-        <TouchableOpacity style={styles.leaveBtn} onPress={async () => {
-          await supabase.from('mime_players').delete().eq('id', playerId);
-          navigation.navigate('Menu');
-        }}>
-          <Text style={styles.leaveBtnText}>Quitter</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </LinearGradient>
+      ) : null}
+      <LobbyPlayers players={players} meId={playerId} />
+      <Text style={s.rules}>Le mimeur voit un mot et le fait deviner sans parler. Les autres tapent leur réponse sur leur téléphone : +3 points pour qui trouve, +2 pour le mimeur.</Text>
+    </GameScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-  scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  title: { fontSize: 22, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xl },
-  codeCard: {
-    backgroundColor: PINK + '22',
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: PINK + '55',
-    padding: spacing.xl,
-    alignItems: 'center',
-    marginBottom: spacing.xl,
-  },
-  codeLabel: { fontSize: 11, fontWeight: '800', color: PINK_LIGHT, letterSpacing: 2, marginBottom: spacing.sm },
-  code: { fontSize: 56, fontWeight: '900', color: colors.text, letterSpacing: 12 },
-  codeHint: { fontSize: 12, color: colors.textMuted, marginTop: spacing.sm },
-  section: { marginBottom: spacing.xl },
-  sectionLabel: { fontSize: 11, fontWeight: '800', color: colors.textMuted, letterSpacing: 2, marginBottom: spacing.md },
-  playerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing.sm,
-  },
-  playerRowMe: { borderColor: PINK + '66' },
-  playerEmoji: { fontSize: 20 },
-  playerName: { fontSize: 16, fontWeight: '700', color: colors.text },
-  waitText: { fontSize: 13, color: colors.textMuted, textAlign: 'center', marginTop: spacing.sm },
-  rules: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    marginBottom: spacing.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  rulesTitle: { fontSize: 13, fontWeight: '800', color: PINK_LIGHT, marginBottom: spacing.sm },
-  rulesText: { fontSize: 13, color: colors.textSecondary, lineHeight: 22 },
-  startBtn: { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.md },
-  startBtnDisabled: { opacity: 0.4 },
-  startBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  startBtnText: { fontSize: 15, fontWeight: '900', color: '#1A1408', letterSpacing: 2 },
-  waitBanner: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: spacing.md, paddingVertical: spacing.lg,
-  },
-  waitBannerText: { color: colors.textSecondary, fontSize: 14 },
-  leaveBtn: { alignItems: 'center', paddingVertical: spacing.md },
-  leaveBtnText: { color: colors.textMuted, fontSize: 13 },
-  modeBadge: {
-    borderRadius: radius.full, borderWidth: 1, borderColor: PINK + '55',
-    backgroundColor: PINK + '18', paddingVertical: spacing.sm, paddingHorizontal: spacing.lg,
-    alignItems: 'center', marginBottom: spacing.xl,
-  },
-  modeBadgeAdulte: { borderColor: '#FF6B6B88', backgroundColor: '#FF6B6B18' },
-  modeBadgeText: { fontSize: 12, fontWeight: '800', color: PINK_LIGHT, letterSpacing: 1 },
+const s = StyleSheet.create({
+  tag: { color: T.encreDouce, fontSize: 11, letterSpacing: 1.6 },
+  mode: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  modeText: { color: T.encreDouce, fontSize: 14 },
+  wait: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 52 },
+  waitText: { color: T.encre, fontSize: 15 },
+  rules: { color: T.encreDouce, fontSize: 14, lineHeight: 21, textAlign: 'center' },
 });

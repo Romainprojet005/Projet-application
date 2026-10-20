@@ -1,22 +1,11 @@
 import React, { useState } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity, TextInput,
-  ScrollView, Platform, ActivityIndicator,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
+import { Text } from 'react-native';
 import { supabase } from '../../services/supabase';
 import alerte from '../../utils/alerte';
 import { VOTE_CATEGORIES } from '../../data/voteData';
+import { SetupLayout, Section, ChoicePills, ChoiceChips, Field, T } from '../../components/game/Legende';
 
-import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
-import sansEmoji from '../../utils/sansEmoji';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
-const VOTE_COLOR = '#D4AF37';
-const VOTE_DARK  = '#B8962E';
-const VOTE_LIGHT = '#F4DC8C';
-const BG         = OB_BG;
-
+const TABS = [{ value: 'create', label: 'Créer une salle' }, { value: 'join', label: 'Rejoindre' }];
 const ROUND_OPTIONS = [5, 10, 15, 20];
 
 function generateCode() {
@@ -83,7 +72,7 @@ export default function VoteMultiSetupScreen({ navigation }) {
         .select()
         .eq('code', joinCode.toUpperCase())
         .single();
-      if (rErr || !room) throw new Error('Salle introuvable. Vérifie le code.');
+      if (rErr || !room) throw new Error('Salle introuvable. Vérifiez le code.');
       if (room.status !== 'lobby') throw new Error('La partie a déjà commencé.');
 
       const { data: player, error: pErr } = await supabase
@@ -101,170 +90,47 @@ export default function VoteMultiSetupScreen({ navigation }) {
     }
   };
 
+  const create = tab === 'create';
+  const canStart = !loading && !!name.trim() && (create || joinCode.length >= 4);
+
   return (
-    <LinearGradient colors={BG} style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        keyboardShouldPersistTaps="handled"
-        style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
-      >
-        <TouchableOpacity style={styles.backRow} onPress={() => navigation.navigate('VoteSetup')}>
-          <Text style={styles.backText}>← Retour</Text>
-        </TouchableOpacity>
+    <SetupLayout
+      game="vote"
+      navigation={navigation}
+      onBack={() => navigation.navigate('VoteSetup')}
+      onStart={create ? handleCreate : handleJoin}
+      canStart={canStart}
+      startLabel={loading ? 'Connexion…' : create ? 'Créer la salle' : 'Rejoindre la salle'}
+      subtitle="Mode multi-téléphones"
+      note="Chaque joueur vote sur son propre téléphone, tous en même temps."
+      rules={[
+        'Un joueur crée la salle, les autres la rejoignent avec son code à 4 lettres.',
+        'Chacun vote en secret sur son téléphone.',
+        'Voter comme la majorité rapporte 1 point ; un vote unanime, 2 points pour tous.',
+      ]}
+    >
+      <ChoicePills options={TABS} value={tab} onChange={setTab} />
 
-        <Text style={styles.title}>VOTE MULTI</Text>
-        <Text style={styles.subtitle}>Votez tous en même temps !</Text>
+      <Section label="Votre prénom">
+        <Field placeholder="Votre prénom…" value={name} onChangeText={setName} autoCapitalize="words" maxLength={20} accessibilityLabel="Votre prénom" />
+      </Section>
 
-        <View style={styles.tabs}>
-          {['create', 'join'].map(t => (
-            <TouchableOpacity
-              key={t}
-              style={[styles.tab, tab === t && styles.tabActive]}
-              onPress={() => setTab(t)}
-            >
-              <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t === 'create' ? 'Créer' : 'Rejoindre'}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>TON PRÉNOM</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Entre ton prénom..."
-            placeholderTextColor={colors.textMuted}
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-            maxLength={20}
-          />
-        </View>
-
-        {tab === 'create' && (
-          <>
-            <View style={styles.field}>
-              <Text style={styles.label}>CATÉGORIE</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catRow}>
-                {VOTE_CATEGORIES.map(cat => {
-                  const active = categoryId === cat.id;
-                  return (
-                    <TouchableOpacity
-                      key={cat.id}
-                      onPress={() => setCategoryId(cat.id)}
-                      style={[styles.catPill, active && { backgroundColor: '#D4AF37' + '30', borderColor: '#D4AF37' }]}
-                    >
-                      <Text style={[styles.catText, active && { color: '#D4AF37', fontWeight: '800' }]}>{sansEmoji(cat.name)}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-              {VOTE_CATEGORIES.find(c => c.id === categoryId)?.needsPlayers && (
-                <Text style={styles.needsPlayersHint}>
-                  Les prénoms des joueurs seront automatiquement utilisés
-                </Text>
-              )}
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>NOMBRE DE QUESTIONS</Text>
-              <View style={styles.roundsRow}>
-                {ROUND_OPTIONS.map(n => (
-                  <TouchableOpacity
-                    key={n}
-                    style={[styles.roundBtn, questionCount === n && styles.roundBtnActive]}
-                    onPress={() => setQuestionCount(n)}
-                  >
-                    <Text style={[styles.roundBtnText, questionCount === n && styles.roundBtnTextActive]}>{n}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <TouchableOpacity
-              style={[styles.mainBtn, (!name.trim() || loading) && styles.mainBtnDisabled]}
-              onPress={handleCreate}
-              disabled={!name.trim() || loading}
-              activeOpacity={0.8}
-            >
-              <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>CRÉER LA SALLE</Text>}
-              </LinearGradient>
-            </TouchableOpacity>
-          </>
-        )}
-
-        {tab === 'join' && (
-          <>
-            <View style={styles.field}>
-              <Text style={styles.label}>CODE DE LA SALLE</Text>
-              <TextInput
-                style={[styles.input, styles.codeInput]}
-                placeholder="ABCD"
-                placeholderTextColor={colors.textMuted}
-                value={joinCode}
-                onChangeText={t => setJoinCode(t.toUpperCase())}
-                autoCapitalize="characters"
-                maxLength={4}
-              />
-            </View>
-            <TouchableOpacity
-              style={[styles.mainBtn, (!name.trim() || joinCode.length < 4 || loading) && styles.mainBtnDisabled]}
-              onPress={handleJoin}
-              disabled={!name.trim() || joinCode.length < 4 || loading}
-              activeOpacity={0.8}
-            >
-              <LinearGradient colors={GOLD_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.mainBtnText}>REJOINDRE</Text>}
-              </LinearGradient>
-            </TouchableOpacity>
-          </>
-        )}
-      </ScrollView>
-    </LinearGradient>
+      {create ? (
+        <>
+          <Section label="Catégorie">
+            <ChoiceChips options={VOTE_CATEGORIES.map((c) => ({ value: c.id, label: c.name, adult: ['cibleHot', 'adulte', 'majorite'].includes(c.id) }))} value={categoryId} onChange={setCategoryId} />
+          </Section>
+          <Section label="Questions">
+            <ChoicePills options={ROUND_OPTIONS} value={questionCount} onChange={setQuestionCount} />
+          </Section>
+        </>
+      ) : (
+        <Section label="Code de la salle">
+          <Field placeholder="ABCD" value={joinCode} onChangeText={(t) => setJoinCode(t.toUpperCase())} autoCapitalize="characters" maxLength={4}
+            accessibilityLabel="Code de la salle" style={{ textAlign: 'center', fontSize: 28, letterSpacing: 10, height: 64 }} />
+          <Text style={{ color: T.encreDouce, fontSize: 13 }}>Demandez le code au joueur qui a créé la salle.</Text>
+        </Section>
+      )}
+    </SetupLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-  scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  backRow: { paddingVertical: 12, paddingRight: 20, marginTop: -12, marginBottom: spacing.lg },
-  backText: { color: colors.textMuted, fontSize: 14 },
-  title: { fontSize: 32, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: VOTE_LIGHT, textAlign: 'center', letterSpacing: 2 },
-  subtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
-  tabs: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.lg, padding: 4, marginBottom: spacing.xl },
-  tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.md },
-  tabActive: { backgroundColor: GOLD },
-  tabText: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
-  tabTextActive: { color: LAUNCH_TEXT },
-  field: { marginBottom: spacing.lg },
-  label: { fontSize: 11, fontWeight: '800', color: VOTE_LIGHT, letterSpacing: 2, marginBottom: spacing.sm },
-  input: {
-    backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1, borderColor: VOTE_COLOR + '44',
-    paddingVertical: spacing.md, paddingHorizontal: spacing.lg, fontSize: 16, fontWeight: '700', color: colors.text,
-    ...Platform.select({ web: { outlineStyle: 'none' } }),
-  },
-  codeInput: { fontSize: 28, fontWeight: '900', textAlign: 'center', letterSpacing: 8 },
-  catRow: { flexDirection: 'row', gap: spacing.sm, paddingVertical: spacing.xs },
-  catPill: {
-    flexDirection: 'row', alignItems: 'center', gap: spacing.xs,
-    paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
-    borderRadius: radius.full, borderWidth: 1, backgroundColor: colors.surface, borderColor: colors.border,
-  },
-  catEmoji: { fontSize: 16 },
-  catText: { fontSize: 13, fontWeight: '600', color: colors.textMuted },
-  needsPlayersHint: { fontSize: 12, color: VOTE_LIGHT, marginTop: spacing.sm, fontStyle: 'italic' },
-  roundsRow: { flexDirection: 'row', gap: spacing.sm },
-  roundBtn: {
-    flex: 1, paddingVertical: spacing.md, alignItems: 'center',
-    backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border,
-  },
-  roundBtnActive: { backgroundColor: VOTE_COLOR + '33', borderColor: VOTE_COLOR },
-  roundBtnText: { fontSize: 20, fontWeight: '900', color: colors.textMuted },
-  roundBtnTextActive: { color: VOTE_LIGHT },
-  mainBtn: { borderRadius: radius.full, overflow: 'hidden', marginTop: spacing.md },
-  mainBtnDisabled: { opacity: 0.4 },
-  mainBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  mainBtnText: { fontSize: 15, fontWeight: '900', color: LAUNCH_TEXT, letterSpacing: 2 },
-});

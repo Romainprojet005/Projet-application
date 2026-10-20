@@ -1,15 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, Platform, ActivityIndicator,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
-import { GOLD, GOLD_DARK, GOLD_LIGHT, OB_BG } from '../../theme/obsidian';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { supabase, channelName } from '../../services/supabase';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
+import { GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, RoomCode, LobbyPlayers, T } from '../../components/game/Legende';
 
-const BG = OB_BG;
 const MIN_PLAYERS = 3;
 
 function shuffle(arr) {
@@ -75,115 +68,38 @@ export default function TribunalLobbyScreen({ navigation, route }) {
     }
   };
 
+  const leave = async () => {
+    await supabase.from('tribunal_players').delete().eq('id', playerId);
+    navigation.navigate('Menu');
+  };
+
   return (
-    <LinearGradient colors={BG} style={styles.container}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>SALLE D'ATTENTE</Text>
-
-        {/* Code */}
-        <View style={styles.codeCard}>
-          <Text style={styles.codeLabel}>CODE DE LA SALLE</Text>
-          <Text style={styles.code}>{room?.code ?? '…'}</Text>
-          <Text style={styles.codeHint}>Partage ce code avec tes amis</Text>
-        </View>
-
-        {/* Joueurs */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>JURÉS CONNECTÉS ({players.length})</Text>
-          {players.map(p => (
-            <View key={p.id} style={[styles.playerRow, p.id === playerId && styles.playerRowMe]}>
-              <Text style={styles.playerEmoji}>{p.is_host ? '' : ''}</Text>
-              <Text style={[styles.playerName, p.id === playerId && { color: GOLD_LIGHT }]}>
-                {p.name}{p.id === playerId ? ' (toi)' : ''}
-              </Text>
+    <GameScreen
+      top={<GameTopBar game="tribunal" onBack={leave} right={<Text style={s.tag}>ATTENTE</Text>} />}
+      footer={(
+        <ActionBar>
+          {isHost ? (
+            <PrimaryButton label={starting ? 'Lancement…' : 'Ouvrir l’audience'} onPress={handleStart} disabled={players.length < MIN_PLAYERS || starting} />
+          ) : (
+            <View style={s.wait}>
+              <ActivityIndicator color={T.orTexte} />
+              <Text style={s.waitText}>En attente que l’hôte lance la partie…</Text>
             </View>
-          ))}
-          {players.length < MIN_PLAYERS && (
-            <Text style={styles.waitMinText}>
-              Minimum {MIN_PLAYERS} joueurs requis ({players.length}/{MIN_PLAYERS})
-            </Text>
           )}
-        </View>
-
-        {/* Rappel des règles */}
-        <View style={styles.rulesCard}>
-          <Text style={styles.rulesTitle}>Rappel</Text>
-          <Text style={styles.rulesText}>
-            Chacun recevra le nom d'un autre joueur et devra écrire une vérité sur lui.{'\n'}
-            Ensuite, chaque accusé devra convaincre le jury que c'est faux !
-          </Text>
-        </View>
-
-        {isHost ? (
-          <TouchableOpacity
-            style={[styles.startBtn, (players.length < MIN_PLAYERS || starting) && styles.startBtnDisabled]}
-            onPress={handleStart}
-            disabled={players.length < MIN_PLAYERS || starting}
-            activeOpacity={0.8}
-          >
-            <LinearGradient colors={[GOLD, GOLD_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.startBtnGrad}>
-              {starting
-                ? <ActivityIndicator color="#000" />
-                : <Text style={styles.startBtnText}>LANCER LE TRIBUNAL</Text>
-              }
-            </LinearGradient>
-          </TouchableOpacity>
-        ) : (
-          <View style={styles.waitBanner}>
-            <ActivityIndicator color={GOLD} />
-            <Text style={styles.waitBannerText}>En attente que l'hôte lance le tribunal…</Text>
-          </View>
-        )}
-
-        <TouchableOpacity style={styles.leaveBtn} onPress={async () => {
-          await supabase.from('tribunal_players').delete().eq('id', playerId);
-          navigation.navigate('Menu');
-        }}>
-          <Text style={styles.leaveBtnText}>Quitter</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </LinearGradient>
+          <TextLink label="Quitter la salle" color={T.encreDouce} onPress={leave} />
+        </ActionBar>
+      )}
+    >
+      <RoomCode code={room?.code} />
+      <LobbyPlayers players={players} meId={playerId} min={MIN_PLAYERS} label="Jurés connectés" />
+      <Text style={s.rules}>Chacun recevra le nom d’un autre joueur et écrira une vérité sur lui. Ensuite, chaque accusé devra convaincre le jury que c’est faux.</Text>
+    </GameScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-  scroll: { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  title: { fontSize: 22, fontWeight: '700', fontFamily: 'BodoniModa_700Bold', color: colors.text, textAlign: 'center', letterSpacing: 3, marginBottom: spacing.xl },
-  codeCard: {
-    backgroundColor: GOLD + '22', borderRadius: radius.xl, borderWidth: 1, borderColor: GOLD + '55',
-    padding: spacing.xl, alignItems: 'center', marginBottom: spacing.xl,
-  },
-  codeLabel: { fontSize: 11, fontWeight: '800', color: GOLD_LIGHT, letterSpacing: 2, marginBottom: spacing.sm },
-  code: { fontSize: 56, fontWeight: '900', color: colors.text, letterSpacing: 12 },
-  codeHint: { fontSize: 12, color: colors.textMuted, marginTop: spacing.sm },
-  section: { marginBottom: spacing.xl },
-  sectionLabel: { fontSize: 11, fontWeight: '800', color: colors.textMuted, letterSpacing: 2, marginBottom: spacing.md },
-  playerRow: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: colors.card, borderRadius: radius.md,
-    padding: spacing.md, marginBottom: spacing.sm,
-    borderWidth: 1, borderColor: colors.border, gap: spacing.sm,
-  },
-  playerRowMe: { borderColor: GOLD + '66' },
-  playerEmoji: { fontSize: 20 },
-  playerName: { fontSize: 16, fontWeight: '700', color: colors.text },
-  waitMinText: { fontSize: 13, color: colors.textMuted, textAlign: 'center', marginTop: spacing.sm, fontStyle: 'italic' },
-  rulesCard: {
-    backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing.lg,
-    marginBottom: spacing.xl, borderWidth: 1, borderColor: colors.border,
-  },
-  rulesTitle: { fontSize: 13, fontWeight: '800', color: GOLD_LIGHT, marginBottom: spacing.sm },
-  rulesText: { fontSize: 13, color: colors.textSecondary, lineHeight: 22 },
-  startBtn: { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.md },
-  startBtnDisabled: { opacity: 0.4 },
-  startBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  startBtnText: { fontSize: 15, fontWeight: '900', color: '#1A1408', letterSpacing: 2 },
-  waitBanner: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: spacing.md, paddingVertical: spacing.lg,
-  },
-  waitBannerText: { color: colors.textSecondary, fontSize: 14 },
-  leaveBtn: { alignItems: 'center', paddingVertical: spacing.md },
-  leaveBtnText: { color: colors.textMuted, fontSize: 13 },
+const s = StyleSheet.create({
+  tag: { color: T.encreDouce, fontSize: 11, letterSpacing: 1.6 },
+  wait: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 52 },
+  waitText: { color: T.encre, fontSize: 15 },
+  rules: { color: T.encreDouce, fontSize: 14, lineHeight: 21, textAlign: 'center' },
 });

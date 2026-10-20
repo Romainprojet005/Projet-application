@@ -1,21 +1,16 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity,
-  TextInput, Animated, Platform, ScrollView, Linking,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
+import { View, Text, StyleSheet, Animated, Platform, Linking, Pressable } from 'react-native';
 import { selectSongs } from '../../data/blindTestSongs';
-import { OB_BG } from '../../theme/obsidian';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
 import { isCorrectTitle } from '../../utils/reponseBlindTest';
 import useKeepTyping from '../../utils/useKeepTyping';
+import goBackOrMenu from '../../navigation/goBack';
+import {
+  GameScreen, GameTopBar, ActionBar, PrimaryButton, SecondaryButton, TextLink, Heading, Notice, Field,
+  PlayerChoice, PlayerGrid, Ranking, EndActions, Icon, T, F,
+} from '../../components/game/Legende';
 
-const BG         = OB_BG;
-const BEAT       = '#1F9E70';
-const BEAT_DARK  = '#0B6B4A';
-const BEAT_LIGHT = '#4FD8A4';
-
+const GAME = 'blindtest';
+const BEAT = '#4FD8A4'; // famille Savoir
 // Les navigateurs mobiles bloquent l'autoplay dans les iframes cachées
 const isMobileWeb = Platform.OS === 'web' &&
   typeof navigator !== 'undefined' &&
@@ -104,8 +99,8 @@ export default function BlindTestGameScreen({ navigation, route }) {
     : 1;
   const timerColor = isInfinite ? BEAT
     : timer >= TOTAL_TIME * 2 / 3 ? BEAT
-    : timer >= TOTAL_TIME / 3 ? '#F59E0B'
-    : '#EF4444';
+    : timer >= TOTAL_TIME / 3 ? T.orTexte
+    : T.alerte;
 
   // ── Timer ──────────────────────────────────────────────────────────────────
   const stopTimer = useCallback(() => {
@@ -268,440 +263,177 @@ export default function BlindTestGameScreen({ navigation, route }) {
     }
   };
 
-  // ── Final screen ───────────────────────────────────────────────────────────
+  const quit = () => goBackOrMenu(navigation);
+  const iframe = Platform.OS === 'web' ? React.createElement('iframe', {
+    ref: iframeRef,
+    allow: 'autoplay; encrypted-media',
+    style: { position: 'fixed', bottom: -1, left: -1, width: 1, height: 1, opacity: 0, border: 'none', pointerEvents: 'none' },
+  }) : null;
+
+  // ── Fin de partie ──
+  let screen;
   if (phase === 'final') {
-    const sortedScores = hasPlayers
-      ? Object.entries(scores).sort(([, a], [, b]) => b - a)
-      : [];
     const foundCount = results.filter(r => r.points > 0).length;
     const totalPts   = results.reduce((s, r) => s + r.points, 0);
     const maxPts     = isInfinite ? songs.length : songs.length * 3;
     const pct        = Math.round((totalPts / Math.max(maxPts, 1)) * 100);
-
-    return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <ScrollView
-          contentContainerStyle={styles.finalScroll}
-          showsVerticalScrollIndicator={false}
-          style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}
-        >
-          <View style={styles.compatCard}>
-            <LinearGradient colors={[`${BEAT}30`, `${BEAT}18`]} style={styles.compatInner}>
-              <Text style={styles.compatEmoji}>{pct >= 70 ? '🏆' : pct >= 40 ? '🎸' : '🤘'}</Text>
-              <Text style={styles.compatPct}>{pct}%</Text>
-              <Text style={styles.compatTitle}>des chansons trouvées</Text>
-              <View style={styles.compatDivider} />
-              <Text style={styles.compatLabel}>
-                {pct >= 70 ? 'Oreille d\'or ! Tu connais tes classiques !' : pct >= 40 ? 'Pas mal ! Quelques tubes bien connus…' : 'Ces chansons vous ont résisté !'}
-              </Text>
-            </LinearGradient>
-          </View>
-
-          {hasPlayers && (
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>🏆 CLASSEMENT</Text>
-              {sortedScores.map(([name, pts], i) => (
-                <View key={name} style={styles.scoreRow}>
-                  <Text style={styles.scoreRank}>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}</Text>
-                  <Text style={styles.scoreName}>{name}</Text>
-                  <View style={styles.scoreBarWrap}>
-                    <View style={styles.scoreTrack}>
-                      <View style={[styles.scoreFill, { width: `${(pts / Math.max(sortedScores[0][1], 1)) * 100}%` }]} />
-                    </View>
-                  </View>
-                  <Text style={styles.scoreVal}>{pts} pts</Text>
-                </View>
-              ))}
-            </View>
-          )}
-
-          <View style={styles.card}>
-            <Text style={styles.cardLabel}>🎵 RÉCAP — {foundCount}/{songs.length} trouvées</Text>
-            {results.map((r, i) => (
-              <View key={i} style={styles.recapRow}>
-                <View>
-                  <Text style={styles.recapTitle}>{r.song.title}</Text>
-                  <Text style={styles.recapArtist}>{r.song.artist}</Text>
-                </View>
-                <Text style={styles.recapFinder}>
-                  {r.points > 0
-                    ? r.finder ? `✅ ${r.finder} — ${r.points} pt${r.points > 1 ? 's' : ''}` : `✅ ${r.points} pt${r.points > 1 ? 's' : ''}`
-                    : '❌'}
-                </Text>
+    screen = (
+      <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={songs.length} total={songs.length} />}
+        footer={<EndActions navigation={navigation} route={route} />}>
+        <View style={styles.score}>
+          <Text style={styles.kicker}>FIN DE PARTIE</Text>
+          <Text style={styles.pct}>{pct} %</Text>
+          <Text style={styles.sub}>des points possibles · {foundCount} chanson{foundCount > 1 ? 's' : ''} trouvée{foundCount > 1 ? 's' : ''} sur {songs.length}</Text>
+          <Text style={styles.verdict}>
+            {pct >= 70 ? 'Oreille d’or : vous connaissez vos classiques.' : pct >= 40 ? 'Pas mal, quelques tubes bien connus.' : 'Ces chansons vous ont résisté.'}
+          </Text>
+        </View>
+        {hasPlayers && <Ranking players={playerNames} scores={scores} suffix=" pts" />}
+        <View style={styles.recap}>
+          <Text style={styles.kickerMuted}>RÉCAPITULATIF</Text>
+          {results.map((r, i) => (
+            <View key={i} style={styles.recapRow}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={styles.recapTitle} numberOfLines={1}>{r.song.title}</Text>
+                <Text style={styles.recapArtist} numberOfLines={1}>{r.song.artist}</Text>
               </View>
-            ))}
-          </View>
-
-          <TouchableOpacity onPress={() => navigation.replace(route.name, route.params)} style={styles.replayBtn}>
-            <LinearGradient colors={[BEAT, BEAT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.replayGradient}>
-              <Text style={styles.replayText}>🔄  Rejouer</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.menuBtn}>
-            <Text style={styles.menuBtnText}>← Retour au menu</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </LinearGradient>
+              <Text style={[styles.recapPts, r.points > 0 ? { color: BEAT } : null]}>
+                {r.points > 0 ? `${r.finder ? r.finder + ' · ' : ''}+${r.points}` : '—'}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </GameScreen>
     );
   }
 
-  // ── Game screen ────────────────────────────────────────────────────────────
-  return (
-    <LinearGradient colors={BG} style={styles.container}>
+  const last = results[results.length - 1];
+  const top = <GameTopBar game={GAME} onBack={quit} current={songIdx + 1} total={songs.length} />;
 
-      {/* Progress */}
-      <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${(songIdx / songs.length) * 100}%` }]} />
-      </View>
-
-      <ScrollView
-        style={[styles.innerScroll, Platform.OS === 'web' && { flex: 1, minHeight: 0 }]}
-        contentContainerStyle={styles.inner}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Header */}
-        <View style={styles.topRow}>
-          <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.quitBtn}>
-            <Text style={styles.quitText}>✕ Quitter</Text>
-          </TouchableOpacity>
-          <Text style={styles.roundCounter}>🎵 {songIdx + 1} / {songs.length}</Text>
-        </View>
-
-        {/* Points chip */}
-        <View style={styles.infoRow}>
-          <View />
-          {phase === 'playing' && (
-            <View style={[styles.ptsChip, { borderColor: `${timerColor}50`, backgroundColor: `${timerColor}25` }]}>
-              <Text style={[styles.ptsChipNum, { color: timerColor }]}>{currentPts}</Text>
-              <Text style={[styles.ptsChipLabel, { color: `${timerColor}AA` }]}>pt{currentPts > 1 ? 's' : ''}</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Music zone */}
-        <View style={styles.musicZone}>
-          {phase === 'idle' && (
-            <View style={styles.idleContent}>
-              <Text style={styles.idleNote}>🎵</Text>
-              <Text style={styles.idleSongNum}>Chanson {songIdx + 1}</Text>
-              {replaced && (
-                <Text style={styles.idleReplaced}>La chanson précédente n'était pas disponible : on en a choisi une autre.</Text>
-              )}
-              <TouchableOpacity onPress={handlePlay} activeOpacity={0.85} style={styles.playBtnWrap}>
-                <LinearGradient colors={[BEAT, BEAT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.playBtn}>
-                  <Text style={styles.playBtnText}>▶  JOUER L'EXTRAIT</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {(phase === 'playing') && (
-            <View style={styles.playingContent}>
-              <EqBars />
-              <View style={[styles.timerWrap, { borderColor: `${timerColor}60` }]}>
-                {isInfinite ? (
-                  <Text style={[styles.timerNum, { color: timerColor, fontSize: 40 }]}>∞</Text>
-                ) : (
-                  <>
-                    <Text style={[styles.timerNum, { color: timerColor }]}>{timer}</Text>
-                    <Text style={styles.timerLabel}>s</Text>
-                  </>
-                )}
+  // ── Réponse ──
+  if (phase === 'reveal') {
+    screen = (
+      <GameScreen top={top} footer={(
+        <ActionBar>
+          <PrimaryButton label={songIdx < songs.length - 1 ? 'Chanson suivante' : 'Voir les scores'} onPress={handleNext} />
+        </ActionBar>
+      )}>
+        <Heading kicker={last?.points > 0 ? (last?.finder ? `Trouvé par ${last.finder}` : 'Trouvé') : 'Pas trouvé'} />
+        <View style={styles.answer}>
+          <View style={styles.answerInner}>
+            {Platform.OS === 'web' && (
+              <View style={styles.thumb}>
+                <img src={`https://img.youtube.com/vi/${song.videoId}/hqdefault.jpg`} alt={song.title}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10 }} />
               </View>
-            </View>
-          )}
-
-          {phase === 'found' && (
-            <View style={styles.foundContent}>
-              <Animated.View style={[styles.foundBadge, { transform: [{ scale: feedbackScale }] }]}>
-                <LinearGradient colors={[`${BEAT}EE`, `${BEAT_DARK}BB`]} style={styles.foundInner}>
-                  <Text style={styles.foundEmoji}>✅</Text>
-                  <Text style={styles.foundText}>+{foundPts} pt{foundPts > 1 ? 's' : ''} !</Text>
-                </LinearGradient>
-              </Animated.View>
-              <Text style={styles.whoFoundLabel}>Qui a trouvé ?</Text>
-              <View style={styles.playerBtns}>
-                {playerNames.map(name => (
-                  <TouchableOpacity key={name} onPress={() => handleAwardPlayer(name)} style={styles.playerBtnWrap}>
-                    <LinearGradient colors={[BEAT, BEAT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.playerBtn}>
-                      <Text style={styles.playerBtnText}>{name}</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                ))}
-                <TouchableOpacity onPress={() => { setResults(prev => [...prev, { song, finder: null, points: foundPts }]); setPhase('reveal'); phaseRef.current = 'reveal'; openAnswerCard(); }} style={styles.playerBtnWrap}>
-                  <View style={[styles.playerBtn, styles.playerBtnNobody]}>
-                    <Text style={styles.playerBtnTextMuted}>Personne n'a répondu</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-          {phase === 'blocked' && (
-            <View style={styles.blockedContent}>
-              <Text style={styles.blockedIcon}>🚫</Text>
-              <Text style={styles.blockedTitle}>Vidéo non disponible</Text>
-              <Text style={styles.blockedSub}>Cette vidéo ne peut pas être lue ici.{'\n'}Ouvrez-la sur YouTube pour écouter !</Text>
-              <TouchableOpacity
-                onPress={() => openYoutube(song)}
-                style={styles.ytOpenBtn}
-                activeOpacity={0.85}
-              >
-                <LinearGradient colors={['#FF0000', '#CC0000']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.ytOpenBtnInner}>
-                  <Text style={styles.ytOpenBtnText}>▶  Ouvrir sur YouTube</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleReveal} style={styles.blockedSkip} activeOpacity={0.8}>
-                <Text style={styles.blockedSkipText}>Révéler la réponse →</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
-        {/* Guess input — only during playing */}
-        {phase === 'playing' && (
-          <View style={styles.inputContainer}>
-            <View style={styles.inputRow}>
-              <TextInput
-                ref={inputRef}
-                blurOnSubmit={false}
-                style={[styles.textInput, wrongFlash && styles.textInputWrong]}
-                placeholder="Tapez le titre de la chanson..."
-                placeholderTextColor={`${BEAT}66`}
-                value={inputText}
-                onChangeText={setInputText}
-                onSubmitEditing={handleGuess}
-                returnKeyType="done"
-                autoCorrect={false}
-                autoCapitalize="none"
-              />
-              {/* Sur web : onMouseDown avec preventDefault() pour éviter que l'input
-                  perde le focus avant le déclenchement de la validation */}
-              <TouchableOpacity
-                style={[styles.validateBtn, !inputText.trim() && styles.validateBtnDisabled]}
-                onPress={Platform.OS !== 'web' ? handleGuess : undefined}
-                onMouseDown={Platform.OS === 'web' ? (e) => {
-                  e.preventDefault();
-                  handleGuess(inputText);
-                } : undefined}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.validateBtnText}>✓</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity onPress={handleReveal} style={styles.skipBtn} activeOpacity={0.8}>
-              <LinearGradient colors={['#0E0C1A', '#1A1730']} style={styles.skipBtnInner}>
-                <Text style={styles.skipBtnText}>❓  Je ne sais pas</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
-        )}
-      </ScrollView>
-
-      {Platform.OS === 'web' && React.createElement('iframe', {
-        ref: iframeRef,
-        allow: 'autoplay; encrypted-media',
-        style: { position: 'fixed', bottom: -1, left: -1, width: 1, height: 1, opacity: 0, border: 'none', pointerEvents: 'none' },
-      })}
-
-      {/* Answer card */}
-      {(phase === 'reveal') && (
-        <Animated.View style={[styles.answerOverlay, { opacity: answerOpacity, transform: [{ translateY: answerSlide }] }]}>
-          <LinearGradient colors={['#0E0C1A', '#07050E']} style={styles.answerCard}>
-            {results[results.length - 1]?.points > 0 ? (
-              <>
-                <Text style={styles.answerResult}>🎉 Trouvé !</Text>
-                {results[results.length - 1]?.finder && (
-                  <Text style={styles.answerFinder}>par {results[results.length - 1].finder}</Text>
-                )}
-              </>
-            ) : (
-              <Text style={styles.answerResult}>😅 Pas trouvé !</Text>
             )}
-
-            <View style={styles.answerDivider} />
-
-            <Text style={styles.answerLabel}>LA CHANSON ÉTAIT :</Text>
+            <Text style={styles.kicker}>LA CHANSON ÉTAIT</Text>
             <Text style={styles.answerTitle}>{song.title}</Text>
             <Text style={styles.answerArtist}>{song.artist}</Text>
+            {last?.points > 0 ? <Text style={[styles.kicker, { color: BEAT }]}>+{last.points} POINT{last.points > 1 ? 'S' : ''}</Text> : null}
+          </View>
+        </View>
+      </GameScreen>
+    );
+  }
 
-            {Platform.OS === 'web' && (
-              <View style={styles.thumbWrap}>
-                <img
-                  src={`https://img.youtube.com/vi/${song.videoId}/hqdefault.jpg`}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }}
-                  alt={song.title}
-                />
-              </View>
-            )}
-
-            <TouchableOpacity onPress={handleNext} style={styles.nextBtn} activeOpacity={0.85}>
-              <LinearGradient colors={[BEAT, BEAT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextGradient}>
-                <Text style={styles.nextText}>
-                  {songIdx < songs.length - 1 ? '▶  Chanson suivante' : '🏆  Voir les scores'}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </LinearGradient>
+  // ── Qui a trouvé ? ──
+  if (phase === 'found') {
+    screen = (
+      <GameScreen top={top} footer={(
+        <ActionBar>
+          <TextLink label="Personne n’a répondu" color={T.encreDouce} onPress={() => { setResults(prev => [...prev, { song, finder: null, points: foundPts }]); setPhase('reveal'); phaseRef.current = 'reveal'; openAnswerCard(); }} />
+        </ActionBar>
+      )}>
+        <Animated.View style={{ transform: [{ scale: feedbackScale }] }}>
+          <Notice title={`Bonne réponse · +${foundPts} point${foundPts > 1 ? 's' : ''}`}>{song.title}</Notice>
         </Animated.View>
+        <Heading title="Qui a trouvé ?" />
+        <PlayerGrid>
+          {playerNames.map((name, i) => (
+            <PlayerChoice key={name} name={name} index={i} onPress={() => handleAwardPlayer(name)} label={`Donner les points à ${name}`} />
+          ))}
+        </PlayerGrid>
+      </GameScreen>
+    );
+  }
+
+  // ── Écoute / attente ──
+  if (!screen) screen = (
+    <GameScreen top={top} footer={phase === 'playing' ? (
+      <ActionBar>
+        <View style={styles.inputRow}>
+          <Field ref={inputRef} blurOnSubmit={false} style={[{ flex: 1 }, wrongFlash && { borderColor: T.alerte }]}
+            placeholder="Titre de la chanson…" value={inputText} onChangeText={setInputText} onSubmitEditing={handleGuess}
+            returnKeyType="done" autoCorrect={false} autoCapitalize="none" accessibilityLabel="Titre de la chanson" />
+          {/* Web : onMouseDown + preventDefault pour garder le focus dans le champ */}
+          <Pressable accessibilityRole="button" accessibilityLabel="Valider"
+            style={[styles.validate, !inputText.trim() && { opacity: 0.4 }]}
+            onPress={Platform.OS !== 'web' ? handleGuess : undefined}
+            onMouseDown={Platform.OS === 'web' ? (e) => { e.preventDefault(); handleGuess(inputText); } : undefined}>
+            <Icon name="check" color={T.surOr} />
+          </Pressable>
+        </View>
+        <TextLink label="Je ne sais pas" color={T.encreDouce} onPress={handleReveal} />
+      </ActionBar>
+    ) : phase === 'idle' ? (
+      <ActionBar><PrimaryButton label="Jouer l’extrait" onPress={handlePlay} /></ActionBar>
+    ) : null}>
+      {phase === 'idle' && (
+        <View style={styles.stage}>
+          <Text style={styles.kicker}>CHANSON {songIdx + 1} SUR {songs.length}</Text>
+          <View style={styles.disc}><View style={styles.discHole} /></View>
+          <Text style={styles.sub}>Préparez vos oreilles. {isInfinite ? 'Pas de limite de temps.' : `Vous avez ${TOTAL_TIME} secondes.`}</Text>
+          {replaced && <Notice tone="neutre">La chanson précédente n’était pas disponible : une autre a été choisie.</Notice>}
+        </View>
       )}
-    </LinearGradient>
+
+      {phase === 'playing' && (
+        <View style={styles.stage}>
+          <EqBars />
+          <View style={[styles.timer, { borderColor: timerColor }]}>
+            <Text style={[styles.timerNum, { color: timerColor }]}>{isInfinite ? '∞' : timer}</Text>
+            {!isInfinite && <Text style={styles.timerUnit}>SECONDES</Text>}
+          </View>
+          <Text style={[styles.kicker, { color: timerColor }]}>{currentPts} POINT{currentPts > 1 ? 'S' : ''} EN JEU</Text>
+        </View>
+      )}
+
+      {phase === 'blocked' && (
+        <View style={styles.stage}>
+          <Heading title="Vidéo indisponible" sub="Cette vidéo ne peut pas être lue ici. Ouvrez-la sur YouTube pour l’écouter." />
+          <SecondaryButton label="Ouvrir sur YouTube" onPress={() => openYoutube(song)} />
+          <TextLink label="Révéler la réponse" onPress={handleReveal} />
+        </View>
+      )}
+    </GameScreen>
   );
+  return <View style={{ flex: 1 }}>{screen}{iframe}</View>;
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-
-  progressTrack: { height: 3, backgroundColor: colors.border, width: '100%' },
-  progressFill:  { height: '100%', backgroundColor: BEAT, borderRadius: 2 },
-
-  innerScroll: { flex: 1 },
-  inner: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: Platform.OS === 'ios' ? 50 : 30,
-    paddingBottom: 32,
-  },
-
-  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
-  quitBtn: { paddingVertical: 4 },
-  quitText: { color: colors.textMuted, fontSize: 13 },
-  roundCounter: { fontSize: 14, fontWeight: '700', color: colors.textSecondary, letterSpacing: 1 },
-
-  infoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.md, minHeight: 40 },
-  ptsChip: {
-    flexDirection: 'row', alignItems: 'baseline',
-    borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.xs,
-    borderWidth: 1, gap: 4,
-  },
-  ptsChipNum:   { fontSize: 22, fontWeight: '900' },
-  ptsChipLabel: { fontSize: 12, fontWeight: '700' },
-
-  // Music zone
-  musicZone: {
-    width: '100%',
-    height: Platform.select({ web: '52vh', default: 280 }),
-    borderRadius: radius.xl,
-    overflow: 'hidden',
-    backgroundColor: '#0E0C1A',
-    borderWidth: 1,
-    borderColor: `${BEAT}40`,
-    marginBottom: spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-
-  idleContent: { alignItems: 'center', gap: spacing.lg },
-  idleNote:    { fontSize: 64 },
-  idleSongNum: { fontSize: 16, fontWeight: '700', color: colors.textSecondary, letterSpacing: 2 },
-  playBtnWrap: { borderRadius: radius.full, overflow: 'hidden', shadowColor: BEAT, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.5, shadowRadius: 14, elevation: 8 },
-  playBtn:     { paddingVertical: spacing.md + 4, paddingHorizontal: spacing.xl + 8, borderRadius: radius.full, alignItems: 'center' },
-  playBtnText: { fontSize: 16, fontWeight: '900', color: '#fff', letterSpacing: 2 },
-
-  playingContent: { alignItems: 'center', gap: spacing.md },
-  mobileNotice: { fontSize: 12, color: BEAT_LIGHT, fontWeight: '600', textAlign: 'center', opacity: 0.85, paddingHorizontal: spacing.lg },
-  ytNotice:     { fontSize: 12, color: BEAT_LIGHT, fontWeight: '600', textAlign: 'center', opacity: 0.8 },
-  relancerBtn:  { paddingVertical: spacing.xs, paddingHorizontal: spacing.md },
-  relancerText: { fontSize: 12, color: BEAT_LIGHT + 'AA', fontWeight: '600', textDecorationLine: 'underline' },
-  timerWrap: {
-    width: 90, height: 90, borderRadius: 45, borderWidth: 3,
-    alignItems: 'center', justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)', flexDirection: 'row', alignItems: 'baseline', gap: 2,
-  },
-  timerNum:   { fontSize: 36, fontWeight: '900' },
-  timerLabel: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
-
-  idleReplaced:   { fontSize: 12, color: colors.textMuted, textAlign: 'center', paddingHorizontal: spacing.lg },
-  blockedContent: { alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.xl, width: '100%' },
-  blockedIcon:    { fontSize: 40 },
-  blockedTitle:   { fontSize: 18, fontWeight: '900', color: colors.text },
-  blockedSub:     { fontSize: 13, color: colors.textSecondary, textAlign: 'center', lineHeight: 20 },
-  ytOpenBtn:      { borderRadius: radius.full, overflow: 'hidden', width: '100%' },
-  ytOpenBtnInner: { paddingVertical: spacing.md, alignItems: 'center', borderRadius: radius.full },
-  ytOpenBtnText:  { fontSize: 14, fontWeight: '800', color: '#fff', letterSpacing: 1 },
-  blockedSkip:    { paddingVertical: spacing.sm },
-  blockedSkipText:{ fontSize: 13, color: colors.textMuted, textDecorationLine: 'underline' },
-
-  foundContent: { alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, width: '100%' },
-  foundBadge:   { overflow: 'hidden', borderRadius: radius.lg },
-  foundInner:   { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.md, gap: spacing.sm },
-  foundEmoji:   { fontSize: 28 },
-  foundText:    { fontSize: 24, fontWeight: '900', color: '#fff' },
-  whoFoundLabel:{ fontSize: 14, fontWeight: '700', color: colors.textSecondary, letterSpacing: 1 },
-  playerBtns:   { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center' },
-  playerBtnWrap:{ borderRadius: radius.full, overflow: 'hidden' },
-  playerBtn:    { paddingVertical: spacing.sm + 2, paddingHorizontal: spacing.lg, borderRadius: radius.full, alignItems: 'center' },
-  playerBtnNobody: { backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)' },
-  playerBtnText:     { fontSize: 14, fontWeight: '800', color: '#fff' },
-  playerBtnTextMuted:{ fontSize: 12, fontWeight: '600', color: colors.textMuted },
-
-  // Input
-  inputContainer: { gap: spacing.sm },
-  inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  textInput: {
-    flex: 1, backgroundColor: colors.card, borderRadius: radius.md,
-    borderWidth: 1, borderColor: `${BEAT}66`,
-    paddingVertical: spacing.md, paddingHorizontal: spacing.lg,
-    fontSize: 16, fontWeight: '700', color: colors.text,
-    ...Platform.select({ web: { outlineStyle: 'none' } }),
-  },
-  validateBtn:         { backgroundColor: BEAT, borderRadius: radius.md, paddingVertical: spacing.md, paddingHorizontal: spacing.lg, alignItems: 'center', justifyContent: 'center' },
-  validateBtnDisabled: { backgroundColor: `${BEAT}44` },
-  validateBtnText:     { fontSize: 20, fontWeight: '900', color: '#fff' },
-  textInputWrong:      { borderColor: '#EF4444', backgroundColor: '#1A0505' },
-
-  skipBtn:      { borderRadius: radius.full, overflow: 'hidden' },
-  skipBtnInner: { paddingVertical: spacing.md, paddingHorizontal: spacing.xl, alignItems: 'center', borderRadius: radius.full, borderWidth: 1, borderColor: `${BEAT}33` },
-  skipBtnText:  { fontSize: 13, fontWeight: '800', color: `${BEAT_LIGHT}BB`, letterSpacing: 1 },
-
-  // Answer card
-  answerOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'flex-end' },
-  answerCard: {
-    borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl,
-    padding: spacing.xl, paddingBottom: Platform.OS === 'ios' ? 48 : spacing.xl,
-    borderTopWidth: 1, borderColor: `${BEAT}40`, alignItems: 'center',
-  },
-  answerResult: { fontSize: 26, fontWeight: '900', color: colors.text, textAlign: 'center' },
-  answerFinder: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
-  answerDivider:{ height: 1, backgroundColor: `${BEAT}30`, width: '80%', marginVertical: spacing.md },
-  answerLabel:  { fontSize: 11, color: colors.textMuted, letterSpacing: 1.5, marginBottom: 4 },
-  answerTitle:  { fontSize: 22, fontWeight: '900', color: colors.text, textAlign: 'center' },
-  answerArtist: { fontSize: 14, color: BEAT_LIGHT, fontWeight: '700', marginTop: 2, marginBottom: spacing.md },
-  thumbWrap:    { width: 200, height: 112, borderRadius: 12, overflow: 'hidden', marginBottom: spacing.lg, backgroundColor: '#0E0C1A' },
-
-  nextBtn:     { borderRadius: radius.full, overflow: 'hidden', width: '100%', shadowColor: BEAT, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 8 },
-  nextGradient:{ paddingVertical: spacing.md + 4, alignItems: 'center' },
-  nextText:    { fontSize: 16, fontWeight: '800', color: '#fff', letterSpacing: 1.5 },
-
-  // Final
-  finalScroll:  { paddingHorizontal: spacing.lg, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 60 },
-  compatCard:   { borderRadius: radius.xl, overflow: 'hidden', marginBottom: spacing.md, shadowColor: BEAT, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 20 },
-  compatInner:  { padding: spacing.xl, alignItems: 'center' },
-  compatEmoji:  { fontSize: 48, marginBottom: spacing.sm },
-  compatPct:    { fontSize: 56, fontWeight: '900', color: colors.text },
-  compatTitle:  { fontSize: 14, color: colors.textSecondary, marginBottom: spacing.sm },
-  compatDivider:{ height: 1, backgroundColor: `${BEAT}30`, width: '80%', marginVertical: spacing.md },
-  compatLabel:  { fontSize: 13, color: colors.textSecondary, textAlign: 'center' },
-
-  card:      { backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, marginBottom: spacing.md },
-  cardLabel: { fontSize: 13, fontWeight: '700', color: colors.textMuted, letterSpacing: 1, marginBottom: spacing.md },
-
-  scoreRow:    { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm, gap: spacing.sm },
-  scoreRank:   { fontSize: 18, width: 28 },
-  scoreName:   { fontSize: 14, fontWeight: '700', color: colors.text, width: 80 },
-  scoreBarWrap:{ flex: 1 },
-  scoreTrack:  { height: 6, backgroundColor: colors.surface, borderRadius: 3, overflow: 'hidden' },
-  scoreFill:   { height: '100%', backgroundColor: BEAT, borderRadius: 3 },
-  scoreVal:    { fontSize: 13, fontWeight: '800', color: BEAT_LIGHT, width: 44, textAlign: 'right' },
-
-  recapRow:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.xs, borderBottomWidth: 1, borderBottomColor: colors.border },
-  recapTitle:  { fontSize: 13, fontWeight: '700', color: colors.text },
-  recapArtist: { fontSize: 11, color: colors.textMuted },
-  recapFinder: { fontSize: 12, color: colors.textSecondary },
-
-  replayBtn:     { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.sm, shadowColor: BEAT, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 8 },
-  replayGradient:{ paddingVertical: spacing.md + 4, alignItems: 'center' },
-  replayText:    { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 1.5 },
-  menuBtn:       { paddingVertical: spacing.md, alignItems: 'center' },
-  menuBtnText:   { fontSize: 13, color: colors.textMuted },
+  kicker: { color: T.orTexte, fontFamily: F.chiffre, fontSize: 11, letterSpacing: 2.4, textAlign: 'center' },
+  kickerMuted: { color: T.encreDouce, fontFamily: F.chiffre, fontSize: 11, letterSpacing: 2.4 },
+  sub: { color: T.encreDouce, fontSize: 15, lineHeight: 22, textAlign: 'center' },
+  stage: { alignItems: 'center', gap: 20, paddingTop: 16 },
+  disc: { width: 168, height: 168, borderRadius: 999, borderWidth: 1, borderColor: T.traitFort, backgroundColor: T.carte, alignItems: 'center', justifyContent: 'center' },
+  discHole: { width: 36, height: 36, borderRadius: 999, borderWidth: 2, borderColor: BEAT },
+  timer: { width: 132, height: 132, borderRadius: 999, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  timerNum: { fontFamily: F.chiffre, fontSize: 48, lineHeight: 54 },
+  timerUnit: { color: T.encreDouce, fontFamily: F.chiffre, fontSize: 10, letterSpacing: 2 },
+  inputRow: { flexDirection: 'row', gap: 8, width: '100%' },
+  validate: { width: 52, height: 52, borderRadius: 999, backgroundColor: T.or, alignItems: 'center', justifyContent: 'center' },
+  answer: { borderRadius: 18, backgroundColor: T.carte, padding: 8 },
+  answerInner: { borderRadius: 12, borderWidth: 1, borderColor: 'rgba(212,175,55,0.6)', padding: 18, alignItems: 'center', gap: 10 },
+  thumb: { width: '100%', aspectRatio: 16 / 9, borderRadius: 10, overflow: 'hidden', backgroundColor: T.creux },
+  answerTitle: { color: T.encre, fontFamily: F.afficheSemi, fontSize: 28, lineHeight: 33, textAlign: 'center' },
+  answerArtist: { color: T.encreDouce, fontSize: 16, textAlign: 'center' },
+  score: { borderRadius: 18, borderWidth: 1, borderColor: T.or, backgroundColor: T.orVoile, padding: 20, alignItems: 'center', gap: 6 },
+  pct: { color: T.encre, fontFamily: F.affiche, fontSize: 56, lineHeight: 62 },
+  verdict: { color: T.encre, fontSize: 16, textAlign: 'center' },
+  recap: { borderRadius: 14, borderWidth: 1, borderColor: T.trait, backgroundColor: T.carte, padding: 16, gap: 10 },
+  recapRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: T.trait },
+  recapTitle: { color: T.encre, fontFamily: F.texteMoyen, fontSize: 15 },
+  recapArtist: { color: T.encreDouce, fontSize: 13 },
+  recapPts: { color: T.encreDouce, fontFamily: F.chiffre, fontSize: 13 },
 });

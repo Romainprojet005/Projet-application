@@ -1,17 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity, TextInput,
-  ScrollView, Platform, ActivityIndicator,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
-import { GOLD, GOLD_DARK, GOLD_LIGHT, OB_BG } from '../../theme/obsidian';
+import { View, Text, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import { supabase, channelName } from '../../services/supabase';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
+import {
+  GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, Notice, Field, QuestionCard, Section,
+  PlayerChoice, PlayerGrid, PlayerToken, T, F,
+} from '../../components/game/Legende';
 
-const CRIMSON    = '#EF4444';
-const GREEN      = '#10B981';
-const BG = OB_BG;
+const GAME = 'tribunal';
 
 export default function TribunalGameScreen({ navigation, route }) {
   const { roomId, playerId } = route.params;
@@ -178,541 +173,224 @@ export default function TribunalGameScreen({ navigation, route }) {
     }
   };
 
-  // ── LOADING ───────────────────────────────────────────────────────
+  const quit = () => navigation.navigate('Menu');
+  const bar = (extra) => <GameTopBar game={GAME} onBack={quit} {...extra} />;
+  const one = (label, onPress, disabled) => <ActionBar><PrimaryButton label={label} onPress={onPress} disabled={disabled} /></ActionBar>;
+
   if (!room) {
     return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <View style={styles.centered}><ActivityIndicator color={GOLD} size="large" /></View>
-      </LinearGradient>
+      <GameScreen top={bar({ confirmQuit: false })} scroll={false}>
+        <View style={s.center}><ActivityIndicator color={T.orTexte} size="large" /></View>
+      </GameScreen>
     );
   }
 
-  const myPlayer      = players.find(p => p.id === playerId);
-  const byTurn        = [...players].sort((a, b) => a.turn_order - b.turn_order);
+  const myPlayer       = players.find(p => p.id === playerId);
+  const byTurn         = [...players].sort((a, b) => a.turn_order - b.turn_order);
   const currentAccused = byTurn[room.current_accused_idx];
-  const amAccused     = currentAccused?.id === playerId;
-  const accusation    = writings.find(w => w.target_id === currentAccused?.id);
-  const realAuthor    = players.find(p => p.id === accusation?.author_id);
-  const nonAccused    = players.filter(p => p.id !== currentAccused?.id);
-  const voters        = players.filter(p => p.id !== currentAccused?.id);
+  const amAccused      = currentAccused?.id === playerId;
+  const accusation     = writings.find(w => w.target_id === currentAccused?.id);
+  const realAuthor     = players.find(p => p.id === accusation?.author_id);
+  const nonAccused     = players.filter(p => p.id !== currentAccused?.id);
+  const voters         = players.filter(p => p.id !== currentAccused?.id);
+  const idxOf          = (p) => byTurn.findIndex(x => x.id === p?.id);
+  const trialTop       = bar({ current: room.current_accused_idx + 1, total: players.length });
 
-  // ── WRITING ───────────────────────────────────────────────────────
+  const Accusation = () => (
+    <>
+      <View style={s.accused}>
+        <PlayerToken name={currentAccused?.name} index={idxOf(currentAccused)} size={44} />
+        <View style={{ flex: 1 }}>
+          <Text style={s.kickerMuted}>SUR LE BANC DES ACCUSÉS</Text>
+          <Text style={s.accusedName}>{currentAccused?.name}</Text>
+        </View>
+      </View>
+      <QuestionCard kicker="L’accusation">{`« ${accusation?.content ?? '…'} »`}</QuestionCard>
+    </>
+  );
+
+  const Waiting = ({ title, sub, done, list }) => (
+    <View style={s.center}>
+      <Heading title={title} sub={sub} />
+      <View style={s.dots}>
+        {list.map(p => <View key={p.id} style={[s.dot, done(p) && { backgroundColor: T.or }]} />)}
+      </View>
+    </View>
+  );
+
+  // ── Phase 1 : écrire l'accusation ──
   if (room.status === 'writing') {
     if (myPlayer?.has_written) {
       const remaining = players.filter(p => !p.has_written).length;
       return (
-        <LinearGradient colors={BG} style={styles.container}>
-          <View style={styles.centered}>
-            <Text style={styles.bigEmoji}>✍️</Text>
-            <Text style={styles.phaseTitle}>Accusation envoyée !</Text>
-            <Text style={styles.phaseSub}>
-              En attente de {remaining} autre{remaining > 1 ? 's' : ''} joueur{remaining > 1 ? 's' : ''}…
-            </Text>
-            <View style={styles.dotsRow}>
-              {players.map(p => (
-                <View key={p.id} style={[styles.dot, p.has_written && styles.dotDone]} />
-              ))}
-            </View>
-          </View>
-        </LinearGradient>
+        <GameScreen top={bar()} scroll={false}>
+          <Waiting title="Accusation envoyée" sub={`En attente de ${remaining} autre${remaining > 1 ? 's' : ''} joueur${remaining > 1 ? 's' : ''}…`}
+            done={(p) => p.has_written} list={players} />
+        </GameScreen>
       );
     }
-
     const targetName = players.find(p => p.id === myPlayer?.target_id)?.name ?? '…';
     return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          <Text style={styles.stepBadge}>PHASE 1 — ACCUSATION</Text>
-
-          <View style={styles.targetCard}>
-            <Text style={styles.targetLabel}>Tu dois écrire une vérité sur</Text>
-            <Text style={styles.targetName}>{targetName}</Text>
-          </View>
-
-          <View style={styles.hintCard}>
-            <Text style={styles.hintText}>
-              💡 Écris quelque chose de <Text style={{ color: GOLD_LIGHT, fontWeight: '900' }}>vrai</Text> que
-              les autres pourraient nier. Il devra convaincre le jury que c'est faux !
-            </Text>
-          </View>
-
-          <TextInput
-            style={styles.writingInput}
-            placeholder={`Une vérité sur ${targetName}…`}
-            placeholderTextColor={colors.textMuted}
-            value={myWritingText}
-            onChangeText={setMyWritingText}
-            multiline
-            maxLength={200}
-          />
-          <Text style={styles.charCount}>{myWritingText.length}/200</Text>
-
-          <TouchableOpacity
-            style={[styles.mainBtn, (!myWritingText.trim() || submitting) && styles.mainBtnDisabled]}
-            onPress={handleSubmitWriting}
-            disabled={!myWritingText.trim() || submitting}
-            activeOpacity={0.8}
-          >
-            <LinearGradient colors={[GOLD, GOLD_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-              {submitting
-                ? <ActivityIndicator color="#000" />
-                : <Text style={styles.mainBtnText}>⚖️ SOUMETTRE AU TRIBUNAL</Text>
-              }
-            </LinearGradient>
-          </TouchableOpacity>
-        </ScrollView>
-      </LinearGradient>
+      <GameScreen top={bar()} footer={one(submitting ? 'Envoi…' : 'Soumettre au tribunal', handleSubmitWriting, !myWritingText.trim() || submitting)}>
+        <Heading kicker="Phase 1 · l’accusation" title={`Une vérité sur ${targetName}`}
+          sub="Écrivez quelque chose de vrai qu’il pourrait nier : il devra convaincre le jury que c’est faux." />
+        <View style={{ gap: 6 }}>
+          <Field placeholder={`Une vérité sur ${targetName}…`} value={myWritingText} onChangeText={setMyWritingText}
+            multiline maxLength={200} accessibilityLabel={`Une vérité sur ${targetName}`} />
+          <Text style={s.count}>{myWritingText.length} / 200</Text>
+        </View>
+      </GameScreen>
     );
   }
 
-  // ── DEFENSE ───────────────────────────────────────────────────────
+  // ── Défense ──
   if (room.status === 'trial' && room.trial_phase === 'defense') {
     return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll}>
-          {/* Progress */}
-          <View style={styles.trialProgress}>
-            <Text style={styles.trialProgressLabel}>Accusé {room.current_accused_idx + 1} / {players.length}</Text>
-            <View style={styles.dotsRow}>
-              {byTurn.map((_, i) => (
-                <View key={i} style={[
-                  styles.trialDot,
-                  i < room.current_accused_idx && { backgroundColor: CRIMSON + '88' },
-                  i === room.current_accused_idx && { backgroundColor: GOLD, transform: [{ scale: 1.3 }] },
-                  i > room.current_accused_idx && { backgroundColor: colors.border },
-                ]} />
-              ))}
-            </View>
-          </View>
-
-          <Text style={styles.phaseLabel}>⚖️ AUDIENCE</Text>
-
-          <View style={styles.accusedBanner}>
-            <Text style={styles.accusedBannerSub}>Sur le banc des accusés</Text>
-            <Text style={styles.accusedBannerName}>{currentAccused?.name}</Text>
-          </View>
-
-          <View style={styles.accusationCard}>
-            <Text style={styles.accusationLabel}>L'ACCUSATION</Text>
-            <Text style={styles.accusationText}>« {accusation?.content ?? '…'} »</Text>
-          </View>
-
-          {amAccused ? (
-            <>
-              <Text style={styles.sectionTitle}>🤔 Qui penses-tu que c'est ?</Text>
-              <View style={styles.guessRow}>
+      <GameScreen top={trialTop} footer={amAccused ? one('Le jury peut voter', handleDefenseDone) : null}>
+        <Text style={s.phase}>AUDIENCE</Text>
+        <Accusation />
+        {amAccused ? (
+          <>
+            <Section label="Qui l’a écrit, selon vous ?">
+              <PlayerGrid>
                 {nonAccused.map(p => (
-                  <TouchableOpacity
-                    key={p.id}
-                    style={[styles.guessBtn, guessedId === p.id && styles.guessBtnActive]}
-                    onPress={() => setGuessedId(prev => prev === p.id ? null : p.id)}
-                  >
-                    <Text style={[styles.guessBtnText, guessedId === p.id && styles.guessBtnTextActive]}>
-                      {p.name}
-                    </Text>
-                  </TouchableOpacity>
+                  <PlayerChoice key={p.id} name={p.name} index={idxOf(p)} selected={guessedId === p.id}
+                    onPress={() => setGuessedId(prev => prev === p.id ? null : p.id)} label={`Soupçonner ${p.name}`} />
                 ))}
-              </View>
-
-              <View style={styles.defenseHint}>
-                <Text style={styles.defenseHintText}>
-                  🎤 Dis à voix haute pourquoi c'est FAUX !{'\n'}Convaincs le jury…
-                </Text>
-              </View>
-
-              <TouchableOpacity style={styles.mainBtn} onPress={handleDefenseDone} activeOpacity={0.8}>
-                <LinearGradient colors={[GOLD, GOLD_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-                  <Text style={styles.mainBtnText}>🗳️ LE JURY VA VOTER !</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <View style={styles.waitBox}>
-              <Text style={styles.waitEmoji}>🎤</Text>
-              <Text style={styles.waitTitle}>{currentAccused?.name} plaide sa cause…</Text>
-              <Text style={styles.waitSub}>Écoutez sa défense, vous voterez bientôt.</Text>
-              <ActivityIndicator color={GOLD} style={{ marginTop: spacing.lg }} />
-            </View>
-          )}
-        </ScrollView>
-      </LinearGradient>
+              </PlayerGrid>
+            </Section>
+            <Notice tone="neutre" title="À vous de plaider">Expliquez à voix haute pourquoi c’est faux, et convainquez le jury.</Notice>
+          </>
+        ) : (
+          <Notice tone="neutre" title={`${currentAccused?.name} plaide sa cause…`}>Écoutez sa défense : vous voterez dans un instant.</Notice>
+        )}
+      </GameScreen>
     );
   }
 
-  // ── VOTING ────────────────────────────────────────────────────────
+  // ── Vote du jury ──
   if (room.status === 'trial' && room.trial_phase === 'voting') {
     if (amAccused) {
       const voted = voters.filter(p => p.has_voted).length;
       return (
-        <LinearGradient colors={BG} style={styles.container}>
-          <View style={styles.centered}>
-            <Text style={styles.bigEmoji}>⚖️</Text>
-            <Text style={styles.phaseTitle}>Le jury délibère…</Text>
-            <Text style={styles.phaseSub}>{voted} / {voters.length} votes reçus</Text>
-            <View style={styles.dotsRow}>
-              {voters.map(p => (
-                <View key={p.id} style={[styles.dot, p.has_voted && styles.dotDone]} />
-              ))}
-            </View>
-          </View>
-        </LinearGradient>
+        <GameScreen top={trialTop} scroll={false}>
+          <Waiting title="Le jury délibère…" sub={`${voted} vote${voted > 1 ? 's' : ''} reçu${voted > 1 ? 's' : ''} sur ${voters.length}`} done={(p) => p.has_voted} list={voters} />
+        </GameScreen>
       );
     }
-
     const myVote = myPlayer?.has_voted ? myPlayer.vote : null;
     return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll}>
-          <Text style={styles.phaseLabel}>🗳️ VOTE DU JURY</Text>
-
-          <View style={styles.accusedBanner}>
-            <Text style={styles.accusedBannerSub}>L'accusé(e)</Text>
-            <Text style={styles.accusedBannerName}>{currentAccused?.name}</Text>
-          </View>
-
-          <View style={styles.accusationCard}>
-            <Text style={styles.accusationLabel}>L'ACCUSATION</Text>
-            <Text style={styles.accusationText}>« {accusation?.content ?? '…'} »</Text>
-          </View>
-
-          {myVote ? (
-            <View style={styles.votedBox}>
-              <Text style={styles.bigEmoji}>{myVote === 'faux' ? '❌' : '✅'}</Text>
-              <Text style={styles.votedText}>
-                Tu as voté : {myVote === 'faux' ? '"C\'est faux !"' : '"C\'est vrai !"'}
-              </Text>
-              <Text style={styles.phaseSub}>En attente des autres jurés…</Text>
+      <GameScreen top={trialTop}>
+        <Text style={s.phase}>VOTE DU JURY</Text>
+        <Accusation />
+        {myVote ? (
+          <Notice tone="neutre" title={`Vous avez voté : « C’est ${myVote} »`}>En attente des autres jurés…</Notice>
+        ) : (
+          <Section label="L’accusation est-elle vraie ?">
+            <View style={s.voteRow}>
+              <Pressable onPress={() => handleVote('faux')} accessibilityRole="button" accessibilityLabel="C’est faux"
+                style={({ pressed }) => [s.vote, pressed && { borderColor: T.or }]}>
+                <Text style={[s.voteTitle, { color: '#4FD8A4' }]}>C’est faux</Text>
+                <Text style={s.voteSub}>{currentAccused?.name} dit vrai</Text>
+              </Pressable>
+              <Pressable onPress={() => handleVote('vrai')} accessibilityRole="button" accessibilityLabel="C’est vrai"
+                style={({ pressed }) => [s.vote, pressed && { borderColor: T.or }]}>
+                <Text style={[s.voteTitle, { color: T.alerte }]}>C’est vrai</Text>
+                <Text style={s.voteSub}>{currentAccused?.name} ment</Text>
+              </Pressable>
             </View>
-          ) : (
-            <>
-              <Text style={styles.voteQuestion}>L'accusation est-elle vraie ?</Text>
-              <View style={styles.voteRow}>
-                <TouchableOpacity
-                  style={[styles.voteBtn, { borderColor: GREEN + '88', backgroundColor: GREEN + '1A' }]}
-                  onPress={() => handleVote('faux')}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.voteBtnEmoji}>❌</Text>
-                  <Text style={[styles.voteBtnText, { color: GREEN }]}>C'est FAUX !</Text>
-                  <Text style={styles.voteBtnSub}>{currentAccused?.name} a raison</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.voteBtn, { borderColor: CRIMSON + '88', backgroundColor: CRIMSON + '1A' }]}
-                  onPress={() => handleVote('vrai')}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.voteBtnEmoji}>✅</Text>
-                  <Text style={[styles.voteBtnText, { color: CRIMSON }]}>C'est VRAI !</Text>
-                  <Text style={styles.voteBtnSub}>{currentAccused?.name} ment !</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
-        </ScrollView>
-      </LinearGradient>
+          </Section>
+        )}
+      </GameScreen>
     );
   }
 
-  // ── REVEAL ────────────────────────────────────────────────────────
+  // ── Verdict ──
   if (room.status === 'trial' && room.trial_phase === 'reveal') {
     const trueVotes   = voters.filter(p => p.vote === 'vrai').length;
     const falseVotes  = voters.filter(p => p.vote === 'faux').length;
     const accusedWins = falseVotes > trueVotes;
     const isTie       = trueVotes === falseVotes;
-    const verdictColor = isTie ? GOLD : accusedWins ? GREEN : CRIMSON;
-
     return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll}>
-          <Text style={styles.phaseLabel}>📜 VERDICT</Text>
-
-          {/* Verdict card */}
-          <View style={[styles.verdictCard, { borderColor: verdictColor + '77', backgroundColor: verdictColor + '18' }]}>
-            <Text style={styles.bigEmoji}>{isTie ? '⚖️' : accusedWins ? '🎉' : '💀'}</Text>
-            <Text style={[styles.verdictTitle, { color: isTie ? GOLD_LIGHT : accusedWins ? GREEN : CRIMSON }]}>
-              {isTie
-                ? 'Égalité parfaite !'
-                : accusedWins
-                  ? `${currentAccused?.name} est acquitté(e) !`
-                  : `${currentAccused?.name} est COUPABLE !`}
-            </Text>
-            <Text style={styles.verdictSub}>
-              {isTie
-                ? 'Le jury est divisé — pas de malus'
-                : accusedWins
-                  ? 'Majorité "C\'est faux" — pas de malus !'
-                  : `+1 point de malus pour ${currentAccused?.name}`}
-            </Text>
-          </View>
-
-          {/* Scores votes */}
-          <View style={styles.voteBreakdown}>
-            <View style={[styles.voteCount, { borderColor: GREEN + '55' }]}>
-              <Text style={[styles.voteCountNum, { color: GREEN }]}>{falseVotes}</Text>
-              <Text style={styles.voteCountLabel}>C'est FAUX</Text>
+      <GameScreen top={trialTop} footer={one(room.current_accused_idx + 1 >= players.length ? 'Résultats finaux' : 'Accusé suivant', handleContinue)}>
+        <Text style={s.phase}>VERDICT</Text>
+        <Notice tone={isTie || accusedWins ? 'or' : 'alerte'}
+          title={isTie ? 'Égalité parfaite' : accusedWins ? `${currentAccused?.name} est acquitté` : `${currentAccused?.name} est coupable`}>
+          {isTie ? 'Le jury est divisé.' : accusedWins ? 'Majorité « c’est faux » : pas de malus.' : `+1 point de malus pour ${currentAccused?.name}.`}
+        </Notice>
+        <View style={s.split}>
+          <View style={s.splitBox}><Text style={[s.splitNum, { color: '#4FD8A4' }]}>{falseVotes}</Text><Text style={s.voteSub}>C’est faux</Text></View>
+          <View style={s.splitBox}><Text style={[s.splitNum, { color: T.alerte }]}>{trueVotes}</Text><Text style={s.voteSub}>C’est vrai</Text></View>
+        </View>
+        <View style={{ gap: 8 }}>
+          {voters.map(p => (
+            <View key={p.id} style={s.row}>
+              <PlayerToken name={p.name} index={idxOf(p)} size={28} />
+              <Text style={s.rowName}>{p.name}</Text>
+              <Text style={[s.rowVote, { color: p.vote === 'faux' ? '#4FD8A4' : T.alerte }]}>{p.vote === 'faux' ? 'Faux' : 'Vrai'}</Text>
             </View>
-            <View style={[styles.voteCount, { borderColor: CRIMSON + '55' }]}>
-              <Text style={[styles.voteCountNum, { color: CRIMSON }]}>{trueVotes}</Text>
-              <Text style={styles.voteCountLabel}>C'est VRAI</Text>
-            </View>
-          </View>
-
-          {/* Détail des votes */}
-          <View style={styles.voteDetail}>
-            <Text style={styles.voteDetailTitle}>VOTES DU JURY</Text>
-            {voters.map(p => (
-              <View key={p.id} style={styles.voteDetailRow}>
-                <Text style={styles.voteDetailName}>{p.name}</Text>
-                <Text style={[styles.voteDetailVal, { color: p.vote === 'faux' ? GREEN : CRIMSON }]}>
-                  {p.vote === 'faux' ? '❌ C\'est faux !' : '✅ C\'est vrai !'}
-                </Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Révélation de l'auteur */}
-          <View style={styles.authorReveal}>
-            <Text style={styles.authorRevealText}>
-              ✍️ C'est <Text style={{ color: GOLD_LIGHT, fontWeight: '900' }}>{realAuthor?.name}</Text> qui a écrit ça !
-            </Text>
-            {amAccused && guessedId && (
-              <Text style={[styles.guessResult, { color: guessedId === realAuthor?.id ? GREEN : CRIMSON }]}>
-                {guessedId === realAuthor?.id
-                  ? '🎯 Tu avais deviné juste !'
-                  : `❌ Tu pensais que c'était ${players.find(p => p.id === guessedId)?.name}…`}
-              </Text>
-            )}
-          </View>
-
-          <TouchableOpacity style={styles.mainBtn} onPress={handleContinue} activeOpacity={0.8}>
-            <LinearGradient colors={[GOLD, GOLD_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-              <Text style={styles.mainBtnText}>
-                {room.current_accused_idx + 1 >= players.length ? '🏁 RÉSULTATS FINAUX' : '▶ ACCUSÉ SUIVANT'}
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </ScrollView>
-      </LinearGradient>
+          ))}
+        </View>
+        <Notice tone="neutre" title={`Écrit par ${realAuthor?.name ?? '…'}`}>
+          {amAccused && guessedId
+            ? (guessedId === realAuthor?.id ? 'Vous aviez deviné juste.' : `Vous pensiez que c’était ${players.find(p => p.id === guessedId)?.name}.`)
+            : null}
+        </Notice>
+      </GameScreen>
     );
   }
 
-  // ── FINISHED ──────────────────────────────────────────────────────
+  // ── Jugement final ──
   if (room.status === 'finished') {
     const sortedByMalus = [...players].sort((a, b) => a.malus - b.malus);
-    const maxMalus = Math.max(...players.map(p => p.malus), 0);
     const winner = sortedByMalus[0];
-
+    const names = sortedByMalus.map(p => p.name);
+    const malus = Object.fromEntries(players.map(p => [p.name, p.malus]));
     return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll}>
-          <Text style={styles.finalTitle}>⚖️ JUGEMENT FINAL</Text>
-          <Text style={styles.finalSub}>Le tribunal a rendu son verdict !</Text>
-
-          {sortedByMalus.map((p, i) => {
-            const isWinner = i === 0 && p.malus === 0;
-            const isLoser  = p.malus === maxMalus && maxMalus > 0 && i === sortedByMalus.length - 1;
-            return (
-              <View
-                key={p.id}
-                style={[
-                  styles.finalRow,
-                  isWinner && { borderColor: GREEN + '66', backgroundColor: GREEN + '12' },
-                  isLoser  && { borderColor: CRIMSON + '66', backgroundColor: CRIMSON + '12' },
-                  p.id === playerId && { borderColor: GOLD + '66' },
-                ]}
-              >
-                <Text style={styles.finalRank}>
-                  {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}
-                </Text>
-                <Text style={styles.finalName}>{p.name}{p.id === playerId ? ' (toi)' : ''}</Text>
-                <View style={[
-                  styles.malusBadge,
-                  p.malus === 0
-                    ? { backgroundColor: GREEN + '25', borderColor: GREEN + '55' }
-                    : { backgroundColor: CRIMSON + '25', borderColor: CRIMSON + '55' },
-                ]}>
-                  <Text style={[styles.malusText, { color: p.malus === 0 ? GREEN : CRIMSON }]}>
-                    {p.malus} malus
-                  </Text>
-                </View>
-              </View>
-            );
-          })}
-
-          <View style={styles.finalComment}>
-            <Text style={styles.finalCommentText}>
-              {winner?.malus === 0
-                ? `🏆 ${winner.name} n'a aucun malus — le jury était convaincu !`
-                : `💀 ${sortedByMalus[sortedByMalus.length - 1].name} n'a convaincu personne…`}
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.mainBtn, { marginBottom: spacing.sm }]}
-            onPress={handleReplay}
-            activeOpacity={0.8}
-          >
-            <LinearGradient colors={[GOLD, GOLD_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.mainBtnGrad}>
-              <Text style={styles.mainBtnText}>🔄 REJOUER</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuBtn} onPress={() => navigation.navigate('Menu')}>
-            <Text style={styles.menuBtnText}>← Retour au menu</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </LinearGradient>
+      <GameScreen top={bar({ confirmQuit: false })} footer={(
+        <ActionBar>
+          <PrimaryButton label="Rejouer" onPress={handleReplay} />
+          <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
+        </ActionBar>
+      )}>
+        <Heading kicker="Jugement final" title={winner?.malus === 0 ? `${winner.name} sort blanchi` : 'Le verdict'}
+          sub={winner?.malus === 0 ? 'Aucun malus : le jury était convaincu.' : `${sortedByMalus[sortedByMalus.length - 1]?.name} n’a convaincu personne…`} />
+        <Text style={s.kickerMuted}>MALUS PAR JOUEUR · LE MOINS GAGNE</Text>
+        <View style={{ gap: 8 }}>
+          {names.map((n, i) => (
+            <View key={n} style={[s.row, i === 0 && { borderColor: T.or, backgroundColor: T.orVoile }]}>
+              <Text style={s.rank}>{String(i + 1).padStart(2, '0')}</Text>
+              <PlayerToken name={n} index={i} size={28} />
+              <Text style={[s.rowName, i === 0 && { color: T.orTexte }]}>{n}{players.find(p => p.name === n)?.id === playerId ? ' (vous)' : ''}</Text>
+              <Text style={[s.rowVote, { color: malus[n] ? T.alerte : '#4FD8A4' }]}>{malus[n]} malus</Text>
+            </View>
+          ))}
+        </View>
+      </GameScreen>
     );
   }
 
   return null;
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-  scroll: { padding: spacing.lg, paddingTop: Platform.OS === 'ios' ? 56 : 36, paddingBottom: spacing.xxl },
-
-  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.md },
-  bigEmoji: { fontSize: 64, textAlign: 'center' },
-  phaseTitle: { fontSize: 24, fontWeight: '900', color: colors.text, textAlign: 'center' },
-  phaseSub: { fontSize: 14, color: colors.textSecondary, textAlign: 'center' },
-  dotsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
-  dot: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.border },
-  dotDone: { backgroundColor: GREEN },
-
-  // Writing
-  stepBadge: { fontSize: 11, fontWeight: '900', color: GOLD, letterSpacing: 2, textAlign: 'center', marginBottom: spacing.xl },
-  targetCard: {
-    backgroundColor: GOLD + '22', borderRadius: radius.xl, borderWidth: 1, borderColor: GOLD + '55',
-    padding: spacing.xl, alignItems: 'center', marginBottom: spacing.lg,
-  },
-  targetLabel: { fontSize: 13, color: colors.textSecondary, marginBottom: spacing.sm },
-  targetName: { fontSize: 32, fontWeight: '900', color: GOLD_LIGHT, textAlign: 'center' },
-  hintCard: {
-    backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing.lg,
-    borderWidth: 1, borderColor: colors.border, marginBottom: spacing.lg,
-  },
-  hintText: { fontSize: 13, color: colors.textSecondary, lineHeight: 20 },
-  writingInput: {
-    backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: GOLD + '44',
-    padding: spacing.lg, fontSize: 16, color: colors.text, minHeight: 120,
-    textAlignVertical: 'top', marginBottom: spacing.xs,
-  },
-  charCount: { fontSize: 11, color: colors.textMuted, textAlign: 'right', marginBottom: spacing.xl },
-
-  // Trial shared
-  trialProgress: { alignItems: 'center', marginBottom: spacing.xl },
-  trialProgressLabel: { fontSize: 12, color: colors.textMuted, marginBottom: spacing.sm, letterSpacing: 1 },
-  trialDot: { width: 10, height: 10, borderRadius: 5 },
-  phaseLabel: { fontSize: 11, fontWeight: '900', color: GOLD, letterSpacing: 3, textAlign: 'center', marginBottom: spacing.lg },
-  accusedBanner: {
-    backgroundColor: GOLD + '18', borderRadius: radius.xl, borderWidth: 1, borderColor: GOLD + '44',
-    padding: spacing.lg, alignItems: 'center', marginBottom: spacing.lg,
-  },
-  accusedBannerSub: { fontSize: 12, color: colors.textMuted, marginBottom: spacing.xs },
-  accusedBannerName: { fontSize: 28, fontWeight: '900', color: GOLD_LIGHT },
-  accusationCard: {
-    backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1, borderColor: GOLD + '44',
-    padding: spacing.xl, marginBottom: spacing.xl,
-  },
-  accusationLabel: { fontSize: 10, fontWeight: '900', color: GOLD, letterSpacing: 2, marginBottom: spacing.md, textAlign: 'center' },
-  accusationText: { fontSize: 18, fontWeight: '700', color: colors.text, textAlign: 'center', lineHeight: 26, fontStyle: 'italic' },
-
-  // Defense
-  sectionTitle: { fontSize: 15, fontWeight: '800', color: colors.text, marginBottom: spacing.sm },
-  guessRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.xl },
-  guessBtn: {
-    paddingVertical: spacing.sm, paddingHorizontal: spacing.md,
-    borderRadius: radius.full, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card,
-  },
-  guessBtnActive: { backgroundColor: GOLD + '33', borderColor: GOLD },
-  guessBtnText: { fontSize: 15, fontWeight: '700', color: colors.textSecondary },
-  guessBtnTextActive: { color: GOLD_LIGHT },
-  defenseHint: {
-    backgroundColor: GOLD + '18', borderRadius: radius.lg, padding: spacing.md,
-    marginBottom: spacing.xl, borderWidth: 1, borderColor: GOLD + '33',
-  },
-  defenseHintText: { fontSize: 14, color: GOLD_LIGHT, textAlign: 'center', lineHeight: 22, fontStyle: 'italic' },
-  waitBox: { alignItems: 'center', padding: spacing.xl, gap: spacing.md },
-  waitEmoji: { fontSize: 52 },
-  waitTitle: { fontSize: 20, fontWeight: '900', color: colors.text, textAlign: 'center' },
-  waitSub: { fontSize: 13, color: colors.textSecondary, textAlign: 'center' },
-
-  // Voting
-  voteQuestion: { fontSize: 18, fontWeight: '800', color: colors.text, textAlign: 'center', marginBottom: spacing.xl },
-  voteRow: { flexDirection: 'row', gap: spacing.md },
-  voteBtn: {
-    flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg,
-    borderRadius: radius.xl, borderWidth: 1.5, gap: spacing.xs, minHeight: 130,
-  },
-  voteBtnEmoji: { fontSize: 36 },
-  voteBtnText: { fontSize: 16, fontWeight: '900', textAlign: 'center' },
-  voteBtnSub: { fontSize: 11, color: colors.textMuted, textAlign: 'center' },
-  votedBox: {
-    alignItems: 'center', padding: spacing.xl, gap: spacing.sm,
-    backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.border,
-  },
-  votedText: { fontSize: 18, fontWeight: '800', color: colors.text, textAlign: 'center' },
-
-  // Reveal
-  verdictCard: {
-    borderRadius: radius.xl, borderWidth: 2, padding: spacing.xl,
-    alignItems: 'center', marginBottom: spacing.lg, gap: spacing.sm,
-  },
-  verdictTitle: { fontSize: 22, fontWeight: '900', textAlign: 'center' },
-  verdictSub: { fontSize: 14, color: colors.textSecondary, textAlign: 'center' },
-  voteBreakdown: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
-  voteCount: {
-    flex: 1, alignItems: 'center', padding: spacing.lg,
-    backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1,
-  },
-  voteCountNum: { fontSize: 40, fontWeight: '900' },
-  voteCountLabel: { fontSize: 12, color: colors.textSecondary, fontWeight: '700' },
-  voteDetail: {
-    backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1,
-    borderColor: colors.border, padding: spacing.md, marginBottom: spacing.lg,
-  },
-  voteDetailTitle: { fontSize: 10, fontWeight: '900', color: colors.textMuted, letterSpacing: 2, marginBottom: spacing.sm },
-  voteDetailRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border,
-  },
-  voteDetailName: { fontSize: 15, fontWeight: '700', color: colors.text },
-  voteDetailVal: { fontSize: 14, fontWeight: '800' },
-  authorReveal: {
-    backgroundColor: GOLD + '18', borderRadius: radius.lg, borderWidth: 1, borderColor: GOLD + '44',
-    padding: spacing.lg, marginBottom: spacing.xl, alignItems: 'center', gap: spacing.sm,
-  },
-  authorRevealText: { fontSize: 16, fontWeight: '700', color: GOLD_LIGHT, textAlign: 'center' },
-  guessResult: { fontSize: 14, fontWeight: '700', textAlign: 'center' },
-
-  // Finished
-  finalTitle: { fontSize: 28, fontWeight: '900', color: GOLD_LIGHT, textAlign: 'center', marginBottom: spacing.xs },
-  finalSub: { fontSize: 13, color: colors.textSecondary, textAlign: 'center', marginBottom: spacing.xl },
-  finalRow: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: colors.card, borderRadius: radius.lg,
-    padding: spacing.lg, marginBottom: spacing.sm,
-    borderWidth: 1, borderColor: colors.border, gap: spacing.md,
-  },
-  finalRank: { fontSize: 24, width: 36 },
-  finalName: { flex: 1, fontSize: 17, fontWeight: '800', color: colors.text },
-  malusBadge: {
-    borderRadius: radius.full, paddingVertical: spacing.xs, paddingHorizontal: spacing.md,
-    borderWidth: 1,
-  },
-  malusText: { fontSize: 13, fontWeight: '900' },
-  finalComment: {
-    backgroundColor: GOLD + '15', borderRadius: radius.lg, borderWidth: 1, borderColor: GOLD + '30',
-    padding: spacing.lg, marginBottom: spacing.xl, alignItems: 'center',
-  },
-  finalCommentText: { fontSize: 15, fontWeight: '700', color: GOLD_LIGHT, textAlign: 'center' },
-
-  // Buttons
-  mainBtn: { borderRadius: radius.full, overflow: 'hidden' },
-  mainBtnDisabled: { opacity: 0.4 },
-  mainBtnGrad: { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  mainBtnText: { fontSize: 15, fontWeight: '900', color: '#000', letterSpacing: 2 },
-  menuBtn: { alignItems: 'center', paddingVertical: spacing.md, marginTop: spacing.sm },
-  menuBtnText: { fontSize: 14, color: GOLD_LIGHT, fontWeight: '600' },
+const s = StyleSheet.create({
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 20 },
+  dots: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', justifyContent: 'center' },
+  dot: { width: 12, height: 12, borderRadius: 999, backgroundColor: T.trait },
+  count: { color: T.encreDouce, fontFamily: F.chiffre, fontSize: 11, textAlign: 'right' },
+  phase: { color: T.orTexte, fontFamily: F.chiffre, fontSize: 11, letterSpacing: 2.4, textAlign: 'center' },
+  kickerMuted: { color: T.encreDouce, fontFamily: F.chiffre, fontSize: 10, letterSpacing: 2 },
+  accused: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: T.trait, backgroundColor: T.carte },
+  accusedName: { color: T.encre, fontFamily: F.afficheSemi, fontSize: 24 },
+  voteRow: { flexDirection: 'row', gap: 8 },
+  vote: { flex: 1, minHeight: 96, borderRadius: 14, borderWidth: 1, borderColor: T.traitFort, backgroundColor: T.carte, alignItems: 'center', justifyContent: 'center', gap: 4, padding: 12 },
+  voteTitle: { fontFamily: F.afficheSemi, fontSize: 22 },
+  voteSub: { color: T.encreDouce, fontSize: 13, textAlign: 'center' },
+  split: { flexDirection: 'row', gap: 8 },
+  splitBox: { flex: 1, alignItems: 'center', padding: 12, borderRadius: 12, borderWidth: 1, borderColor: T.trait },
+  splitNum: { fontFamily: F.affiche, fontSize: 36, lineHeight: 40 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: 12, borderWidth: 1, borderColor: T.trait, backgroundColor: T.carte },
+  rowName: { flex: 1, color: T.encre, fontFamily: F.texteMoyen, fontSize: 15 },
+  rowVote: { fontFamily: F.chiffre, fontSize: 13 },
+  rank: { width: 24, color: T.encreDouce, fontFamily: F.chiffre, fontSize: 13 },
 });

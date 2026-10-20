@@ -1,22 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity, TextInput,
-  ScrollView, Platform, ActivityIndicator,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
-import { OB_BG } from '../../theme/obsidian';
+import { View, Text, StyleSheet, Platform, ActivityIndicator, Pressable } from 'react-native';
 import { supabase, channelName } from '../../services/supabase';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
 import { isCorrectTitle } from '../../utils/reponseBlindTest';
 import useKeepTyping from '../../utils/useKeepTyping';
 import alerte from '../../utils/alerte';
+import {
+  GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, Notice, Field, Ranking, Icon, T, F,
+} from '../../components/game/Legende';
 
-const BEAT       = '#1F9E70';
-const BEAT_DARK  = '#0B6B4A';
-const BEAT_LIGHT = '#4FD8A4';
-const BG = OB_BG;
-const MEDALS = ['🥇', '🥈', '🥉'];
+const GAME = 'blindtest';
+const BEAT = '#4FD8A4';
 const REVEAL_MS = 4000; // temps pour lire la réponse quand personne n'a trouvé
 
 function songUrl(song) {
@@ -242,11 +235,13 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   };
 
   // ── Loading ──────────────────────────────────────────────────────────────────
+  const quit = () => navigation.navigate('Menu');
+
   if (!room) {
     return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <View style={styles.centered}><ActivityIndicator color={BEAT} size="large" /></View>
-      </LinearGradient>
+      <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} />} scroll={false}>
+        <View style={s.center}><ActivityIndicator color={T.orTexte} size="large" /></View>
+      </GameScreen>
     );
   }
 
@@ -255,341 +250,153 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   const isHost    = isHostRef.current;
   const finished  = room.status === 'finished';
   const tl        = room.time_limit;
-
   const currentPts = !tl || timer === null ? 1
     : timer >= tl * 2 / 3 ? 3
     : timer >= tl / 3 ? 2
     : 1;
   const timerColor = !tl || timer === null ? BEAT
     : timer >= tl * 2 / 3 ? BEAT
-    : timer >= tl / 3 ? '#F59E0B'
-    : '#EF4444';
-
+    : timer >= tl / 3 ? T.orTexte
+    : T.alerte;
   const foundPlayer = players.find(p => p.id === room.found_player_id);
   const myScore     = players.find(p => p.id === playerId)?.score ?? 0;
+  const names       = [...players].sort((a, b) => b.score - a.score).map(p => p.name);
+  const scoreMap    = Object.fromEntries(players.map(p => [p.name, p.score]));
 
-  // ── Final screen ─────────────────────────────────────────────────────────────
+  // ── Fin de partie ──
   if (finished) {
-    const sorted = [...players].sort((a, b) => b.score - a.score);
     return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <ScrollView contentContainerStyle={styles.finalScroll} style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}>
-          <Text style={styles.finalTitle}>🏆 RÉSULTATS FINAUX</Text>
-          <Text style={styles.finalSub}>Blind Test Multi-Téléphones</Text>
-          {sorted[0] && (
-            <View style={styles.winnerCard}>
-              <Text style={styles.winnerEmoji}>🥇</Text>
-              <Text style={styles.winnerName}>{sorted[0].name}</Text>
-              <Text style={styles.winnerScore}>{sorted[0].score} pts</Text>
-            </View>
-          )}
-          <View style={styles.rankList}>
-            {sorted.map((p, i) => (
-              <View key={p.id} style={[styles.rankRow, p.id === playerId && styles.rankRowMe]}>
-                <Text style={styles.rankMedal}>{MEDALS[i] ?? `${i + 1}.`}</Text>
-                <Text style={[styles.rankName2, p.id === playerId && { color: BEAT_LIGHT }]}>
-                  {p.name}{p.id === playerId ? ' (toi)' : ''}
-                </Text>
-                <Text style={styles.rankScore}>{p.score} pts</Text>
-              </View>
-            ))}
-          </View>
-          <TouchableOpacity style={styles.replayBtn} onPress={() => navigation.navigate('BlindMultiSetup')} activeOpacity={0.8}>
-            <LinearGradient colors={[BEAT, BEAT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.replayGrad}>
-              <Text style={styles.replayText}>🎸 NOUVELLE PARTIE</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuBtn} onPress={() => navigation.navigate('Menu')}>
-            <Text style={styles.menuBtnText}>🏠 Retour au menu</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </LinearGradient>
+      <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={songs.length} total={songs.length} />}
+        footer={(
+          <ActionBar>
+            <PrimaryButton label="Nouvelle partie" onPress={() => navigation.navigate('BlindMultiSetup')} />
+            <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
+          </ActionBar>
+        )}>
+        <Heading kicker="Résultats finaux" title={names[0] ? `${names[0]} l’emporte` : 'Le classement'} sub={names[0] ? `${scoreMap[names[0]]} points` : null} />
+        <Ranking players={names} scores={scoreMap} order={names} suffix=" pts" />
+      </GameScreen>
     );
   }
 
-  // ── Game screen ───────────────────────────────────────────────────────────────
-  return (
-    <LinearGradient colors={BG} style={styles.container}>
-      <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: songs.length > 0 ? `${(room.current_song_idx / songs.length) * 100}%` : '0%' }]} />
-      </View>
+  const top = (
+    <GameTopBar game={GAME} onBack={quit} current={room.current_song_idx + 1} total={songs.length}
+      right={<Text style={s.counter}>{myScore} PTS</Text>} />
+  );
 
-      <ScrollView
-        style={[styles.inner, Platform.OS === 'web' && { flex: 1, minHeight: 0 }]}
-        contentContainerStyle={styles.innerContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <View style={styles.topRow}>
-          <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.quitBtn}>
-            <Text style={styles.quitText}>✕ Quitter</Text>
-          </TouchableOpacity>
-          <Text style={styles.roundCounter}>🎵 {room.current_song_idx + 1} / {songs.length}</Text>
-          <View style={styles.scoreChip}>
-            <Text style={styles.scoreChipText}>⭐ {myScore} pts</Text>
-          </View>
+  let footer = null;
+  if (room.phase === 'idle') {
+    footer = isHost
+      ? <ActionBar><PrimaryButton label="Jouer l’extrait" onPress={handlePlay} /></ActionBar>
+      : <ActionBar><View style={s.wait}><ActivityIndicator color={T.orTexte} /><Text style={s.waitText}>L’hôte va lancer la musique…</Text></View></ActionBar>;
+  } else if (room.phase === 'playing' && !roundResult) {
+    footer = (
+      <ActionBar>
+        <View style={s.inputRow}>
+          <Field ref={inputRef} blurOnSubmit={false} style={[{ flex: 1 }, wrongFlash && { borderColor: T.alerte }]}
+            placeholder="Titre de la chanson…" value={inputText} onChangeText={setInputText} onSubmitEditing={handleGuess}
+            returnKeyType="done" autoCorrect={false} autoCapitalize="none" accessibilityLabel="Titre de la chanson" />
+          <Pressable accessibilityRole="button" accessibilityLabel="Valider"
+            style={[s.validate, !inputText.trim() && { opacity: 0.4 }]}
+            onPress={Platform.OS !== 'web' ? handleGuess : undefined}
+            onMouseDown={Platform.OS === 'web' ? (e) => { e.preventDefault(); handleGuess(); } : undefined}>
+            <Icon name="check" color={T.surOr} />
+          </Pressable>
         </View>
+        <TextLink label="Je ne sais pas" color={T.encreDouce} onPress={handlePass} />
+      </ActionBar>
+    );
+  } else if (room.phase === 'found') {
+    footer = isHost
+      ? <ActionBar><PrimaryButton label={room.current_song_idx < songs.length - 1 ? 'Chanson suivante' : 'Voir les scores'} onPress={handleNext} /></ActionBar>
+      : foundPlayer ? <ActionBar note="L’hôte va lancer la chanson suivante…" /> : null;
+  }
 
-        {/* Main zone */}
-        <View style={styles.mainZone}>
+  const screen = (
+    <GameScreen top={top} footer={footer}>
+      {room.phase === 'idle' && (
+        <View style={s.stage}>
+          <Text style={s.kicker}>CHANSON {room.current_song_idx + 1} SUR {songs.length}</Text>
+          <View style={s.disc}><View style={s.discHole} /></View>
+          <Text style={s.sub}>Préparez vos oreilles.</Text>
+        </View>
+      )}
 
-          {/* IDLE */}
-          {room.phase === 'idle' && (
-            <View style={styles.zoneCenter}>
-              <Text style={styles.bigNote}>🎵</Text>
-              <Text style={styles.songLabel}>Chanson {room.current_song_idx + 1}</Text>
-              {isHost ? (
-                <TouchableOpacity onPress={handlePlay} activeOpacity={0.85} style={styles.playBtnWrap}>
-                  <LinearGradient colors={[BEAT, BEAT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.playBtn}>
-                    <Text style={styles.playBtnText}>▶  JOUER L'EXTRAIT</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              ) : (
-                <View style={styles.waitBanner}>
-                  <ActivityIndicator color={BEAT} />
-                  <Text style={styles.waitBannerText}>L'hôte va lancer la musique…</Text>
-                </View>
-              )}
-            </View>
+      {room.phase === 'playing' && (
+        <View style={s.stage}>
+          <View style={[s.timer, { borderColor: timerColor }]}>
+            <Text style={[s.timerNum, { color: timerColor }]}>{tl && timer !== null ? timer : '∞'}</Text>
+            {tl && timer !== null ? <Text style={s.timerUnit}>SECONDES</Text> : null}
+          </View>
+          {tl && timer !== null ? <Text style={[s.kicker, { color: timerColor }]}>{currentPts} POINT{currentPts > 1 ? 'S' : ''} EN JEU</Text> : null}
+          {roundResult === 'won' && <Notice title="Trouvé">En attente des autres…</Notice>}
+          {roundResult === 'lost' && <Notice tone="neutre" title="Quelqu’un a été plus rapide" />}
+          {roundResult === 'passed' && <Notice tone="neutre" title="Vous avez passé">En attente des autres…</Notice>}
+          {song && (
+            <TextLink label="Relancer l’extrait" color={T.encreDouce} onPress={() => {
+              if (!iframeRef.current) return;
+              iframeRef.current.src = '';
+              setTimeout(() => playSong(song), 100);
+            }} />
           )}
+        </View>
+      )}
 
-          {/* PLAYING */}
-          {room.phase === 'playing' && (
-            <View style={styles.zoneCenter}>
-              {tl && timer !== null ? (
-                <View style={[styles.timerRing, { borderColor: timerColor + '80' }]}>
-                  <Text style={[styles.timerNum, { color: timerColor }]}>{timer}</Text>
-                  <Text style={styles.timerS}>s</Text>
-                </View>
-              ) : (
-                <Text style={styles.infiniteIcon}>∞</Text>
-              )}
-              {tl && timer !== null && (
-                <View style={[styles.ptsChip, { backgroundColor: timerColor + '22', borderColor: timerColor + '50' }]}>
-                  <Text style={[styles.ptsNum, { color: timerColor }]}>{currentPts}</Text>
-                  <Text style={[styles.ptsLabel, { color: timerColor + 'AA' }]}>{currentPts > 1 ? 'pts' : 'pt'}</Text>
-                </View>
-              )}
-              {roundResult === 'won' && <Text style={styles.statusWon}>✅ Trouvé ! En attente des autres…</Text>}
-              {roundResult === 'lost' && <Text style={styles.statusLost}>😅 Quelqu'un a été plus rapide !</Text>}
-              {roundResult === 'passed' && <Text style={styles.statusLost}>Tu as passé. En attente des autres…</Text>}
-              {song && (
-                <TouchableOpacity
-                  onPress={() => {
-                    if (!iframeRef.current) return;
-                    iframeRef.current.src = '';
-                    setTimeout(() => playSong(song), 100);
-                  }}
-                  style={styles.relancerBtn}
-                >
-                  <Text style={styles.relancerText}>↩ Relancer l'extrait</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
-
-          {/* FOUND */}
-          {room.phase === 'found' && song && (
-            <View style={styles.foundZone}>
-              {foundPlayer ? (
-                <>
-                  <Text style={styles.foundEmoji}>🎉</Text>
-                  <Text style={styles.foundWho}>{foundPlayer.name} a trouvé !</Text>
-                  <Text style={styles.foundPts}>+{room.found_pts} pt{room.found_pts !== 1 ? 's' : ''}</Text>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.foundEmoji}>😅</Text>
-                  <Text style={styles.foundWho}>Personne n'a trouvé !</Text>
-                  <Text style={styles.waitNextText}>Chanson suivante dans un instant…</Text>
-                </>
-              )}
-              <View style={styles.songReveal}>
-                <Text style={styles.songRevealLabel}>LA CHANSON ÉTAIT :</Text>
-                <Text style={styles.songTitle}>{song.title}</Text>
-                <Text style={styles.songArtist}>{song.artist}</Text>
-              </View>
+      {room.phase === 'found' && song && (
+        <>
+          <Heading kicker={foundPlayer ? `${foundPlayer.name} a trouvé · +${room.found_pts} pt${room.found_pts !== 1 ? 's' : ''}` : 'Personne n’a trouvé'}
+            sub={foundPlayer ? null : 'Chanson suivante dans un instant…'} />
+          <View style={s.answer}>
+            <View style={s.answerInner}>
               {Platform.OS === 'web' && song.videoId && (
-                <View style={styles.thumbWrap}>
-                  <img
-                    src={`https://img.youtube.com/vi/${song.videoId}/hqdefault.jpg`}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }}
-                    alt={song.title}
-                  />
+                <View style={s.thumb}>
+                  <img src={`https://img.youtube.com/vi/${song.videoId}/hqdefault.jpg`} alt={song.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10 }} />
                 </View>
               )}
-              {isHost ? (
-                <TouchableOpacity onPress={handleNext} activeOpacity={0.85} style={styles.nextBtnWrap}>
-                  <LinearGradient colors={[BEAT, BEAT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextBtnGrad}>
-                    <Text style={styles.nextBtnText}>
-                      {room.current_song_idx < songs.length - 1 ? '▶  Chanson suivante' : '🏆  Voir les scores'}
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              ) : foundPlayer && (
-                <Text style={styles.waitNextText}>L'hôte va lancer la chanson suivante…</Text>
-              )}
+              <Text style={s.kicker}>LA CHANSON ÉTAIT</Text>
+              <Text style={s.answerTitle}>{song.title}</Text>
+              <Text style={s.answerArtist}>{song.artist}</Text>
             </View>
-          )}
-        </View>
-
-        {/* Guess input — only when playing and not yet decided */}
-        {room.phase === 'playing' && !roundResult && (
-          <View style={styles.inputSection}>
-            <View style={styles.inputRow}>
-              <TextInput
-                ref={inputRef}
-                blurOnSubmit={false}
-                style={[styles.textInput, wrongFlash && styles.textInputWrong]}
-                placeholder="Tapez le titre de la chanson..."
-                placeholderTextColor={BEAT + '66'}
-                value={inputText}
-                onChangeText={setInputText}
-                onSubmitEditing={handleGuess}
-                returnKeyType="done"
-                autoCorrect={false}
-                autoCapitalize="none"
-              />
-              <TouchableOpacity
-                style={[styles.validateBtn, !inputText.trim() && styles.validateBtnOff]}
-                onPress={Platform.OS !== 'web' ? handleGuess : undefined}
-                onMouseDown={Platform.OS === 'web' ? (e) => { e.preventDefault(); handleGuess(); } : undefined}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.validateBtnText}>✓</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity style={styles.passBtn} onPress={handlePass} activeOpacity={0.8}>
-              <Text style={styles.passBtnText}>Je ne sais pas</Text>
-            </TouchableOpacity>
           </View>
-        )}
+          {players.length > 0 && <Ranking players={names} scores={scoreMap} order={names} suffix=" pts" />}
+        </>
+      )}
+    </GameScreen>
+  );
 
-        {/* Scores during found phase */}
-        {room.phase === 'found' && players.length > 0 && (
-          <View style={styles.scoresSection}>
-            <Text style={styles.scoresLabel}>SCORES</Text>
-            {players.map((p, i) => (
-              <View key={p.id} style={[styles.scoreItem, p.id === playerId && styles.scoreItemMe]}>
-                <Text style={styles.scoreRank}>{MEDALS[i] ?? `${i + 1}.`}</Text>
-                <Text style={[styles.scoreName, p.id === playerId && { color: BEAT_LIGHT }]}>
-                  {p.name}{p.id === playerId ? ' (toi)' : ''}
-                </Text>
-                <Text style={styles.scoreVal}>{p.score} pts</Text>
-              </View>
-            ))}
-          </View>
-        )}
-      </ScrollView>
-
-      {/* Lecteur caché : son src est posé dans le clic (handlePlay), ce qui autorise l'autoplay sur mobile */}
+  // Lecteur caché, toujours au même endroit de l'arbre : son src est posé dans le clic (handlePlay),
+  // ce qui autorise la lecture automatique sur mobile
+  return (
+    <View style={{ flex: 1 }}>
+      {screen}
       {Platform.OS === 'web' && React.createElement('iframe', {
         ref: iframeRef,
         allow: 'autoplay; encrypted-media',
         style: { position: 'fixed', bottom: -1, left: -1, width: 1, height: 1, opacity: 0, border: 'none', pointerEvents: 'none' },
       })}
-    </LinearGradient>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container:  { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-  centered:   { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  progressTrack: { height: 3, backgroundColor: colors.border },
-  progressFill:  { height: '100%', backgroundColor: BEAT, borderRadius: 2 },
-  inner:        { flex: 1 },
-  innerContent: { padding: spacing.lg, paddingTop: Platform.OS === 'ios' ? 50 : 30, paddingBottom: 48 },
-
-  topRow:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  quitBtn:      { paddingVertical: 4 },
-  quitText:     { color: colors.textMuted, fontSize: 13 },
-  roundCounter: { fontSize: 14, fontWeight: '700', color: colors.textSecondary },
-  scoreChip:    { backgroundColor: BEAT + '20', borderRadius: radius.full, paddingHorizontal: spacing.sm, paddingVertical: 4, borderWidth: 1, borderColor: BEAT + '40' },
-  scoreChipText:{ fontSize: 12, fontWeight: '700', color: BEAT_LIGHT },
-
-  mainZone: {
-    backgroundColor: '#0E0C1A', borderRadius: radius.xl, borderWidth: 1, borderColor: BEAT + '40',
-    minHeight: 280, justifyContent: 'center', alignItems: 'center',
-    marginBottom: spacing.md, overflow: 'hidden', padding: spacing.xl,
-  },
-  zoneCenter: { alignItems: 'center', gap: spacing.lg, width: '100%' },
-  bigNote:    { fontSize: 64 },
-  songLabel:  { fontSize: 16, fontWeight: '700', color: colors.textSecondary, letterSpacing: 2 },
-  playBtnWrap:{ borderRadius: radius.full, overflow: 'hidden', shadowColor: BEAT, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.5, shadowRadius: 14, elevation: 8 },
-  playBtn:    { paddingVertical: spacing.md + 4, paddingHorizontal: spacing.xl + 8, alignItems: 'center' },
-  playBtnText:{ fontSize: 16, fontWeight: '900', color: '#fff', letterSpacing: 2 },
-  waitBanner:     { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  waitBannerText: { fontSize: 14, color: colors.textSecondary },
-
-  timerRing: {
-    width: 90, height: 90, borderRadius: 45, borderWidth: 3,
-    alignItems: 'center', justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)', flexDirection: 'row', gap: 2,
-  },
-  timerNum:    { fontSize: 36, fontWeight: '900' },
-  timerS:      { fontSize: 14, fontWeight: '700', color: colors.textMuted, alignSelf: 'flex-end', paddingBottom: 6 },
-  infiniteIcon:{ fontSize: 64, fontWeight: '900', color: BEAT },
-  ptsChip:     { flexDirection: 'row', alignItems: 'baseline', borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderWidth: 1, gap: 4 },
-  ptsNum:      { fontSize: 22, fontWeight: '900' },
-  ptsLabel:    { fontSize: 12, fontWeight: '700' },
-  statusWon:    { fontSize: 13, fontWeight: '700', color: BEAT_LIGHT },
-  statusLost:   { fontSize: 13, fontWeight: '700', color: '#F59E0B' },
-  relancerBtn:  { paddingVertical: spacing.xs, paddingHorizontal: spacing.md },
-  relancerText: { fontSize: 12, color: BEAT_LIGHT + 'AA', fontWeight: '600', textDecorationLine: 'underline' },
-
-  foundZone:      { alignItems: 'center', gap: spacing.md, width: '100%' },
-  foundEmoji:     { fontSize: 48 },
-  foundWho:       { fontSize: 22, fontWeight: '900', color: colors.text, textAlign: 'center' },
-  foundPts:       { fontSize: 18, fontWeight: '700', color: BEAT_LIGHT },
-  songReveal:     { alignItems: 'center', gap: 4 },
-  songRevealLabel:{ fontSize: 11, color: colors.textMuted, letterSpacing: 1.5 },
-  songTitle:      { fontSize: 20, fontWeight: '900', color: colors.text, textAlign: 'center' },
-  songArtist:     { fontSize: 14, fontWeight: '700', color: BEAT_LIGHT },
-  thumbWrap:      { width: 200, height: 112, borderRadius: 12, overflow: 'hidden', backgroundColor: '#0E0C1A' },
-  nextBtnWrap:    { width: '100%', borderRadius: radius.full, overflow: 'hidden', shadowColor: BEAT, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 8 },
-  nextBtnGrad:    { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  nextBtnText:    { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 1.5 },
-  waitNextText:   { fontSize: 12, color: colors.textMuted, fontStyle: 'italic' },
-
-  inputSection: { gap: spacing.sm, marginBottom: spacing.md },
-  inputRow:     { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  textInput: {
-    flex: 1, backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1, borderColor: BEAT + '66',
-    paddingVertical: spacing.md, paddingHorizontal: spacing.lg, fontSize: 16, fontWeight: '700', color: colors.text,
-    ...Platform.select({ web: { outlineStyle: 'none' } }),
-  },
-  textInputWrong: { borderColor: '#EF4444', backgroundColor: '#1A0505' },
-  validateBtn:    { backgroundColor: BEAT, borderRadius: radius.md, paddingVertical: spacing.md, paddingHorizontal: spacing.lg, alignItems: 'center', justifyContent: 'center' },
-  validateBtnOff: { backgroundColor: BEAT + '44' },
-  validateBtnText:{ fontSize: 20, fontWeight: '900', color: '#fff' },
-  passBtn:        { alignSelf: 'center', paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderRadius: radius.full, borderWidth: 1, borderColor: colors.border },
-  passBtnText:    { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
-
-  scoresSection: { gap: spacing.sm, marginTop: spacing.md },
-  scoresLabel:   { fontSize: 11, fontWeight: '800', color: colors.textMuted, letterSpacing: 2 },
-  scoreItem:     { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.md, padding: spacing.md, borderWidth: 1, borderColor: colors.border, gap: spacing.sm },
-  scoreItemMe:   { borderColor: BEAT + '66' },
-  scoreRank:     { fontSize: 18, width: 36 },
-  scoreName:     { flex: 1, fontSize: 15, fontWeight: '700', color: colors.text },
-  scoreVal:      { fontSize: 15, fontWeight: '900', color: BEAT_LIGHT },
-
-  finalScroll: { padding: spacing.lg, paddingTop: 60, paddingBottom: 60 },
-  finalTitle:  { fontSize: 28, fontWeight: '900', color: BEAT_LIGHT, textAlign: 'center', letterSpacing: 2, marginBottom: spacing.xs },
-  finalSub:    { fontSize: 13, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl },
-  winnerCard:  { backgroundColor: BEAT + '22', borderRadius: radius.xl, padding: spacing.xl, alignItems: 'center', borderWidth: 1, borderColor: BEAT + '55', marginBottom: spacing.xl },
-  winnerEmoji: { fontSize: 64, marginBottom: spacing.md },
-  winnerName:  { fontSize: 28, fontWeight: '900', color: colors.text, marginBottom: spacing.xs },
-  winnerScore: { fontSize: 20, fontWeight: '700', color: BEAT_LIGHT },
-  rankList:    { gap: spacing.sm, marginBottom: spacing.xl },
-  rankRow:     { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.md, padding: spacing.md, borderWidth: 1, borderColor: colors.border, gap: spacing.md },
-  rankRowMe:   { borderColor: BEAT + '66' },
-  rankMedal:   { fontSize: 22, width: 36 },
-  rankName2:   { flex: 1, fontSize: 16, fontWeight: '700', color: colors.text },
-  rankScore:   { fontSize: 16, fontWeight: '900', color: BEAT_LIGHT },
-  replayBtn:   { borderRadius: radius.full, overflow: 'hidden', marginBottom: spacing.md },
-  replayGrad:  { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  replayText:  { fontSize: 15, fontWeight: '900', color: colors.text, letterSpacing: 2 },
-  menuBtn:     { alignItems: 'center', paddingVertical: spacing.md },
-  menuBtnText: { color: colors.textMuted, fontSize: 15, fontWeight: '700' },
+const s = StyleSheet.create({
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  counter: { color: T.orTexte, fontFamily: F.chiffre, fontSize: 12, letterSpacing: 2 },
+  kicker: { color: T.orTexte, fontFamily: F.chiffre, fontSize: 11, letterSpacing: 2.4, textAlign: 'center' },
+  sub: { color: T.encreDouce, fontSize: 15, lineHeight: 22, textAlign: 'center' },
+  stage: { alignItems: 'center', gap: 20, paddingTop: 16 },
+  disc: { width: 168, height: 168, borderRadius: 999, borderWidth: 1, borderColor: T.traitFort, backgroundColor: T.carte, alignItems: 'center', justifyContent: 'center' },
+  discHole: { width: 36, height: 36, borderRadius: 999, borderWidth: 2, borderColor: BEAT },
+  timer: { width: 132, height: 132, borderRadius: 999, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  timerNum: { fontFamily: F.chiffre, fontSize: 48, lineHeight: 54 },
+  timerUnit: { color: T.encreDouce, fontFamily: F.chiffre, fontSize: 10, letterSpacing: 2 },
+  wait: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 52 },
+  waitText: { color: T.encre, fontSize: 15 },
+  inputRow: { flexDirection: 'row', gap: 8, width: '100%' },
+  validate: { width: 52, height: 52, borderRadius: 999, backgroundColor: T.or, alignItems: 'center', justifyContent: 'center' },
+  answer: { borderRadius: 18, backgroundColor: T.carte, padding: 8 },
+  answerInner: { borderRadius: 12, borderWidth: 1, borderColor: 'rgba(212,175,55,0.6)', padding: 18, alignItems: 'center', gap: 10 },
+  thumb: { width: '100%', aspectRatio: 16 / 9, borderRadius: 10, overflow: 'hidden', backgroundColor: T.creux },
+  answerTitle: { color: T.encre, fontFamily: F.afficheSemi, fontSize: 28, lineHeight: 33, textAlign: 'center' },
+  answerArtist: { color: T.encreDouce, fontSize: 16, textAlign: 'center' },
 });

@@ -1,18 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, Platform, ActivityIndicator,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
-import { OB_BG } from '../../theme/obsidian';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { supabase, channelName } from '../../services/supabase';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
+import { GameScreen, GameTopBar, ActionBar, Notice, QuestionCard, AnswerChoice, Ranking, T, F } from '../../components/game/Legende';
 
-const VOTE_COLOR = '#2F74B5';
-const VOTE_DARK  = '#1B5A97';
-const VOTE_LIGHT = '#7CC4FF';
-const BG = OB_BG;
+const GAME = 'vote';
 
 function parseQuestions(raw) {
   if (!raw) return [];
@@ -187,11 +178,13 @@ export default function VoteMultiGameScreen({ navigation, route }) {
     }
   };
 
+  const quit = () => navigation.navigate('Menu');
+
   if (!room) {
     return (
-      <LinearGradient colors={BG} style={styles.container}>
-        <View style={styles.centered}><ActivityIndicator color={VOTE_COLOR} size="large" /></View>
-      </LinearGradient>
+      <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} />} scroll={false}>
+        <View style={s.center}><ActivityIndicator color={T.orTexte} size="large" /></View>
+      </GameScreen>
     );
   }
 
@@ -206,183 +199,74 @@ export default function VoteMultiGameScreen({ navigation, route }) {
   let resultLabel = null;
   let myPoints    = 0;
   if (isReveal && total > 0) {
-    if (aCount === total || bCount === total) {
-      resultLabel = '🏆 Vote unanime ! +2 pts pour tous !';
-      myPoints = 2;
-    } else if (aCount === bCount) {
-      resultLabel = '⚖️ Égalité parfaite ! 0 pt';
-      myPoints = 0;
-    } else {
+    if (aCount === total || bCount === total) { resultLabel = 'Vote unanime : +2 points pour tous'; myPoints = 2; }
+    else if (aCount === bCount) { resultLabel = 'Égalité parfaite : personne ne marque'; myPoints = 0; }
+    else {
       const majChoice = aCount > bCount ? 'a' : 'b';
-      resultLabel = `${aCount > bCount ? 'A' : 'B'} gagne la majorité ! +1 pt`;
+      resultLabel = `La majorité choisit ${majChoice.toUpperCase()} : +1 point`;
       myPoints = myVote === majChoice ? 1 : 0;
     }
   }
-
-  const aPct = total > 0 ? Math.round((aCount / total) * 100) : 0;
-  const bPct = total > 0 ? Math.round((bCount / total) * 100) : 0;
+  const names = [...players].sort((a, b) => b.score - a.score).map(p => p.name);
+  const scoreMap = Object.fromEntries(players.map(p => [p.name, p.score]));
 
   return (
-    <LinearGradient colors={BG} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} style={Platform.OS === 'web' && { flex: 1, minHeight: 0 }}>
-
-        <View style={styles.header}>
-          <Text style={styles.qCount}>
-            Q {room.current_question_idx + 1} / {questions.length}
-          </Text>
-          <View style={styles.scoreRow}>
-            <Text style={styles.myScore}>⭐ {myPlayer?.score ?? 0} pts</Text>
-            {isReveal && myPoints > 0 && (
-              <Text style={styles.pointsEarned}>+{myPoints}</Text>
-            )}
+    <GameScreen
+      top={<GameTopBar game={GAME} onBack={quit} current={room.current_question_idx + 1} total={questions.length} />}
+      footer={myVote && !isReveal ? (
+        <ActionBar>
+          <View style={s.wait}>
+            <ActivityIndicator color={T.orTexte} size="small" />
+            <Text style={s.waitText}>Vous avez voté {myVote.toUpperCase()} · {total} sur {players.length}</Text>
           </View>
-        </View>
+        </ActionBar>
+      ) : null}
+    >
+      <View style={s.head}>
+        <Text style={s.score}>{myPlayer?.score ?? 0} pts</Text>
+        {isReveal && myPoints > 0 ? <Text style={s.gain}>+{myPoints}</Text> : null}
+      </View>
 
-        {currentQ && (
-          <>
-            <View style={styles.questionCard}>
-              <Text style={styles.questionText}>{currentQ.q}</Text>
-            </View>
-
-            <View style={styles.choices}>
-              {(['a', 'b']).map(choice => {
-                const count  = choice === 'a' ? aCount : bCount;
-                const pct    = choice === 'a' ? aPct : bPct;
-                const isWin  = isReveal && count > (choice === 'a' ? bCount : aCount);
-                const isTie  = isReveal && aCount === bCount;
-                const isUnan = isReveal && (aCount === total || bCount === total);
-                const isLose = isReveal && !isWin && !isTie && !isUnan;
-                const isMine = myVote === choice;
-                return (
-                  <TouchableOpacity
-                    key={choice}
-                    style={[
-                      styles.choiceBtn,
-                      isMine && !isReveal && styles.choiceBtnSelected,
-                      isReveal && isUnan && styles.choiceBtnUnan,
-                      isReveal && !isUnan && isWin && styles.choiceBtnWinner,
-                      isReveal && !isUnan && isTie && styles.choiceBtnTie,
-                      isReveal && !isUnan && isLose && styles.choiceBtnLoser,
-                    ]}
-                    onPress={() => handleVote(choice)}
-                    disabled={!!myVote || isReveal}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.choiceLabel}>{choice.toUpperCase()}</Text>
-                    <Text style={styles.choiceText}>{currentQ[choice]}</Text>
-
-                    {isReveal && (
-                      <View style={styles.barSection}>
-                        <View style={styles.barBg}>
-                          <View style={[styles.barFill, { width: `${pct}%` }]} />
-                        </View>
-                        <Text style={styles.barText}>{count} vote{count !== 1 ? 's' : ''} · {pct}%</Text>
-                      </View>
-                    )}
-                    {isMine && <Text style={styles.myChoiceBadge}>✓ Ton vote</Text>}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </>
-        )}
-
-        {myVote && !isReveal && (
-          <View style={styles.waitingCard}>
-            <ActivityIndicator color={VOTE_COLOR} size="small" />
-            <Text style={styles.waitingText}>
-              Voté {myVote.toUpperCase()} · En attente… ({total}/{players.length})
-            </Text>
+      {currentQ && (
+        <>
+          <QuestionCard kicker="Votez comme la majorité">{currentQ.q}</QuestionCard>
+          <View style={{ gap: 10 }}>
+            {['a', 'b'].map((choice, i) => {
+              const count = choice === 'a' ? aCount : bCount;
+              const other = choice === 'a' ? bCount : aCount;
+              const pct   = total > 0 ? Math.round((count / total) * 100) : 0;
+              const state = isReveal ? (count >= other ? 'correct' : 'neutral') : myVote === choice ? 'selected' : null;
+              return (
+                <View key={choice} style={{ gap: 6 }}>
+                  <AnswerChoice index={i} label={currentQ[choice]} state={state} onPress={() => handleVote(choice)} disabled={!!myVote || isReveal} />
+                  {isReveal ? (
+                    <View style={s.barRow}>
+                      <View style={s.track}><View style={[s.fill, { width: `${pct}%`, backgroundColor: count >= other ? '#4FD8A4' : T.encreDouce }]} /></View>
+                      <Text style={s.barText}>{count} · {pct} %{myVote === choice ? ' · votre vote' : ''}</Text>
+                    </View>
+                  ) : null}
+                </View>
+              );
+            })}
           </View>
-        )}
+        </>
+      )}
 
-        {isReveal && resultLabel && (
-          <View style={styles.revealCard}>
-            <Text style={styles.revealText}>{resultLabel}</Text>
-            <Text style={styles.revealSub}>Prochaine question dans quelques secondes…</Text>
-          </View>
-        )}
-
-        {isReveal && players.length > 0 && (
-          <View style={styles.scoreSection}>
-            <Text style={styles.scoresLabel}>SCORES</Text>
-            {[...players].sort((a, b) => b.score - a.score).map((p, i) => (
-              <View key={p.id} style={[styles.scoreItem, p.id === playerId && styles.scoreItemMe]}>
-                <Text style={styles.scoreRank}>{i + 1}</Text>
-                <Text style={[styles.scoreName, p.id === playerId && { color: VOTE_LIGHT }]}>
-                  {p.name}{p.id === playerId ? ' (toi)' : ''}
-                </Text>
-                <Text style={styles.scoreValue}>{p.score} pts</Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-      </ScrollView>
-    </LinearGradient>
+      {isReveal && resultLabel ? <Notice title={resultLabel}>Prochaine question dans quelques secondes…</Notice> : null}
+      {isReveal && players.length > 0 ? <Ranking players={names} scores={scoreMap} order={names} suffix=" pts" /> : null}
+    </GameScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-  scroll:    { padding: spacing.lg, paddingTop: 50, paddingBottom: spacing.xxl },
-  centered:  { flex: 1, justifyContent: 'center', alignItems: 'center' },
-
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xl },
-  qCount:  { fontSize: 12, fontWeight: '800', color: colors.textMuted, letterSpacing: 1.5 },
-  scoreRow:     { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  myScore:      { fontSize: 14, fontWeight: '700', color: VOTE_LIGHT },
-  pointsEarned: { fontSize: 16, fontWeight: '900', color: '#4ADE80' },
-
-  questionCard: {
-    backgroundColor: VOTE_COLOR + '18', borderRadius: radius.xl, padding: spacing.xl,
-    borderWidth: 1, borderColor: VOTE_COLOR + '35', marginBottom: spacing.xl,
-  },
-  questionText: { fontSize: 20, fontWeight: '800', color: colors.text, textAlign: 'center', lineHeight: 30 },
-
-  choices:   { gap: spacing.md, marginBottom: spacing.lg },
-  choiceBtn: {
-    backgroundColor: colors.card, borderRadius: radius.xl, padding: spacing.lg,
-    borderWidth: 2, borderColor: colors.border,
-  },
-  choiceBtnSelected: { borderColor: VOTE_COLOR, backgroundColor: VOTE_COLOR + '20' },
-  choiceBtnWinner:   { borderColor: '#4ADE80', backgroundColor: '#4ADE8018' },
-  choiceBtnUnan:     { borderColor: '#F59E0B', backgroundColor: '#F59E0B18' },
-  choiceBtnTie:      { borderColor: '#94A3B8', backgroundColor: colors.surface },
-  choiceBtnLoser:    { borderColor: colors.border, opacity: 0.55 },
-
-  choiceLabel: { fontSize: 10, fontWeight: '900', color: VOTE_LIGHT, letterSpacing: 3, marginBottom: 4 },
-  choiceText:  { fontSize: 17, fontWeight: '700', color: colors.text },
-
-  barSection: { marginTop: spacing.sm },
-  barBg: { height: 6, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' },
-  barFill: { height: '100%', backgroundColor: VOTE_COLOR, borderRadius: 3 },
-  barText: { fontSize: 11, color: colors.textMuted, fontWeight: '700', marginTop: 4 },
-
-  myChoiceBadge: { fontSize: 11, color: VOTE_LIGHT, fontWeight: '700', marginTop: 6 },
-
-  waitingCard: {
-    flexDirection: 'row', alignItems: 'center', gap: spacing.md,
-    backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing.md,
-    borderWidth: 1, borderColor: VOTE_COLOR + '44', marginBottom: spacing.lg,
-  },
-  waitingText: { fontSize: 13, color: colors.textSecondary },
-
-  revealCard: {
-    backgroundColor: VOTE_COLOR + '18', borderRadius: radius.lg, padding: spacing.lg,
-    borderWidth: 1, borderColor: VOTE_COLOR + '44', alignItems: 'center', marginBottom: spacing.lg,
-  },
-  revealText: { fontSize: 17, fontWeight: '800', color: VOTE_LIGHT, textAlign: 'center' },
-  revealSub:  { fontSize: 12, color: colors.textMuted, marginTop: spacing.sm },
-
-  scoreSection: { gap: spacing.sm },
-  scoresLabel:  { fontSize: 11, fontWeight: '800', color: colors.textMuted, letterSpacing: 2, marginBottom: spacing.xs },
-  scoreItem: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.md,
-    padding: spacing.md, borderWidth: 1, borderColor: colors.border, gap: spacing.sm,
-  },
-  scoreItemMe: { borderColor: VOTE_COLOR + '66' },
-  scoreRank:  { fontSize: 14, fontWeight: '900', color: colors.textMuted, width: 24 },
-  scoreName:  { flex: 1, fontSize: 15, fontWeight: '700', color: colors.text },
-  scoreValue: { fontSize: 15, fontWeight: '900', color: VOTE_LIGHT },
+const s = StyleSheet.create({
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  head: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 8 },
+  score: { color: T.encre, fontFamily: F.chiffre, fontSize: 14 },
+  gain: { color: '#4FD8A4', fontFamily: F.chiffre, fontSize: 14 },
+  barRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 4 },
+  track: { flex: 1, height: 6, borderRadius: 999, backgroundColor: T.trait, overflow: 'hidden' },
+  fill: { height: 6, borderRadius: 999 },
+  barText: { color: T.encreDouce, fontFamily: F.chiffre, fontSize: 12 },
+  wait: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 52 },
+  waitText: { color: T.encre, fontSize: 15 },
 });

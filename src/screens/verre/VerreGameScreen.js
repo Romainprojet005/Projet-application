@@ -1,19 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity,
-  Animated, Platform, ScrollView,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, radius } from '../../theme';
-import { OB_BG } from '../../theme/obsidian';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
 import { randomTours, dealCards, START_GLASS, FILL_STEP } from '../../data/verreData';
-import { FULL_HEIGHT } from '../../utils/fullHeight';
+import goBackOrMenu from '../../navigation/goBack';
 import VerreTable from './VerreTable';
+import {
+  GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, Notice, PassPhone,
+  PlayerChoice, PlayerGrid, PlayerToken, EndActions, T, F,
+} from '../../components/game/Legende';
 
-const ACCENT       = '#7E62E0';
-const ACCENT_LIGHT = '#B9A2FF';
-const ACCENT_DARK  = '#5B3FB8';
-const GOLD         = '#E6C766';
+const GAME = 'verre';
 
 function rotate(arr, start) {
   return arr.map((_, i) => arr[(start + i) % arr.length]);
@@ -172,50 +167,52 @@ export default function VerreGameScreen({ route, navigation }) {
 
   const endGame = () => setPhase('final');
 
-  // ── DISTRIBUTE ────────────────────────────────────────────────────────
+  const quit = () => goBackOrMenu(navigation);
+  const tourLabel = `MANCHE ${mancheIdx} · TOUR ${Math.min(lapsCompleted + 1, toursMax)} SUR ${toursMax}`;
+  const top = <GameTopBar game={GAME} onBack={quit} right={<Text style={s.counter}>MANCHE {mancheIdx}</Text>} />;
+  const one = (label, onPress) => <ActionBar><PrimaryButton label={label} onPress={onPress} /></ActionBar>;
+  const nextOrEnd = (label, onNext) => (
+    <ActionBar>
+      <PrimaryButton label={label} onPress={onNext} />
+      <TextLink label="Terminer la partie" color={T.encreDouce} onPress={endGame} />
+    </ActionBar>
+  );
+
+  // ── Distribution des cartes secrètes ──
   if (phase === 'distribute') {
     const peekPlayerIdx = alive[peekIdx];
     const peekName = playerNames[peekPlayerIdx];
+    if (!peekRevealed) {
+      return (
+        <GameScreen top={top} scroll={false} footer={one('Voir ma carte', handlePeekReveal)}>
+          <PassPhone game={GAME} name={peekName} index={peekPlayerIdx} order={alive.map(i => playerNames[i])}
+            kicker={`Manche ${mancheIdx} · ${toursMax} tour${toursMax > 1 ? 's' : ''} max`}
+            instruction="Regardez votre carte secrète : les autres joueurs détournent le regard." />
+        </GameScreen>
+      );
+    }
     return (
-      <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={styles.roundBadge}>Manche {mancheIdx} · {toursMax} tour{toursMax > 1 ? 's' : ''} max</Text>
-        <Text style={styles.peekInstruction}>Passe le téléphone à</Text>
-        <Text style={styles.peekName}>{peekName}</Text>
-
-        {!peekRevealed ? (
-          <TouchableOpacity onPress={handlePeekReveal} activeOpacity={0.9} style={{ width: '100%', maxWidth: 320 }}>
-            <View style={[styles.peekCard, { borderColor: ACCENT + '50' }]}>
-              <Text style={styles.peekLockEmoji}>🔒</Text>
-              <Text style={styles.peekLockTitle}>APPUIE POUR VOIR TA CARTE</Text>
-              <Text style={styles.peekLockSub}>Assure-toi que les autres ne regardent pas !</Text>
+      <GameScreen top={top} scroll={false} footer={one(peekIdx + 1 >= alive.length ? 'J’ai mémorisé, on commence' : 'Joueur suivant', handlePeekNext)}>
+        <View style={s.center}>
+          <Animated.View style={[s.secret, { opacity: revealAnim, transform: [{ scale: revealAnim.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }] }]}>
+            <View style={s.secretInner}>
+              <Text style={s.kicker}>VOTRE CARTE SECRÈTE</Text>
+              <Text style={s.secretValue}>{cards[peekPlayerIdx]}</Text>
+              <View style={s.rule} />
+              <Text style={s.kickerMuted}>SUR 20 · GARDEZ-LA EN TÊTE</Text>
             </View>
-          </TouchableOpacity>
-        ) : (
-          <Animated.View style={{ opacity: revealAnim, transform: [{ scale: revealAnim }], width: '100%', maxWidth: 320 }}>
-            <LinearGradient colors={[ACCENT_DARK, ACCENT]} style={styles.peekRevealCard}>
-              <Text style={styles.peekRevealLabel}>TA CARTE SECRÈTE</Text>
-              <Text style={styles.peekRevealValue}>{cards[peekPlayerIdx]}</Text>
-              <Text style={styles.peekRevealHint}>sur 20 — garde-la en tête</Text>
-            </LinearGradient>
-            <TouchableOpacity onPress={handlePeekNext} style={styles.peekNextBtn} activeOpacity={0.85}>
-              <Text style={styles.peekNextBtnText}>
-                {peekIdx + 1 >= alive.length ? "J'ai mémorisé, commencer !" : 'Joueur suivant →'}
-              </Text>
-            </TouchableOpacity>
           </Animated.View>
-        )}
-      </LinearGradient>
+          <Text style={s.sub}>{peekName}</Text>
+        </View>
+      </GameScreen>
     );
   }
 
-  // ── TABLE (tour de jeu) ─────────────────────────────────────────────
+  // ── La table ──
   if (phase === 'table') {
     return (
-      <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={styles.roundBadge}>Manche {mancheIdx} · Tour {Math.min(lapsCompleted + 1, toursMax)}/{toursMax}</Text>
-
-        <Text style={styles.tableTurn}>Au tour de <Text style={styles.tableTurnName}>{activePlayer}</Text></Text>
-
+      <GameScreen top={top} footer={<ActionBar><TextLink label="Terminer la partie" color={T.encreDouce} onPress={endGame} /></ActionBar>}>
+        <Heading kicker={tourLabel} title={`Au tour de ${activePlayer}`} />
         <VerreTable
           playerNames={playerNames}
           alive={alive}
@@ -227,366 +224,166 @@ export default function VerreGameScreen({ route, navigation }) {
           onDrink={handleDrinkSelf}
           onPass={handlePass}
         />
-
-        <Text style={styles.lapHint}>{passesThisLap} / {turnOrder.length} joueurs ont passé ce tour-ci</Text>
-        {isElim ? (
-          <Text style={styles.warnHint}>💀 Perdre un duel = éliminé · chacun garde sa carte · {alive.length} joueurs en lice</Text>
-        ) : (
-          <Text style={styles.warnHint}>🍺 Boire (ou perdre un duel) termine la manche — nouvelles cartes ensuite</Text>
-        )}
-
-        <TouchableOpacity onPress={endGame} style={styles.endGameLink}>
-          <Text style={styles.endGameLinkText}>🏆 Terminer la partie</Text>
-        </TouchableOpacity>
-      </LinearGradient>
+        <Text style={s.hint}>{passesThisLap} joueur{passesThisLap > 1 ? 's' : ''} sur {turnOrder.length} ont passé ce tour-ci.</Text>
+        <Text style={s.hint}>
+          {isElim
+            ? `Perdre un défi = éliminé. Chacun garde sa carte · ${alive.length} joueurs en lice.`
+            : 'Boire ou perdre un défi termine la manche : nouvelles cartes ensuite.'}
+        </Text>
+      </GameScreen>
     );
   }
 
-  // ── CHALLENGE : choix de la cible ───────────────────────────────────
+  // ── Défi : choix de la cible ──
   if (phase === 'challengeTarget') {
     return (
-      <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={styles.roundBadge}>Manche {mancheIdx} · Tour {Math.min(lapsCompleted + 1, toursMax)}/{toursMax}</Text>
-        <Text style={styles.turnLabel}>{activePlayer} challenge qui ?</Text>
-
-        <View style={styles.targetList}>
-          {alive.map(idx => (
-            idx !== activePlayerIdx && (
-              <TouchableOpacity key={idx} onPress={() => pickTarget(idx)} style={styles.targetBtn} activeOpacity={0.85}>
-                <Text style={styles.targetBtnText}>{playerNames[idx]}</Text>
-              </TouchableOpacity>
-            )
+      <GameScreen top={top} footer={<ActionBar><TextLink label="Annuler" color={T.encreDouce} onPress={() => setPhase('table')} /></ActionBar>}>
+        <Heading kicker={tourLabel} title={`${activePlayer} défie qui ?`} sub={`L’enjeu : ${glass * 2} gorgées.`} />
+        <PlayerGrid>
+          {alive.filter(idx => idx !== activePlayerIdx).map(idx => (
+            <PlayerChoice key={idx} name={playerNames[idx]} index={idx} onPress={() => pickTarget(idx)} label={`Défier ${playerNames[idx]}`} />
           ))}
-        </View>
-
-        <TouchableOpacity onPress={() => setPhase('table')} style={styles.cancelBtn}>
-          <Text style={styles.cancelBtnText}>Annuler</Text>
-        </TouchableOpacity>
-      </LinearGradient>
+        </PlayerGrid>
+      </GameScreen>
     );
   }
 
-  // ── CHALLENGE : pari plus haut / plus bas ───────────────────────────
+  // ── Défi : plus haute / plus basse ──
   if (phase === 'challengeCall') {
     return (
-      <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={styles.roundBadge}>Manche {mancheIdx} · Tour {Math.min(lapsCompleted + 1, toursMax)}/{toursMax}</Text>
-        <Text style={styles.turnLabel}>{activePlayer} parie contre {playerNames[challengeTarget]}</Text>
-        <Text style={styles.callQuestion}>Ta carte est plus haute ou plus basse que la sienne ?</Text>
-
-        <View style={styles.callRow}>
-          <TouchableOpacity onPress={() => resolveChallenge('lower')} style={styles.callBtn} activeOpacity={0.85}>
-            <LinearGradient colors={['#3B82F6', '#1D4ED8']} style={styles.callInner}>
-              <Text style={styles.callBtnText}>⬇️{'\n'}PLUS BASSE</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => resolveChallenge('higher')} style={styles.callBtn} activeOpacity={0.85}>
-            <LinearGradient colors={['#F59E0B', '#B45309']} style={styles.callInner}>
-              <Text style={styles.callBtnText}>⬆️{'\n'}PLUS HAUTE</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+      <GameScreen top={top} footer={<ActionBar><TextLink label="Changer de cible" color={T.encreDouce} onPress={() => setPhase('challengeTarget')} /></ActionBar>}>
+        <Heading kicker={`${activePlayer} contre ${playerNames[challengeTarget]}`} title="Votre carte est…" sub={`…plus haute ou plus basse que celle de ${playerNames[challengeTarget]} ?`} />
+        <View style={s.callRow}>
+          <Pressable onPress={() => resolveChallenge('lower')} accessibilityRole="button" accessibilityLabel="Plus basse"
+            style={({ pressed }) => [s.call, pressed && { borderColor: T.or }]}>
+            <Text style={s.callArrow}>↓</Text>
+            <Text style={s.callText}>Plus basse</Text>
+          </Pressable>
+          <Pressable onPress={() => resolveChallenge('higher')} accessibilityRole="button" accessibilityLabel="Plus haute"
+            style={({ pressed }) => [s.call, pressed && { borderColor: T.or }]}>
+            <Text style={s.callArrow}>↑</Text>
+            <Text style={s.callText}>Plus haute</Text>
+          </Pressable>
         </View>
-
-        <TouchableOpacity onPress={() => setPhase('challengeTarget')} style={styles.cancelBtn}>
-          <Text style={styles.cancelBtnText}>← Changer de cible</Text>
-        </TouchableOpacity>
-      </LinearGradient>
+      </GameScreen>
     );
   }
 
-  // ── RESOLVE (résultat du duel) ───────────────────────────────────────
+  // ── Résultat du défi ──
   if (phase === 'resolve' && pendingResult?.type === 'duel') {
     const r = pendingResult;
+    const last = isElim && r.remaining <= 1;
     return (
-      <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={[styles.resultTitle, { color: r.correct ? '#34D399' : '#FCA5A5' }]}>
-          {r.correct ? '✅ Pari réussi !' : '❌ Pari raté !'}
-        </Text>
-
-        <View style={styles.duelRow}>
-          <View style={styles.duelCard}>
-            <Text style={styles.duelName}>{playerNames[r.challengerIdx]}</Text>
-            <Text style={styles.duelValue}>{r.challengerCard}</Text>
-          </View>
-          <Text style={styles.duelVs}>VS</Text>
-          <View style={styles.duelCard}>
-            <Text style={styles.duelName}>{playerNames[r.targetIdx]}</Text>
-            <Text style={styles.duelValue}>{r.targetCard}</Text>
-          </View>
+      <GameScreen top={top} footer={last
+        ? one('Voir le vainqueur', endGame)
+        : nextOrEnd(isElim ? 'Continuer la manche' : 'Manche suivante', isElim ? continueAfterElim : advanceManche)}>
+        <Heading kicker={r.correct ? 'Pari réussi' : 'Pari raté'} />
+        <View style={s.duel}>
+          {[[r.challengerIdx, r.challengerCard], [r.targetIdx, r.targetCard]].map(([idx, val], k) => (
+            <React.Fragment key={idx}>
+              {k === 1 ? <Text style={s.vs}>VS</Text> : null}
+              <View style={[s.duelCard, idx === r.drinkerIdx && { borderColor: T.alerte }]}>
+                <Text style={s.duelName} numberOfLines={1}>{playerNames[idx]}</Text>
+                <Text style={s.duelValue}>{val}</Text>
+              </View>
+            </React.Fragment>
+          ))}
         </View>
-
-        <View style={[styles.consequenceCard, { borderColor: '#EF444450' }]}>
-          <Text style={styles.consequenceLabel}>Conséquence :</Text>
-          <Text style={styles.consequenceText}>{playerNames[r.drinkerIdx]} boit {r.amount} gorgées !</Text>
-          {isElim ? (
-            <Text style={[styles.consequenceText, { marginTop: spacing.sm }]}>💀 {playerNames[r.drinkerIdx]} est éliminé !</Text>
-          ) : null}
-          <Text style={styles.consequenceSub}>
-            {isElim && r.remaining <= 1
-              ? 'Il ne reste plus qu\'un joueur…'
-              : isElim
-                ? `${r.remaining} joueurs en lice — chacun garde sa carte, la manche continue`
-                : 'La manche se termine, nouvelles cartes…'}
-          </Text>
-        </View>
-
-        <View style={styles.continueRow}>
-          {isElim && r.remaining <= 1 ? (
-            <TouchableOpacity onPress={endGame} style={styles.nextBtn} activeOpacity={0.85}>
-              <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
-                <Text style={styles.nextBtnText}>🏆 Voir le vainqueur</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          ) : (
-            <>
-              <TouchableOpacity onPress={isElim ? continueAfterElim : advanceManche} style={styles.nextBtn} activeOpacity={0.85}>
-                <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
-                  <Text style={styles.nextBtnText}>{isElim ? 'Continuer la manche →' : 'Manche suivante →'}</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={endGame} style={styles.endGameLink}>
-                <Text style={styles.endGameLinkText}>🏆 Terminer la partie</Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
-      </LinearGradient>
+        <Notice tone="alerte" title={`${playerNames[r.drinkerIdx]} boit ${r.amount} gorgées`}>
+          {isElim
+            ? (last ? `${playerNames[r.drinkerIdx]} est éliminé. Il ne reste plus qu’un joueur…` : `${playerNames[r.drinkerIdx]} est éliminé. ${r.remaining} joueurs en lice : chacun garde sa carte, la manche continue.`)
+            : 'La manche se termine : nouvelles cartes.'}
+        </Notice>
+      </GameScreen>
     );
   }
 
-  // ── DRINK (verre bu volontairement) ─────────────────────────────────
+  // ── Verre bu volontairement ──
   if (phase === 'drink' && pendingResult?.type === 'volontaire') {
     const r = pendingResult;
     return (
-      <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={styles.resultTitle}>🍺 Verre bu !</Text>
-        <View style={[styles.consequenceCard, { borderColor: ACCENT + '50' }]}>
-          <Text style={styles.consequenceLabel}>{playerNames[r.drinkerIdx]}</Text>
-          <Text style={styles.consequenceText}>boit {r.amount} gorgée{r.amount > 1 ? 's' : ''} !</Text>
-          <Text style={styles.consequenceSub}>La manche se termine, nouvelles cartes…</Text>
-        </View>
-        <View style={styles.continueRow}>
-          <TouchableOpacity onPress={advanceManche} style={styles.nextBtn} activeOpacity={0.85}>
-            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
-              <Text style={styles.nextBtnText}>Manche suivante →</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={endGame} style={styles.endGameLink}>
-            <Text style={styles.endGameLinkText}>🏆 Terminer la partie</Text>
-          </TouchableOpacity>
-        </View>
-      </LinearGradient>
+      <GameScreen top={top} footer={nextOrEnd('Manche suivante', advanceManche)}>
+        <Heading kicker="Verre bu" title={playerNames[r.drinkerIdx]} />
+        <Notice title={`Boit ${r.amount} gorgée${r.amount > 1 ? 's' : ''}`}>La manche se termine : nouvelles cartes.</Notice>
+      </GameScreen>
     );
   }
 
-  // ── REVEAL FINAL (personne n'a bu, on révèle les cartes) ─────────────
+  // ── Personne n'a bu : les cartes parlent ──
   if (phase === 'revealFinal' && pendingResult?.type === 'reveal') {
     const r = pendingResult;
     return (
-      <LinearGradient colors={OB_BG} style={styles.fullCenter}>
-        <Text style={styles.resultTitle}>🃏 Révélation !</Text>
-        <Text style={styles.revealSub}>Personne n'a bu en {toursMax} tour{toursMax > 1 ? 's' : ''} — les cartes parlent</Text>
-
-        <ScrollView style={styles.revealScroll} contentContainerStyle={styles.revealGrid}>
+      <GameScreen top={top} footer={nextOrEnd('Manche suivante', advanceManche)}>
+        <Heading kicker="Révélation" title="Les cartes parlent" sub={`Personne n’a bu en ${toursMax} tour${toursMax > 1 ? 's' : ''}.`} />
+        <View style={s.grid}>
           {alive.map(idx => (
-            <View key={idx} style={[styles.revealCard, idx === r.drinkerIdx && styles.revealCardLowest]}>
-              <Text style={styles.revealName}>{playerNames[idx]}</Text>
-              <Text style={[styles.revealValue, idx === r.drinkerIdx && { color: '#FCA5A5' }]}>{r.cards[idx]}</Text>
+            <View key={idx} style={[s.revealCard, idx === r.drinkerIdx && { borderColor: T.alerte, backgroundColor: T.alerteVoile }]}>
+              <Text style={s.duelName} numberOfLines={1}>{playerNames[idx]}</Text>
+              <Text style={[s.revealValue, idx === r.drinkerIdx && { color: T.alerte }]}>{r.cards[idx]}</Text>
             </View>
           ))}
-        </ScrollView>
-
-        <View style={[styles.consequenceCard, { borderColor: '#EF444450' }]}>
-          <Text style={styles.consequenceLabel}>Carte la plus basse :</Text>
-          <Text style={styles.consequenceText}>{playerNames[r.drinkerIdx]} boit {r.amount} gorgées !</Text>
         </View>
-
-        <View style={styles.continueRow}>
-          <TouchableOpacity onPress={advanceManche} style={styles.nextBtn} activeOpacity={0.85}>
-            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.nextInner}>
-              <Text style={styles.nextBtnText}>Manche suivante →</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={endGame} style={styles.endGameLink}>
-            <Text style={styles.endGameLinkText}>🏆 Terminer la partie</Text>
-          </TouchableOpacity>
-        </View>
-      </LinearGradient>
+        <Notice tone="alerte" title={`${playerNames[r.drinkerIdx]} boit ${r.amount} gorgées`}>Carte la plus basse.</Notice>
+      </GameScreen>
     );
   }
 
-  // ── FINAL ─────────────────────────────────────────────────────────────
-  // Battle Royale : survivants (départagés aux gorgées), puis éliminés du dernier au premier
+  // ── Résultats ──
+  // Battle royale : survivants (départagés aux gorgées), puis éliminés du dernier au premier
   const sorted = isElim
     ? [
         ...alive.map(i => playerNames[i]).sort((a, b) => totalSips[a] - totalSips[b]),
         ...[...eliminated].reverse().map(i => playerNames[i]),
       ]
     : [...playerNames].sort((a, b) => totalSips[a] - totalSips[b]);
-  const medals = ['🥇', '🥈', '🥉'];
   const elimWinner = isElim && alive.length === 1 ? playerNames[alive[0]] : null;
 
   return (
-    <LinearGradient colors={OB_BG} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.finalScroll}>
-        <Text style={styles.finalTitle}>🏆 Résultats finaux</Text>
-        {elimWinner && <Text style={styles.finalWinner}>👑 {elimWinner} est le dernier debout !</Text>}
-        <Text style={styles.finalSub}>
-          {mancheIdx} manche{mancheIdx > 1 ? 's' : ''} jouée{mancheIdx > 1 ? 's' : ''} · {isElim ? 'le dernier en lice gagne !' : "moins tu as bu, mieux c'est !"}
-        </Text>
-
-        {sorted.map((name, idx) => (
-          <View key={name} style={[styles.finalRow, idx === 0 && styles.finalRowFirst]}>
-            <Text style={styles.finalMedal}>{medals[idx] ?? `${idx + 1}.`}</Text>
-            <Text style={styles.finalName}>
-              {name}{isElim && eliminated.includes(playerNames.indexOf(name)) ? ' 💀' : ''}
-            </Text>
-            <Text style={styles.finalSips}>🍺 {totalSips[name]}</Text>
-          </View>
-        ))}
-
-        <View style={styles.finalBtns}>
-          <TouchableOpacity onPress={() => navigation.replace(route.name, route.params)} style={styles.replayBtn} activeOpacity={0.85}>
-            <Text style={styles.replayBtnText}>🔄 Rejouer</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={styles.menuBtn} activeOpacity={0.85}>
-            <LinearGradient colors={[ACCENT, ACCENT_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.menuInner}>
-              <Text style={styles.menuBtnText}>Retour au menu</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </LinearGradient>
+    <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} />} footer={<EndActions navigation={navigation} route={route} />}>
+      <Heading kicker="Résultats finaux" title={elimWinner ? `${elimWinner}, dernier debout` : `${sorted[0]} l’emporte`}
+        sub={`${mancheIdx} manche${mancheIdx > 1 ? 's' : ''} jouée${mancheIdx > 1 ? 's' : ''} · ${isElim ? 'le dernier en lice gagne' : 'moins vous avez bu, mieux c’est'}`} />
+      <View style={{ gap: 8 }}>
+        {sorted.map((name, i) => {
+          const out = isElim && eliminated.includes(playerNames.indexOf(name));
+          return (
+            <View key={name} style={[s.row, i === 0 && { borderColor: T.or, backgroundColor: T.orVoile }]}>
+              <Text style={[s.rank, i === 0 && { color: T.orTexte }]}>{String(i + 1).padStart(2, '0')}</Text>
+              <PlayerToken name={name} index={playerNames.indexOf(name)} />
+              <Text style={[s.rowName, i === 0 && { color: T.orTexte }]} numberOfLines={1}>{name}{out ? ' · éliminé' : ''}</Text>
+              <Text style={s.sips}>{totalSips[name]} gorgée{totalSips[name] > 1 ? 's' : ''}</Text>
+            </View>
+          );
+        })}
+      </View>
+    </GameScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  container:   { flex: 1, ...Platform.select({ web: { height: FULL_HEIGHT } }) },
-  fullCenter:  { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl,
-                 ...Platform.select({ web: { height: FULL_HEIGHT, overflowY: 'auto', justifyContent: 'safe center' } }) },
-
-  roundBadge: {
-    position: 'absolute', top: Platform.OS === 'ios' ? 60 : 40, right: spacing.xl,
-    fontSize: 12, fontWeight: '700', color: ACCENT_LIGHT,
-    backgroundColor: ACCENT + '22', paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs, borderRadius: radius.full, borderWidth: 1, borderColor: ACCENT + '40',
-  },
-
-  // DISTRIBUTE
-  peekInstruction: { fontSize: 14, color: colors.textSecondary, marginBottom: spacing.xs },
-  peekName: { fontSize: 30, fontWeight: '900', color: colors.text, marginBottom: spacing.xl, textAlign: 'center' },
-  peekCard: {
-    borderRadius: radius.xl, borderWidth: 2, padding: spacing.xl * 1.3,
-    alignItems: 'center', backgroundColor: colors.card,
-  },
-  peekLockEmoji: { fontSize: 44, marginBottom: spacing.md },
-  peekLockTitle: { fontSize: 15, fontWeight: '800', color: colors.text, textAlign: 'center', letterSpacing: 1 },
-  peekLockSub: { fontSize: 12, color: colors.textMuted, marginTop: spacing.sm, textAlign: 'center' },
-  peekRevealCard: {
-    borderRadius: radius.xl, padding: spacing.xl * 1.3, alignItems: 'center',
-    shadowColor: ACCENT, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16, elevation: 10,
-  },
-  peekRevealLabel: { fontSize: 12, fontWeight: '700', color: '#fff', letterSpacing: 2, opacity: 0.85 },
-  peekRevealValue: { fontSize: 64, fontWeight: '900', color: '#fff', marginVertical: spacing.sm },
-  peekRevealHint: { fontSize: 12, color: '#fff', opacity: 0.75 },
-  peekNextBtn: {
-    marginTop: spacing.lg, backgroundColor: colors.surface, borderRadius: radius.full,
-    paddingVertical: spacing.md, alignItems: 'center', borderWidth: 1, borderColor: colors.border,
-  },
-  peekNextBtnText: { color: colors.text, fontSize: 15, fontWeight: '700' },
-
-  // TABLE
-  tableTurn: { fontSize: 15, color: colors.textSecondary, marginTop: 28, marginBottom: 2, textAlign: 'center' },
-  tableTurnName: { fontSize: 20, fontWeight: '900', color: GOLD },
-  turnLabel: { fontSize: 14, color: colors.textSecondary, marginBottom: spacing.xs, textAlign: 'center' },
-
-  lapHint: { fontSize: 12, color: colors.textMuted, marginTop: spacing.xs, fontStyle: 'italic' },
-  warnHint: { fontSize: 11, color: colors.textMuted, marginTop: spacing.xs, textAlign: 'center', maxWidth: 300 },
-  endGameLink: { marginTop: spacing.sm, paddingVertical: spacing.sm },
-  endGameLinkText: { color: colors.textMuted, fontSize: 12, fontWeight: '600', textDecorationLine: 'underline' },
-
-  // CHALLENGE TARGET
-  targetList: { width: '100%', maxWidth: 340, gap: spacing.sm, marginBottom: spacing.lg },
-  targetBtn: {
-    paddingVertical: spacing.md, borderRadius: radius.lg, alignItems: 'center',
-    backgroundColor: colors.card, borderWidth: 1, borderColor: ACCENT + '40',
-  },
-  targetBtnText: { color: colors.text, fontSize: 16, fontWeight: '700' },
-  cancelBtn: { marginTop: spacing.sm, paddingVertical: spacing.sm },
-  cancelBtnText: { color: colors.textMuted, fontSize: 13, fontWeight: '600' },
-
-  // CHALLENGE CALL
-  callQuestion: { fontSize: 14, color: colors.textSecondary, marginBottom: spacing.xl, textAlign: 'center', maxWidth: 320 },
-  callRow: { flexDirection: 'row', gap: spacing.md, width: '100%', maxWidth: 340 },
-  callBtn: { flex: 1, borderRadius: radius.lg, overflow: 'hidden' },
-  callInner: { paddingVertical: spacing.xl, alignItems: 'center' },
-  callBtnText: { color: '#fff', fontSize: 15, fontWeight: '900', textAlign: 'center', letterSpacing: 1 },
-
-  // RESOLVE / DRINK / REVEAL
-  resultTitle: { fontSize: 26, fontWeight: '900', color: colors.text, marginBottom: spacing.lg, textAlign: 'center' },
-  revealSub: { fontSize: 12, color: colors.textMuted, marginBottom: spacing.lg, textAlign: 'center', maxWidth: 300 },
-  duelRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.lg },
-  duelCard: {
-    width: 110, alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.lg,
-    paddingVertical: spacing.md, borderWidth: 1, borderColor: colors.border,
-  },
-  duelName: { fontSize: 12, color: colors.textSecondary, marginBottom: spacing.xs, textAlign: 'center' },
-  duelValue: { fontSize: 32, fontWeight: '900', color: colors.text },
-  duelVs: { fontSize: 14, fontWeight: '800', color: colors.textMuted },
-
-  revealScroll: { width: '100%', maxWidth: 360, maxHeight: 220, marginBottom: spacing.lg },
-  revealGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center' },
-  revealCard: {
-    width: 84, alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.md,
-    paddingVertical: spacing.sm, borderWidth: 1, borderColor: colors.border,
-  },
-  revealCardLowest: { borderColor: '#EF4444', backgroundColor: '#EF444415' },
-  revealName: { fontSize: 11, color: colors.textSecondary, marginBottom: 2, textAlign: 'center' },
-  revealValue: { fontSize: 22, fontWeight: '900', color: colors.text },
-
-  consequenceCard: {
-    width: '100%', maxWidth: 340, backgroundColor: '#EF444415',
-    borderRadius: radius.xl, borderWidth: 1, padding: spacing.xl,
-    marginBottom: spacing.lg, alignItems: 'center',
-  },
-  consequenceLabel: { fontSize: 13, color: colors.textMuted, marginBottom: spacing.sm },
-  consequenceText:  { fontSize: 20, fontWeight: '800', color: '#FCA5A5', textAlign: 'center' },
-  consequenceSub:   { fontSize: 11, color: colors.textMuted, marginTop: spacing.sm, fontStyle: 'italic' },
-
-  continueRow: { width: '100%', maxWidth: 340, gap: spacing.sm, alignItems: 'center' },
-  nextBtn:    { width: '100%', borderRadius: radius.full, overflow: 'hidden' },
-  nextInner:  { paddingVertical: spacing.md + 4, alignItems: 'center' },
-  nextBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
-
-  // FINAL
-  finalScroll: {
-    paddingTop: Platform.OS === 'ios' ? 70 : 50,
-    paddingHorizontal: spacing.xl,
-    paddingBottom: 60, alignItems: 'center',
-  },
-  finalTitle: { fontSize: 30, fontWeight: '900', color: colors.text, marginBottom: spacing.xs },
-  finalWinner: { fontSize: 18, fontWeight: '800', color: GOLD, marginBottom: spacing.xs, textAlign: 'center' },
-  finalSub:   { fontSize: 13, color: colors.textMuted, marginBottom: spacing.xl, fontStyle: 'italic', textAlign: 'center' },
-
-  finalRow: {
-    flexDirection: 'row', alignItems: 'center', width: '100%', maxWidth: 360,
-    backgroundColor: colors.card, borderRadius: radius.lg,
-    padding: spacing.md, marginBottom: spacing.sm,
-    borderWidth: 1, borderColor: colors.border,
-  },
-  finalRowFirst: { borderColor: ACCENT + '60', backgroundColor: ACCENT + '12' },
-  finalMedal: { fontSize: 22, width: 36 },
-  finalName:  { flex: 1, fontSize: 16, fontWeight: '700', color: colors.text },
-  finalSips:  { fontSize: 15, fontWeight: '800', color: GOLD },
-
-  finalBtns: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xl, width: '100%', maxWidth: 360 },
-  replayBtn: {
-    flex: 1, paddingVertical: spacing.md, borderRadius: radius.lg,
-    backgroundColor: colors.surface, alignItems: 'center',
-    borderWidth: 1, borderColor: colors.border,
-  },
-  replayBtnText: { color: colors.text, fontSize: 14, fontWeight: '700' },
-  menuBtn:    { flex: 2, borderRadius: radius.full, overflow: 'hidden' },
-  menuInner:  { paddingVertical: spacing.md + 2, alignItems: 'center' },
-  menuBtnText: { color: '#fff', fontSize: 14, fontWeight: '800' },
+const s = StyleSheet.create({
+  counter: { color: T.orTexte, fontFamily: F.chiffre, fontSize: 12, letterSpacing: 2 },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18 },
+  kicker: { color: T.orTexte, fontFamily: F.chiffre, fontSize: 11, letterSpacing: 2.4 },
+  kickerMuted: { color: T.encreDouce, fontFamily: F.chiffre, fontSize: 10, letterSpacing: 2 },
+  sub: { color: T.encreDouce, fontSize: 15 },
+  secret: { width: 240, borderRadius: 18, backgroundColor: T.carte, padding: 8 },
+  secretInner: { borderRadius: 12, borderWidth: 1, borderColor: 'rgba(212,175,55,0.6)', paddingVertical: 30, alignItems: 'center', gap: 12 },
+  secretValue: { color: T.encre, fontFamily: F.affiche, fontSize: 96, lineHeight: 104 },
+  rule: { width: 56, height: 1, backgroundColor: 'rgba(212,175,55,0.5)' },
+  hint: { color: T.encreDouce, fontSize: 13, lineHeight: 19, textAlign: 'center' },
+  callRow: { flexDirection: 'row', gap: 8 },
+  call: { flex: 1, minHeight: 140, borderRadius: 14, borderWidth: 1, borderColor: T.traitFort, backgroundColor: T.carte, alignItems: 'center', justifyContent: 'center', gap: 6 },
+  callArrow: { color: T.orTexte, fontFamily: F.affiche, fontSize: 48, lineHeight: 52 },
+  callText: { color: T.encre, fontFamily: F.texteFort, fontSize: 16 },
+  duel: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  vs: { color: T.encreDouce, fontFamily: F.chiffre, fontSize: 12, letterSpacing: 2 },
+  duelCard: { flex: 1, borderRadius: 14, borderWidth: 1, borderColor: T.trait, backgroundColor: T.carte, padding: 14, alignItems: 'center', gap: 4 },
+  duelName: { color: T.encreDouce, fontSize: 14 },
+  duelValue: { color: T.encre, fontFamily: F.affiche, fontSize: 48, lineHeight: 54 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  revealCard: { flexBasis: '30%', flexGrow: 1, borderRadius: 12, borderWidth: 1, borderColor: T.trait, backgroundColor: T.carte, padding: 10, alignItems: 'center' },
+  revealValue: { color: T.encre, fontFamily: F.affiche, fontSize: 32, lineHeight: 38 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: T.trait, backgroundColor: T.carte },
+  rank: { width: 24, color: T.encreDouce, fontFamily: F.chiffre, fontSize: 13 },
+  rowName: { flex: 1, color: T.encre, fontFamily: F.texteFort, fontSize: 15 },
+  sips: { color: T.encreDouce, fontFamily: F.chiffre, fontSize: 13 },
 });

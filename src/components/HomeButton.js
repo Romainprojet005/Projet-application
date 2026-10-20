@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
+import { subscribeTopBar } from './game/Legende';
 
 // ── Bouton « Menu » permanent (web) ───────────────────────────────────
 // Toujours visible en haut au centre (les coins sont pris par « Quitter » et les compteurs),
@@ -30,13 +31,15 @@ const NO_BUTTON = /^(Menu|Welcome)$/;
 
 export default function HomeButton({ routeName, onHome }) {
   const [confirm, setConfirm] = useState(false);
+  const [hasTopBar, setHasTopBar] = useState(false);
+  useEffect(() => subscribeTopBar(setHasTopBar), []);
   const timer = useRef(null);
 
   // Changement d'écran : on replie la demande de confirmation
   useEffect(() => { setConfirm(false); clearTimeout(timer.current); }, [routeName]);
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  if (Platform.OS !== 'web' || !routeName || NO_BUTTON.test(routeName)) return null;
+  if (Platform.OS !== 'web' || !routeName || NO_BUTTON.test(routeName) || hasTopBar) return null;
 
   const inGame = !/Setup$/.test(routeName);
   const press = () => {
