@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import characterImages from '../../data/characterImages';
 import goBackOrMenu from '../../navigation/goBack';
+import { retour } from '../../utils/feedback';
 import {
   GameScreen, GameTopBar, ActionBar, PrimaryButton, SecondaryButton, TextLink, Heading, Overlay,
   PlayerToken, PlayerChoice, PlayerGrid, tokenColor, Icon, SoireeActions, T, F,
@@ -78,6 +79,7 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
   const [peekRevealed, setPeekRevealed] = useState(false);
 
   const handleEliminate = () => {
+    retour('drame');
     const next = new Set(eliminated);
     next.add(modalIdx);
     setEliminated(next);
@@ -90,6 +92,7 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
   };
 
   const closePeek = () => { setPeekPlayer(null); setPeekRevealed(false); };
+  useEffect(() => { if (winner) retour(winner === 'ended' ? 'revele' : 'victoire'); }, [winner]);
   const alive = roles.length - eliminated.size;
   const modalRole = modalIdx !== null ? roles[modalIdx] : null;
   const peekRole  = peekPlayer !== null && peekPlayer >= 0 ? roles[peekPlayer] : null;
@@ -250,7 +253,7 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
       footer={(
         <ActionBar note={phase === 'waiting' ? 'Prenez le téléphone seul.' : 'Mémorisez-le, puis passez le téléphone.'}>
           {phase === 'waiting'
-            ? <PrimaryButton label="Révéler mon mot" onPress={() => setPhase('revealed')} />
+            ? <PrimaryButton label="Révéler mon mot" onPress={() => { retour('carte'); setPhase('revealed'); }} />
             : <PrimaryButton label={isLast ? 'Tout le monde a vu' : (names ? `À ${P(currentPlayer + 1)}` : `Au joueur ${currentPlayer + 2}`)} onPress={handleNext} />}
         </ActionBar>
       )}

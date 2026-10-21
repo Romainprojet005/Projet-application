@@ -455,7 +455,9 @@ export function Heading({ kicker, title, sub, align = 'center' }) {
 }
 
 // Encadré d'information (or = révélation, alerte = attention, famille = neutre coloré)
-export function Notice({ tone = 'or', title, children, style }) {
+export function Notice({ tone = 'or', title, children, style, son }) {
+  // son : nom d'un son de utils/feedback joué à l'apparition (ex. 'bon', 'faux', 'drame')
+  useEffect(() => { if (son) retour(son); }, [son, title]);
   const c = tone === 'alerte' ? { b: T.alerte, bg: T.alerteVoile, t: T.alerte } : tone === 'neutre' ? { b: T.trait, bg: T.carte, t: T.encre } : { b: T.or, bg: T.orVoile, t: T.orTexte };
   return (
     <View style={[st.notice, { borderColor: c.b, backgroundColor: c.bg }, style]}>

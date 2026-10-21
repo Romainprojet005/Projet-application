@@ -149,7 +149,7 @@ export default function VoteGameScreen({ route, navigation }) {
           {col('a', countA, votersA)}
           {col('b', countB, votersB)}
         </View>
-        <Notice tone={isTie ? 'neutre' : 'or'}
+        <Notice son="revele" tone={isTie ? 'neutre' : 'or'}
           title={isUnanimous ? 'Vote unanime' : isTie ? 'Égalité parfaite' : 'La majorité l’emporte'}>
           {isUnanimous ? 'Tout le monde marque 2 points.' : isTie ? 'Personne ne marque.' : `${(majority === 'a' ? votersA : votersB).join(', ')} : +1 point.`}
         </Notice>

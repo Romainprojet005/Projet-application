@@ -217,7 +217,7 @@ export default function PersonalityGameScreen({ navigation, route }) {
 
       {phase === 'feedback' && (
         <Animated.View style={{ transform: [{ scale: feedbackScale }] }}>
-          <Notice tone={wasCorrect ? 'or' : 'neutre'} title={wasCorrect ? `Bonne réponse · +${5 - step} pts` : step < 4 ? 'Indice suivant…' : 'Raté'} />
+          <Notice son={wasCorrect ? 'bon' : 'faux'} tone={wasCorrect ? 'or' : 'neutre'} title={wasCorrect ? `Bonne réponse · +${5 - step} pts` : step < 4 ? 'Indice suivant…' : 'Raté'} />
         </Animated.View>
       )}
 

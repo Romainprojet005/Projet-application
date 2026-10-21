@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { selectPrompts } from '../../data/quiEstLePlusPrompts';
 import goBackOrMenu from '../../navigation/goBack';
+import { retour } from '../../utils/feedback';
 import {
   EndActions, GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, QuestionCard, PlayerToken, AdultTag, T, F, gameInfo,
 } from '../../components/game/Legende';
@@ -29,6 +30,7 @@ export default function QuiEstLePlusGameScreen({ route, navigation }) {
   const top = <GameTopBar game={GAME} onBack={quit} current={Math.min(roundIdx + 1, prompts.length)} total={prompts.length} />;
 
   const handleVote = (votedFor) => {
+    retour(isLastVoter ? 'drame' : 'vote');
     const newVotes = [...votes, { voter: currentVoter, votedFor }];
     if (isLastVoter) {
       const tally = {};

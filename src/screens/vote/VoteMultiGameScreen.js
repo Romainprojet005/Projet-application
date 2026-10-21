@@ -252,7 +252,7 @@ export default function VoteMultiGameScreen({ navigation, route }) {
         </>
       )}
 
-      {isReveal && resultLabel ? <Notice title={resultLabel}>Prochaine question dans quelques secondes…</Notice> : null}
+      {isReveal && resultLabel ? <Notice son="revele" title={resultLabel}>Prochaine question dans quelques secondes…</Notice> : null}
       {isReveal && players.length > 0 ? <Ranking players={names} scores={scoreMap} order={names} suffix=" pts" /> : null}
     </GameScreen>
   );

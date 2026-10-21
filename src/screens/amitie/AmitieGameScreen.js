@@ -121,7 +121,7 @@ export default function AmitieGameScreen({ navigation, route }) {
 
       {lastResult && (
         <Animated.View style={{ transform: [{ scale: feedbackScale }] }}>
-          <Notice tone={lastResult === 'correct' ? 'or' : 'neutre'} title={lastResult === 'correct' ? 'Bien joué, +1 point' : 'Raté'} />
+          <Notice son={lastResult === 'correct' ? 'bon' : 'faux'} tone={lastResult === 'correct' ? 'or' : 'neutre'} title={lastResult === 'correct' ? 'Bien joué, +1 point' : 'Raté'} />
         </Animated.View>
       )}
     </GameScreen>

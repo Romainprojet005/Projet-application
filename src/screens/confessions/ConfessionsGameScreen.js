@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import goBackOrMenu from '../../navigation/goBack';
+import { retour } from '../../utils/feedback';
 import {
   GameScreen, GameTopBar, ActionBar, PrimaryButton, Heading, QuestionCard, PassPhone, Field,
   PlayerChoice, PlayerGrid, PlayerToken, Ranking, EndActions, T, F,
@@ -61,6 +62,7 @@ export default function ConfessionsGameScreen({ route, navigation }) {
 
   // ── VOTE ──────────────────────────────────────────────────────────────
   const handleVote = (guessIdx) => {
+    retour(voterIdx + 1 >= N ? 'drame' : 'vote');
     const newVotes = [...currentVotes, guessIdx];
     setCurrentVotes(newVotes);
 

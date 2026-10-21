@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { pickPromptAndDecoys } from '../../data/quiEstLePlusPrompts';
 import goBackOrMenu from '../../navigation/goBack';
+import { retour } from '../../utils/feedback';
 import {
   GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, Notice, QuestionCard, PassPhone,
   AnswerChoice, PlayerChoice, PlayerToken, Ranking, EndActions, T, F,
@@ -58,6 +59,7 @@ export default function TriPotesGameScreen({ navigation, route }) {
 
   const toggleRank = (name) => {
     if (ranking.includes(name)) return;
+    retour('vote');
     setRanking(prev => [...prev, name]);
   };
 
@@ -190,7 +192,7 @@ export default function TriPotesGameScreen({ navigation, route }) {
   if (phase === 'result' && lastResult) {
     return (
       <GameScreen top={top} footer={one(round + 1 >= roundCount ? 'Voir les scores' : 'Manche suivante', handleNextRound)}>
-        <Notice tone={lastResult.correct ? 'or' : 'neutre'}
+        <Notice son={lastResult.correct ? 'bon' : 'faux'} tone={lastResult.correct ? 'or' : 'neutre'}
           title={lastResult.correct ? 'Le groupe a trouvé' : `${judge} a bluffé`}>
           {lastResult.correct ? '+1 point pour chaque joueur du groupe.' : `+2 points pour ${judge}.`}
         </Notice>

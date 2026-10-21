@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
 import { randomTours, dealCards, START_GLASS, FILL_STEP } from '../../data/verreData';
 import goBackOrMenu from '../../navigation/goBack';
+import { retour } from '../../utils/feedback';
 import VerreTable from './VerreTable';
 import {
   GameScreen, GameTopBar, ActionBar, PrimaryButton, TextLink, Heading, Notice, PassPhone,
@@ -48,6 +49,7 @@ export default function VerreGameScreen({ route, navigation }) {
 
   // ── Distribution des cartes ─────────────────────────────────────────
   const handlePeekReveal = () => {
+    retour('carte');
     revealAnim.setValue(0);
     Animated.timing(revealAnim, { toValue: 1, duration: 320, useNativeDriver: true }).start();
     setPeekRevealed(true);
@@ -75,6 +77,7 @@ export default function VerreGameScreen({ route, navigation }) {
 
   // Chaque joueur qui passe remplit le verre d'une gorgée
   const handlePass = () => {
+    retour('remplir');
     const nextPasses  = passesThisLap + 1;
     const nextTurnPos = (turnPos + 1) % turnOrder.length;
     const newGlass    = glass + FILL_STEP;
@@ -106,6 +109,7 @@ export default function VerreGameScreen({ route, navigation }) {
   };
 
   const openChallenge = () => {
+    retour('ouvrir');
     setChallengeTarget(null);
     setPhase('challengeTarget');
   };
@@ -289,7 +293,7 @@ export default function VerreGameScreen({ route, navigation }) {
             </React.Fragment>
           ))}
         </View>
-        <Notice tone="alerte" title={`${playerNames[r.drinkerIdx]} boit ${r.amount} gorgées`}>
+        <Notice son="boire" tone="alerte" title={`${playerNames[r.drinkerIdx]} boit ${r.amount} gorgées`}>
           {isElim
             ? (last ? `${playerNames[r.drinkerIdx]} est éliminé. Il ne reste plus qu’un joueur…` : `${playerNames[r.drinkerIdx]} est éliminé. ${r.remaining} joueurs en lice : chacun garde sa carte, la manche continue.`)
             : 'La manche se termine : nouvelles cartes.'}
@@ -304,7 +308,7 @@ export default function VerreGameScreen({ route, navigation }) {
     return (
       <GameScreen top={top} footer={nextOrEnd('Manche suivante', advanceManche)}>
         <Heading kicker="Verre bu" title={playerNames[r.drinkerIdx]} />
-        <Notice title={`Boit ${r.amount} gorgée${r.amount > 1 ? 's' : ''}`}>La manche se termine : nouvelles cartes.</Notice>
+        <Notice son="boire" title={`Boit ${r.amount} gorgée${r.amount > 1 ? 's' : ''}`}>La manche se termine : nouvelles cartes.</Notice>
       </GameScreen>
     );
   }
@@ -323,7 +327,7 @@ export default function VerreGameScreen({ route, navigation }) {
             </View>
           ))}
         </View>
-        <Notice tone="alerte" title={`${playerNames[r.drinkerIdx]} boit ${r.amount} gorgées`}>Carte la plus basse.</Notice>
+        <Notice son="drame" tone="alerte" title={`${playerNames[r.drinkerIdx]} boit ${r.amount} gorgées`}>Carte la plus basse.</Notice>
       </GameScreen>
     );
   }

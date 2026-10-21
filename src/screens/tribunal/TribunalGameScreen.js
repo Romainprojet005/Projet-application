@@ -314,7 +314,7 @@ export default function TribunalGameScreen({ navigation, route }) {
     return (
       <GameScreen top={trialTop} footer={one(room.current_accused_idx + 1 >= players.length ? 'Résultats finaux' : 'Accusé suivant', handleContinue)}>
         <Text style={s.phase}>VERDICT</Text>
-        <Notice tone={isTie || accusedWins ? 'or' : 'alerte'}
+        <Notice son="drame" tone={isTie || accusedWins ? 'or' : 'alerte'}
           title={isTie ? 'Égalité parfaite' : accusedWins ? `${currentAccused?.name} est acquitté` : `${currentAccused?.name} est coupable`}>
           {isTie ? 'Le jury est divisé.' : accusedWins ? 'Majorité « c’est faux » : pas de malus.' : `+1 point de malus pour ${currentAccused?.name}.`}
         </Notice>

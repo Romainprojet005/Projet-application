@@ -12,6 +12,15 @@ import { characters } from '../data/characters';
 import AdBanner, { AD_ENABLED } from '../components/AdBanner';
 import { BoosterFront, BoosterBack, FamilyEmblem, FAMILIES, familyOf, PhoneIcon, LockIcon } from '../components/BoosterCard';
 import { OffresModal, IdeeModal, CodeModal, ReglagesModal } from '../components/WebModals';
+import { retour } from '../utils/feedback';
+
+// Carrousel : un petit « cran » sonore et une micro-vibration à chaque carte qui passe devant
+let carteDevant = null;
+function crantCarrousel(rot) {
+  const i = getFrontIdx(rot);
+  if (carteDevant !== null && i !== carteDevant) retour('defile');
+  carteDevant = i;
+}
 import { useInstall } from '../utils/appMode';
 import { statutAcces, gratuitsDuJour, PHONE_LABELS, enConstruction } from '../services/acces';
 import { FULL_HEIGHT } from '../utils/fullHeight';
@@ -937,6 +946,7 @@ export default function MenuScreen({ navigation }) {
 
   // ── Mise à jour du carousel ───────────────────────────────────────
   const updateCarousel = useCallback((rot) => {
+    crantCarrousel(rot);
     if (Platform.OS === 'web') {
       characters.forEach((_, i) => {
         const el = cardSlotRefs.current[i];
@@ -1040,7 +1050,7 @@ export default function MenuScreen({ navigation }) {
       const idx   = Number(slot.getAttribute('data-idx'));
       if (idx === front) {
         const c = characters[front];
-        if (c) setFlipped(f => ({ [c.id]: !f[c.id] }));
+        if (c) { retour('carte'); setFlipped(f => ({ [c.id]: !f[c.id] })); }
       } else {
         goToRef.current?.(idx);
       }
@@ -1105,7 +1115,7 @@ export default function MenuScreen({ navigation }) {
       if (e.key === ' ') {
         e.preventDefault();
         const frontChar = characters[getFrontIdx(rotRef.current)];
-        if (frontChar) setFlipped(f => ({ [frontChar.id]: !f[frontChar.id] }));
+        if (frontChar) { retour('carte'); setFlipped(f => ({ [frontChar.id]: !f[frontChar.id] })); }
       }
       if (e.key === 'Enter') {
         const frontChar = characters[getFrontIdx(rotRef.current)];
@@ -1198,7 +1208,7 @@ export default function MenuScreen({ navigation }) {
       if (Platform.OS === 'web') setModal({ type: 'offres', game: character });
       return;
     }
-    if (routes[character.game]) navigation.navigate(routes[character.game]);
+    if (routes[character.game]) { retour('jouer'); navigation.navigate(routes[character.game]); }
   };
   const handleSelectGameRef = useRef(null);
   handleSelectGameRef.current = handleSelectGame;
@@ -1240,7 +1250,7 @@ export default function MenuScreen({ navigation }) {
             <div className="sdl-top">
               <div className="sdl-brand">
                 {/* Le logo sert aussi d'accès discret à la saisie du code (ex-couronne ♛) */}
-                <button className="sdl-logo-img" aria-label="Code d'accès" onClick={() => setModal({ type: 'code' })}>
+                <button className="sdl-logo-img" aria-label="Code d'accès" onClick={() => retour('ouvrir') || setModal({ type: 'code' })}>
                   <img src="/icon-192.png" alt="" width="34" height="34" />
                 </button>
                 <div className="sdl-logo" aria-label="La Soirée des Légendes">
@@ -1252,15 +1262,15 @@ export default function MenuScreen({ navigation }) {
                 <span className="sdl-top-count">
                   {characters.filter(c => c.available && !enConstruction(c)).length} jeux · 2 à 12 joueurs
                 </span>
-                <button className="sdl-top-btn" onClick={() => setModal({ type: 'idee' })}><span className="sdl-lg">Proposer un jeu</span><span className="sdl-sm">Idée</span></button>
+                <button className="sdl-top-btn" onClick={() => retour('ouvrir') || setModal({ type: 'idee' })}><span className="sdl-lg">Proposer un jeu</span><span className="sdl-sm">Idée</span></button>
                 {install.show && (
                   <button className="sdl-top-btn sdl-install" aria-label="Installer l'appli" onClick={install.install}>
                     <span className="sdl-lg">Installer</span>
                     <svg className="sdl-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>
                   </button>
                 )}
-                <button className="sdl-top-btn sdl-desk" aria-label="Réglages" onClick={() => setModal({ type: 'reglages' })}><GearIcon /></button>
-                <button className="sdl-top-btn gold" onClick={() => setModal({ type: 'offres', game: null })}>Offres</button>
+                <button className="sdl-top-btn sdl-desk" aria-label="Réglages" onClick={() => retour('ouvrir') || setModal({ type: 'reglages' })}><GearIcon /></button>
+                <button className="sdl-top-btn gold" onClick={() => retour('ouvrir') || setModal({ type: 'offres', game: null })}>Offres</button>
               </div>
             </div>
             <div className="sdl-hero">
@@ -1451,7 +1461,7 @@ export default function MenuScreen({ navigation }) {
 
       {Platform.OS === 'web' && IS_MOBILE_WEB && (
         <button
-          onClick={() => setModal({ type: 'reglages' })}
+          onClick={() => retour('ouvrir') || setModal({ type: 'reglages' })}
           className="sdl-eco-btn sdl-eco-top"
           aria-label="Réglages"
           title="Réglages : sons, vibrations, écran"

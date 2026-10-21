@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { VERITES_PROMPTS, VERITES_HOT_PROMPTS, VERITES_TRES_HOT_PROMPTS, VERITES_HOT_JOKER } from '../../data/veritesVoleesData';
 import goBackOrMenu from '../../navigation/goBack';
+import { retour } from '../../utils/feedback';
 import { tirer } from '../../utils/dejaVu';
 import {
   GameScreen, GameTopBar, ActionBar, PrimaryButton, QuestionCard, PassPhone, Heading, Notice,
@@ -81,6 +82,7 @@ export default function VeritesGameScreen({ route, navigation }) {
   };
 
   const toggleSuspect = (idx) => {
+    retour('vote');
     if (selection.includes(idx)) setSelection(selection.filter(s => s !== idx));
     else if (selection.length < 2) setSelection([...selection, idx]);
   };
@@ -102,6 +104,7 @@ export default function VeritesGameScreen({ route, navigation }) {
         });
       });
       setRoundPoints(pts);
+      retour('drame');
       setScores(s => Object.fromEntries(playerNames.map(n => [n, (s[n] || 0) + pts[n]])));
       setPhase('reveal');
     });
@@ -157,7 +160,7 @@ export default function VeritesGameScreen({ route, navigation }) {
       return (
         <GameScreen top={top} footer={one('Lire à voix haute', () => setAloud(true))}>
           {isLiar ? (
-            <Notice tone="alerte" title="Ce n’est pas votre vérité">
+            <Notice son="drame" tone="alerte" title="Ce n’est pas votre vérité">
               Le jeu vous l’a échangée. Assumez-la comme si c’était la vôtre et bluffez pour ne pas être démasqué.
             </Notice>
           ) : (

@@ -4,6 +4,7 @@ import { selectSongs } from '../../data/blindTestSongs';
 import { isCorrectTitle } from '../../utils/reponseBlindTest';
 import useKeepTyping from '../../utils/useKeepTyping';
 import goBackOrMenu from '../../navigation/goBack';
+import { retour } from '../../utils/feedback';
 import {
   GameScreen, GameTopBar, ActionBar, PrimaryButton, SecondaryButton, TextLink, Heading, Notice, Field,
   PlayerChoice, PlayerGrid, Ranking, EndActions, Icon, T, F,
@@ -220,6 +221,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
       }
     } else {
       // Feedback visible pour mauvaise réponse
+      retour('faux');
       setWrongFlash(true);
       setTimeout(() => setWrongFlash(false), 600);
     }
@@ -346,7 +348,7 @@ export default function BlindTestGameScreen({ navigation, route }) {
         </ActionBar>
       )}>
         <Animated.View style={{ transform: [{ scale: feedbackScale }] }}>
-          <Notice title={`Bonne réponse · +${foundPts} point${foundPts > 1 ? 's' : ''}`}>{song.title}</Notice>
+          <Notice son="bon" title={`Bonne réponse · +${foundPts} point${foundPts > 1 ? 's' : ''}`}>{song.title}</Notice>
         </Animated.View>
         <Heading title="Qui a trouvé ?" />
         <PlayerGrid>

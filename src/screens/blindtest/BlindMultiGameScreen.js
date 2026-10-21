@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Platform, ActivityIndicator, Pressable } from 'react-native';
 import { supabase, channelName } from '../../services/supabase';
+import { retour } from '../../utils/feedback';
 import { isCorrectTitle } from '../../utils/reponseBlindTest';
 import { selectSongs } from '../../data/blindTestSongs';
 import useKeepTyping from '../../utils/useKeepTyping';
@@ -238,6 +239,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
 
     if (!isCorrectTitle(inputText, song.title)) {
       setInputText('');
+      retour('faux');
       setWrongFlash(true);
       setTimeout(() => setWrongFlash(false), 600);
       return;
@@ -365,8 +367,8 @@ export default function BlindMultiGameScreen({ navigation, route }) {
             {tl && timer !== null ? <Text style={s.timerUnit}>SECONDES</Text> : null}
           </View>
           {tl && timer !== null ? <Text style={[s.kicker, { color: timerColor }]}>{currentPts} POINT{currentPts > 1 ? 'S' : ''} EN JEU</Text> : null}
-          {roundResult === 'won' && <Notice title="Trouvé">En attente des autres…</Notice>}
-          {roundResult === 'lost' && <Notice tone="neutre" title="Quelqu’un a été plus rapide" />}
+          {roundResult === 'won' && <Notice son="bon" title="Trouvé">En attente des autres…</Notice>}
+          {roundResult === 'lost' && <Notice son="faux" tone="neutre" title="Quelqu’un a été plus rapide" />}
           {roundResult === 'passed' && <Notice tone="neutre" title="Vous avez passé">En attente des autres…</Notice>}
           {song && (
             <TextLink label="Relancer l’extrait" color={T.encreDouce} onPress={() => {

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Animated } from 'react-native';
 import { DEFI_CATEGORIES, pickDefi, pickConsequence } from '../../data/defisData';
 import sansEmoji from '../../utils/sansEmoji';
 import goBackOrMenu from '../../navigation/goBack';
+import { retour } from '../../utils/feedback';
 import {
   GameScreen, GameTopBar, ActionBar, PrimaryButton, SecondaryButton, Heading, Notice, QuestionCard,
   PlayerToken, Ranking, EndActions, AdultTag, T, F,
@@ -45,6 +46,7 @@ export default function DefisGameScreen({ route, navigation }) {
     const tick = (delay) => {
       if (!mountedRef.current) return;
       setDisplayedName(playerNames[Math.floor(Math.random() * playerNames.length)]);
+      retour('roue');
       ticks++;
       if (ticks < maxTicks) {
         spinTimeout.current = setTimeout(() => tick(Math.min(delay * 1.18, 380)), delay);
@@ -57,6 +59,7 @@ export default function DefisGameScreen({ route, navigation }) {
         spinTimeout.current = setTimeout(() => {
           if (!mountedRef.current) return;
           setPhase('challenge');
+          retour('tire');
           Animated.spring(cardAnim, { toValue: 1, tension: 45, friction: 9, useNativeDriver: true }).start();
         }, 450);
       }
@@ -66,6 +69,7 @@ export default function DefisGameScreen({ route, navigation }) {
   };
 
   const handleComplete = () => {
+    retour('bon');
     const name = playerNames[selectedPlayerIdx];
     setPlayerStats(prev => ({ ...prev, [name]: { ...prev[name], completed: prev[name].completed + 1 } }));
     advanceRound();
@@ -149,7 +153,7 @@ export default function DefisGameScreen({ route, navigation }) {
     return (
       <GameScreen top={top} footer={<ActionBar><PrimaryButton label={round + 1 >= roundCount ? 'Voir les résultats' : 'Défi suivant'} onPress={advanceRound} /></ActionBar>}>
         <Heading kicker="Défi refusé" title={playerNames[selIdx]} />
-        <Notice tone="alerte" title="Conséquence">{currentConsequence}</Notice>
+        <Notice son="faux" tone="alerte" title="Conséquence">{currentConsequence}</Notice>
       </GameScreen>
     );
   }

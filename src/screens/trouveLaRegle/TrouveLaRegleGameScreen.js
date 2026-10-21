@@ -170,7 +170,7 @@ export default function TrouveLaRegleGameScreen({ navigation, route }) {
   if (phase === 'result' && lastResult) {
     return (
       <GameScreen top={top} footer={one(round + 1 >= roundCount ? 'Voir les scores' : 'Manche suivante', handleNextRound)}>
-        <Notice tone={lastResult.correct ? 'or' : 'alerte'}
+        <Notice son={lastResult.correct ? 'bon' : 'faux'} tone={lastResult.correct ? 'or' : 'alerte'}
           title={lastResult.correct ? `Bonne réponse · +${lastResult.pts} pt${lastResult.pts > 1 ? 's' : ''}` : 'Raté'} />
         <QuestionCard kicker="La règle était">{currentRule?.text ?? '…'}</QuestionCard>
         <Ranking players={playerNames} scores={scores} suffix=" pts" />

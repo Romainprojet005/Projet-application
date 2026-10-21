@@ -188,7 +188,7 @@ export default function EmojiQuizGameScreen({ navigation, route }) {
 
       {wasCorrect !== null && !isReveal && (
         <Animated.View style={{ transform: [{ scale: feedbackScale }] }}>
-          <Notice tone={wasCorrect ? 'or' : 'neutre'}
+          <Notice son={wasCorrect ? 'bon' : 'faux'} tone={wasCorrect ? 'or' : 'neutre'}
             title={wasCorrect ? `Bonne réponse · +${isMcq ? 1 : 5 - step} pts` : isMcq ? 'Raté' : step < 3 ? 'Indice suivant…' : 'Place aux propositions…'} />
         </Animated.View>
       )}

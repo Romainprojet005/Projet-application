@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import goBackOrMenu from '../../navigation/goBack';
+import { retour } from '../../utils/feedback';
 import {
   EndActions, GameScreen, GameTopBar, ActionBar, PrimaryButton, SecondaryButton, TextLink, Heading, QuestionCard, PassPhone,
   PlayerToken, Ranking, T, F,
@@ -80,7 +81,9 @@ export default function MotDePasseGameScreen({ navigation, route }) {
 
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
+        if (prev <= 6 && prev > 1) retour('tic');
         if (prev <= 1) {
+          retour('fin');
           clearInterval(timerRef.current);
           timerRef.current = null;
           doEndTurnRef.current();
@@ -100,6 +103,7 @@ export default function MotDePasseGameScreen({ navigation, route }) {
   };
 
   const handleCorrect = () => {
+    retour('bon');
     turnCorrectRef.current += 1;
     cardIdxRef.current += 1;
     if (cardIdxRef.current >= cards.length) {
@@ -110,6 +114,7 @@ export default function MotDePasseGameScreen({ navigation, route }) {
   };
 
   const handleSkip = () => {
+    retour('passe');
     turnSkippedRef.current += 1;
     cardIdxRef.current += 1;
     if (cardIdxRef.current >= cards.length) {

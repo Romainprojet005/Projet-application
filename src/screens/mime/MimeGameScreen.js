@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
 import { supabase, channelName } from '../../services/supabase';
+import { retour } from '../../utils/feedback';
 import { pickWord } from '../../data/mimeWords';
 import {
   GameScreen, GameTopBar, ActionBar, TextLink, Heading, Notice, Field, QuestionCard, Section, AdultTag, Icon, T, F,
@@ -127,7 +128,8 @@ export default function MimeGameScreen({ navigation, route }) {
     const deadline = new Date(r.round_started_at).getTime() + ROUND_DURATION * 1000;
     const tick = () => {
       const left = Math.max(0, (deadline - Date.now()) / 1000);
-      setTimeLeft(Math.ceil(left));
+      const sec = Math.ceil(left);
+      setTimeLeft((prev) => { if (sec !== prev && sec > 0 && sec <= 5) retour('tic'); return sec; });
       if (left <= 0 && !transitioningRef.current) {
         clearInterval(timerRef.current);
         handleTimeout(r);
@@ -305,7 +307,7 @@ export default function MimeGameScreen({ navigation, route }) {
             const p = players.find(pp => pp.id === id);
             return p ? <Text key={id} style={s.found}>{p.name} a trouvé</Text> : null;
           })}
-          {myFound ? <Notice title="Bravo, vous avez trouvé">En attente des autres joueurs…</Notice> : null}
+          {myFound ? <Notice son="bon" title="Bravo, vous avez trouvé">En attente des autres joueurs…</Notice> : null}
         </>
       )}
     </GameScreen>

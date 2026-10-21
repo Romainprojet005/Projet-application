@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { selectQuestions } from '../../data/oracleQuestions';
 import goBackOrMenu from '../../navigation/goBack';
+import { retour } from '../../utils/feedback';
 import {
   GameScreen, GameTopBar, ActionBar, PrimaryButton, Heading, Notice, QuestionCard, PassPhone, Field,
   PlayerToken, Ranking, EndActions, T, F,
@@ -86,6 +87,7 @@ export default function OracleGameScreen({ route, navigation }) {
   };
 
   const handleVote = (letter) => {
+    retour('vote');
     const newVotes = [...votes, { voterIdx: currentIdx, letter }];
 
     if (currentIdx + 1 >= playerNames.length) {
@@ -161,7 +163,7 @@ export default function OracleGameScreen({ route, navigation }) {
     const winners = shuffled.filter(a => winningLetters.includes(a.letter));
     return (
       <GameScreen top={top} footer={one(roundIdx + 1 >= questions.length ? 'Voir le classement' : 'Question suivante', handleNextRound)}>
-        <Notice tone={winners.length ? 'or' : 'neutre'}
+        <Notice son="revele" tone={winners.length ? 'or' : 'neutre'}
           title={maxV === 0 ? 'Aucun vote, aucun point' : winners.length === 1
             ? `${playerNames[winners[0].playerIdx]} remporte le point`
             : `Égalité : ${winners.map(w => playerNames[w.playerIdx]).join(' et ')}`} />
