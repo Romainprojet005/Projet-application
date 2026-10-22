@@ -12,7 +12,7 @@ export const PHONE_LABELS = {
 };
 
 // Jour courant à l'heure de Paris, en nombre de jours depuis 1970.
-function parisDay(now = new Date()) {
+export function parisDay(now = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit',
   }).format(now); // AAAA-MM-JJ

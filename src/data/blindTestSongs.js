@@ -366,3 +366,6 @@ export function selectSongs(count, categoryId = 'france') {
 
 // Compat
 export const rockSongs = SONGS_BY_CATEGORY.rock;
+
+// Toutes les chansons (Défi du jour)
+export const TOUTES_LES_CHANSONS = ALL_SONGS;

@@ -140,6 +140,7 @@ const confidentialite = page('confidentialite', 'Politique de confidentialité',
     <li>vos accès aux jeux (jeux gratuits du jour, code d’accès) ;</li>
     <li>vos réglages (mode économie, sons, vibrations, écran sombre) ;</li>
     <li>les prénoms de vos derniers joueurs et les questions déjà vues, pour qu’elles reviennent moins souvent ;</li>
+    <li>vos résultats au défi du jour (score, série de jours, record) ;</li>
     <li>pendant la visite seulement : la soirée enchaînée en cours, et le fait que votre visite a déjà été comptée.</li>
     <li>une copie du site, pour qu’il reste utilisable si le réseau coupe.</li>
   </ul>

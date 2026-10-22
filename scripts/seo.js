@@ -164,7 +164,7 @@ fs.writeFileSync(path.join(dist, 'robots.txt'),
   `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`, 'utf8');
 
 const today = new Date().toISOString().slice(0, 10);
-const urls = [`${SITE_URL}/`, ...visibles.map((c) => `${SITE_URL}/${gamePath(c)}/`)];
+const urls = [`${SITE_URL}/`, `${SITE_URL}/defi`, ...visibles.map((c) => `${SITE_URL}/${gamePath(c)}/`)];
 fs.writeFileSync(path.join(dist, 'sitemap.xml'),
   '<?xml version="1.0" encoding="UTF-8"?>\n' +
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +

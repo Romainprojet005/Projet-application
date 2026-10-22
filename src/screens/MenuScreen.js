@@ -252,6 +252,9 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       .sdl-soiree-link { background: none; border: 0; padding: 6px 8px; cursor: pointer; color: #A9A3BF;
         font-family: 'Outfit', system-ui, sans-serif; font-size: 14px; }
       .sdl-soiree-link span { color: #E6C766; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+      .sdl-extra-links { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; column-gap: 4px; }
+      .sdl-extra-sep { color: #6B6590; }
+      .sdl-soiree-link em { font-style: normal; }
       .sdl-soiree-link:focus-visible { outline: 2px solid #F4DC8C; outline-offset: 2px; border-radius: 6px; }
       .sdl-top-btn:focus-visible { outline: 2px solid #F4DC8C; outline-offset: 2px; }
       .sdl-info-tag { display: inline-flex; align-items: center; gap: 4px; font-family: 'Outfit', system-ui, sans-serif;
@@ -1444,9 +1447,15 @@ export default function MenuScreen({ navigation }) {
                 : acces(c) === 'verrouille' ? <><LockIcon size="15px" />Débloquer</>
                 : '▶  Jouer'}
             </button>
-            <button className="sdl-soiree-link" onClick={() => navigation.navigate('Soiree')}>
-              Ou enchaînez plusieurs jeux : <span>Soirée enchaînée</span>
-            </button>
+            <div className="sdl-extra-links">
+              <button className="sdl-soiree-link" onClick={() => { retour('ouvrir'); navigation.navigate('Defi'); }}>
+                <em className="sdl-lg">Seul ? </em><span>Défi du jour</span>
+              </button>
+              <span className="sdl-extra-sep" aria-hidden="true">·</span>
+              <button className="sdl-soiree-link" onClick={() => { retour('ouvrir'); navigation.navigate('Soiree'); }}>
+                <em className="sdl-lg">Plusieurs jeux ? </em><span>Soirée enchaînée</span>
+              </button>
+            </div>
             <span className="sdl-meta-hint">
               {IS_MOBILE_WEB
                 ? 'glissez pour changer · touchez la carte pour la retourner'
