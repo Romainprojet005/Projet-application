@@ -355,6 +355,81 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-dots { padding: 4px 0 4px; gap: 6px; }
         .sdl-dot { height: 5px; }
       }
+      /* === Mode « Vitrine 3D » : l'illustration du jeu en grand, en médaille animée === */
+      .sdl-vue-btn { position: absolute; top: 10px; right: 14px; z-index: 600; display: inline-flex; align-items: center; gap: 6px;
+        min-height: 34px; padding: 5px 13px; border-radius: 999px; border: 1px solid #2E2A4A; background: rgba(14,12,26,.75);
+        font-family: 'Outfit', system-ui, sans-serif; font-weight: 500; font-size: 13px; color: #E6C766; cursor: pointer;
+        transition: border-color .2s, background .2s; }
+      .sdl-vue-btn:hover { border-color: #D4AF37; background: rgba(212,175,55,.1); }
+      .sdl-vue-btn:focus-visible { outline: 2px solid #F4DC8C; outline-offset: 2px; }
+      .sdl-stage.vitrine-on .sdl-slot { visibility: hidden; }
+      .sdl-vitrine { position: absolute; inset: 0; display: grid; place-items: center; perspective: 1000px; pointer-events: none; }
+      .sdl-vitrine > * { grid-area: 1 / 1; }
+      .vt-rays { width: calc(var(--v) * 1.9); aspect-ratio: 1; border-radius: 50%; opacity: .7;
+        background: repeating-conic-gradient(from 0deg, color-mix(in oklab, var(--accent) 24%, transparent) 0 6deg, transparent 6deg 18deg);
+        -webkit-mask-image: radial-gradient(circle, #000 18%, transparent 68%); mask-image: radial-gradient(circle, #000 18%, transparent 68%);
+        animation: vt-spin 40s linear infinite; }
+      .vt-halo { width: calc(var(--v) * 1.3); aspect-ratio: 1; border-radius: 50%; filter: blur(10px);
+        background: radial-gradient(circle, color-mix(in oklab, var(--accent) 45%, transparent), transparent 65%);
+        animation: vt-pulse 3.2s ease-in-out infinite; }
+      .vt-shadow { width: calc(var(--v) * .8); height: calc(var(--v) * .12); border-radius: 50%; transform: translateY(calc(var(--v) * .62));
+        background: radial-gradient(ellipse, rgba(0,0,0,.65), transparent 70%); animation: vt-shadow 7s ease-in-out infinite; }
+      .vt-tilt { position: relative; width: var(--v); height: var(--v); transform-style: preserve-3d;
+        transform: rotateX(var(--my, 0deg)) rotateY(var(--mx, 0deg)); transition: transform .5s ease-out; }
+      .vt-float { position: absolute; inset: 0; transform-style: preserve-3d; animation: vt-float 7s ease-in-out infinite; }
+      .vt-coin { position: absolute; inset: 0; transform-style: preserve-3d; animation: vt-in 1.1s cubic-bezier(.2,.8,.2,1) both; }
+      .vt-edge { position: absolute; inset: 0; border-radius: 50%; transform: translateZ(calc(var(--z) * -1.5px));
+        background: linear-gradient(135deg, #7A5A10, #D4AF37 40%, #F4DC8C 55%, #8B6914); }
+      .vt-face { position: absolute; inset: 0; box-sizing: border-box; border-radius: 50%; overflow: hidden; transform: translateZ(1px);
+        background: #0E0C1A; border: calc(var(--v) * .025) solid #D4AF37;
+        box-shadow: 0 0 0 calc(var(--v) * .02) rgba(212,175,55,.18), 0 0 60px color-mix(in oklab, var(--accent) 50%, transparent), inset 0 0 40px rgba(0,0,0,.6); }
+      .vt-face img { width: 100%; height: 100%; object-fit: cover; display: block; animation: vt-zoom 9s ease-in-out infinite alternate;
+        -webkit-user-drag: none; user-select: none; }
+      .vt-shine { position: absolute; inset: 0; mix-blend-mode: screen; background-size: 250% 100%;
+        background-image: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.3) 48%, transparent 60%);
+        animation: vt-shine 4.5s ease-in-out infinite; }
+      .vt-orbit { position: absolute; inset: calc(var(--v) * -.12); border-radius: 50%; border: 1px solid rgba(212,175,55,.45);
+        transform-style: preserve-3d; animation: vt-orb1 9s linear infinite; }
+      .vt-orbit.o2 { inset: calc(var(--v) * -.2); border-color: color-mix(in oklab, var(--accent) 55%, transparent); animation: vt-orb2 13s linear infinite; }
+      .vt-orbit i { position: absolute; top: -5px; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%;
+        background: #F4DC8C; box-shadow: 0 0 12px 3px #D4AF37; }
+      .vt-spark { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px; border-radius: 50%;
+        background: #F4DC8C; box-shadow: 0 0 8px 2px var(--accent); opacity: 0;
+        animation: vt-spark 5s linear infinite; animation-delay: calc(var(--i) * -.5s); }
+      .vt-lock { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) translateZ(30px); display: grid; place-items: center;
+        width: 56px; height: 56px; border-radius: 50%; background: #08070F; border: 1px solid #6B6590; color: #E6C766; }
+      @keyframes vt-spin  { to { transform: rotate(360deg); } }
+      @keyframes vt-pulse { 0%, 100% { transform: scale(.92); opacity: .75; } 50% { transform: scale(1.06); opacity: 1; } }
+      @keyframes vt-float {
+        0%, 100% { transform: translateY(0) rotateY(-18deg) rotateX(7deg); }
+        50%      { transform: translateY(-14px) rotateY(18deg) rotateX(-5deg); }
+      }
+      @keyframes vt-shadow { 0%, 100% { transform: translateY(calc(var(--v) * .62)) scale(1); opacity: 1; } 50% { transform: translateY(calc(var(--v) * .62)) scale(.85); opacity: .7; } }
+      @keyframes vt-in {
+        from { transform: translateZ(-320px) rotateY(-540deg) scale(.5); opacity: 0; }
+        40%  { opacity: 1; }
+        to   { transform: none; opacity: 1; }
+      }
+      @keyframes vt-zoom  { from { transform: scale(1.04); } to { transform: scale(1.16) translateY(-2%); } }
+      @keyframes vt-shine { 0% { background-position: 150% 0; } 60%, 100% { background-position: -50% 0; } }
+      @keyframes vt-orb1  { from { transform: rotateX(72deg) rotateZ(0); } to { transform: rotateX(72deg) rotateZ(360deg); } }
+      @keyframes vt-orb2  { from { transform: rotateY(70deg) rotateZ(0); } to { transform: rotateY(70deg) rotateZ(-360deg); } }
+      @keyframes vt-spark {
+        from { transform: rotateY(calc(var(--i) * 36deg)) translateZ(calc(var(--v) * .62)) translateY(calc(var(--v) * .35)); opacity: 0; }
+        20%  { opacity: 1; }
+        80%  { opacity: .8; }
+        to   { transform: rotateY(calc(var(--i) * 36deg + 360deg)) translateZ(calc(var(--v) * .62)) translateY(calc(var(--v) * -.45)); opacity: 0; }
+      }
+      body.sdl-eco .vt-rays, body.sdl-eco .vt-orbit, body.sdl-eco .vt-spark, body.sdl-eco .vt-face img, body.sdl-eco .vt-shine { animation: none; }
+      body.sdl-eco .vt-spark { display: none; }
+      @media (prefers-reduced-motion: reduce) {
+        .vt-rays, .vt-orbit, .vt-spark, .vt-float, .vt-face img, .vt-shine, .vt-halo, .vt-shadow { animation: none; }
+        .vt-spark { display: none; }
+      }
+      @media (max-width: 600px) {
+        .sdl-vue-btn { top: 6px; right: 10px; min-height: 30px; padding: 4px 11px; font-size: 12px; }
+      }
+
       .sdl-flip-card:not(.is-flipped) .sdl-back-face {
         opacity: 0; pointer-events: none; position: absolute; inset: 0;
       }
@@ -946,6 +1021,32 @@ export default function MenuScreen({ navigation }) {
     return next;
   }), []);
 
+  // Affichage du choix : cartes (carrousel) ou « Vitrine 3D » (l'illustration du jeu en grand)
+  const [vitrine, setVitrine] = useState(() => {
+    if (Platform.OS !== 'web') return false;
+    try { return localStorage.getItem('sdl-vue') === 'vitrine'; } catch { return false; }
+  });
+  const toggleVitrine = useCallback(() => {
+    retour('carte');
+    setFlipped({});
+    setVitrine(v => {
+      const next = !v;
+      try { localStorage.setItem('sdl-vue', next ? 'vitrine' : 'cartes'); } catch {}
+      return next;
+    });
+  }, []);
+  // PC : la médaille suit légèrement la souris
+  const vitrineRef = useRef(null);
+  const onVitrineMouse = useCallback((e) => {
+    const el = vitrineRef.current;
+    if (!el || IS_MOBILE_WEB || webDrag.current.active) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    el.style.setProperty('--mx', `${(x * 26).toFixed(1)}deg`);
+    el.style.setProperty('--my', `${(-y * 18).toFixed(1)}deg`);
+  }, []);
+
 
   // ── Mise à jour du carousel ───────────────────────────────────────
   const updateCarousel = useCallback((rot) => {
@@ -1313,7 +1414,7 @@ export default function MenuScreen({ navigation }) {
 
       {/* ══ CARROUSEL WEB ══ */}
       {Platform.OS === 'web' && (
-        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }} onMouseMove={vitrine ? onVitrineMouse : undefined}>
           <div
             className="sdl-aura"
             style={{ '--accent': familyOf(characters[activeIdx] ?? characters[0]).color, width: CARD_W * 2.6, height: CARD_W * 2.6, marginTop: -Math.round(CARD_H * REFLECT_SHIFT) }}
@@ -1321,9 +1422,35 @@ export default function MenuScreen({ navigation }) {
           <div className="sdl-floor" style={{ top: `calc(50% + ${Math.round(CARD_H * (0.5 - REFLECT_SHIFT))}px)` }} />
           <div
             ref={stageRef}
-            className="sdl-stage"
+            className={`sdl-stage${vitrine ? ' vitrine-on' : ''}`}
             onPointerDown={onPtrDown}
           >
+            {vitrine && (() => {
+              const c = characters[activeIdx] ?? characters[0];
+              const v = Math.round(Math.min(CARD_H * 0.86, SW * (IS_MOBILE_WEB ? 0.7 : 0.4)));
+              return (
+                <div className="sdl-vitrine" ref={vitrineRef} style={{ '--v': `${v}px`, '--accent': familyOf(c).color }} aria-hidden="true">
+                  <div className="vt-rays" />
+                  <div className="vt-halo" />
+                  <div className="vt-shadow" />
+                  <div className="vt-tilt">
+                    <div className="vt-float">
+                      <div className="vt-orbit"><i /></div>
+                      <div className="vt-orbit o2"><i /></div>
+                      <div className="vt-coin" key={c.id}>
+                        {Array.from({ length: 12 }, (_, z) => <div key={z} className="vt-edge" style={{ '--z': z + 1 }} />)}
+                        <div className="vt-face">
+                          <img src={`/legendes/${c.game}.webp`} alt="" decoding="async" draggable={false} />
+                          <div className="vt-shine" />
+                        </div>
+                        {acces(c) === 'verrouille' && <div className="vt-lock"><LockIcon size="24px" /></div>}
+                      </div>
+                      {Array.from({ length: 10 }, (_, i) => <span key={i} className="vt-spark" style={{ '--i': i }} />)}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
             {characters.map((char, i) => (
               <div
                 key={char.id}
@@ -1343,6 +1470,9 @@ export default function MenuScreen({ navigation }) {
               </div>
             ))}
           </div>
+          <button className="sdl-vue-btn" aria-pressed={vitrine} onClick={toggleVitrine}>
+            {vitrine ? '🃏 Cartes' : '✨ Vitrine 3D'}
+          </button>
           <button className="sdl-nav sdl-nav-prev" aria-label="Jeu précédent" onClick={() => navigateCard(+1)}>‹</button>
           <button className="sdl-nav sdl-nav-next" aria-label="Jeu suivant" onClick={() => navigateCard(-1)}>›</button>
         </div>
@@ -1457,9 +1587,11 @@ export default function MenuScreen({ navigation }) {
               </button>
             </div>
             <span className="sdl-meta-hint">
-              {IS_MOBILE_WEB
-                ? 'glissez pour changer · touchez la carte pour la retourner'
-                : 'cliquer la carte pour la retourner · ← → pour naviguer · entrée pour jouer'}
+              {vitrine
+                ? (IS_MOBILE_WEB ? 'glissez pour changer de jeu' : 'glisser ou ← → pour changer de jeu · entrée pour jouer')
+                : IS_MOBILE_WEB
+                  ? 'glissez pour changer · touchez la carte pour la retourner'
+                  : 'cliquer la carte pour la retourner · ← → pour naviguer · entrée pour jouer'}
             </span>
             <span className="sdl-legal">
               <a href="/mentions-legales/">Mentions légales</a> · <a href="/confidentialite/">Confidentialité</a>
