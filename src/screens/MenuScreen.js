@@ -355,7 +355,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         .sdl-dots { padding: 4px 0 4px; gap: 6px; }
         .sdl-dot { height: 5px; }
       }
-      /* === Mode « Vitrine 3D » : l'illustration du jeu en grand, en médaille animée === */
+      /* === Mode « Vitrine 3D » : l'illustration du jeu en plein écran, en profondeur === */
       .sdl-vue-btn { position: absolute; top: 10px; right: 14px; z-index: 600; display: inline-flex; align-items: center; gap: 6px;
         min-height: 34px; padding: 5px 13px; border-radius: 999px; border: 1px solid #2E2A4A; background: rgba(14,12,26,.75);
         font-family: 'Outfit', system-ui, sans-serif; font-weight: 500; font-size: 13px; color: #E6C766; cursor: pointer;
@@ -363,71 +363,68 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
       .sdl-vue-btn:hover { border-color: #D4AF37; background: rgba(212,175,55,.1); }
       .sdl-vue-btn:focus-visible { outline: 2px solid #F4DC8C; outline-offset: 2px; }
       .sdl-stage.vitrine-on .sdl-slot { visibility: hidden; }
-      .sdl-vitrine { position: absolute; inset: 0; display: grid; place-items: center; perspective: 1000px; pointer-events: none; }
-      .sdl-vitrine > * { grid-area: 1 / 1; }
-      .vt-rays { width: calc(var(--v) * 1.9); aspect-ratio: 1; border-radius: 50%; opacity: .7;
-        background: repeating-conic-gradient(from 0deg, color-mix(in oklab, var(--accent) 24%, transparent) 0 6deg, transparent 6deg 18deg);
-        -webkit-mask-image: radial-gradient(circle, #000 18%, transparent 68%); mask-image: radial-gradient(circle, #000 18%, transparent 68%);
-        animation: vt-spin 40s linear infinite; }
-      .vt-halo { width: calc(var(--v) * 1.3); aspect-ratio: 1; border-radius: 50%; filter: blur(10px);
-        background: radial-gradient(circle, color-mix(in oklab, var(--accent) 45%, transparent), transparent 65%);
-        animation: vt-pulse 3.2s ease-in-out infinite; }
-      .vt-shadow { width: calc(var(--v) * .8); height: calc(var(--v) * .12); border-radius: 50%; transform: translateY(calc(var(--v) * .62));
-        background: radial-gradient(ellipse, rgba(0,0,0,.65), transparent 70%); animation: vt-shadow 7s ease-in-out infinite; }
-      .vt-tilt { position: relative; width: var(--v); height: var(--v); transform-style: preserve-3d;
-        transform: rotateX(var(--my, 0deg)) rotateY(var(--mx, 0deg)); transition: transform .5s ease-out; }
-      .vt-float { position: absolute; inset: 0; transform-style: preserve-3d; animation: vt-float 7s ease-in-out infinite; }
-      .vt-coin { position: absolute; inset: 0; transform-style: preserve-3d; animation: vt-in 1.1s cubic-bezier(.2,.8,.2,1) both; }
-      .vt-edge { position: absolute; inset: 0; border-radius: 50%; transform: translateZ(calc(var(--z) * -1.5px));
-        background: linear-gradient(135deg, #7A5A10, #D4AF37 40%, #F4DC8C 55%, #8B6914); }
-      .vt-face { position: absolute; inset: 0; box-sizing: border-box; border-radius: 50%; overflow: hidden; transform: translateZ(1px);
-        background: #0E0C1A; border: calc(var(--v) * .025) solid #D4AF37;
-        box-shadow: 0 0 0 calc(var(--v) * .02) rgba(212,175,55,.18), 0 0 60px color-mix(in oklab, var(--accent) 50%, transparent), inset 0 0 40px rgba(0,0,0,.6); }
-      .vt-face img { width: 100%; height: 100%; object-fit: cover; display: block; animation: vt-zoom 9s ease-in-out infinite alternate;
-        -webkit-user-drag: none; user-select: none; }
+      .sdl-vitrine { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; perspective: 900px; background: #0E0C1A; }
+      .vt-scene { position: absolute; inset: -6%; transform-style: preserve-3d;
+        transform: rotateX(var(--my, 0deg)) rotateY(var(--mx, 0deg)); transition: transform .6s ease-out; }
+      .vt-drift { position: absolute; inset: 0; transform-style: preserve-3d; animation: vt-drift 14s ease-in-out infinite; }
+      /* Fond : la même illustration, agrandie et floutée, prolonge l'image jusqu'aux bords de l'écran */
+      .vt-bg { position: absolute; inset: -12%; background-size: cover; background-position: center;
+        filter: blur(28px) saturate(1.3) brightness(.72); transform: translateZ(-260px) scale(1.35); animation: vt-fade .9s ease both; }
+      /* Illustration nette au centre, bords fondus dans le fond */
+      .vt-art { position: absolute; left: 50%; top: var(--ay, 46%); width: var(--a); height: var(--a);
+        margin: calc(var(--a) / -2) 0 0 calc(var(--a) / -2); perspective: 1000px;
+        -webkit-mask-image: radial-gradient(closest-side, #000 58%, rgba(0,0,0,.55) 80%, transparent 100%);
+        mask-image: radial-gradient(closest-side, #000 58%, rgba(0,0,0,.55) 80%, transparent 100%); }
+      .vt-kb { position: absolute; inset: 0; transform-style: preserve-3d; animation: vt-kb 16s ease-in-out infinite alternate; }
+      .vt-slice { position: absolute; top: 0; bottom: 0; background-repeat: no-repeat; background-size: var(--a) var(--a);
+        backface-visibility: hidden; -webkit-backface-visibility: hidden;
+        animation: vt-slice-in .95s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i) * 55ms); }
+      .vt-art.out .vt-slice { animation: vt-slice-out .6s cubic-bezier(.5,0,.8,.3) both; animation-delay: calc(var(--i) * 40ms); }
       .vt-shine { position: absolute; inset: 0; mix-blend-mode: screen; background-size: 250% 100%;
-        background-image: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.3) 48%, transparent 60%);
-        animation: vt-shine 4.5s ease-in-out infinite; }
-      .vt-orbit { position: absolute; inset: calc(var(--v) * -.12); border-radius: 50%; border: 1px solid rgba(212,175,55,.45);
-        transform-style: preserve-3d; animation: vt-orb1 9s linear infinite; }
-      .vt-orbit.o2 { inset: calc(var(--v) * -.2); border-color: color-mix(in oklab, var(--accent) 55%, transparent); animation: vt-orb2 13s linear infinite; }
-      .vt-orbit i { position: absolute; top: -5px; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%;
-        background: #F4DC8C; box-shadow: 0 0 12px 3px #D4AF37; }
-      .vt-spark { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px; border-radius: 50%;
-        background: #F4DC8C; box-shadow: 0 0 8px 2px var(--accent); opacity: 0;
-        animation: vt-spark 5s linear infinite; animation-delay: calc(var(--i) * -.5s); }
-      .vt-lock { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) translateZ(30px); display: grid; place-items: center;
-        width: 56px; height: 56px; border-radius: 50%; background: #08070F; border: 1px solid #6B6590; color: #E6C766; }
-      @keyframes vt-spin  { to { transform: rotate(360deg); } }
-      @keyframes vt-pulse { 0%, 100% { transform: scale(.92); opacity: .75; } 50% { transform: scale(1.06); opacity: 1; } }
-      @keyframes vt-float {
-        0%, 100% { transform: translateY(0) rotateY(-18deg) rotateX(7deg); }
-        50%      { transform: translateY(-14px) rotateY(18deg) rotateX(-5deg); }
-      }
-      @keyframes vt-shadow { 0%, 100% { transform: translateY(calc(var(--v) * .62)) scale(1); opacity: 1; } 50% { transform: translateY(calc(var(--v) * .62)) scale(.85); opacity: .7; } }
-      @keyframes vt-in {
-        from { transform: translateZ(-320px) rotateY(-540deg) scale(.5); opacity: 0; }
-        40%  { opacity: 1; }
-        to   { transform: none; opacity: 1; }
-      }
-      @keyframes vt-zoom  { from { transform: scale(1.04); } to { transform: scale(1.16) translateY(-2%); } }
+        background-image: linear-gradient(115deg, transparent 38%, rgba(255,236,190,.22) 48%, transparent 58%);
+        animation: vt-shine 6s ease-in-out infinite; }
+      .vt-rays { position: absolute; left: -30%; right: -30%; top: -25%; height: 115%; mix-blend-mode: screen; opacity: .5;
+        background: repeating-conic-gradient(from 150deg at 50% 0%, color-mix(in oklab, var(--accent) 38%, transparent) 0 3deg, transparent 3deg 11deg);
+        -webkit-mask-image: linear-gradient(180deg, #000 8%, transparent 72%); mask-image: linear-gradient(180deg, #000 8%, transparent 72%);
+        transform-origin: 50% 0; animation: vt-rays 9s ease-in-out infinite alternate; }
+      .vt-ring { position: absolute; left: 50%; top: var(--ay, 46%); width: calc(var(--a) * .9); height: calc(var(--a) * .9);
+        margin: calc(var(--a) * -.45) 0 0 calc(var(--a) * -.45); border-radius: 50%; opacity: .55;
+        border: 1px solid color-mix(in oklab, var(--accent) 55%, transparent); transform-style: preserve-3d; animation: vt-orb 18s linear infinite; }
+      .vt-ring.r2 { width: calc(var(--a) * 1.25); height: calc(var(--a) * 1.25); margin: calc(var(--a) * -.625) 0 0 calc(var(--a) * -.625);
+        border-color: rgba(212,175,55,.4); animation-duration: 27s; animation-direction: reverse; }
+      .vt-ring i { position: absolute; top: -5px; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%;
+        background: #F4DC8C; box-shadow: 0 0 14px 4px #D4AF37; }
+      .vt-p { position: absolute; left: var(--x); bottom: -4%; width: var(--s); height: var(--s); border-radius: 50%; opacity: 0;
+        background: radial-gradient(circle, #FFF3C4, color-mix(in oklab, var(--accent) 70%, #D4AF37) 45%, transparent 70%);
+        animation: vt-rise var(--t) linear infinite; animation-delay: var(--d); }
+      .vt-p.bokeh { filter: blur(3px); }
+      /* Haut et bas assombris pour garder l'en-tête et la fiche du jeu lisibles */
+      .vt-shade { position: absolute; inset: 0; pointer-events: none;
+        background: linear-gradient(180deg, rgba(14,12,26,.88) 0%, rgba(14,12,26,.3) 17%, transparent 30%, transparent 56%, rgba(14,12,26,.7) 72%, rgba(14,12,26,.96) 88%); }
+      @keyframes vt-drift { 0%, 100% { transform: rotateY(-3deg) rotateX(1.5deg) translateZ(0); } 50% { transform: rotateY(3deg) rotateX(-1.5deg) translateZ(30px); } }
+      @keyframes vt-fade  { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes vt-kb    { from { transform: scale(1.02); } to { transform: scale(1.14) translate(-2%, -2.5%); } }
+      @keyframes vt-slice-in  { from { transform: translateZ(-380px) rotateY(85deg); opacity: 0; } 50% { opacity: 1; } to { transform: none; opacity: 1; } }
+      @keyframes vt-slice-out { from { transform: none; opacity: 1; } to { transform: translateZ(-300px) rotateY(-85deg); opacity: 0; } }
       @keyframes vt-shine { 0% { background-position: 150% 0; } 60%, 100% { background-position: -50% 0; } }
-      @keyframes vt-orb1  { from { transform: rotateX(72deg) rotateZ(0); } to { transform: rotateX(72deg) rotateZ(360deg); } }
-      @keyframes vt-orb2  { from { transform: rotateY(70deg) rotateZ(0); } to { transform: rotateY(70deg) rotateZ(-360deg); } }
-      @keyframes vt-spark {
-        from { transform: rotateY(calc(var(--i) * 36deg)) translateZ(calc(var(--v) * .62)) translateY(calc(var(--v) * .35)); opacity: 0; }
-        20%  { opacity: 1; }
-        80%  { opacity: .8; }
-        to   { transform: rotateY(calc(var(--i) * 36deg + 360deg)) translateZ(calc(var(--v) * .62)) translateY(calc(var(--v) * -.45)); opacity: 0; }
+      @keyframes vt-rays  { from { transform: translateZ(60px) rotate(-6deg); } to { transform: translateZ(60px) rotate(6deg); } }
+      @keyframes vt-orb   { from { transform: translateZ(40px) rotateX(74deg) rotateZ(0); } to { transform: translateZ(40px) rotateX(74deg) rotateZ(360deg); } }
+      @keyframes vt-rise {
+        from { transform: translateZ(var(--z)) translate(0, 0); opacity: 0; }
+        12%  { opacity: var(--o); }
+        85%  { opacity: var(--o); }
+        to   { transform: translateZ(var(--z)) translate(var(--dx), -115vh); opacity: 0; }
       }
-      body.sdl-eco .vt-rays, body.sdl-eco .vt-orbit, body.sdl-eco .vt-spark, body.sdl-eco .vt-face img, body.sdl-eco .vt-shine { animation: none; }
-      body.sdl-eco .vt-spark { display: none; }
+      body.sdl-eco .vt-drift, body.sdl-eco .vt-kb, body.sdl-eco .vt-rays, body.sdl-eco .vt-shine, body.sdl-eco .vt-ring { animation: none; }
+      body.sdl-eco .vt-p, body.sdl-eco .vt-ring { display: none; }
+      body.sdl-eco .vt-bg { filter: blur(16px) brightness(.7); }
       @media (prefers-reduced-motion: reduce) {
-        .vt-rays, .vt-orbit, .vt-spark, .vt-float, .vt-face img, .vt-shine, .vt-halo, .vt-shadow { animation: none; }
-        .vt-spark { display: none; }
+        .vt-drift, .vt-kb, .vt-rays, .vt-shine, .vt-ring, .vt-slice { animation: none; }
+        .vt-p, .vt-ring, .vt-art.out { display: none; }
       }
       @media (max-width: 600px) {
         .sdl-vue-btn { top: 6px; right: 10px; min-height: 30px; padding: 4px 11px; font-size: 12px; }
+        .vt-bg { filter: blur(20px) saturate(1.3) brightness(.72); }
       }
 
       .sdl-flip-card:not(.is-flipped) .sdl-back-face {
@@ -956,6 +953,33 @@ function GearIcon() {
   );
 }
 
+// Vitrine 3D : l'illustration découpée en bandes verticales qui pivotent en 3D à l'arrivée
+// (et à la sortie), avec un lent zoom « Ken Burns » et un reflet qui passe
+const VT_SLICES = 8;
+function VitrineArt({ game, out = false }) {
+  const url = `url(/legendes/${game}.webp)`;
+  return (
+    <div className={`vt-art${out ? ' out' : ''}`}>
+      <div className="vt-kb">
+        {Array.from({ length: VT_SLICES }, (_, i) => (
+          <div
+            key={i}
+            className="vt-slice"
+            style={{
+              '--i': out ? VT_SLICES - 1 - i : i,
+              left: `${(i * 100) / VT_SLICES}%`,
+              width: `calc(${100 / VT_SLICES}% + 1px)`,
+              backgroundImage: url,
+              backgroundPosition: `calc(var(--a) * -${(i / VT_SLICES).toFixed(4)}) 0`,
+            }}
+          />
+        ))}
+        <div className="vt-shine" />
+      </div>
+    </div>
+  );
+}
+
 export default function MenuScreen({ navigation }) {
   const headerAnim = useRef(new Animated.Value(0)).current;
   const starSlow   = useRef(new Animated.Value(0)).current;
@@ -1035,17 +1059,50 @@ export default function MenuScreen({ navigation }) {
       return next;
     });
   }, []);
-  // PC : la médaille suit légèrement la souris
+  // PC : la scène pivote légèrement avec la souris (effet de profondeur)
   const vitrineRef = useRef(null);
-  const onVitrineMouse = useCallback((e) => {
-    const el = vitrineRef.current;
-    if (!el || IS_MOBILE_WEB || webDrag.current.active) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - 0.5;
-    const y = (e.clientY - r.top) / r.height - 0.5;
-    el.style.setProperty('--mx', `${(x * 26).toFixed(1)}deg`);
-    el.style.setProperty('--my', `${(-y * 18).toFixed(1)}deg`);
-  }, []);
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !vitrine || IS_MOBILE_WEB) return;
+    const onMove = (e) => {
+      const el = vitrineRef.current;
+      if (!el) return;
+      const x = e.clientX / window.innerWidth - 0.5;
+      const y = e.clientY / window.innerHeight - 0.5;
+      el.style.setProperty('--mx', `${(x * 7).toFixed(2)}deg`);
+      el.style.setProperty('--my', `${(-y * 5).toFixed(2)}deg`);
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => window.removeEventListener('mousemove', onMove);
+  }, [vitrine]);
+  // Jeu précédent gardé un instant pour l'animer en sortie pendant que le nouveau arrive
+  const [vtOut, setVtOut] = useState(null);
+  const vtLast = useRef(null);
+  useEffect(() => {
+    if (!vitrine) { vtLast.current = null; return; }
+    const prev = vtLast.current;
+    vtLast.current = activeIdx;
+    if (prev === null || prev === activeIdx) return;
+    setVtOut({ c: characters[prev], k: Date.now() });
+    const tm = setTimeout(() => setVtOut(null), 900);
+    return () => clearTimeout(tm);
+  }, [activeIdx, vitrine]);
+  // Poussière d'or et bokeh à différentes profondeurs
+  const vtParticles = useMemo(() => Array.from({ length: 26 }, (_, i) => {
+    const bokeh = i % 4 === 0;
+    const t = 9 + Math.random() * 9;
+    return {
+      bokeh,
+      style: {
+        '--x': `${(Math.random() * 100).toFixed(1)}%`,
+        '--s': `${(bokeh ? 14 + Math.random() * 14 : 3 + Math.random() * 6).toFixed(1)}px`,
+        '--z': `${Math.round(-350 + Math.random() * 600)}px`,
+        '--t': `${t.toFixed(1)}s`,
+        '--d': `${(-Math.random() * t).toFixed(1)}s`,
+        '--dx': `${Math.round(-60 + Math.random() * 120)}px`,
+        '--o': (bokeh ? 0.25 + Math.random() * 0.2 : 0.5 + Math.random() * 0.45).toFixed(2),
+      },
+    };
+  }), []);
 
 
   // ── Mise à jour du carousel ───────────────────────────────────────
@@ -1330,6 +1387,31 @@ export default function MenuScreen({ navigation }) {
   return (
     <LinearGradient colors={Platform.OS === 'web' ? ['#0E0C1A', '#0E0C1A'] : OB_BG} style={s.container}>
 
+      {/* ══ VITRINE 3D (web) : l'illustration du jeu en plein écran ══ */}
+      {Platform.OS === 'web' && vitrine && (() => {
+        const c = characters[activeIdx] ?? characters[0];
+        // Taille de l'illustration nette : déborde un peu l'écran sur mobile, presque toute la hauteur sur PC
+        const a = Math.round(IS_MOBILE_WEB ? Math.max(SW * 1.15, SH * 0.6) : Math.min(SH * 0.95, SW * 0.62));
+        return (
+          <div className="sdl-vitrine" ref={vitrineRef} aria-hidden="true"
+            style={{ '--a': `${a}px`, '--ay': IS_MOBILE_WEB ? '42%' : '46%', '--accent': familyOf(c).color }}>
+            <div className="vt-scene">
+              <div className="vt-drift">
+                {vtOut && <div key={`bgo${vtOut.k}`} className="vt-bg" style={{ backgroundImage: `url(/legendes/${vtOut.c.game}.webp)`, animation: 'none' }} />}
+                <div key={`bg${c.id}`} className="vt-bg" style={{ backgroundImage: `url(/legendes/${c.game}.webp)` }} />
+                <div className="vt-ring"><i /></div>
+                <div className="vt-ring r2"><i /></div>
+                {vtOut && <VitrineArt key={`out${vtOut.k}`} game={vtOut.c.game} out />}
+                <VitrineArt key={c.id} game={c.game} />
+                <div className="vt-rays" />
+                {vtParticles.map((p, i) => <span key={i} className={`vt-p${p.bokeh ? ' bokeh' : ''}`} style={p.style} />)}
+              </div>
+            </div>
+            <div className="vt-shade" />
+          </div>
+        );
+      })()}
+
       {!ecoMode && starLayers.map(({ stars, anim }, li) => (
         <Animated.View key={li} pointerEvents="none"
           style={{ position: 'absolute', top: 0, left: 0, right: 0, height: SH * 2, transform: [{ translateY: anim }] }}
@@ -1414,43 +1496,17 @@ export default function MenuScreen({ navigation }) {
 
       {/* ══ CARROUSEL WEB ══ */}
       {Platform.OS === 'web' && (
-        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }} onMouseMove={vitrine ? onVitrineMouse : undefined}>
+        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
           <div
             className="sdl-aura"
-            style={{ '--accent': familyOf(characters[activeIdx] ?? characters[0]).color, width: CARD_W * 2.6, height: CARD_W * 2.6, marginTop: -Math.round(CARD_H * REFLECT_SHIFT) }}
+            style={{ display: vitrine ? 'none' : undefined, '--accent': familyOf(characters[activeIdx] ?? characters[0]).color, width: CARD_W * 2.6, height: CARD_W * 2.6, marginTop: -Math.round(CARD_H * REFLECT_SHIFT) }}
           />
-          <div className="sdl-floor" style={{ top: `calc(50% + ${Math.round(CARD_H * (0.5 - REFLECT_SHIFT))}px)` }} />
+          <div className="sdl-floor" style={{ display: vitrine ? 'none' : undefined, top: `calc(50% + ${Math.round(CARD_H * (0.5 - REFLECT_SHIFT))}px)` }} />
           <div
             ref={stageRef}
             className={`sdl-stage${vitrine ? ' vitrine-on' : ''}`}
             onPointerDown={onPtrDown}
           >
-            {vitrine && (() => {
-              const c = characters[activeIdx] ?? characters[0];
-              const v = Math.round(Math.min(CARD_H * 0.86, SW * (IS_MOBILE_WEB ? 0.7 : 0.4)));
-              return (
-                <div className="sdl-vitrine" ref={vitrineRef} style={{ '--v': `${v}px`, '--accent': familyOf(c).color }} aria-hidden="true">
-                  <div className="vt-rays" />
-                  <div className="vt-halo" />
-                  <div className="vt-shadow" />
-                  <div className="vt-tilt">
-                    <div className="vt-float">
-                      <div className="vt-orbit"><i /></div>
-                      <div className="vt-orbit o2"><i /></div>
-                      <div className="vt-coin" key={c.id}>
-                        {Array.from({ length: 12 }, (_, z) => <div key={z} className="vt-edge" style={{ '--z': z + 1 }} />)}
-                        <div className="vt-face">
-                          <img src={`/legendes/${c.game}.webp`} alt="" decoding="async" draggable={false} />
-                          <div className="vt-shine" />
-                        </div>
-                        {acces(c) === 'verrouille' && <div className="vt-lock"><LockIcon size="24px" /></div>}
-                      </div>
-                      {Array.from({ length: 10 }, (_, i) => <span key={i} className="vt-spark" style={{ '--i': i }} />)}
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
             {characters.map((char, i) => (
               <div
                 key={char.id}
