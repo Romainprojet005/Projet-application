@@ -126,7 +126,8 @@ export default function VerreGameScreen({ route, navigation }) {
     const targetCard = cards[targetIdx];
     const actual = challengerCard > targetCard ? 'higher' : 'lower';
     const correct = call === actual;
-    const amount = glass * 2;
+    // Le verre n’est doublé que si le défi est perdu (le challenger s’est trompé)
+    const amount = correct ? glass : glass * 2;
     const drinkerIdx = correct ? targetIdx : challengerIdx;
     addSips(drinkerIdx, amount);
     const remaining = isElim ? alive.filter(i => i !== drinkerIdx) : alive;
@@ -242,7 +243,7 @@ export default function VerreGameScreen({ route, navigation }) {
   if (phase === 'challengeTarget') {
     return (
       <GameScreen top={top} footer={<ActionBar><TextLink label="Annuler" color={T.encreDouce} onPress={() => setPhase('table')} /></ActionBar>}>
-        <Heading kicker={tourLabel} title={`${activePlayer} défie qui ?`} sub={`L’enjeu : ${glass * 2} gorgées.`} />
+        <Heading kicker={tourLabel} title={`${activePlayer} défie qui ?`} sub={`Pari gagné : il boit ${glass} gorgée${glass > 1 ? 's' : ''}. Pari perdu : tu bois ${glass * 2} gorgées.`} />
         <PlayerGrid>
           {alive.filter(idx => idx !== activePlayerIdx).map(idx => (
             <PlayerChoice key={idx} name={playerNames[idx]} index={idx} onPress={() => pickTarget(idx)} label={`Défier ${playerNames[idx]}`} />
@@ -293,7 +294,7 @@ export default function VerreGameScreen({ route, navigation }) {
             </React.Fragment>
           ))}
         </View>
-        <Notice son="boire" tone="alerte" title={`${playerNames[r.drinkerIdx]} boit ${r.amount} gorgées`}>
+        <Notice son="boire" tone="alerte" title={`${playerNames[r.drinkerIdx]} boit ${r.amount} gorgée${r.amount > 1 ? 's' : ''}${r.correct ? '' : ' (verre doublé)'}`}>
           {isElim
             ? (last ? `${playerNames[r.drinkerIdx]} est éliminé. Il ne reste plus qu’un joueur…` : `${playerNames[r.drinkerIdx]} est éliminé. ${r.remaining} joueurs en lice : chacun garde sa carte, la manche continue.`)
             : 'La manche se termine : nouvelles cartes.'}

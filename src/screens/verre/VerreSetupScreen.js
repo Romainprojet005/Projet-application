@@ -37,7 +37,7 @@ export default function VerreSetupScreen({ navigation }) {
         'Chaque joueur reçoit une carte secrète, de 1 à 20, que lui seul voit.',
         'Le verre commence avec 1 gorgée. À votre tour : buvez le verre, passez, ou défiez un joueur.',
         'Chaque fois qu’un joueur passe, le verre se remplit d’une gorgée.',
-        'En défi, pariez que votre carte est plus haute ou plus basse que la sienne.',
+        'En défi, pariez que votre carte est plus haute ou plus basse que la sienne. Pari gagné : il boit le verre. Pari perdu : vous buvez le verre doublé.',
         'Si un joueur boit ou perd un défi, la manche se termine et de nouvelles cartes sont distribuées.',
         `Un nombre de tours (${MIN_TOURS} à ${MAX_TOURS}) est tiré au sort : si personne n’a bu à la fin, la plus petite carte boit le verre.`,
         mode === 'battleRoyale'
