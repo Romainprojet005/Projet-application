@@ -73,6 +73,12 @@ const FAN_Z    = 140;                                  // recul par carte (px)
 const FAN_RY   = IS_MOBILE_WEB ? 18 : 24;              // inclinaison des voisines (deg)
 // Peu de jeux (site /en/) : on cache la carte opposée, sinon un côté en montre plus que l'autre
 const RING_VIS  = Math.min(IS_MOBILE_WEB ? 2 : 3, Math.floor((N - 1) / 2));
+// Site /en/ (4 jeux) : cartes alignées au lieu du carrousel — une ligne sur PC, 2×2 sur mobile.
+// Toucher une carte la sélectionne ; la carte sélectionnée est mise en avant.
+const ALIGNED    = IS_EN && Platform.OS === 'web';
+const ALIGN_COLS = IS_MOBILE_WEB ? Math.min(2, N) : N;
+const ALIGN_ROWS = Math.ceil(N / ALIGN_COLS);
+const ALIGN_GAP  = IS_MOBILE_WEB ? 12 : 28;
 // PC : vrai tambour 3D. Les cartes sont posées sur un cylindre (face vers
 // l'extérieur) ; on n'en montre que la moitié avant (≤ ~80°), ce qui garde
 // l'ordre visuel des cartes de gauche à droite.
@@ -88,8 +94,15 @@ function computeSizes() {
   const WEB_H = IS_MOBILE_WEB
     ? Math.max(170, Math.min(400, FIT_H, Math.round(SW * 0.68 * 310 / 210)))
     : Math.max(260, Math.min(540, FIT_H, Math.round(SW * 0.26 * 310 / 210)));
-  const w = Platform.OS === 'web' ? Math.round(WEB_H * 210 / 310) : Math.min(SW * 0.75, 300);
-  const h = Platform.OS === 'web' ? WEB_H : Math.min(Math.round(w * 1.55), SH - 210);
+  let w = Platform.OS === 'web' ? Math.round(WEB_H * 210 / 310) : Math.min(SW * 0.75, 300);
+  let h = Platform.OS === 'web' ? WEB_H : Math.min(Math.round(w * 1.55), SH - 210);
+  if (ALIGNED) {
+    // Toutes les cartes doivent tenir côte à côte (et sur 2 rangées sur mobile)
+    const maxW = (SW - (IS_MOBILE_WEB ? 32 : 240) - ALIGN_GAP * (ALIGN_COLS - 1)) / ALIGN_COLS;
+    const maxH = ALIGN_ROWS > 1 ? (STAGE_EST - 24 - ALIGN_GAP * (ALIGN_ROWS - 1)) / ALIGN_ROWS : h;
+    w = Math.floor(Math.min(w, maxW, maxH * 210 / 310));
+    h = Math.round(w * 310 / 210);
+  }
   const changed = w !== CARD_W || h !== CARD_H;
   CARD_W = w; CARD_H = h;
   DRAG_FACTOR = STEP / (IS_MOBILE_WEB ? CARD_W * 1.2 : CARD_W);
@@ -113,6 +126,17 @@ function cardPos(rot, i) {
     const ad = Math.abs(d);
     const dd = Math.max(-(RING_VIS + 1), Math.min(RING_VIS + 1, d));
     const ae = Math.abs(dd), sg = Math.sign(dd);
+    if (ALIGNED) {
+      const col = i % ALIGN_COLS, row = Math.floor(i / ALIGN_COLS);
+      return {
+        x:  (col - (ALIGN_COLS - 1) / 2) * (CARD_W + ALIGN_GAP),
+        y:  (row - (ALIGN_ROWS - 1) / 2) * (CARD_H + ALIGN_GAP),
+        z:  0, sc: 1, op: 1, ry: 0,
+        br: ad < 0.5 ? 1 : 0.7,
+        depth: -ad,
+        ad,
+      };
+    }
     const op = ad <= 1 ? 1
              : ad <= RING_VIS ? 1 - (ad - 1) * 0.25
              : Math.max(0, (1 - (RING_VIS - 1) * 0.25) * (1 - (ad - RING_VIS) / 0.6));
@@ -185,6 +209,9 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         transform-style: preserve-3d;
       }
       .sdl-stage.grabbing { cursor: grabbing; }
+      .sdl-stage.sdl-aligned, .sdl-stage.sdl-aligned.grabbing { cursor: pointer; }
+      .sdl-stage.sdl-grid .sdl-flip-card { -webkit-box-reflect: unset; }
+      .sdl-stage.sdl-aligned .sdl-slot { transition: opacity 0.2s ease, filter 0.25s ease; }
 
       /* Slot GPU layer */
       .sdl-slot {
@@ -958,11 +985,11 @@ export default function MenuScreen({ navigation }) {
         if (!el) return;
         const p = cardPos(rot, i);
         const zi = String(Math.round(100 - p.ad * 10));
-        el.style.pointerEvents = p.ad <= RING_VIS + 0.5 ? 'auto' : 'none';
+        el.style.pointerEvents = ALIGNED || p.ad <= RING_VIS + 0.5 ? 'auto' : 'none';
         if (IS_MOBILE_WEB && ecoRef.current) {
           // Eco mode : 2D plat, léger (perspective simulée par l'échelle)
           const sc = 900 / (900 - p.z);
-          el.style.transform = `translateX(${p.x * sc}px) scale(${sc})`;
+          el.style.transform = `translate(${p.x * sc}px, ${(p.y ?? 0) * sc}px) scale(${sc})`;
           el.style.opacity   = p.op < 0.5 ? '0' : String(p.op);
           el.style.filter    = '';
           el.style.zIndex    = zi;
@@ -1024,7 +1051,7 @@ export default function MenuScreen({ navigation }) {
   }, []);
 
   const onPtrMove = useCallback((e) => {
-    if (!webDrag.current.active) return;
+    if (!webDrag.current.active || ALIGNED) return;
     const now = performance.now();
     const dt  = now - webDrag.current.lastT;
     if (dt > 8) {
@@ -1061,6 +1088,7 @@ export default function MenuScreen({ navigation }) {
       }
       return;
     }
+    if (ALIGNED) return; // cartes fixes : pas de glissement
     if (IS_MOBILE_WEB) {
       // Mobile : un glissement = une carte, quelle que soit la vitesse du doigt
       const startIdx = Math.round(webDrag.current.startRot / STEP);
@@ -1080,9 +1108,16 @@ export default function MenuScreen({ navigation }) {
     const k = Math.round((rotRef.current + idx * STEP) / (2 * Math.PI));
     targetRef.current = -idx * STEP + k * 2 * Math.PI;
     setFlipped({});
+    if (ALIGNED) {
+      // Cartes fixes : rien à animer, la sélection est immédiate
+      rotRef.current = targetRef.current;
+      updateCarousel(rotRef.current);
+      setActiveIdx(idx);
+      return;
+    }
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(animate);
-  }, [animate]);
+  }, [animate, updateCarousel]);
   const goToRef = useRef(null);
   goToRef.current = goTo;
 
@@ -1153,7 +1188,8 @@ export default function MenuScreen({ navigation }) {
       if (el) {
         el.style.marginLeft = `-${CARD_W / 2}px`;
         // Remonte un peu la carte pour laisser la place au reflet
-        el.style.marginTop  = `-${CARD_H / 2 + Math.round(CARD_H * REFLECT_SHIFT)}px`;
+        // (grille 2×2 du site /en/ : pas de reflet, donc pas de décalage)
+        el.style.marginTop  = `-${CARD_H / 2 + (ALIGNED && ALIGN_ROWS > 1 ? 0 : Math.round(CARD_H * REFLECT_SHIFT))}px`;
       }
     });
     updateCarousel(rotRef.current);
@@ -1282,7 +1318,8 @@ export default function MenuScreen({ navigation }) {
             <div className="sdl-hero">
               <h1 className="sdl-h1">{t('Choisissez ', 'Choose ')}<em>{t('votre légende.', 'your legend.')}</em></h1>
               <div className="sdl-fams" role="group" aria-label={t('Aller à une famille de jeux', 'Jump to a game family')}>
-                {Object.entries(FAMILIES).map(([key, f]) => (
+                {/* Seulement les familles qui ont au moins un jeu (le site /en/ n'en a que 4) */}
+                {Object.entries(FAMILIES).filter(([key]) => characters.some((c) => c.family === key)).map(([key, f]) => (
                   <button
                     key={key}
                     className={`sdl-fam${curFam === key ? ' on' : ''}`}
@@ -1321,10 +1358,12 @@ export default function MenuScreen({ navigation }) {
             className="sdl-aura"
             style={{ '--accent': familyOf(characters[activeIdx] ?? characters[0]).color, width: CARD_W * 2.6, height: CARD_W * 2.6, marginTop: -Math.round(CARD_H * REFLECT_SHIFT) }}
           />
-          <div className="sdl-floor" style={{ top: `calc(50% + ${Math.round(CARD_H * (0.5 - REFLECT_SHIFT))}px)` }} />
+          {ALIGN_ROWS === 1 || !ALIGNED ? (
+            <div className="sdl-floor" style={{ top: `calc(50% + ${Math.round(CARD_H * (0.5 - REFLECT_SHIFT))}px)` }} />
+          ) : null}
           <div
             ref={stageRef}
-            className="sdl-stage"
+            className={`sdl-stage${ALIGNED ? ' sdl-aligned' : ''}${ALIGNED && ALIGN_ROWS > 1 ? ' sdl-grid' : ''}`}
             onPointerDown={onPtrDown}
           >
             {characters.map((char, i) => (
@@ -1346,8 +1385,8 @@ export default function MenuScreen({ navigation }) {
               </div>
             ))}
           </div>
-          <button className="sdl-nav sdl-nav-prev" aria-label={t('Jeu précédent', 'Previous game')} onClick={() => navigateCard(+1)}>‹</button>
-          <button className="sdl-nav sdl-nav-next" aria-label={t('Jeu suivant', 'Next game')} onClick={() => navigateCard(-1)}>›</button>
+          {!ALIGNED && <button className="sdl-nav sdl-nav-prev" aria-label={t('Jeu précédent', 'Previous game')} onClick={() => navigateCard(+1)}>‹</button>}
+          {!ALIGNED && <button className="sdl-nav sdl-nav-next" aria-label={t('Jeu suivant', 'Next game')} onClick={() => navigateCard(-1)}>›</button>}
         </div>
       )}
 
@@ -1381,7 +1420,7 @@ export default function MenuScreen({ navigation }) {
 
 
       {/* Dots */}
-      {(Platform.OS === 'web' ? (
+      {ALIGNED ? null : (Platform.OS === 'web' ? (
         <div className="sdl-dots">
           {characters.map((c, i) => (
             <button
