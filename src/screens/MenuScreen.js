@@ -71,7 +71,8 @@ const EASE = IS_MOBILE_WEB ? 0.09 : 0.14;
 let FAN_X1, FAN_XN;                                  // décalage de la 1re voisine, écart des suivantes
 const FAN_Z    = 140;                                  // recul par carte (px)
 const FAN_RY   = IS_MOBILE_WEB ? 18 : 24;              // inclinaison des voisines (deg)
-const RING_VIS  = IS_MOBILE_WEB ? 2 : 3;
+// Peu de jeux (site /en/) : on cache la carte opposée, sinon un côté en montre plus que l'autre
+const RING_VIS  = Math.min(IS_MOBILE_WEB ? 2 : 3, Math.floor((N - 1) / 2));
 // PC : vrai tambour 3D. Les cartes sont posées sur un cylindre (face vers
 // l'extérieur) ; on n'en montre que la moitié avant (≤ ~80°), ce qui garde
 // l'ordre visuel des cartes de gauche à droite.
