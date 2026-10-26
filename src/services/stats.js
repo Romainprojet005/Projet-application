@@ -15,7 +15,8 @@ const GAME_PATHS = new Set(characters.map(gamePath));
 // Jeu d'un écran, d'après son chemin dans le linking (« blindtest/multi/lobby » → « blindtest »)
 function gameOf(route, screens) {
   const path = route && screens[route.name];
-  const first = typeof path === 'string' ? path.split('/')[0] : null;
+  // Version anglaise : « en/undercover » → « undercover »
+  const first = typeof path === 'string' ? path.replace(/^en\//, '').split('/')[0] : null;
   return GAME_PATHS.has(first) ? first : null;
 }
 

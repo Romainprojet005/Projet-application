@@ -43,7 +43,7 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   const roomRef    = useRef(null);
   const playersRef = useRef([]);
   const autoNextRef = useRef(null);
-  const aliveRef    = useRef(true);
+  const aliveRef    = useRef(null);
 
   const playSong = (song) => {
     if (!song || !iframeRef.current) return;
@@ -52,20 +52,25 @@ export default function BlindMultiGameScreen({ navigation, route }) {
   };
 
   useEffect(() => {
-    init();
+    // Un jeton par montage : si l'écran est monté deux fois, seul le dernier init s'abonne
+    // (avant, le premier nettoyage empêchait tout abonnement et la partie restait figée).
+    const token = {};
+    aliveRef.current = token;
+    init(token);
     return () => {
-      aliveRef.current = false;
+      if (aliveRef.current === token) aliveRef.current = null;
       supabase.removeChannel(channelRef.current);
       clearInterval(timerRef.current);
       clearTimeout(autoNextRef.current);
     };
   }, []);
 
-  const init = async () => {
+  const init = async (token) => {
     const [{ data: r }, { data: ps }] = await Promise.all([
       supabase.from('blind_rooms').select().eq('id', roomId).single(),
       supabase.from('blind_players').select().eq('room_id', roomId).order('created_at'),
     ]);
+    if (aliveRef.current !== token) return;
     if (ps) {
       setPlayers(ps);
       playersRef.current = ps;
@@ -79,8 +84,6 @@ export default function BlindMultiGameScreen({ navigation, route }) {
       roomRef.current = roomData;
       if (r.phase === 'playing' && r.round_started_at) startLocalTimer(r);
     }
-    if (!aliveRef.current) return;
-
     channelRef.current = supabase
       .channel(channelName(`blind_game:${roomId}`))
       .on('postgres_changes',

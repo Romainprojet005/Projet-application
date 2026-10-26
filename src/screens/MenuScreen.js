@@ -8,7 +8,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../theme';
 import { OB_BG } from '../theme/obsidian';
-import { characters } from '../data/characters';
+import { characters } from '../data/jeux';
+import { t, IS_EN, switchLanguage } from '../i18n';
 import AdBanner, { AD_ENABLED } from '../components/AdBanner';
 import { BoosterFront, BoosterBack, FamilyEmblem, FAMILIES, familyOf, PhoneIcon, LockIcon } from '../components/BoosterCard';
 import { OffresModal, IdeeModal, CodeModal, ReglagesModal } from '../components/WebModals';
@@ -1253,7 +1254,7 @@ export default function MenuScreen({ navigation }) {
             <div className="sdl-top">
               <div className="sdl-brand">
                 {/* Le logo sert aussi d'accès discret à la saisie du code (ex-couronne ♛) */}
-                <button className="sdl-logo-img" aria-label="Code d'accès" onClick={() => retour('ouvrir') || setModal({ type: 'code' })}>
+                <button className="sdl-logo-img" aria-label={t("Code d'accès", 'Access code')} onClick={() => retour('ouvrir') || setModal({ type: 'code' })}>
                   <img src="/icon-192.png" alt="" width="34" height="34" />
                 </button>
                 <div className="sdl-logo" aria-label="La Soirée des Légendes">
@@ -1263,22 +1264,23 @@ export default function MenuScreen({ navigation }) {
               </div>
               <div className="sdl-top-actions">
                 <span className="sdl-top-count">
-                  {characters.filter(c => c.available && !enConstruction(c)).length} jeux · 2 à 12 joueurs
+                  {characters.filter(c => c.available && !enConstruction(c)).length} {t('jeux · 2 à 12 joueurs', 'games · 3 to 12 players')}
                 </span>
-                <button className="sdl-top-btn" onClick={() => retour('ouvrir') || setModal({ type: 'idee' })}><span className="sdl-lg">Proposer un jeu</span><span className="sdl-sm">Idée</span></button>
+                <button className="sdl-top-btn" lang={IS_EN ? 'fr' : 'en'} aria-label={t('English version', 'Version française')} onClick={switchLanguage}>{t('EN', 'FR')}</button>
+                {!IS_EN && <button className="sdl-top-btn" onClick={() => retour('ouvrir') || setModal({ type: 'idee' })}><span className="sdl-lg">Proposer un jeu</span><span className="sdl-sm">Idée</span></button>}
                 {install.show && (
-                  <button className="sdl-top-btn sdl-install" aria-label="Installer l'appli" onClick={install.install}>
-                    <span className="sdl-lg">Installer</span>
+                  <button className="sdl-top-btn sdl-install" aria-label={t("Installer l'appli", 'Install the app')} onClick={install.install}>
+                    <span className="sdl-lg">{t('Installer', 'Install')}</span>
                     <svg className="sdl-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>
                   </button>
                 )}
-                <button className="sdl-top-btn sdl-desk" aria-label="Réglages" onClick={() => retour('ouvrir') || setModal({ type: 'reglages' })}><GearIcon /></button>
-                <button className="sdl-top-btn gold" onClick={() => retour('ouvrir') || setModal({ type: 'offres', game: null })}>Offres</button>
+                <button className="sdl-top-btn sdl-desk" aria-label={t('Réglages', 'Settings')} onClick={() => retour('ouvrir') || setModal({ type: 'reglages' })}><GearIcon /></button>
+                {!IS_EN && <button className="sdl-top-btn gold" onClick={() => retour('ouvrir') || setModal({ type: 'offres', game: null })}>Offres</button>}
               </div>
             </div>
             <div className="sdl-hero">
-              <h1 className="sdl-h1">Choisissez <em>votre légende.</em></h1>
-              <div className="sdl-fams" role="group" aria-label="Aller à une famille de jeux">
+              <h1 className="sdl-h1">{t('Choisissez ', 'Choose ')}<em>{t('votre légende.', 'your legend.')}</em></h1>
+              <div className="sdl-fams" role="group" aria-label={t('Aller à une famille de jeux', 'Jump to a game family')}>
                 {Object.entries(FAMILIES).map(([key, f]) => (
                   <button
                     key={key}
@@ -1343,8 +1345,8 @@ export default function MenuScreen({ navigation }) {
               </div>
             ))}
           </div>
-          <button className="sdl-nav sdl-nav-prev" aria-label="Jeu précédent" onClick={() => navigateCard(+1)}>‹</button>
-          <button className="sdl-nav sdl-nav-next" aria-label="Jeu suivant" onClick={() => navigateCard(-1)}>›</button>
+          <button className="sdl-nav sdl-nav-prev" aria-label={t('Jeu précédent', 'Previous game')} onClick={() => navigateCard(+1)}>‹</button>
+          <button className="sdl-nav sdl-nav-next" aria-label={t('Jeu suivant', 'Next game')} onClick={() => navigateCard(-1)}>›</button>
         </div>
       )}
 
@@ -1386,7 +1388,7 @@ export default function MenuScreen({ navigation }) {
               ref={(el) => { dotsRef.current[i] = el; }}
               className={`sdl-dot${i === 0 ? ' active' : ''}`}
               style={{ width: i === 0 ? 26 : 7, background: i === 0 ? '#D4AF37' : '#2E2A4A' }}
-              aria-label={`Aller au jeu ${i + 1}`}
+              aria-label={`${t('Aller au jeu', 'Go to game')} ${i + 1}`}
               onClick={() => goTo(i)}
             />
           ))}
@@ -1416,21 +1418,21 @@ export default function MenuScreen({ navigation }) {
                 <span className="sdl-info-fam" style={{ color: fam.color, background: fam.veil }}>
                   <FamilyEmblem family={c.family} size="13px" />{fam.label}
                 </span>
-                {c.adult && <span className="sdl-info-age" title="18+ ou version sans alcool"><span className="sdl-lg">18+ ou sans alcool</span><span className="sdl-sm">18+</span></span>}
+                {c.adult && <span className="sdl-info-age" title={t('18+ ou version sans alcool', '18+ or alcohol-free version')}><span className="sdl-lg">{t('18+ ou sans alcool', '18+ or alcohol-free')}</span><span className="sdl-sm">18+</span></span>}
                 {(() => {
                   const st = acces(c);
                   if (st === 'libre') return null;
-                  if (st === 'multi') return <span className="sdl-info-tag free">Toujours gratuit</span>;
-                  if (st === 'gratuit') return <span className="sdl-info-tag free">Gratuit aujourd’hui</span>;
-                  if (st === 'debloque') return <span className="sdl-info-tag">Débloqué</span>;
-                  return <span className="sdl-info-tag lock"><LockIcon size="12px" />Verrouillé</span>;
+                  if (st === 'multi') return <span className="sdl-info-tag free">{t('Toujours gratuit', 'Always free')}</span>;
+                  if (st === 'gratuit') return <span className="sdl-info-tag free">{t('Gratuit aujourd’hui', 'Free today')}</span>;
+                  if (st === 'debloque') return <span className="sdl-info-tag">{t('Débloqué', 'Unlocked')}</span>;
+                  return <span className="sdl-info-tag lock"><LockIcon size="12px" />{t('Verrouillé', 'Locked')}</span>;
                 })()}
               </span>
               <span className="sdl-info-title" ref={metaGameRef}>{c.gameName}</span>
               {c.description && <p className="sdl-info-desc">{c.description}</p>}
             </div>
             <div className="sdl-info-chips">
-              <span className="sdl-info-chip">{c.players || '2–12'} joueurs</span>
+              <span className="sdl-info-chip">{c.players || '2–12'} {t('joueurs', 'players')}</span>
               <span className="sdl-info-chip">{c.time || '15 min'}</span>
               <span className="sdl-info-chip sdl-chip-phone"><PhoneIcon mode={c.phones || 'one'} size="16px" />{PHONE_LABELS[c.phones || 'one']}</span>
             </div>
@@ -1442,12 +1444,12 @@ export default function MenuScreen({ navigation }) {
                 if (target.available && !enConstruction(target)) handleSelectGame(target);
               }}
             >
-              {!c.available ? 'Bientôt'
-                : enConstruction(c) ? '🚧 En construction'
-                : acces(c) === 'verrouille' ? <><LockIcon size="15px" />Débloquer</>
-                : '▶  Jouer'}
+              {!c.available ? t('Bientôt', 'Soon')
+                : enConstruction(c) ? t('🚧 En construction', '🚧 Under construction')
+                : acces(c) === 'verrouille' ? <><LockIcon size="15px" />{t('Débloquer', 'Unlock')}</>
+                : t('▶  Jouer', '▶  Play')}
             </button>
-            <div className="sdl-extra-links">
+            {!IS_EN && <div className="sdl-extra-links">
               <button className="sdl-soiree-link" onClick={() => { retour('ouvrir'); navigation.navigate('Defi'); }}>
                 <em className="sdl-lg">Seul ? </em><span>Défi du jour</span>
               </button>
@@ -1455,14 +1457,14 @@ export default function MenuScreen({ navigation }) {
               <button className="sdl-soiree-link" onClick={() => { retour('ouvrir'); navigation.navigate('Soiree'); }}>
                 <em className="sdl-lg">Plusieurs jeux ? </em><span>Soirée enchaînée</span>
               </button>
-            </div>
+            </div>}
             <span className="sdl-meta-hint">
               {IS_MOBILE_WEB
-                ? 'glissez pour changer · touchez la carte pour la retourner'
-                : 'cliquer la carte pour la retourner · ← → pour naviguer · entrée pour jouer'}
+                ? t('glissez pour changer · touchez la carte pour la retourner', 'swipe to change · tap the card to flip it')
+                : t('cliquer la carte pour la retourner · ← → pour naviguer · entrée pour jouer', 'click the card to flip it · ← → to browse · enter to play')}
             </span>
             <span className="sdl-legal">
-              <a href="/mentions-legales/">Mentions légales</a> · <a href="/confidentialite/">Confidentialité</a>
+              <a href="/mentions-legales/">{t('Mentions légales', 'Legal notice')}</a> · <a href="/confidentialite/">{t('Confidentialité', 'Privacy')}</a>
             </span>
           </div>
         );
@@ -1472,8 +1474,8 @@ export default function MenuScreen({ navigation }) {
         <button
           onClick={() => retour('ouvrir') || setModal({ type: 'reglages' })}
           className="sdl-eco-btn sdl-eco-top"
-          aria-label="Réglages"
-          title="Réglages : sons, vibrations, écran"
+          aria-label={t('Réglages', 'Settings')}
+          title={t('Réglages : sons, vibrations, écran', 'Settings: sound, vibration, screen')}
         >
           <GearIcon />
         </button>

@@ -1,14 +1,15 @@
 // ── Accès aux jeux : gratuits du jour, multi-téléphones, déblocages ───
 import { characters } from '../data/characters';
 import { PAYWALL_ACTIF, JEUX_GRATUITS_PAR_JOUR } from '../config/offres';
+import { t } from '../i18n';
 
 // Un jeu jouable sur plusieurs téléphones est toujours gratuit.
 export const isMulti = (c) => c.phones === 'multi' || c.phones === 'both';
 
 export const PHONE_LABELS = {
-  one: '1 téléphone',
-  multi: 'Multi-téléphones',
-  both: '1 ou plusieurs téléphones',
+  one: t('1 téléphone', '1 phone'),
+  multi: t('Multi-téléphones', 'Multiple phones'),
+  both: t('1 ou plusieurs téléphones', '1 or more phones'),
 };
 
 // Jour courant à l'heure de Paris, en nombre de jours depuis 1970.
