@@ -23,16 +23,28 @@ const {
   gamePath, gameLabel, gameTitle, gameDescription,
 } = loadData('seo.js');
 const { SEO_JEUX } = loadData('seoJeux.js');
+const { HOME_TITLE_EN, HOME_DESCRIPTION_EN, gameTitleEn, gameDescriptionEn } = loadData('seo.js');
+const { CHARACTERS_EN } = loadData('charactersEn.js');
+const { SEO_JEUX_EN } = loadData('seoJeuxEn.js');
 
 const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 const esc = (s) => String(s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-function head({ title, description, url, jsonLd }) {
+// Liens hreflang entre une page française et sa version anglaise (/en/…)
+function alternates(alt) {
+  if (!alt) return '';
+  return `
+    <link rel="alternate" hreflang="fr" href="${alt.fr}" />
+    <link rel="alternate" hreflang="en" href="${alt.en}" />
+    <link rel="alternate" hreflang="x-default" href="${alt.fr}" />`;
+}
+
+function head({ title, description, url, jsonLd, lang = 'fr', alt }) {
   return `<title>${esc(title)}</title>
     <meta name="description" content="${esc(description)}" />
-    <link rel="canonical" href="${url}" />
+    <link rel="canonical" href="${url}" />${alternates(alt)}
     <meta name="theme-color" content="#0E0C1A" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
@@ -41,7 +53,8 @@ function head({ title, description, url, jsonLd }) {
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="${esc(SITE_NAME)}" />
-    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:locale" content="${lang === 'en' ? 'en_GB' : 'fr_FR'}" />
+    <meta property="og:locale:alternate" content="${lang === 'en' ? 'fr_FR' : 'en_GB'}" />
     <meta property="og:title" content="${esc(title)}" />
     <meta property="og:description" content="${esc(description)}" />
     <meta property="og:url" content="${url}" />
@@ -56,15 +69,16 @@ function head({ title, description, url, jsonLd }) {
 }
 
 // Contenu lisible sans JavaScript (robots, aperçus) ; l'app le remplace dès qu'elle démarre
-function noscript(inner) {
-  return `<noscript>\n      ${inner}\n      <p>Activez JavaScript pour jouer.</p>\n    </noscript>`;
+function noscript(inner, lang) {
+  const msg = lang === 'en' ? 'Enable JavaScript to play.' : 'Activez JavaScript pour jouer.';
+  return `<noscript>\n      ${inner}\n      <p>${msg}</p>\n    </noscript>`;
 }
 
-function render(base, { title, description, url, jsonLd, body }) {
+function render(base, { title, description, url, jsonLd, body, lang = 'fr', alt }) {
   const html = base
-    .replace(/<html lang="[^"]*"/, '<html lang="fr"')
-    .replace(/<title>[\s\S]*?<\/title>/, () => head({ title, description, url, jsonLd }))
-    .replace(/<noscript>[\s\S]*?<\/noscript>/, () => noscript(body));
+    .replace(/<html lang="[^"]*"/, `<html lang="${lang}"`)
+    .replace(/<title>[\s\S]*?<\/title>/, () => head({ title, description, url, jsonLd, lang, alt }))
+    .replace(/<noscript>[\s\S]*?<\/noscript>/, () => noscript(body, lang));
   if (!html.includes('rel="canonical"')) throw new Error('<title> introuvable dans dist/index.html');
   return html;
 }
@@ -79,10 +93,19 @@ const gameLinks = visibles
   .map((c) => `<li><a href="/${gamePath(c)}/">${esc(gameLabel(c))}</a> — ${esc(c.description)}</li>`)
   .join('\n        ');
 
+// Jeux traduits (version anglaise sous /en/)
+const visiblesEn = visibles
+  .filter((c) => CHARACTERS_EN[c.game])
+  .map((c) => ({ ...c, ...CHARACTERS_EN[c.game] }));
+const traduit = (c) => Boolean(CHARACTERS_EN[c.game]);
+const altJeu = (c) => ({ fr: `${SITE_URL}/${gamePath(c)}/`, en: `${SITE_URL}/en/${gamePath(c)}/` });
+const altAccueil = { fr: `${SITE_URL}/`, en: `${SITE_URL}/en/` };
+
 fs.writeFileSync(indexPath, render(base, {
   title: HOME_TITLE,
   description: HOME_DESCRIPTION,
   url: `${SITE_URL}/`,
+  alt: altAccueil,
   jsonLd: {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
@@ -156,6 +179,86 @@ for (const c of characters) {
     url,
     jsonLd: jsonLdJeu(c, url),
     body: corpsJeu(c),
+    alt: traduit(c) ? altJeu(c) : undefined,
+  }), 'utf8');
+}
+
+// ── Version anglaise : /en/ et /en/<jeu>/ (jeux traduits uniquement) ──
+const enDir = path.join(dist, 'en');
+fs.mkdirSync(enDir, { recursive: true });
+fs.writeFileSync(path.join(enDir, 'index.html'), render(base, {
+  lang: 'en',
+  title: HOME_TITLE_EN,
+  description: HOME_DESCRIPTION_EN,
+  url: `${SITE_URL}/en/`,
+  alt: altAccueil,
+  jsonLd: {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: SITE_NAME,
+    url: `${SITE_URL}/en/`,
+    description: HOME_DESCRIPTION_EN,
+    applicationCategory: 'GameApplication',
+    operatingSystem: 'Web',
+    inLanguage: 'en',
+    image: OG_IMAGE,
+  },
+  body: `<h1>${esc(SITE_NAME)}</h1>
+      <p>${esc(HOME_DESCRIPTION_EN)}</p>
+      <ul>
+        ${visiblesEn.map((c) => `<li><a href="/en/${gamePath(c)}/">${esc(gameLabel(c))}</a> — ${esc(c.description)}</li>`).join('\n        ')}
+      </ul>
+      <p><a href="/" hreflang="fr">Version française</a></p>`,
+}), 'utf8');
+
+function faqJeuEn(c) {
+  const commun = [
+    [`How do I play ${gameLabel(c)} online?`, `Open the page on ${SITE_URL.replace('https://', '')}/en/, add the players’ names and start the game: everything runs in the browser, no app to install.`],
+    [`How many players for ${gameLabel(c)}?`, `From ${String(c.players).replace('–', ' to ')} players, for a game of about ${c.time}.`],
+    [`Is ${gameLabel(c)} free?`, 'Yes, free and with no sign-up.'],
+  ];
+  return [...((SEO_JEUX_EN[c.game] || {}).faq || []), ...commun];
+}
+
+for (const c of visiblesEn) {
+  const p = gamePath(c);
+  const url = `${SITE_URL}/en/${p}/`;
+  const d = SEO_JEUX_EN[c.game] || {};
+  const autres = visiblesEn.filter((x) => x.game !== c.game);
+  const faq = faqJeuEn(c);
+  const dir = path.join(enDir, p);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'index.html'), render(base, {
+    lang: 'en',
+    title: gameTitleEn(c),
+    description: gameDescriptionEn(c),
+    url,
+    alt: altJeu(c),
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: SITE_NAME, item: `${SITE_URL}/en/` },
+          { '@type': 'ListItem', position: 2, name: gameLabel(c), item: url },
+        ],
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+      },
+    ],
+    body: `<h1>${esc(gameLabel(c))} — ${esc(d.motCle || 'online party game')}</h1>
+      <p>${esc(d.intro || c.description)}</p>
+      <p>${esc(c.players)} players · ${esc(c.time)} · on one phone</p>
+      ${d.regles ? `<h2>How to play</h2>
+      <ol>${d.regles.map((r) => `<li>${esc(r)}</li>`).join('')}</ol>` : ''}
+      <h2>FAQ</h2>
+      <dl>${faq.map(([q, a]) => `<dt>${esc(q)}</dt><dd>${esc(a)}</dd>`).join('')}</dl>
+      <h2>More party games</h2>
+      <ul>${autres.map((x) => `<li><a href="/en/${gamePath(x)}/">${esc(gameLabel(x))}</a></li>`).join('')}</ul>
+      <p><a href="/${p}/" hreflang="fr">Version française</a></p>`,
   }), 'utf8');
 }
 
@@ -164,7 +267,10 @@ fs.writeFileSync(path.join(dist, 'robots.txt'),
   `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`, 'utf8');
 
 const today = new Date().toISOString().slice(0, 10);
-const urls = [`${SITE_URL}/`, `${SITE_URL}/defi`, ...visibles.map((c) => `${SITE_URL}/${gamePath(c)}/`)];
+const urls = [
+  `${SITE_URL}/`, `${SITE_URL}/defi`, ...visibles.map((c) => `${SITE_URL}/${gamePath(c)}/`),
+  `${SITE_URL}/en/`, ...visiblesEn.map((c) => `${SITE_URL}/en/${gamePath(c)}/`),
+];
 fs.writeFileSync(path.join(dist, 'sitemap.xml'),
   '<?xml version="1.0" encoding="UTF-8"?>\n' +
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
@@ -203,4 +309,4 @@ fs.copyFileSync(path.join(assets, 'icon-192.png'), path.join(dist, 'icon-192.png
 fs.copyFileSync(path.join(assets, 'icon-512.png'), path.join(dist, 'icon-512.png'));
 fs.copyFileSync(path.join(assets, 'og-image.png'), path.join(dist, 'og-image.png'));
 
-console.log(`SEO : accueil + ${characters.length} pages de jeux, robots.txt, sitemap.xml, manifest`);
+console.log(`SEO : accueil + ${characters.length} pages de jeux, /en/ + ${visiblesEn.length} pages anglaises, robots.txt, sitemap.xml, manifest`);

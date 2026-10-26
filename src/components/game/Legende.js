@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, Pressable, TextInput, Image, Platform, ScrollView, ActivityIndicator,
 } from 'react-native';
-import { characters } from '../../data/characters';
+import { characters } from '../../data/jeux';
+import { t, IS_EN } from '../../i18n';
+import { SEO_JEUX_EN } from '../../data/seoJeuxEn';
 import { SEO_JEUX } from '../../data/seoJeux';
 import { FAMILIES, FamilyEmblem } from '../BoosterCard';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
@@ -93,9 +95,9 @@ export function GameTopBar({ game, mode = 'game', onBack, onHelp, current, total
   return (
     <View>
       <View style={st.topBar}>
-        <Pressable onPress={press} accessibilityRole="button" accessibilityLabel={setup ? 'Retour aux jeux' : confirm ? 'Confirmer : quitter la partie' : 'Quitter la partie'} style={st.topLeft}>
+        <Pressable onPress={press} accessibilityRole="button" accessibilityLabel={setup ? t('Retour aux jeux', 'Back to games') : confirm ? t('Confirmer : quitter la partie', 'Confirm: quit the game') : t('Quitter la partie', 'Quit the game')} style={st.topLeft}>
           <Icon name={setup ? 'back' : 'close'} color={confirm ? T.orTexte : T.encre} />
-          <Text style={[st.topLeftText, confirm && { color: T.orTexte }]}>{setup ? 'Jeux' : confirm ? 'Quitter ?' : 'Quitter'}</Text>
+          <Text style={[st.topLeftText, confirm && { color: T.orTexte }]}>{setup ? t('Jeux', 'Games') : confirm ? t('Quitter ?', 'Quit?') : t('Quitter', 'Quit')}</Text>
         </Pressable>
         {setup
           ? <Text style={st.numero}>{soiree && !soiree.fini && soiree.jeux[soiree.idx] === game
@@ -105,7 +107,7 @@ export function GameTopBar({ game, mode = 'game', onBack, onHelp, current, total
           {right !== undefined ? right
             : setup
               ? (onHelp ? (
-                <Pressable onPress={onHelp} accessibilityRole="button" accessibilityLabel="Règles du jeu" style={st.helpBtn}>
+                <Pressable onPress={onHelp} accessibilityRole="button" accessibilityLabel={t('Règles du jeu', 'Game rules')} style={st.helpBtn}>
                   <Icon name="help" circle />
                 </Pressable>) : null)
               : (total ? <Text style={st.counter}>{current} / {total}</Text> : null)}
@@ -119,8 +121,8 @@ export function GameTopBar({ game, mode = 'game', onBack, onHelp, current, total
 }
 // Nom de jeu en casse de phrase (« LE VERRE MAUDIT » → « Le verre maudit »), comme dans les phrases du site
 export function titleCase(s = '') {
-  const low = s.toLocaleLowerCase('fr');
-  return low.charAt(0).toLocaleUpperCase('fr') + low.slice(1);
+  const low = s.toLocaleLowerCase(IS_EN ? 'en' : 'fr');
+  return low.charAt(0).toLocaleUpperCase(IS_EN ? 'en' : 'fr') + low.slice(1);
 }
 
 // ── En-tête de légende (écran de réglages) ──
@@ -136,7 +138,7 @@ export function LegendHeader({ game, subtitle }) {
         <Text style={st.legendTitle}>{titleCase(g.gameName)}</Text>
         <View style={st.metaRow}>
           <FamilyBadge family={g.family} />
-          <Text style={st.meta}>{g.players || '2–12'} joueurs · {g.time || '15 min'}</Text>
+          <Text style={st.meta}>{g.players || '2–12'} {t('joueurs', 'players')} · {g.time || '15 min'}</Text>
         </View>
         {subtitle ? <Text style={st.meta}>{subtitle}</Text> : null}
       </View>
@@ -226,7 +228,7 @@ export function AmbianceSelector({ levels, value, onChange }) {
               ))}
             </View>
             <Text style={[st.levelLabel, on && { color: T.orTexte }]} numberOfLines={1}>{sansEmoji(l.label)}</Text>
-            {l.adult ? <Text style={st.levelAdult}>18+</Text> : <Text style={st.levelSub} numberOfLines={1}>{l.sub || 'Tout public'}</Text>}
+            {l.adult ? <Text style={st.levelAdult}>18+</Text> : <Text style={st.levelSub} numberOfLines={1}>{l.sub || t('Tout public', 'All ages')}</Text>}
           </Pressable>
         );
       })}
@@ -238,7 +240,7 @@ export function AmbianceSelector({ levels, value, onChange }) {
 export function Stepper({ value, min = 0, max = 99, onChange, label, step = 1 }) {
   const btn = (d, icon, off) => (
     <Pressable onPress={off ? undefined : () => onChange(Math.min(max, Math.max(min, value + d)))} accessibilityRole="button"
-      accessibilityLabel={`${d < 0 ? 'Moins' : 'Plus'}${label ? ' : ' + label : ''}`} accessibilityState={{ disabled: off }}
+      accessibilityLabel={`${d < 0 ? t('Moins', 'Less') : t('Plus', 'More')}${label ? ' : ' + label : ''}`} accessibilityState={{ disabled: off }}
       style={[st.stepBtn, off && { opacity: 0.35 }]}>
       {icon === 'minus' ? <View style={{ width: 14, height: 2, borderRadius: 1, backgroundColor: T.encre }} /> : <Icon name="plus" size={18} />}
     </Pressable>
@@ -285,7 +287,7 @@ export function ToggleRow({ label, hint, value, onChange, adult }) {
 // Fenêtre par-dessus l'écran (révélation, confirmation…)
 export function Overlay({ children, onClose }) {
   return (
-    <Pressable style={st.overlay} onPress={onClose} accessibilityLabel={onClose ? 'Fermer' : undefined}>
+    <Pressable style={st.overlay} onPress={onClose} accessibilityLabel={onClose ? t('Fermer', 'Close') : undefined}>
       <Pressable style={[st.overlayCard, shadow('0 24px 60px -12px rgba(0,0,0,0.9)')]} onPress={() => {}}>
         <ScrollView style={{ maxHeight: '100%' }} contentContainerStyle={{ gap: 16, padding: 20 }}>{children}</ScrollView>
       </Pressable>
@@ -335,13 +337,13 @@ export function PlayerEditor({ names, onChange, min = 2, max = 12 }) {
   };
   const remove = (i) => onChange(filled.filter((_, j) => j !== i));
   return (
-    <Section label="Joueurs" aside={`${filled.length} sur ${max}${filled.length < min ? ` · ${min} minimum` : ''}`}>
+    <Section label={t('Joueurs', 'Players')} aside={`${filled.length} ${t('sur', 'of')} ${max}${filled.length < min ? ` · ${min} minimum` : ''}`}>
       <View style={st.chips}>
         {filled.map((n, i) => (
           <View key={n + i} style={st.player}>
             <PlayerToken name={n} index={i} />
             <Text style={st.playerName} numberOfLines={1}>{n}</Text>
-            <Pressable onPress={() => remove(i)} accessibilityRole="button" accessibilityLabel={`Retirer ${n}`} style={st.playerX}>
+            <Pressable onPress={() => remove(i)} accessibilityRole="button" accessibilityLabel={`${t('Retirer', 'Remove')} ${n}`} style={st.playerX}>
               <Icon name="close" size={14} color={T.encreDouce} />
             </Pressable>
           </View>
@@ -350,10 +352,10 @@ export function PlayerEditor({ names, onChange, min = 2, max = 12 }) {
           <View style={st.addPlayer}>
             <Icon name="plus" size={16} />
             <TextInput value={draft} onChangeText={setDraft} onSubmitEditing={add} blurOnSubmit={false}
-              placeholder={filled.length ? 'Ajouter un joueur' : 'Prénom du 1er joueur'} placeholderTextColor={T.encreDouce}
-              maxLength={16} returnKeyType="done" accessibilityLabel="Prénom du joueur à ajouter" style={st.addInput} />
+              placeholder={filled.length ? t('Ajouter un joueur', 'Add a player') : t('Prénom du 1er joueur', 'First player’s name')} placeholderTextColor={T.encreDouce}
+              maxLength={16} returnKeyType="done" accessibilityLabel={t('Prénom du joueur à ajouter', 'Name of the player to add')} style={st.addInput} />
             {draft.trim() ? (
-              <Pressable onPress={add} accessibilityRole="button" accessibilityLabel="Ajouter ce joueur" style={st.addOk}>
+              <Pressable onPress={add} accessibilityRole="button" accessibilityLabel={t('Ajouter ce joueur', 'Add this player')} style={st.addOk}>
                 <Icon name="check" size={16} color={T.surOr} />
               </Pressable>
             ) : null}
@@ -412,7 +414,7 @@ export function QuestionCard({ kicker, children, footer, style }) {
 }
 
 // ── Écran « Passez le téléphone à … » ──
-export function PassPhone({ game, name, index = 0, order = [], kicker = 'À vous de jouer', instruction = 'Les autres joueurs détournent le regard.', extra }) {
+export function PassPhone({ game, name, index = 0, order = [], kicker = t('À vous de jouer', 'Your turn'), instruction = t('Les autres joueurs détournent le regard.', 'Everyone else looks away.'), extra }) {
   useEffect(() => { retour('passe'); }, [name]);
   return (
     <View style={st.pass}>
@@ -422,11 +424,11 @@ export function PassPhone({ game, name, index = 0, order = [], kicker = 'À vous
           <PlayerToken name={name} index={index} size={88} />
           <Text style={st.passName} numberOfLines={1}>{name}</Text>
           <View style={st.qRule} />
-          {order.length ? <Text style={st.qKicker}>JOUEUR {index + 1} SUR {order.length}</Text> : null}
+          {order.length ? <Text style={st.qKicker}>{t('JOUEUR', 'PLAYER')} {index + 1} {t('SUR', 'OF')} {order.length}</Text> : null}
         </View>
       </View>
       <View style={{ alignItems: 'center', gap: 6 }}>
-        <Text style={st.passTitle}>Passez le téléphone à {name}</Text>
+        <Text style={st.passTitle}>{t('Passez le téléphone à', 'Pass the phone to')} {name}</Text>
         <Text style={st.passText}>{instruction}</Text>
         {extra}
       </View>
@@ -536,8 +538,8 @@ export function EndActions({ navigation, route, replay, children, game, scores, 
         <SoireeActions navigation={navigation} game={game} scores={scores} moinsGagne={moinsGagne} />
       ) : (
         <>
-          <PrimaryButton label="Rejouer" onPress={replay || (() => navigation.replace(route.name, route.params))} />
-          <TextLink label="Retour aux jeux" onPress={() => navigation.navigate('Menu')} />
+          <PrimaryButton label={t('Rejouer', 'Play again')} onPress={replay || (() => navigation.replace(route.name, route.params))} />
+          <TextLink label={t('Retour aux jeux', 'Back to games')} onPress={() => navigation.navigate('Menu')} />
         </>
       )}
     </ActionBar>
@@ -563,7 +565,7 @@ export function AnswerChoice({ label, index, state, onPress, disabled }) {
           : { b: T.traitFort, bg: T.carte, t: T.encre, l: T.traitFort };
   return (
     <Pressable onPress={disabled ? undefined : onPress} accessibilityRole="button" accessibilityState={{ disabled: !!disabled, selected: state === 'selected' }}
-      accessibilityLabel={`Réponse ${LETTERS[index]} : ${label}${state === 'correct' ? ', bonne réponse' : state === 'wrong' ? ', mauvaise réponse' : ''}`}
+      accessibilityLabel={`${t('Réponse', 'Answer')} ${LETTERS[index]} : ${label}${state === 'correct' ? t(', bonne réponse', ', correct answer') : state === 'wrong' ? t(', mauvaise réponse', ', wrong answer') : ''}`}
       style={({ pressed }) => [st.answer, { borderColor: c.b, backgroundColor: c.bg }, pressed && !disabled && { borderColor: T.or }]}>
       <View style={[st.answerLetter, { borderColor: c.l, backgroundColor: state === 'correct' || state === 'wrong' ? c.l : 'transparent' }]}>
         {state === 'correct' ? <Icon name="check" size={16} color={T.fond} />
@@ -595,7 +597,7 @@ export function TimeBar({ running, duration, onExpire, resetKey, color = '#4FD8A
   }, [resetKey, running]);
   const col = left > 0.5 ? color : left > 0.2 ? T.orTexte : T.alerte;
   return (
-    <View style={st.timeTrack} accessibilityRole="progressbar" accessibilityLabel={`${Math.ceil(left * duration)} secondes restantes`}>
+    <View style={st.timeTrack} accessibilityRole="progressbar" accessibilityLabel={`${Math.ceil(left * duration)} ${t('secondes restantes', 'seconds left')}`}>
       <View style={[st.timeFill, { width: `${left * 100}%`, backgroundColor: col }]} />
     </View>
   );
@@ -680,7 +682,7 @@ export function GameScreen({ top, children, footer, scroll = true, contentStyle 
 }
 
 // ── Gabarit des écrans de réglages ──
-export function SetupLayout({ game, navigation, onBack, rules = [], children, startLabel = 'Lancer la partie', onStart, canStart = true, note, secondary, subtitle }) {
+export function SetupLayout({ game, navigation, onBack, rules = [], children, startLabel = t('Lancer la partie', 'Start the game'), onStart, canStart = true, note, secondary, subtitle }) {
   const [showRules, setShowRules] = useState(false);
   return (
     <View style={st.screen}>
@@ -688,11 +690,11 @@ export function SetupLayout({ game, navigation, onBack, rules = [], children, st
       <ScrollView style={{ flex: 1, minHeight: 0 }} contentContainerStyle={st.content} keyboardShouldPersistTaps="handled">
         <LegendHeader game={game} subtitle={subtitle} />
         {children}
-        {SEO_JEUX[game]?.intro ? (
+        {(IS_EN ? SEO_JEUX_EN : SEO_JEUX)[game]?.intro ? (
           <View style={st.about}>
-            <Text style={st.sectionLabel}>LE JEU</Text>
-            <Text style={st.aboutText}>{SEO_JEUX[game].intro}</Text>
-            {rules.length ? <TextLink label="Lire les règles complètes" onPress={() => setShowRules(true)} /> : null}
+            <Text style={st.sectionLabel}>{t('LE JEU', 'THE GAME')}</Text>
+            <Text style={st.aboutText}>{(IS_EN ? SEO_JEUX_EN : SEO_JEUX)[game].intro}</Text>
+            {rules.length ? <TextLink label={t('Lire les règles complètes', 'Read the full rules')} onPress={() => setShowRules(true)} /> : null}
           </View>
         ) : null}
       </ScrollView>
@@ -701,11 +703,11 @@ export function SetupLayout({ game, navigation, onBack, rules = [], children, st
         <PrimaryButton label={startLabel} onPress={onStart} disabled={!canStart} />
       </ActionBar>
       {showRules && (
-        <Pressable style={st.sheetBack} onPress={() => setShowRules(false)} accessibilityLabel="Fermer les règles">
+        <Pressable style={st.sheetBack} onPress={() => setShowRules(false)} accessibilityLabel={t('Fermer les règles', 'Close the rules')}>
           <Pressable style={st.sheet} onPress={() => {}}>
             <View style={st.sectionHead}>
-              <Text style={st.sheetTitle}>Comment jouer</Text>
-              <Pressable onPress={() => setShowRules(false)} accessibilityRole="button" accessibilityLabel="Fermer" style={st.helpBtn}><Icon name="close" /></Pressable>
+              <Text style={st.sheetTitle}>{t('Comment jouer', 'How to play')}</Text>
+              <Pressable onPress={() => setShowRules(false)} accessibilityRole="button" accessibilityLabel={t('Fermer', 'Close')} style={st.helpBtn}><Icon name="close" /></Pressable>
             </View>
             {rules.map((r, i) => (
               <View key={i} style={{ flexDirection: 'row', gap: 10 }}>
@@ -713,7 +715,7 @@ export function SetupLayout({ game, navigation, onBack, rules = [], children, st
                 <Text style={st.ruleText}>{r}</Text>
               </View>
             ))}
-            <PrimaryButton label="Compris" onPress={() => setShowRules(false)} style={{ marginTop: 8 }} />
+            <PrimaryButton label={t('Compris', 'Got it')} onPress={() => setShowRules(false)} style={{ marginTop: 8 }} />
           </Pressable>
         </Pressable>
       )}

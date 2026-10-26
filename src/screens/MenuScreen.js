@@ -8,7 +8,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../theme';
 import { OB_BG } from '../theme/obsidian';
-import { characters } from '../data/characters';
+import { characters } from '../data/jeux';
+import { t, IS_EN, switchLanguage } from '../i18n';
 import AdBanner, { AD_ENABLED } from '../components/AdBanner';
 import { BoosterFront, BoosterBack, FamilyEmblem, FAMILIES, familyOf, PhoneIcon, LockIcon } from '../components/BoosterCard';
 import { OffresModal, IdeeModal, CodeModal, ReglagesModal } from '../components/WebModals';
@@ -70,7 +71,14 @@ const EASE = IS_MOBILE_WEB ? 0.09 : 0.14;
 let FAN_X1, FAN_XN;                                  // décalage de la 1re voisine, écart des suivantes
 const FAN_Z    = 140;                                  // recul par carte (px)
 const FAN_RY   = IS_MOBILE_WEB ? 18 : 24;              // inclinaison des voisines (deg)
-const RING_VIS  = IS_MOBILE_WEB ? 2 : 3;
+// Peu de jeux (site /en/) : on cache la carte opposée, sinon un côté en montre plus que l'autre
+const RING_VIS  = Math.min(IS_MOBILE_WEB ? 2 : 3, Math.floor((N - 1) / 2));
+// Site /en/ (4 jeux) : cartes alignées au lieu du carrousel — une ligne sur PC, 2×2 sur mobile.
+// Toucher une carte la sélectionne ; la carte sélectionnée est mise en avant.
+const ALIGNED    = IS_EN && Platform.OS === 'web';
+const ALIGN_COLS = IS_MOBILE_WEB ? Math.min(2, N) : N;
+const ALIGN_ROWS = Math.ceil(N / ALIGN_COLS);
+const ALIGN_GAP  = IS_MOBILE_WEB ? 12 : 28;
 // PC : vrai tambour 3D. Les cartes sont posées sur un cylindre (face vers
 // l'extérieur) ; on n'en montre que la moitié avant (≤ ~80°), ce qui garde
 // l'ordre visuel des cartes de gauche à droite.
@@ -86,8 +94,15 @@ function computeSizes() {
   const WEB_H = IS_MOBILE_WEB
     ? Math.max(170, Math.min(400, FIT_H, Math.round(SW * 0.68 * 310 / 210)))
     : Math.max(260, Math.min(540, FIT_H, Math.round(SW * 0.26 * 310 / 210)));
-  const w = Platform.OS === 'web' ? Math.round(WEB_H * 210 / 310) : Math.min(SW * 0.75, 300);
-  const h = Platform.OS === 'web' ? WEB_H : Math.min(Math.round(w * 1.55), SH - 210);
+  let w = Platform.OS === 'web' ? Math.round(WEB_H * 210 / 310) : Math.min(SW * 0.75, 300);
+  let h = Platform.OS === 'web' ? WEB_H : Math.min(Math.round(w * 1.55), SH - 210);
+  if (ALIGNED) {
+    // Toutes les cartes doivent tenir côte à côte (et sur 2 rangées sur mobile)
+    const maxW = (SW - (IS_MOBILE_WEB ? 32 : 240) - ALIGN_GAP * (ALIGN_COLS - 1)) / ALIGN_COLS;
+    const maxH = ALIGN_ROWS > 1 ? (STAGE_EST - 24 - ALIGN_GAP * (ALIGN_ROWS - 1)) / ALIGN_ROWS : h;
+    w = Math.floor(Math.min(w, maxW, maxH * 210 / 310));
+    h = Math.round(w * 310 / 210);
+  }
   const changed = w !== CARD_W || h !== CARD_H;
   CARD_W = w; CARD_H = h;
   DRAG_FACTOR = STEP / (IS_MOBILE_WEB ? CARD_W * 1.2 : CARD_W);
@@ -111,6 +126,17 @@ function cardPos(rot, i) {
     const ad = Math.abs(d);
     const dd = Math.max(-(RING_VIS + 1), Math.min(RING_VIS + 1, d));
     const ae = Math.abs(dd), sg = Math.sign(dd);
+    if (ALIGNED) {
+      const col = i % ALIGN_COLS, row = Math.floor(i / ALIGN_COLS);
+      return {
+        x:  (col - (ALIGN_COLS - 1) / 2) * (CARD_W + ALIGN_GAP),
+        y:  (row - (ALIGN_ROWS - 1) / 2) * (CARD_H + ALIGN_GAP),
+        z:  0, sc: 1, op: 1, ry: 0,
+        br: ad < 0.5 ? 1 : 0.7,
+        depth: -ad,
+        ad,
+      };
+    }
     const op = ad <= 1 ? 1
              : ad <= RING_VIS ? 1 - (ad - 1) * 0.25
              : Math.max(0, (1 - (RING_VIS - 1) * 0.25) * (1 - (ad - RING_VIS) / 0.6));
@@ -183,6 +209,9 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         transform-style: preserve-3d;
       }
       .sdl-stage.grabbing { cursor: grabbing; }
+      .sdl-stage.sdl-aligned, .sdl-stage.sdl-aligned.grabbing { cursor: pointer; }
+      .sdl-stage.sdl-grid .sdl-flip-card { -webkit-box-reflect: unset; }
+      .sdl-stage.sdl-aligned .sdl-slot { transition: opacity 0.2s ease, filter 0.25s ease; }
 
       /* Slot GPU layer */
       .sdl-slot {
@@ -956,11 +985,11 @@ export default function MenuScreen({ navigation }) {
         if (!el) return;
         const p = cardPos(rot, i);
         const zi = String(Math.round(100 - p.ad * 10));
-        el.style.pointerEvents = p.ad <= RING_VIS + 0.5 ? 'auto' : 'none';
+        el.style.pointerEvents = ALIGNED || p.ad <= RING_VIS + 0.5 ? 'auto' : 'none';
         if (IS_MOBILE_WEB && ecoRef.current) {
           // Eco mode : 2D plat, léger (perspective simulée par l'échelle)
           const sc = 900 / (900 - p.z);
-          el.style.transform = `translateX(${p.x * sc}px) scale(${sc})`;
+          el.style.transform = `translate(${p.x * sc}px, ${(p.y ?? 0) * sc}px) scale(${sc})`;
           el.style.opacity   = p.op < 0.5 ? '0' : String(p.op);
           el.style.filter    = '';
           el.style.zIndex    = zi;
@@ -1022,7 +1051,7 @@ export default function MenuScreen({ navigation }) {
   }, []);
 
   const onPtrMove = useCallback((e) => {
-    if (!webDrag.current.active) return;
+    if (!webDrag.current.active || ALIGNED) return;
     const now = performance.now();
     const dt  = now - webDrag.current.lastT;
     if (dt > 8) {
@@ -1059,6 +1088,7 @@ export default function MenuScreen({ navigation }) {
       }
       return;
     }
+    if (ALIGNED) return; // cartes fixes : pas de glissement
     if (IS_MOBILE_WEB) {
       // Mobile : un glissement = une carte, quelle que soit la vitesse du doigt
       const startIdx = Math.round(webDrag.current.startRot / STEP);
@@ -1078,9 +1108,16 @@ export default function MenuScreen({ navigation }) {
     const k = Math.round((rotRef.current + idx * STEP) / (2 * Math.PI));
     targetRef.current = -idx * STEP + k * 2 * Math.PI;
     setFlipped({});
+    if (ALIGNED) {
+      // Cartes fixes : rien à animer, la sélection est immédiate
+      rotRef.current = targetRef.current;
+      updateCarousel(rotRef.current);
+      setActiveIdx(idx);
+      return;
+    }
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(animate);
-  }, [animate]);
+  }, [animate, updateCarousel]);
   const goToRef = useRef(null);
   goToRef.current = goTo;
 
@@ -1151,7 +1188,8 @@ export default function MenuScreen({ navigation }) {
       if (el) {
         el.style.marginLeft = `-${CARD_W / 2}px`;
         // Remonte un peu la carte pour laisser la place au reflet
-        el.style.marginTop  = `-${CARD_H / 2 + Math.round(CARD_H * REFLECT_SHIFT)}px`;
+        // (grille 2×2 du site /en/ : pas de reflet, donc pas de décalage)
+        el.style.marginTop  = `-${CARD_H / 2 + (ALIGNED && ALIGN_ROWS > 1 ? 0 : Math.round(CARD_H * REFLECT_SHIFT))}px`;
       }
     });
     updateCarousel(rotRef.current);
@@ -1253,7 +1291,7 @@ export default function MenuScreen({ navigation }) {
             <div className="sdl-top">
               <div className="sdl-brand">
                 {/* Le logo sert aussi d'accès discret à la saisie du code (ex-couronne ♛) */}
-                <button className="sdl-logo-img" aria-label="Code d'accès" onClick={() => retour('ouvrir') || setModal({ type: 'code' })}>
+                <button className="sdl-logo-img" aria-label={t("Code d'accès", 'Access code')} onClick={() => retour('ouvrir') || setModal({ type: 'code' })}>
                   <img src="/icon-192.png" alt="" width="34" height="34" />
                 </button>
                 <div className="sdl-logo" aria-label="La Soirée des Légendes">
@@ -1263,23 +1301,25 @@ export default function MenuScreen({ navigation }) {
               </div>
               <div className="sdl-top-actions">
                 <span className="sdl-top-count">
-                  {characters.filter(c => c.available && !enConstruction(c)).length} jeux · 2 à 12 joueurs
+                  {characters.filter(c => c.available && !enConstruction(c)).length} {t('jeux · 2 à 12 joueurs', 'games · 3 to 12 players')}
                 </span>
-                <button className="sdl-top-btn" onClick={() => retour('ouvrir') || setModal({ type: 'idee' })}><span className="sdl-lg">Proposer un jeu</span><span className="sdl-sm">Idée</span></button>
+                <button className="sdl-top-btn" lang={IS_EN ? 'fr' : 'en'} aria-label={t('English version', 'Version française')} onClick={switchLanguage}>{t('EN', 'FR')}</button>
+                {!IS_EN && <button className="sdl-top-btn" onClick={() => retour('ouvrir') || setModal({ type: 'idee' })}><span className="sdl-lg">Proposer un jeu</span><span className="sdl-sm">Idée</span></button>}
                 {install.show && (
-                  <button className="sdl-top-btn sdl-install" aria-label="Installer l'appli" onClick={install.install}>
-                    <span className="sdl-lg">Installer</span>
+                  <button className="sdl-top-btn sdl-install" aria-label={t("Installer l'appli", 'Install the app')} onClick={install.install}>
+                    <span className="sdl-lg">{t('Installer', 'Install')}</span>
                     <svg className="sdl-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>
                   </button>
                 )}
-                <button className="sdl-top-btn sdl-desk" aria-label="Réglages" onClick={() => retour('ouvrir') || setModal({ type: 'reglages' })}><GearIcon /></button>
-                <button className="sdl-top-btn gold" onClick={() => retour('ouvrir') || setModal({ type: 'offres', game: null })}>Offres</button>
+                <button className="sdl-top-btn sdl-desk" aria-label={t('Réglages', 'Settings')} onClick={() => retour('ouvrir') || setModal({ type: 'reglages' })}><GearIcon /></button>
+                {!IS_EN && <button className="sdl-top-btn gold" onClick={() => retour('ouvrir') || setModal({ type: 'offres', game: null })}>Offres</button>}
               </div>
             </div>
             <div className="sdl-hero">
-              <h1 className="sdl-h1">Choisissez <em>votre légende.</em></h1>
-              <div className="sdl-fams" role="group" aria-label="Aller à une famille de jeux">
-                {Object.entries(FAMILIES).map(([key, f]) => (
+              <h1 className="sdl-h1">{t('Choisissez ', 'Choose ')}<em>{t('votre légende.', 'your legend.')}</em></h1>
+              <div className="sdl-fams" role="group" aria-label={t('Aller à une famille de jeux', 'Jump to a game family')}>
+                {/* Seulement les familles qui ont au moins un jeu (le site /en/ n'en a que 4) */}
+                {Object.entries(FAMILIES).filter(([key]) => characters.some((c) => c.family === key)).map(([key, f]) => (
                   <button
                     key={key}
                     className={`sdl-fam${curFam === key ? ' on' : ''}`}
@@ -1318,10 +1358,12 @@ export default function MenuScreen({ navigation }) {
             className="sdl-aura"
             style={{ '--accent': familyOf(characters[activeIdx] ?? characters[0]).color, width: CARD_W * 2.6, height: CARD_W * 2.6, marginTop: -Math.round(CARD_H * REFLECT_SHIFT) }}
           />
-          <div className="sdl-floor" style={{ top: `calc(50% + ${Math.round(CARD_H * (0.5 - REFLECT_SHIFT))}px)` }} />
+          {ALIGN_ROWS === 1 || !ALIGNED ? (
+            <div className="sdl-floor" style={{ top: `calc(50% + ${Math.round(CARD_H * (0.5 - REFLECT_SHIFT))}px)` }} />
+          ) : null}
           <div
             ref={stageRef}
-            className="sdl-stage"
+            className={`sdl-stage${ALIGNED ? ' sdl-aligned' : ''}${ALIGNED && ALIGN_ROWS > 1 ? ' sdl-grid' : ''}`}
             onPointerDown={onPtrDown}
           >
             {characters.map((char, i) => (
@@ -1343,8 +1385,8 @@ export default function MenuScreen({ navigation }) {
               </div>
             ))}
           </div>
-          <button className="sdl-nav sdl-nav-prev" aria-label="Jeu précédent" onClick={() => navigateCard(+1)}>‹</button>
-          <button className="sdl-nav sdl-nav-next" aria-label="Jeu suivant" onClick={() => navigateCard(-1)}>›</button>
+          {!ALIGNED && <button className="sdl-nav sdl-nav-prev" aria-label={t('Jeu précédent', 'Previous game')} onClick={() => navigateCard(+1)}>‹</button>}
+          {!ALIGNED && <button className="sdl-nav sdl-nav-next" aria-label={t('Jeu suivant', 'Next game')} onClick={() => navigateCard(-1)}>›</button>}
         </div>
       )}
 
@@ -1378,7 +1420,7 @@ export default function MenuScreen({ navigation }) {
 
 
       {/* Dots */}
-      {(Platform.OS === 'web' ? (
+      {ALIGNED ? null : (Platform.OS === 'web' ? (
         <div className="sdl-dots">
           {characters.map((c, i) => (
             <button
@@ -1386,7 +1428,7 @@ export default function MenuScreen({ navigation }) {
               ref={(el) => { dotsRef.current[i] = el; }}
               className={`sdl-dot${i === 0 ? ' active' : ''}`}
               style={{ width: i === 0 ? 26 : 7, background: i === 0 ? '#D4AF37' : '#2E2A4A' }}
-              aria-label={`Aller au jeu ${i + 1}`}
+              aria-label={`${t('Aller au jeu', 'Go to game')} ${i + 1}`}
               onClick={() => goTo(i)}
             />
           ))}
@@ -1416,21 +1458,21 @@ export default function MenuScreen({ navigation }) {
                 <span className="sdl-info-fam" style={{ color: fam.color, background: fam.veil }}>
                   <FamilyEmblem family={c.family} size="13px" />{fam.label}
                 </span>
-                {c.adult && <span className="sdl-info-age" title="18+ ou version sans alcool"><span className="sdl-lg">18+ ou sans alcool</span><span className="sdl-sm">18+</span></span>}
+                {c.adult && <span className="sdl-info-age" title={t('18+ ou version sans alcool', '18+ or alcohol-free version')}><span className="sdl-lg">{t('18+ ou sans alcool', '18+ or alcohol-free')}</span><span className="sdl-sm">18+</span></span>}
                 {(() => {
                   const st = acces(c);
                   if (st === 'libre') return null;
-                  if (st === 'multi') return <span className="sdl-info-tag free">Toujours gratuit</span>;
-                  if (st === 'gratuit') return <span className="sdl-info-tag free">Gratuit aujourd’hui</span>;
-                  if (st === 'debloque') return <span className="sdl-info-tag">Débloqué</span>;
-                  return <span className="sdl-info-tag lock"><LockIcon size="12px" />Verrouillé</span>;
+                  if (st === 'multi') return <span className="sdl-info-tag free">{t('Toujours gratuit', 'Always free')}</span>;
+                  if (st === 'gratuit') return <span className="sdl-info-tag free">{t('Gratuit aujourd’hui', 'Free today')}</span>;
+                  if (st === 'debloque') return <span className="sdl-info-tag">{t('Débloqué', 'Unlocked')}</span>;
+                  return <span className="sdl-info-tag lock"><LockIcon size="12px" />{t('Verrouillé', 'Locked')}</span>;
                 })()}
               </span>
               <span className="sdl-info-title" ref={metaGameRef}>{c.gameName}</span>
               {c.description && <p className="sdl-info-desc">{c.description}</p>}
             </div>
             <div className="sdl-info-chips">
-              <span className="sdl-info-chip">{c.players || '2–12'} joueurs</span>
+              <span className="sdl-info-chip">{c.players || '2–12'} {t('joueurs', 'players')}</span>
               <span className="sdl-info-chip">{c.time || '15 min'}</span>
               <span className="sdl-info-chip sdl-chip-phone"><PhoneIcon mode={c.phones || 'one'} size="16px" />{PHONE_LABELS[c.phones || 'one']}</span>
             </div>
@@ -1442,12 +1484,12 @@ export default function MenuScreen({ navigation }) {
                 if (target.available && !enConstruction(target)) handleSelectGame(target);
               }}
             >
-              {!c.available ? 'Bientôt'
-                : enConstruction(c) ? '🚧 En construction'
-                : acces(c) === 'verrouille' ? <><LockIcon size="15px" />Débloquer</>
-                : '▶  Jouer'}
+              {!c.available ? t('Bientôt', 'Soon')
+                : enConstruction(c) ? t('🚧 En construction', '🚧 Under construction')
+                : acces(c) === 'verrouille' ? <><LockIcon size="15px" />{t('Débloquer', 'Unlock')}</>
+                : t('▶  Jouer', '▶  Play')}
             </button>
-            <div className="sdl-extra-links">
+            {!IS_EN && <div className="sdl-extra-links">
               <button className="sdl-soiree-link" onClick={() => { retour('ouvrir'); navigation.navigate('Defi'); }}>
                 <em className="sdl-lg">Seul ? </em><span>Défi du jour</span>
               </button>
@@ -1455,14 +1497,14 @@ export default function MenuScreen({ navigation }) {
               <button className="sdl-soiree-link" onClick={() => { retour('ouvrir'); navigation.navigate('Soiree'); }}>
                 <em className="sdl-lg">Plusieurs jeux ? </em><span>Soirée enchaînée</span>
               </button>
-            </div>
+            </div>}
             <span className="sdl-meta-hint">
               {IS_MOBILE_WEB
-                ? 'glissez pour changer · touchez la carte pour la retourner'
-                : 'cliquer la carte pour la retourner · ← → pour naviguer · entrée pour jouer'}
+                ? t('glissez pour changer · touchez la carte pour la retourner', 'swipe to change · tap the card to flip it')
+                : t('cliquer la carte pour la retourner · ← → pour naviguer · entrée pour jouer', 'click the card to flip it · ← → to browse · enter to play')}
             </span>
             <span className="sdl-legal">
-              <a href="/mentions-legales/">Mentions légales</a> · <a href="/confidentialite/">Confidentialité</a>
+              <a href="/mentions-legales/">{t('Mentions légales', 'Legal notice')}</a> · <a href="/confidentialite/">{t('Confidentialité', 'Privacy')}</a>
             </span>
           </div>
         );
@@ -1472,8 +1514,8 @@ export default function MenuScreen({ navigation }) {
         <button
           onClick={() => retour('ouvrir') || setModal({ type: 'reglages' })}
           className="sdl-eco-btn sdl-eco-top"
-          aria-label="Réglages"
-          title="Réglages : sons, vibrations, écran"
+          aria-label={t('Réglages', 'Settings')}
+          title={t('Réglages : sons, vibrations, écran', 'Settings: sound, vibration, screen')}
         >
           <GearIcon />
         </button>

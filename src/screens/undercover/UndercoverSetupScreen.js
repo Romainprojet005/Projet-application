@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { wordThemes, generateRandomPair } from '../../data/wordLists';
+import * as MOTS_FR from '../../data/wordLists';
+import * as MOTS_EN from '../../data/wordListsEn';
+import { t, IS_EN } from '../../i18n';
 import sansEmoji from '../../utils/sansEmoji';
 import goBackOrMenu from '../../navigation/goBack';
 import { SetupLayout, Section, ChoiceChips, StepperRow, ToggleRow, Panel, PlayerEditor, T, F } from '../../components/game/Legende';
+
+const { wordThemes, generateRandomPair } = IS_EN ? MOTS_EN : MOTS_FR;
 
 // Persiste en mémoire tant que l'app n'est pas fermée
 const usedPairsPerTheme = {};
@@ -82,12 +86,19 @@ export default function UndercoverSetupScreen({ navigation, route }) {
       navigation={navigation}
       onBack={() => goBackOrMenu(navigation)}
       onStart={handleStart}
-      startLabel="Lancer la mission"
+      startLabel={t('Lancer la mission', 'Start the mission')}
       canStart={canStart}
-      note={avecNoms && playerCount < MIN_PLAYERS ? `Ajoutez au moins ${MIN_PLAYERS} joueurs, ou effacez les prénoms.`
-        : !uniques ? 'Deux joueurs ont le même prénom : ajoutez une initiale.'
+      note={avecNoms && playerCount < MIN_PLAYERS ? t(`Ajoutez au moins ${MIN_PLAYERS} joueurs, ou effacez les prénoms.`, `Add at least ${MIN_PLAYERS} players, or clear the names.`)
+        : !uniques ? t('Deux joueurs ont le même prénom : ajoutez une initiale.', 'Two players have the same name: add an initial.')
+        : IS_EN ? `${civilianCount} civilian${civilianCount > 1 ? 's' : ''} · ${undercoverCount} ${undercoverCount > 1 ? 'spies' : 'spy'}${hasMrWhite ? ' · 1 Mr. White' : ''}`
         : `${civilianCount} villageois · ${undercoverCount} espion${undercoverCount > 1 ? 's' : ''}${hasMrWhite ? ' · 1 Monsieur Blanc' : ''}`}
-      rules={[
+      rules={IS_EN ? [
+        'Each player looks at their word in secret. The civilians all share the same word; the spies get a similar one.',
+        'Mr. White, if playing, has no word: they listen and bluff.',
+        'One by one, everyone gives a clue about their word, without saying it.',
+        'After each round, vote to eliminate a suspect.',
+        'Civilians win once every spy is found; spies win when they match the civilians in number.',
+      ] : [
         'Chaque joueur découvre son mot en secret. Les villageois ont tous le même ; les espions en ont un proche.',
         'Monsieur Blanc, s’il est en jeu, n’a aucun mot : il écoute et bluffe.',
         'Chacun à son tour donne un indice sur son mot, sans le dire.',
@@ -95,20 +106,20 @@ export default function UndercoverSetupScreen({ navigation, route }) {
         'Les villageois gagnent quand tous les espions sont démasqués ; les espions, quand ils sont aussi nombreux que les villageois.',
       ]}
     >
-      <Section label="Équipe">
+      <Section label={t('Équipe', 'Team')}>
         {avecNoms ? null : (
-          <StepperRow label="Joueurs" hint="Sans prénoms : Joueur 1, Joueur 2…" value={nbSansNoms} min={MIN_PLAYERS} max={MAX_PLAYERS} onChange={setNbSansNoms} />
+          <StepperRow label={t('Joueurs', 'Players')} hint={t('Sans prénoms : Joueur 1, Joueur 2…', 'Without names: Player 1, Player 2…')} value={nbSansNoms} min={MIN_PLAYERS} max={MAX_PLAYERS} onChange={setNbSansNoms} />
         )}
-        <StepperRow label="Espions" hint="Recommandé : 1 espion pour 3 joueurs" value={undercoverCount} min={1} max={maxUndercover} onChange={setUndercoverCount} />
-        <ToggleRow label="Monsieur Blanc" hint="Un joueur sans mot qui doit bluffer" value={hasMrWhite} onChange={setHasMrWhite} />
+        <StepperRow label={t('Espions', 'Spies')} hint={t('Recommandé : 1 espion pour 3 joueurs', 'Recommended: 1 spy for every 3 players')} value={undercoverCount} min={1} max={maxUndercover} onChange={setUndercoverCount} />
+        <ToggleRow label={t('Monsieur Blanc', 'Mr. White')} hint={t('Un joueur sans mot qui doit bluffer', 'A player with no word who has to bluff')} value={hasMrWhite} onChange={setHasMrWhite} />
       </Section>
 
       <PlayerEditor names={noms} onChange={setNoms} min={MIN_PLAYERS} max={MAX_PLAYERS} />
-      <Text style={[s.desc, { marginTop: -12 }]}>Facultatif : sans prénoms, les joueurs sont numérotés.</Text>
+      <Text style={[s.desc, { marginTop: -12 }]}>{t('Facultatif : sans prénoms, les joueurs sont numérotés.', 'Optional: without names, players are numbered.')}</Text>
 
-      <Section label="Thème des mots">
+      <Section label={t('Thème des mots', 'Word theme')}>
         <ChoiceChips
-          options={Object.entries(wordThemes).map(([key, t]) => ({ value: key, label: t.label, adult: ['hot', 'coquin', 'tres_hot'].includes(key) }))}
+          options={Object.entries(wordThemes).map(([key, th]) => ({ value: key, label: th.label, adult: ['hot', 'coquin', 'tres_hot'].includes(key) }))}
           value={selectedTheme}
           onChange={setSelectedTheme}
         />
@@ -116,11 +127,11 @@ export default function UndercoverSetupScreen({ navigation, route }) {
       </Section>
 
       <Panel>
-        <Text style={s.panelTitle}>RÉPARTITION</Text>
+        <Text style={s.panelTitle}>{t('RÉPARTITION', 'BREAKDOWN')}</Text>
         <View style={s.split}>
-          <Count n={civilianCount} label="Villageois" color="#7CC4FF" />
-          <Count n={undercoverCount} label={`Espion${undercoverCount > 1 ? 's' : ''}`} color={T.alerte} />
-          {hasMrWhite ? <Count n={1} label="M. Blanc" color={T.orTexte} /> : null}
+          <Count n={civilianCount} label={t('Villageois', 'Civilians')} color="#7CC4FF" />
+          <Count n={undercoverCount} label={IS_EN ? (undercoverCount > 1 ? 'Spies' : 'Spy') : `Espion${undercoverCount > 1 ? 's' : ''}`} color={T.alerte} />
+          {hasMrWhite ? <Count n={1} label={t('M. Blanc', 'Mr. White')} color={T.orTexte} /> : null}
         </View>
       </Panel>
     </SetupLayout>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Platform } from 'react-native';
-import { characters } from '../data/characters';
+import { characters } from '../data/jeux';
 import { familyOf } from './BoosterCard';
 
 // ── Habillage commun des écrans de jeu (web) ──────────────────────────

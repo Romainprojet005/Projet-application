@@ -8,6 +8,7 @@ import {
   PlayerToken, PlayerChoice, PlayerGrid, tokenColor, Icon, SoireeActions, T, F,
 } from '../../components/game/Legende';
 import { dansLaSoiree } from '../../services/soiree';
+import { t, IS_EN } from '../../i18n';
 
 const GAME = 'undercover';
 
@@ -21,13 +22,13 @@ function CharacterImage({ name }) {
 
 // Les espions découvrent leur mot comme des villageois : personne ne sait qu'il est espion
 const ROLE_CONFIG = {
-  civilian:   { label: 'Villageois',     color: '#7CC4FF', message: 'Donnez des indices sans trop en dire : un espion a un mot proche du vôtre.' },
-  undercover: { label: 'Espion',         color: T.alerte,  message: 'Vous étiez l’espion infiltré.' },
-  mrwhite:    { label: 'Monsieur Blanc', color: T.orTexte, message: 'Vous n’avez aucun mot. Écoutez les autres et inventez un bluff parfait.' },
+  civilian:   { label: t('Villageois', 'Civilian'), color: '#7CC4FF', message: t('Donnez des indices sans trop en dire : un espion a un mot proche du vôtre.', 'Give clues without saying too much: a spy has a word close to yours.') },
+  undercover: { label: t('Espion', 'Spy'), color: T.alerte,  message: t('Vous étiez l’espion infiltré.', 'You were the undercover spy.') },
+  mrwhite:    { label: t('Monsieur Blanc', 'Mr. White'), color: T.orTexte, message: t('Vous n’avez aucun mot. Écoutez les autres et inventez un bluff parfait.', 'You have no word. Listen to the others and come up with the perfect bluff.') },
 };
-const roleName = (t) => (t === 'civilian' ? 'Villageois' : t === 'undercover' ? 'Espion' : 'M. Blanc');
+const roleName = (r) => (r === 'civilian' ? t('Villageois', 'Civilian') : r === 'undercover' ? t('Espion', 'Spy') : t('M. Blanc', 'Mr. White'));
 // Nom affiché d'un joueur : son prénom s'il a été saisi, sinon « Joueur N »
-const nommer = (names) => (i) => names?.[i] || `Joueur ${i + 1}`;
+const nommer = (names) => (i) => names?.[i] || `${t('Joueur', 'Player')} ${i + 1}`;
 const jeton = (names) => (i) => (names?.[i] ? names[i] : String(i + 1));
 
 function distributeRoles(playerCount, wordPair, undercoverCount, hasMrWhite) {
@@ -51,10 +52,10 @@ function WordCard({ role, themeName }) {
       <View style={styles.cardInner}>
         <Text style={[styles.kicker, { color: cfg.color }]}>{cfg.label.toUpperCase()}</Text>
         {role.type !== 'mrwhite' && <CharacterImage name={role.word} />}
-        <Text style={styles.kicker}>VOTRE MOT</Text>
+        <Text style={styles.kicker}>{t('VOTRE MOT', 'YOUR WORD')}</Text>
         <Text style={styles.word}>{role.type !== 'mrwhite' ? role.word : '???'}</Text>
         <View style={styles.rule} />
-        <Text style={styles.cardNote}>{role.type !== 'mrwhite' ? `Thème : ${themeName}` : 'Aucun mot attribué'}</Text>
+        <Text style={styles.cardNote}>{role.type !== 'mrwhite' ? `${t('Thème', 'Theme')} : ${themeName}` : t('Aucun mot attribué', 'No word given')}</Text>
         <Text style={styles.cardMsg}>{cfg.message}</Text>
       </View>
     </View>
@@ -100,18 +101,18 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
   return (
     <View style={{ flex: 1 }}>
       <GameScreen
-        top={<GameTopBar game={GAME} onBack={onQuit} right={<Text style={styles.counter}>{alive} EN JEU</Text>} />}
+        top={<GameTopBar game={GAME} onBack={onQuit} right={<Text style={styles.counter}>{alive} {t('EN JEU', 'IN PLAY')}</Text>} />}
         footer={(
           <ActionBar>
-            <SecondaryButton label="Revoir mon mot" onPress={() => { setPeekPlayer(-1); setPeekRevealed(false); }} />
-            <TextLink label="Terminer et révéler les mots" onPress={() => setWinner('ended')} />
+            <SecondaryButton label={t('Revoir mon mot', 'See my word again')} onPress={() => { setPeekPlayer(-1); setPeekRevealed(false); }} />
+            <TextLink label={t('Terminer et révéler les mots', 'End and reveal the words')} onPress={() => setWinner('ended')} />
           </ActionBar>
         )}
       >
         <View style={styles.starter}>
-          <Text style={styles.kicker}>COMMENCE</Text>
+          <Text style={styles.kicker}>{t('COMMENCE', 'GOES FIRST')}</Text>
           <Text style={styles.starterName}>{P(starter)}</Text>
-          <Text style={styles.sub}>Puis on tourne dans le sens des aiguilles d’une montre. Après chaque tour, touchez le joueur éliminé.</Text>
+          <Text style={styles.sub}>{t('Puis on tourne dans le sens des aiguilles d’une montre. Après chaque tour, touchez le joueur éliminé.', 'Then go round clockwise. After each round, tap the player who was voted out.')}</Text>
         </View>
         <View style={styles.grid}>
           {roles.map((r, idx) => {
@@ -119,11 +120,11 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
             const cfg = ROLE_CONFIG[r.type];
             return (
               <Pressable key={idx} onPress={out ? undefined : () => setModalIdx(idx)} accessibilityRole="button"
-                accessibilityLabel={out ? `${P(idx)}, éliminé, ${cfg.label}` : `Éliminer ${P(idx)}`}
+                accessibilityLabel={out ? `${P(idx)}, ${t('éliminé', 'out')}, ${cfg.label}` : `${t('Éliminer', 'Eliminate')} ${P(idx)}`}
                 style={({ pressed }) => [styles.seat, out && styles.seatOut, idx === starter && !out && { borderColor: T.or }, pressed && !out && { backgroundColor: T.orVoile }]}>
                 <PlayerToken name={tok(idx)} index={idx} size={36} />
                 <Text style={styles.seatName} numberOfLines={1}>{P(idx)}</Text>
-                <Text style={[styles.seatState, out && { color: cfg.color }]}>{out ? cfg.label : 'En jeu'}</Text>
+                <Text style={[styles.seatState, out && { color: cfg.color }]}>{out ? cfg.label : t('En jeu', 'In play')}</Text>
               </Pressable>
             );
           })}
@@ -132,9 +133,9 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
 
       {modalRole && (
         <Overlay onClose={() => setModalIdx(null)}>
-          <Heading kicker={P(modalIdx)} title="Éliminer ce joueur ?" sub="Son rôle sera révélé à tous." />
-          <PrimaryButton label="Confirmer l’élimination" onPress={handleEliminate} />
-          <TextLink label="Annuler" onPress={() => setModalIdx(null)} color={T.encreDouce} />
+          <Heading kicker={P(modalIdx)} title={t('Éliminer ce joueur ?', 'Eliminate this player?')} sub={t('Son rôle sera révélé à tous.', 'Their role will be revealed to everyone.')} />
+          <PrimaryButton label={t('Confirmer l’élimination', 'Confirm elimination')} onPress={handleEliminate} />
+          <TextLink label={t('Annuler', 'Cancel')} onPress={() => setModalIdx(null)} color={T.encreDouce} />
         </Overlay>
       )}
 
@@ -142,11 +143,11 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
         <Overlay onClose={closePeek}>
           {peekPlayer === -1 ? (
             <>
-              <Heading title={names ? 'Qui êtes-vous ?' : 'Quel est votre numéro ?'} sub="Assurez-vous d’être seul à regarder." />
+              <Heading title={names ? t('Qui êtes-vous ?', 'Who are you?') : t('Quel est votre numéro ?', 'What is your number?')} sub={t('Assurez-vous d’être seul à regarder.', 'Make sure nobody else is looking.')} />
               {names ? (
                 <PlayerGrid>
                   {roles.map((_, idx) => !eliminated.has(idx) && (
-                    <PlayerChoice key={idx} name={P(idx)} index={idx} onPress={() => { setPeekPlayer(idx); setPeekRevealed(false); }} label={`Je suis ${P(idx)}`} />
+                    <PlayerChoice key={idx} name={P(idx)} index={idx} onPress={() => { setPeekPlayer(idx); setPeekRevealed(false); }} label={`${t('Je suis', 'I am')} ${P(idx)}`} />
                   ))}
                 </PlayerGrid>
               ) : (
@@ -159,18 +160,18 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
                 ))}
               </View>
               )}
-              <TextLink label="Annuler" onPress={closePeek} color={T.encreDouce} />
+              <TextLink label={t('Annuler', 'Cancel')} onPress={closePeek} color={T.encreDouce} />
             </>
           ) : !peekRevealed ? (
             <>
-              <Heading kicker={P(peekPlayer)} title="Personne ne regarde ?" sub="Touchez le bouton pour voir votre mot." />
-              <PrimaryButton label="Voir mon mot" onPress={() => setPeekRevealed(true)} />
-              <TextLink label="Annuler" onPress={closePeek} color={T.encreDouce} />
+              <Heading kicker={P(peekPlayer)} title={t('Personne ne regarde ?', 'Nobody looking?')} sub={t('Touchez le bouton pour voir votre mot.', 'Tap the button to see your word.')} />
+              <PrimaryButton label={t('Voir mon mot', 'See my word')} onPress={() => setPeekRevealed(true)} />
+              <TextLink label={t('Annuler', 'Cancel')} onPress={closePeek} color={T.encreDouce} />
             </>
           ) : (
             <>
               <WordCard role={peekRole} themeName={themeName} />
-              <PrimaryButton label="Fermer" onPress={closePeek} />
+              <PrimaryButton label={t('Fermer', 'Close')} onPress={closePeek} />
             </>
           )}
         </Overlay>
@@ -179,24 +180,24 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
       {winner && (
         <Overlay>
           <Heading
-            kicker="Fin de partie"
-            title={winner === 'spies' ? 'Les espions gagnent' : winner === 'civilians' ? 'Les villageois gagnent' : 'Voici qui était qui'}
-            sub={winner === 'spies' ? 'Les espions sont en majorité : la mission est compromise.' : winner === 'civilians' ? 'Tous les espions ont été démasqués.' : null}
+            kicker={t('Fin de partie', 'Game over')}
+            title={winner === 'spies' ? t('Les espions gagnent', 'The spies win') : winner === 'civilians' ? t('Les villageois gagnent', 'The civilians win') : t('Voici qui était qui', 'Here’s who was who')}
+            sub={winner === 'spies' ? t('Les espions sont en majorité : la mission est compromise.', 'The spies are the majority: the mission is compromised.') : winner === 'civilians' ? t('Tous les espions ont été démasqués.', 'Every spy has been unmasked.') : null}
           />
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <View style={[styles.wordBox, { borderColor: '#7CC4FF' }]}>
-              <Text style={styles.kicker}>VILLAGEOIS</Text>
+              <Text style={styles.kicker}>{t('VILLAGEOIS', 'CIVILIANS')}</Text>
               <Text style={styles.wordSmall}>{civilianWord ?? '—'}</Text>
             </View>
             <View style={[styles.wordBox, { borderColor: T.alerte }]}>
-              <Text style={[styles.kicker, { color: T.alerte }]}>ESPION</Text>
+              <Text style={[styles.kicker, { color: T.alerte }]}>{t('ESPION', 'SPY')}</Text>
               <Text style={styles.wordSmall}>{undercoverWord ?? '—'}</Text>
             </View>
           </View>
           <View style={styles.revealList}>
             {roles.map((r, i) => (
               <View key={i} style={styles.revealChip}>
-                <Text style={styles.revealNum}>{names ? P(i) : `J${i + 1}`}</Text>
+                <Text style={styles.revealNum}>{names ? P(i) : `${t('J', 'P')}${i + 1}`}</Text>
                 <Text style={[styles.revealRole, { color: ROLE_CONFIG[r.type].color }]}>{roleName(r.type)}</Text>
                 {eliminated.has(i) ? <Icon name="close" size={12} color={T.encreDouce} /> : null}
               </View>
@@ -204,8 +205,8 @@ function GameBoard({ roles, themeName, onQuit, onBackToMenu, onReplay, navigatio
           </View>
           {dansLaSoiree(GAME) ? <SoireeActions navigation={navigation} game={GAME} /> : (
             <>
-              <PrimaryButton label="Rejouer" onPress={onReplay} />
-              <TextLink label="Retour aux jeux" onPress={onBackToMenu} />
+              <PrimaryButton label={t('Rejouer', 'Play again')} onPress={onReplay} />
+              <TextLink label={t('Retour aux jeux', 'Back to games')} onPress={onBackToMenu} />
             </>
           )}
         </Overlay>
@@ -251,10 +252,10 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
     <GameScreen
       top={<GameTopBar game={GAME} onBack={quit} current={currentPlayer + 1} total={playerCount} />}
       footer={(
-        <ActionBar note={phase === 'waiting' ? 'Prenez le téléphone seul.' : 'Mémorisez-le, puis passez le téléphone.'}>
+        <ActionBar note={phase === 'waiting' ? t('Prenez le téléphone seul.', 'Take the phone alone.') : t('Mémorisez-le, puis passez le téléphone.', 'Memorise it, then pass the phone on.')}>
           {phase === 'waiting'
-            ? <PrimaryButton label="Révéler mon mot" onPress={() => { retour('carte'); setPhase('revealed'); }} />
-            : <PrimaryButton label={isLast ? 'Tout le monde a vu' : (names ? `À ${P(currentPlayer + 1)}` : `Au joueur ${currentPlayer + 2}`)} onPress={handleNext} />}
+            ? <PrimaryButton label={t('Révéler mon mot', 'Reveal my word')} onPress={() => { retour('carte'); setPhase('revealed'); }} />
+            : <PrimaryButton label={isLast ? t('Tout le monde a vu', 'Everyone has seen it') : (names ? `${t('À', 'To')} ${P(currentPlayer + 1)}` : `${t('Au joueur', 'To player')} ${currentPlayer + 2}`)} onPress={handleNext} />}
         </ActionBar>
       )}
     >
@@ -262,14 +263,14 @@ export default function UndercoverDistributeScreen({ navigation, route }) {
         <View style={{ alignItems: 'center', gap: 22, paddingTop: 12 }}>
           <View style={styles.card}>
             <View style={[styles.cardInner, { paddingVertical: 34 }]}>
-              <Text style={styles.kicker}>DISTRIBUTION SECRÈTE</Text>
+              <Text style={styles.kicker}>{t('DISTRIBUTION SECRÈTE', 'SECRET HANDOUT')}</Text>
               <PlayerToken name={tok(currentPlayer)} index={currentPlayer} size={88} />
               <Text style={styles.word}>{P(currentPlayer)}</Text>
               <View style={styles.rule} />
-              <Text style={styles.kicker}>{currentPlayer + 1} SUR {playerCount}</Text>
+              <Text style={styles.kicker}>{currentPlayer + 1} {t('SUR', 'OF')} {playerCount}</Text>
             </View>
           </View>
-          <Heading title={names ? `Passez le téléphone à ${P(currentPlayer)}` : `Passez le téléphone au joueur ${currentPlayer + 1}`} sub="Les autres joueurs détournent le regard." />
+          <Heading title={names ? `${t('Passez le téléphone à', 'Pass the phone to')} ${P(currentPlayer)}` : `${t('Passez le téléphone au joueur', 'Pass the phone to player')} ${currentPlayer + 1}`} sub={t('Les autres joueurs détournent le regard.', 'Everyone else looks away.')} />
         </View>
       ) : (
         <WordCard role={role} themeName={themeName} />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Platform } from 'react-native';
 import { PHONE_LABELS } from '../services/acces';
+import { t } from '../i18n';
 
 // ── Carte de légende (web) ────────────────────────────────────────────
 // Refonte « écran unique » : carte nuit, cadre or, emblème de la famille du jeu.
@@ -9,9 +10,9 @@ import { PHONE_LABELS } from '../services/acces';
 
 export const FAMILIES = {
   bluff:  { label: 'Bluff',  color: '#B9A2FF', veil: 'rgba(185,162,255,.12)' },
-  savoir: { label: 'Savoir', color: '#4FD8A4', veil: 'rgba(79,216,164,.12)' },
+  savoir: { label: t('Savoir', 'Knowledge'), color: '#4FD8A4', veil: 'rgba(79,216,164,.12)' },
   social: { label: 'Social', color: '#7CC4FF', veil: 'rgba(124,196,255,.12)' },
-  defi:   { label: 'Défis',  color: '#FF8A8A', veil: 'rgba(255,138,138,.12)' },
+  defi:   { label: t('Défis', 'Dares'),  color: '#FF8A8A', veil: 'rgba(255,138,138,.12)' },
 };
 
 export function familyOf(character) {
@@ -155,7 +156,7 @@ export function BoosterFront({ character, idx, width, className = '', locked = f
       <div className="bc-top">
         <span className="bc-num-wrap">
           <span className="bc-num">N° {n}</span>
-          {locked && <span className="bc-lock" aria-label="Verrouillé"><LockIcon /></span>}
+          {locked && <span className="bc-lock" aria-label={t('Verrouillé', 'Locked')}><LockIcon /></span>}
         </span>
         <span className="bc-fam" style={{ color: fam.color, background: fam.veil }}>
           <FamilyEmblem family={character.family} size="1.1em" />{fam.label}
@@ -166,10 +167,10 @@ export function BoosterFront({ character, idx, width, className = '', locked = f
       </div>
       <span className="bc-who">{character.title}</span>
       <span className="bc-title" style={titleSize(character.gameName)}>{character.gameName}</span>
-      <span className="bc-meta">{character.players || '2–12'} joueurs · {character.time || '15 min'}</span>
-      <span className="bc-phones"><PhoneIcon mode={mode} />{mode === 'both' ? '1 ou + téléphones' : PHONE_LABELS[mode]}</span>
-      {!character.available && <div className="bc-soon"><span>BIENTÔT</span></div>}
-      {character.available && building && <div className="bc-soon bc-build"><span>🚧<br />EN CONSTRUCTION</span></div>}
+      <span className="bc-meta">{character.players || '2–12'} {t('joueurs', 'players')} · {character.time || '15 min'}</span>
+      <span className="bc-phones"><PhoneIcon mode={mode} />{mode === 'both' ? t('1 ou + téléphones', '1 or more phones') : PHONE_LABELS[mode]}</span>
+      {!character.available && <div className="bc-soon"><span>{t('BIENTÔT', 'SOON')}</span></div>}
+      {character.available && building && <div className="bc-soon bc-build"><span>🚧<br />{t('EN CONSTRUCTION', 'UNDER CONSTRUCTION')}</span></div>}
     </div>
   );
 }
@@ -183,7 +184,7 @@ export function BoosterBack({ character, idx, width, className = '' }) {
       <span className="bc-back-rule" />
       <p className="bc-back-desc">{character.description}</p>
       <div className="bc-chips">
-        <span className="bc-chip">{character.players || '2–12'} joueurs</span>
+        <span className="bc-chip">{character.players || '2–12'} {t('joueurs', 'players')}</span>
         <span className="bc-chip">{character.time || '15 min'}</span>
       </div>
     </div>

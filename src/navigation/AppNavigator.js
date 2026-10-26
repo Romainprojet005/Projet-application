@@ -9,8 +9,9 @@ import { SCREEN_ENTER } from '../components/SiteAnimations';
 // Fondu d'entrée des écrans (web), sauf si l'appareil demande moins d'animations
 const REDUCED_MOTION = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 import { createStackNavigator } from '@react-navigation/stack';
-import { characters } from '../data/characters';
-import { HOME_TITLE, gamePath, gameTitle } from '../data/seo';
+import { characters } from '../data/jeux';
+import { HOME_TITLE, HOME_TITLE_EN, gamePath, gameTitle, gameTitleEn } from '../data/seo';
+import { IS_EN, PATH_PREFIX } from '../i18n';
 import { trackRouteChange } from '../services/stats';
 import { updateFullscreenForRoute } from '../utils/appMode';
 
@@ -166,11 +167,18 @@ const linking = {
   },
 };
 
+// Version anglaise : toutes les adresses passent sous /en/ (l'accueil devient /en)
+if (IS_EN) {
+  const s = linking.config.screens;
+  for (const k of Object.keys(s)) s[k] = s[k] ? PATH_PREFIX + s[k] : 'en';
+}
+
 // Titre de l'onglet (et pour Google) : sans ça, React Navigation affiche le nom de l'écran (« Menu »)
 const documentTitle = {
   formatter: (options, route) => {
-    const path = linking.config.screens[route?.name];
-    const game = typeof path === 'string' && characters.find((c) => gamePath(c) === path.split('/')[0]);
+    const path = String(linking.config.screens[route?.name] ?? '').slice(IS_EN ? PATH_PREFIX.length : 0);
+    const game = path && characters.find((c) => gamePath(c) === path.split('/')[0]);
+    if (IS_EN) return game ? gameTitleEn(game) : HOME_TITLE_EN;
     return game ? gameTitle(game) : HOME_TITLE;
   },
 };
@@ -182,7 +190,9 @@ export default function AppNavigator() {
   const syncRoute = () => {
     const route = navRef.current?.getCurrentRoute() ?? null;
     // Jeu « en construction » ouvert par son adresse (lien, favori…) sans le code : retour au menu
-    if (route && enConstruction(gameForRoute(route.name))) {
+    // Version anglaise : seuls l'accueil et les jeux traduits existent (pas de multi-téléphones)
+    const horsAnglais = IS_EN && route && !/^(Menu|Undercover|TriPotes|Defis|Vote(Setup|Game)$)/.test(route.name);
+    if (horsAnglais || (route && enConstruction(gameForRoute(route.name)))) {
       navRef.current?.reset({ index: 0, routes: [{ name: 'Menu' }] });
       return;
     }

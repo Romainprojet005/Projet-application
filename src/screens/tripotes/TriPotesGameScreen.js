@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
-import { pickPromptAndDecoys } from '../../data/quiEstLePlusPrompts';
+import * as Q_FR from '../../data/quiEstLePlusPrompts';
+import * as Q_EN from '../../data/quiEstLePlusPromptsEn';
+import { t, IS_EN } from '../../i18n';
 import goBackOrMenu from '../../navigation/goBack';
 import { retour } from '../../utils/feedback';
 import {
@@ -9,6 +11,7 @@ import {
 } from '../../components/game/Legende';
 
 const GAME = 'tripotes';
+const { pickPromptAndDecoys } = IS_EN ? Q_EN : Q_FR;
 
 export default function TriPotesGameScreen({ navigation, route }) {
   const { playerNames = [], roundCount = 6, categoryId = 'all' } = route.params || {};
@@ -112,7 +115,7 @@ export default function TriPotesGameScreen({ navigation, route }) {
     return (
       <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={roundCount} total={roundCount} />}
         footer={<EndActions navigation={navigation} route={route} game={GAME} scores={scores} />}>
-        <Heading kicker="Fin du jugement" title={winner ? `${winner} l’emporte` : 'Le classement'} sub="Meilleur juge de potes de la soirée." />
+        <Heading kicker={t('Fin du jugement', 'Final verdict')} title={winner ? t(`${winner} l’emporte`, `${winner} wins`) : t('Le classement', 'The ranking')} sub={t('Meilleur juge de potes de la soirée.', 'Best judge of friends tonight.')} />
         <Ranking players={playerNames} scores={scores} suffix=" pts" />
       </GameScreen>
     );
@@ -121,8 +124,8 @@ export default function TriPotesGameScreen({ navigation, route }) {
   // ── Passer le téléphone au juge ──
   if (phase === 'pass_to_judge') {
     return (
-      <GameScreen top={top} scroll={false} footer={one(`${judge} a le téléphone`, () => goPhase('question_reveal'))}>
-        <PassPhone game={GAME} name={judge} index={judgeIdx} kicker={`Juge de la manche ${round + 1}`} instruction="Les autres joueurs ne regardent pas l’écran." />
+      <GameScreen top={top} scroll={false} footer={one(t(`${judge} a le téléphone`, `${judge} has the phone`), () => goPhase('question_reveal'))}>
+        <PassPhone game={GAME} name={judge} index={judgeIdx} kicker={t(`Juge de la manche ${round + 1}`, `Judge of round ${round + 1}`)} instruction={t('Les autres joueurs ne regardent pas l’écran.', 'Everyone else looks away from the screen.')} />
       </GameScreen>
     );
   }
@@ -130,8 +133,8 @@ export default function TriPotesGameScreen({ navigation, route }) {
   // ── La question secrète ──
   if (phase === 'question_reveal') {
     return (
-      <GameScreen top={top} footer={one('Classer les joueurs', () => goPhase('ranking'))}>
-        <QuestionCard kicker="La question secrète" footer="Mémorisez-la : vous allez classer les autres joueurs selon elle.">
+      <GameScreen top={top} footer={one(t('Classer les joueurs', 'Rank the players'), () => goPhase('ranking'))}>
+        <QuestionCard kicker={t('La question secrète', 'The secret question')} footer={t('Mémorisez-la : vous allez classer les autres joueurs selon elle.', 'Memorise it: you’ll rank the other players with it.')}>
           {currentPrompt?.text ?? '…'}
         </QuestionCard>
       </GameScreen>
@@ -143,18 +146,18 @@ export default function TriPotesGameScreen({ navigation, route }) {
     return (
       <GameScreen top={top} footer={(
         <ActionBar>
-          <PrimaryButton label="Valider le classement" onPress={() => goPhase('reveal_ranking')} disabled={ranking.length !== others.length} />
-          {ranking.length > 0 ? <TextLink label="Recommencer le classement" color={T.encreDouce} onPress={resetRanking} /> : null}
+          <PrimaryButton label={t('Valider le classement', 'Confirm the ranking')} onPress={() => goPhase('reveal_ranking')} disabled={ranking.length !== others.length} />
+          {ranking.length > 0 ? <TextLink label={t('Recommencer le classement', 'Start the ranking over')} color={T.encreDouce} onPress={resetRanking} /> : null}
         </ActionBar>
       )}>
-        <Heading kicker={`${judge} classe`} title="Classez-les" sub="Touchez les joueurs du plus au moins concerné par la question." />
+        <Heading kicker={t(`${judge} classe`, `${judge} ranks`)} title={t('Classez-les', 'Rank them')} sub={t('Touchez les joueurs du plus au moins concerné par la question.', 'Tap the players from most to least likely.')} />
         <View style={{ gap: 8 }}>
           {others.map((name) => {
             const pos = ranking.indexOf(name);
             const ranked = pos !== -1;
             return (
               <PlayerChoice key={name} name={name} index={idxOf(name)} selected={ranked} disabled={false}
-                onPress={() => toggleRank(name)} label={ranked ? `${name}, classé ${pos + 1}` : `Classer ${name}`}
+                onPress={() => toggleRank(name)} label={ranked ? t(`${name}, classé ${pos + 1}`, `${name}, ranked ${pos + 1}`) : t(`Classer ${name}`, `Rank ${name}`)}
                 right={<Text style={[s.pos, ranked && { color: T.orTexte }]}>{ranked ? String(pos + 1).padStart(2, '0') : '—'}</Text>} />
             );
           })}
@@ -166,8 +169,8 @@ export default function TriPotesGameScreen({ navigation, route }) {
   // ── Classement montré au groupe ──
   if (phase === 'reveal_ranking') {
     return (
-      <GameScreen top={top} footer={one('Le groupe est prêt', () => goPhase('guessing'))}>
-        <Heading kicker="Le classement de" title={judge} sub="Passez le téléphone au groupe : à vous de deviner la vraie question." />
+      <GameScreen top={top} footer={one(t('Le groupe est prêt', 'The group is ready'), () => goPhase('guessing'))}>
+        <Heading kicker={t('Le classement de', 'The ranking by')} title={judge} sub={t('Passez le téléphone au groupe : à vous de deviner la vraie question.', 'Pass the phone to the group: now guess the real question.')} />
         <RankList />
       </GameScreen>
     );
@@ -176,8 +179,8 @@ export default function TriPotesGameScreen({ navigation, route }) {
   // ── Le groupe devine ──
   if (phase === 'guessing') {
     return (
-      <GameScreen top={top} footer={one('Valider la réponse', handleConfirmGuess, !selectedGuess)}>
-        <Heading kicker="Le groupe devine" title="Quelle était la question ?" sub={`${judge}, ne dites rien.`} />
+      <GameScreen top={top} footer={one(t('Valider la réponse', 'Confirm the answer'), handleConfirmGuess, !selectedGuess)}>
+        <Heading kicker={t('Le groupe devine', 'The group guesses')} title={t('Quelle était la question ?', 'What was the question?')} sub={t(`${judge}, ne dites rien.`, `${judge}, say nothing.`)} />
         <RankList />
         <View style={{ gap: 8 }}>
           {options.map((opt, i) => (
@@ -191,12 +194,12 @@ export default function TriPotesGameScreen({ navigation, route }) {
   // ── Résultat ──
   if (phase === 'result' && lastResult) {
     return (
-      <GameScreen top={top} footer={one(round + 1 >= roundCount ? 'Voir les scores' : 'Manche suivante', handleNextRound)}>
+      <GameScreen top={top} footer={one(round + 1 >= roundCount ? t('Voir les scores', 'See the scores') : t('Manche suivante', 'Next round'), handleNextRound)}>
         <Notice son={lastResult.correct ? 'bon' : 'faux'} tone={lastResult.correct ? 'or' : 'neutre'}
-          title={lastResult.correct ? 'Le groupe a trouvé' : `${judge} a bluffé`}>
-          {lastResult.correct ? '+1 point pour chaque joueur du groupe.' : `+2 points pour ${judge}.`}
+          title={lastResult.correct ? t('Le groupe a trouvé', 'The group got it') : t(`${judge} a bluffé`, `${judge} fooled you`)}>
+          {lastResult.correct ? t('+1 point pour chaque joueur du groupe.', '+1 point for each player in the group.') : t(`+2 points pour ${judge}.`, `+2 points for ${judge}.`)}
         </Notice>
-        <QuestionCard kicker="La question était">{currentPrompt?.text ?? '…'}</QuestionCard>
+        <QuestionCard kicker={t('La question était', 'The question was')}>{currentPrompt?.text ?? '…'}</QuestionCard>
         <Ranking players={playerNames} scores={scores} suffix=" pts" />
       </GameScreen>
     );

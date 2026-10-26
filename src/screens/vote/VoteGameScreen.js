@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { selectQuestions } from '../../data/voteData';
+import * as V_FR from '../../data/voteData';
+import * as V_EN from '../../data/voteDataEn';
+import { t, IS_EN } from '../../i18n';
 import goBackOrMenu from '../../navigation/goBack';
 import {
   GameScreen, GameTopBar, ActionBar, PrimaryButton, Heading, Notice, QuestionCard, PassPhone,
@@ -8,6 +10,7 @@ import {
 } from '../../components/game/Legende';
 
 const GAME = 'vote';
+const { selectQuestions } = IS_EN ? V_EN : V_FR;
 
 // Phase machine:
 // player_ready → player_voting → player_voted → player_ready (next player)
@@ -85,9 +88,9 @@ export default function VoteGameScreen({ route, navigation }) {
   // ── Au tour de… ──
   if (phase === 'player_ready' || phase === 'player_voted') {
     return (
-      <GameScreen top={top} scroll={false} footer={one('Voter en secret', () => setPhase('player_voting'))}>
+      <GameScreen top={top} scroll={false} footer={one(t('Voter en secret', 'Vote in secret'), () => setPhase('player_voting'))}>
         <PassPhone game={GAME} name={currentPlayer} index={currentVoterIdx} order={playerNames}
-          kicker={phase === 'player_voted' ? 'Vote enregistré' : 'À vous de voter'} instruction="Les autres joueurs détournent le regard." />
+          kicker={phase === 'player_voted' ? t('Vote enregistré', 'Vote saved') : t('À vous de voter', 'Your turn to vote')} instruction={t('Les autres joueurs détournent le regard.', 'Everyone else looks away.')} />
       </GameScreen>
     );
   }
@@ -98,9 +101,9 @@ export default function VoteGameScreen({ route, navigation }) {
       <GameScreen top={top}>
         <View style={s.who}>
           <PlayerToken name={currentPlayer} index={currentVoterIdx} size={28} />
-          <Text style={s.whoText}>{currentPlayer} vote</Text>
+          <Text style={s.whoText}>{t(`${currentPlayer} vote`, `${currentPlayer} is voting`)}</Text>
         </View>
-        <QuestionCard kicker="Votez comme la majorité">{currentQuestion.q}</QuestionCard>
+        <QuestionCard kicker={t('Votez comme la majorité', 'Vote like the majority')}>{currentQuestion.q}</QuestionCard>
         <View style={{ gap: 10 }}>
           {['a', 'b'].map((k, i) => (
             <AnswerChoice key={k} index={i} label={currentQuestion[k]} onPress={() => handleVote(k)} />
@@ -113,8 +116,8 @@ export default function VoteGameScreen({ route, navigation }) {
   // ── Tout le monde a voté ──
   if (phase === 'voting_complete') {
     return (
-      <GameScreen top={top} footer={one('Révéler les votes', () => setPhase('reveal'))}>
-        <Heading kicker={`${playerNames.length} votes enregistrés`} title="Tout le monde a voté" />
+      <GameScreen top={top} footer={one(t('Révéler les votes', 'Reveal the votes'), () => setPhase('reveal'))}>
+        <Heading kicker={t(`${playerNames.length} votes enregistrés`, `${playerNames.length} votes saved`)} title={t('Tout le monde a voté', 'Everyone has voted')} />
         <QuestionCard>{currentQuestion.q}</QuestionCard>
       </GameScreen>
     );
@@ -138,20 +141,20 @@ export default function VoteGameScreen({ route, navigation }) {
           <Text style={[s.colCount, win && { color: T.orTexte }]}>{count}</Text>
           <Text style={s.colOption}>{currentQuestion[k]}</Text>
           <Text style={s.colNames}>{voters.join(', ') || '—'}</Text>
-          {win ? <Text style={s.colTag}>{isUnanimous ? 'UNANIME' : 'MAJORITÉ'}</Text> : null}
+          {win ? <Text style={s.colTag}>{isUnanimous ? t('UNANIME', 'UNANIMOUS') : t('MAJORITÉ', 'MAJORITY')}</Text> : null}
         </View>
       );
     };
     return (
-      <GameScreen top={top} footer={one(questionIdx < questions.length - 1 ? 'Question suivante' : 'Résultats finaux', handleNextQuestion)}>
-        <Heading kicker="Résultat du vote" sub={currentQuestion.q} />
+      <GameScreen top={top} footer={one(questionIdx < questions.length - 1 ? t('Question suivante', 'Next question') : t('Résultats finaux', 'Final results'), handleNextQuestion)}>
+        <Heading kicker={t('Résultat du vote', 'Vote result')} sub={currentQuestion.q} />
         <View style={s.cols}>
           {col('a', countA, votersA)}
           {col('b', countB, votersB)}
         </View>
         <Notice son="revele" tone={isTie ? 'neutre' : 'or'}
-          title={isUnanimous ? 'Vote unanime' : isTie ? 'Égalité parfaite' : 'La majorité l’emporte'}>
-          {isUnanimous ? 'Tout le monde marque 2 points.' : isTie ? 'Personne ne marque.' : `${(majority === 'a' ? votersA : votersB).join(', ')} : +1 point.`}
+          title={isUnanimous ? t('Vote unanime', 'Unanimous vote') : isTie ? t('Égalité parfaite', 'Perfect tie') : t('La majorité l’emporte', 'The majority wins')}>
+          {isUnanimous ? t('Tout le monde marque 2 points.', 'Everyone scores 2 points.') : isTie ? t('Personne ne marque.', 'Nobody scores.') : `${(majority === 'a' ? votersA : votersB).join(', ')}${t(' : ', ': ')}+1 point.`}
         </Notice>
         <Ranking players={playerNames} scores={totals} suffix=" pts" />
       </GameScreen>
@@ -162,7 +165,7 @@ export default function VoteGameScreen({ route, navigation }) {
   return (
     <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={questions.length} total={questions.length} />}
       footer={<EndActions navigation={navigation} route={route} game={GAME} scores={scores} />}>
-      <Heading kicker="Fin de partie" title="Le classement" sub="Qui a pensé comme la majorité ?" />
+      <Heading kicker={t('Fin de partie', 'Game over')} title={t('Le classement', 'The ranking')} sub={t('Qui a pensé comme la majorité ?', 'Who thought like the majority?')} />
       <Ranking players={playerNames} scores={scores} suffix=" pts" />
     </GameScreen>
   );

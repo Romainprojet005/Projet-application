@@ -21,3 +21,15 @@ export const gameTitle = (c) => `${gameLabel(c)} : jeu de soirée gratuit en lig
 
 export const gameDescription = (c) =>
   `${c.description} ${c.players} joueurs · ${c.time}. À jouer sur téléphone, sans application.`;
+
+// ── Version anglaise (/en/) ──
+export const HOME_TITLE_EN = 'La Soirée des Légendes — free party games to play with friends on one phone';
+
+export const HOME_DESCRIPTION_EN =
+  'Free party games to play with friends on a single phone: Undercover, dares, majority vote, ' +
+  'rank your friends… From 3 to 12 players, right in your browser, no app to install.';
+
+export const gameTitleEn = (c) => `${gameLabel(c)}: free online party game | ${SITE_NAME}`;
+
+export const gameDescriptionEn = (c) =>
+  `${c.description} ${c.players} players · ${c.time}. Play on your phone, no app needed.`;

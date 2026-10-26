@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { Text } from 'react-native';
-import { DEFI_CATEGORIES } from '../../data/defisData';
+import * as D_FR from '../../data/defisData';
+import * as D_EN from '../../data/defisDataEn';
+import { t, IS_EN } from '../../i18n';
 import goBackOrMenu from '../../navigation/goBack';
 import { SetupLayout, Section, ChoiceChips, ChoicePills, PlayerEditor, T } from '../../components/game/Legende';
+
+const { DEFI_CATEGORIES } = IS_EN ? D_EN : D_FR;
 
 const MIN_PLAYERS   = 2;
 const MAX_PLAYERS   = 10;
@@ -31,21 +35,26 @@ export default function DefisSetupScreen({ navigation }) {
       onBack={() => goBackOrMenu(navigation)}
       onStart={handleStart}
       canStart={canStart}
-      startLabel="Lancer les défis"
-      note={activeCategories.length === 0 ? 'Choisissez au moins une catégorie.'
-        : validPlayers.length < MIN_PLAYERS ? `Ajoutez au moins ${MIN_PLAYERS} joueurs pour commencer.` : `${roundCount} défis à relever.`}
-      rules={[
+      startLabel={t('Lancer les défis', 'Start the dares')}
+      note={activeCategories.length === 0 ? t('Choisissez au moins une catégorie.', 'Pick at least one category.')
+        : validPlayers.length < MIN_PLAYERS ? t(`Ajoutez au moins ${MIN_PLAYERS} joueurs pour commencer.`, `Add at least ${MIN_PLAYERS} players to start.`) : t(`${roundCount} défis à relever.`, `${roundCount} dares to take on.`)}
+      rules={IS_EN ? [
+        'The wheel picks a random player.',
+        'The game gives them a dare.',
+        'Dare done: everyone cheers. Refused: a consequence awaits.',
+        'At the end, see who dared the most.',
+      ] : [
         'La roue désigne un joueur au hasard.',
         'Le jeu lui donne un défi à relever.',
         'Il réussit : les autres applaudissent. Il refuse : une conséquence l’attend.',
         'À la fin, on voit qui a tout osé.',
       ]}
     >
-      <Section label="Défis">
+      <Section label={t('Défis', 'Dares')}>
         <ChoicePills options={ROUND_OPTIONS} value={roundCount} onChange={setRoundCount} />
       </Section>
 
-      <Section label="Catégories" aside="Au moins une">
+      <Section label={t('Catégories', 'Categories')} aside={t('Au moins une', 'At least one')}>
         <ChoiceChips
           multiple
           options={DEFI_CATEGORIES.map((c) => ({ value: c.id, label: c.name, adult: !!c.explicit }))}
@@ -54,7 +63,7 @@ export default function DefisSetupScreen({ navigation }) {
         />
         {activeCategories.includes('ose') ? (
           <Text style={{ color: T.encreDouce, fontSize: 13, lineHeight: 19 }}>
-            Défis osés : réservés aux adultes. Tout défi qui implique un autre joueur se fait avec son accord ; chacun peut refuser et prendre la conséquence. Joker : {DEFI_CATEGORIES.find(c => c.id === 'ose').joker}
+            {t('Défis osés : réservés aux adultes. Tout défi qui implique un autre joueur se fait avec son accord ; chacun peut refuser et prendre la conséquence. Joker : ', 'Daring dares: adults only. Any dare involving another player needs their consent; anyone can refuse and take the consequence. Joker: ')}{DEFI_CATEGORIES.find(c => c.id === 'ose').joker}
           </Text>
         ) : null}
       </Section>

@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
-import { DEFI_CATEGORIES, pickDefi, pickConsequence } from '../../data/defisData';
+import * as D_FR from '../../data/defisData';
+import * as D_EN from '../../data/defisDataEn';
+import { t, IS_EN } from '../../i18n';
 import sansEmoji from '../../utils/sansEmoji';
 import goBackOrMenu from '../../navigation/goBack';
 import { retour } from '../../utils/feedback';
@@ -10,6 +12,7 @@ import {
 } from '../../components/game/Legende';
 
 const GAME = 'defis';
+const { DEFI_CATEGORIES, pickDefi, pickConsequence } = IS_EN ? D_EN : D_FR;
 
 export default function DefisGameScreen({ route, navigation }) {
   const { roundCount, playerNames, activeCategories } = route.params;
@@ -29,6 +32,9 @@ export default function DefisGameScreen({ route, navigation }) {
   const mountedRef    = useRef(true);
 
   useEffect(() => {
+    // Le web peut monter l'écran deux fois : sans cette remise à true, le nettoyage du
+    // premier montage laissait la roue bloquée sur « Sélection en cours… ».
+    mountedRef.current = true;
     startSpin();
     return () => {
       mountedRef.current = false;
@@ -106,13 +112,13 @@ export default function DefisGameScreen({ route, navigation }) {
     return (
       <GameScreen top={top} scroll={false}>
         <View style={s.center}>
-          <Text style={s.kicker}>DÉFI {round + 1} SUR {roundCount}</Text>
+          <Text style={s.kicker}>{t('DÉFI', 'DARE')} {round + 1} {t('SUR', 'OF')} {roundCount}</Text>
           <View style={s.spin}>
             <View style={s.spinInner}>
               <PlayerToken name={displayedName} index={idx < 0 ? 0 : idx} size={88} />
               <Text style={s.spinName} numberOfLines={1}>{displayedName}</Text>
               <View style={s.rule} />
-              <Text style={s.kicker}>SÉLECTION EN COURS…</Text>
+              <Text style={s.kicker}>{t('SÉLECTION EN COURS…', 'PICKING A PLAYER…')}</Text>
             </View>
           </View>
         </View>
@@ -126,8 +132,8 @@ export default function DefisGameScreen({ route, navigation }) {
       <GameScreen top={top} footer={(
         <ActionBar>
           <View style={s.duo}>
-            <SecondaryButton label="Refuser" onPress={handleRefuse} style={{ flex: 1, width: 'auto' }} />
-            <PrimaryButton label="Défi réussi" onPress={handleComplete} style={{ flex: 1.4, width: 'auto' }} />
+            <SecondaryButton label={t('Refuser', 'Refuse')} onPress={handleRefuse} style={{ flex: 1, width: 'auto' }} />
+            <PrimaryButton label={t('Défi réussi', 'Dare done')} onPress={handleComplete} style={{ flex: 1.4, width: 'auto' }} />
           </View>
         </ActionBar>
       )}>
@@ -142,7 +148,7 @@ export default function DefisGameScreen({ route, navigation }) {
           ) : null}
         </View>
         <Animated.View style={{ opacity: cardAnim, transform: [{ scale: cardAnim.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) }] }}>
-          <QuestionCard kicker="Votre défi" footer={catInfo?.joker ? `Joker : ${catInfo.joker}` : null}>{currentChallenge?.text}</QuestionCard>
+          <QuestionCard kicker={t('Votre défi', 'Your dare')} footer={catInfo?.joker ? `Joker : ${catInfo.joker}` : null}>{currentChallenge?.text}</QuestionCard>
         </Animated.View>
       </GameScreen>
     );
@@ -151,9 +157,9 @@ export default function DefisGameScreen({ route, navigation }) {
   // ── Conséquence ──
   if (phase === 'consequence') {
     return (
-      <GameScreen top={top} footer={<ActionBar><PrimaryButton label={round + 1 >= roundCount ? 'Voir les résultats' : 'Défi suivant'} onPress={advanceRound} /></ActionBar>}>
-        <Heading kicker="Défi refusé" title={playerNames[selIdx]} />
-        <Notice son="faux" tone="alerte" title="Conséquence">{currentConsequence}</Notice>
+      <GameScreen top={top} footer={<ActionBar><PrimaryButton label={round + 1 >= roundCount ? t('Voir les résultats', 'See the results') : t('Défi suivant', 'Next dare')} onPress={advanceRound} /></ActionBar>}>
+        <Heading kicker={t('Défi refusé', 'Dare refused')} title={playerNames[selIdx]} />
+        <Notice son="faux" tone="alerte" title={t('Conséquence', 'Consequence')}>{currentConsequence}</Notice>
       </GameScreen>
     );
   }
@@ -165,8 +171,8 @@ export default function DefisGameScreen({ route, navigation }) {
   return (
     <GameScreen top={<GameTopBar game={GAME} onBack={quit} confirmQuit={false} current={roundCount} total={roundCount} />}
       footer={<EndActions navigation={navigation} route={route} game={GAME} scores={done} />}>
-      <Heading kicker="Fin de partie" title="Qui a tout osé ?" sub={`${totalCompleted} défi${totalCompleted > 1 ? 's' : ''} réussi${totalCompleted > 1 ? 's' : ''} · ${totalRefused} refusé${totalRefused > 1 ? 's' : ''}`} />
-      <Text style={s.kickerMuted}>DÉFIS RÉUSSIS PAR JOUEUR</Text>
+      <Heading kicker={t('Fin de partie', 'Game over')} title={t('Qui a tout osé ?', 'Who dared it all?')} sub={IS_EN ? `${totalCompleted} dare${totalCompleted > 1 ? 's' : ''} done · ${totalRefused} refused` : `${totalCompleted} défi${totalCompleted > 1 ? 's' : ''} réussi${totalCompleted > 1 ? 's' : ''} · ${totalRefused} refusé${totalRefused > 1 ? 's' : ''}`} />
+      <Text style={s.kickerMuted}>{t('DÉFIS RÉUSSIS PAR JOUEUR', 'DARES DONE PER PLAYER')}</Text>
       <Ranking players={playerNames} scores={done} />
     </GameScreen>
   );
