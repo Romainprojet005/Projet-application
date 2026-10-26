@@ -272,6 +272,8 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
         border: 1px solid #6B6590; background: transparent; color: #F3EEE2;
         font-family: 'Outfit', system-ui, sans-serif; font-weight: 600; font-size: 14px; }
       .sdl-logo-main, .sdl-top-btn { white-space: nowrap; }
+      .sdl-lang-in { display: inline-flex; align-items: center; gap: 7px; }
+      .sdl-lang-flag { width: 20px; height: 14px; flex: none; border-radius: 2px; box-shadow: 0 0 0 1px rgba(255,255,255,.25); }
       .sdl-sm { display: none; }
       .sdl-top-btn:hover { border-color: #F3EEE2; }
       .sdl-top-btn.gold { border-color: #D4AF37; color: #E6C766; }
@@ -674,6 +676,29 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
     `;
     document.head.appendChild(st);
   }
+}
+
+// ── Drapeaux du bouton de langue (SVG : les émojis drapeaux ne s'affichent pas sous Windows) ──
+function Drapeau({ pays }) {
+  if (pays === 'fr') {
+    return (
+      <svg className="sdl-lang-flag" viewBox="0 0 3 2" aria-hidden="true">
+        <rect width="1" height="2" fill="#002395" />
+        <rect x="1" width="1" height="2" fill="#FFFFFF" />
+        <rect x="2" width="1" height="2" fill="#ED2939" />
+      </svg>
+    );
+  }
+  return (
+    <svg className="sdl-lang-flag" viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <clipPath id="sdl-uk-t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" /></clipPath>
+      <rect width="60" height="30" fill="#012169" />
+      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#FFFFFF" strokeWidth="6" />
+      <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#sdl-uk-t)" stroke="#C8102E" strokeWidth="4" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#FFFFFF" strokeWidth="10" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6" />
+    </svg>
+  );
 }
 
 // ── Étoiles (native) ──────────────────────────────────────────────────
@@ -1303,7 +1328,7 @@ export default function MenuScreen({ navigation }) {
                 <span className="sdl-top-count">
                   {characters.filter(c => c.available && !enConstruction(c)).length} {t('jeux · 2 à 12 joueurs', 'games · 3 to 12 players')}
                 </span>
-                <button className="sdl-top-btn" lang={IS_EN ? 'fr' : 'en'} aria-label={t('English version', 'Version française')} onClick={switchLanguage}>{t('EN', 'FR')}</button>
+                <button className="sdl-top-btn" lang={IS_EN ? 'fr' : 'en'} aria-label={t('English version', 'Version française')} onClick={switchLanguage}><span className="sdl-lang-in"><Drapeau pays={IS_EN ? 'fr' : 'en'} />{t('EN', 'FR')}</span></button>
                 {!IS_EN && <button className="sdl-top-btn" onClick={() => retour('ouvrir') || setModal({ type: 'idee' })}><span className="sdl-lg">Proposer un jeu</span><span className="sdl-sm">Idée</span></button>}
                 {install.show && (
                   <button className="sdl-top-btn sdl-install" aria-label={t("Installer l'appli", 'Install the app')} onClick={install.install}>

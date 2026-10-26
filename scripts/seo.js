@@ -271,11 +271,26 @@ const urls = [
   `${SITE_URL}/`, `${SITE_URL}/defi`, ...visibles.map((c) => `${SITE_URL}/${gamePath(c)}/`),
   `${SITE_URL}/en/`, ...visiblesEn.map((c) => `${SITE_URL}/en/${gamePath(c)}/`),
 ];
+// Paires FR ↔ EN : annoncées aussi dans le sitemap (xhtml:link), comme le recommande Google
+const paires = {};
+for (const alt of [altAccueil, ...visiblesEn.map(altJeu)]) { paires[alt.fr] = alt; paires[alt.en] = alt; }
+const liens = (u) => {
+  const alt = paires[u];
+  if (!alt) return '';
+  return `\n    <xhtml:link rel="alternate" hreflang="fr" href="${alt.fr}"/>` +
+    `\n    <xhtml:link rel="alternate" hreflang="en" href="${alt.en}"/>` +
+    `\n    <xhtml:link rel="alternate" hreflang="x-default" href="${alt.fr}"/>\n  `;
+};
 fs.writeFileSync(path.join(dist, 'sitemap.xml'),
   '<?xml version="1.0" encoding="UTF-8"?>\n' +
-  '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-  urls.map((u) => `  <url><loc>${u}</loc><lastmod>${today}</lastmod></url>`).join('\n') +
+  '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n' +
+  urls.map((u) => `  <url><loc>${u}</loc><lastmod>${today}</lastmod>${liens(u)}</url>`).join('\n') +
   '\n</urlset>\n', 'utf8');
+
+// Clé IndexNow (Bing, Yandex, Seznam…) : publique par conception, elle prouve que le site
+// nous appartient quand on leur signale des pages nouvelles ou modifiées
+const INDEXNOW_KEY = 'c09b8e86f8ed4a346279b5f2aa722401';
+fs.writeFileSync(path.join(dist, `${INDEXNOW_KEY}.txt`), INDEXNOW_KEY, 'utf8');
 
 // ── Manifest, icônes, image de partage ──
 fs.writeFileSync(path.join(dist, 'manifest.webmanifest'), JSON.stringify({
