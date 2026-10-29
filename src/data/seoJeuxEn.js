@@ -3,8 +3,11 @@
 
 export const SEO_JEUX_EN = {
   undercover: {
+    // titre / description : remplacent gameTitleEn / gameDescriptionEn pour viser les recherches « undercover game »
+    titre: 'Undercover Game Online — Free Word Party Game on One Phone | La Soirée des Légendes',
+    description: 'Play the Undercover game online for free: find the undercover spy and Mr. White hiding among civilians. 4–12 players on a single phone, no app or sign-up needed.',
     motCle: 'online impostor word game',
-    intro: 'Undercover is an impostor game where every player gets a secret word: the civilians all share the same one, the spies get a similar word. One by one, everyone gives a clue without giving themselves away, then the group votes to eliminate a suspect.',
+    intro: 'Undercover is an impostor word game where every player gets a secret word: the civilians all share the same one, the undercover spies get a similar word. One by one, everyone gives a clue without giving themselves away, then the group votes to eliminate a suspect.',
     regles: [
       'Each player looks at their word in secret on the phone, then passes it on.',
       'Mr. White, if playing, has no word at all and must bluff.',
@@ -13,6 +16,8 @@ export const SEO_JEUX_EN = {
       'Civilians win once every spy is found; spies win when they match the civilians in number.',
     ],
     faq: [
+      ['What is the Undercover game?', 'Undercover is a social deduction word game: civilians share a secret word, the undercover players get a slightly different one, and everyone must find out who is who from the clues.'],
+      ['Who is Mr. White in Undercover?', 'Mr. White is an optional role with no word at all: they listen to the others’ clues and bluff to avoid being voted out. Mr. White plays on the spies’ side.'],
       ['Does every player need a phone to play Undercover?', 'No: one phone is enough, it is passed around while the words are handed out.'],
       ['How many spies should we have?', 'The game suggests one spy for every three players, and you can add Mr. White to spice things up.'],
     ],

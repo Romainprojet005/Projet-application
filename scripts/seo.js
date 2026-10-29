@@ -230,8 +230,8 @@ for (const c of visiblesEn) {
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'index.html'), render(base, {
     lang: 'en',
-    title: gameTitleEn(c),
-    description: gameDescriptionEn(c),
+    title: d.titre || gameTitleEn(c),
+    description: d.description || gameDescriptionEn(c),
     url,
     alt: altJeu(c),
     jsonLd: [
