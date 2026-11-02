@@ -40,10 +40,11 @@ function getLocalIP() {
 
 const server = http.createServer((req, res) => {
   let urlPath = req.url.split('?')[0];
+  try { urlPath = decodeURIComponent(urlPath); } catch {}
   let filePath = path.join(DIST, urlPath);
 
   // SPA fallback : toute URL inconnue → index.html
-  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+  if (!filePath.startsWith(DIST) || !fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     filePath = path.join(DIST, 'index.html');
   }
 
