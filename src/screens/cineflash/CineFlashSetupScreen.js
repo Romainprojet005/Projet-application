@@ -16,6 +16,7 @@ import PageScroll from '../../components/PageScroll';
 import { GOLD, GOLD_LIGHT, GOLD_DARK, OB_BG, GOLD_GRADIENT, LAUNCH_TEXT } from '../../theme/obsidian';
 import goBackOrMenu from '../../navigation/goBack';
 import { FULL_HEIGHT } from '../../utils/fullHeight';
+import { CINEFLASH_CATEGORIES, availableClues } from '../../data/movieClues';
 const CIN       = '#D4AF37';
 const CIN_DARK  = '#B8962E';
 const CIN_LIGHT = '#F4DC8C';
@@ -25,6 +26,8 @@ const MAX_PLAYERS = 6;
 
 export default function CineFlashSetupScreen({ navigation }) {
   const [roundCount, setRoundCount] = useState(10);
+  const [category, setCategory] = useState('film');
+  const poolSize = availableClues(category).length;
   const [playerNames, setPlayerNames] = useState(['', '']);
   const [inputFocus, setInputFocus] = useState(null);
 
@@ -58,7 +61,8 @@ export default function CineFlashSetupScreen({ navigation }) {
 
   const handleStart = () => {
     const validNames = playerNames.map(n => n.trim()).filter(Boolean);
-    navigation.navigate('CineFlashGame', { roundCount, playerNames: validNames });
+    if (!poolSize) return;
+    navigation.navigate('CineFlashGame', { roundCount, playerNames: validNames, category });
   };
 
   return (
@@ -83,6 +87,29 @@ export default function CineFlashSetupScreen({ navigation }) {
             <Text style={styles.rulesLine}>Indice 2 → <Text style={styles.rulesPoints}>2 pts</Text></Text>
             <Text style={styles.rulesLine}>Indice 3 → <Text style={styles.rulesPoints}>1 pt</Text></Text>
             <Text style={styles.rulesNote}>Appuyez "Trouvé !" dès que vous connaissez le film.</Text>
+          </View>
+
+          {/* Catégorie */}
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>Catégorie</Text>
+            <View style={styles.pillRow}>
+              {CINEFLASH_CATEGORIES.map((c) => (
+                <TouchableOpacity
+                  key={c.value}
+                  onPress={() => setCategory(c.value)}
+                  style={[styles.pill, category === c.value && styles.pillActive]}
+                >
+                  <Text style={[styles.pillText, category === c.value && styles.pillTextActive]}>
+                    {c.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <Text style={[styles.cardHint, { marginTop: spacing.sm, marginBottom: 0 }]}>
+              {poolSize
+                ? `${poolSize} titre${poolSize > 1 ? 's' : ''} disponible${poolSize > 1 ? 's' : ''}`
+                : 'Aucune photo pour cette catégorie pour le moment.'}
+            </Text>
           </View>
 
           {/* Number of films */}
@@ -140,8 +167,8 @@ export default function CineFlashSetupScreen({ navigation }) {
           <View style={styles.summaryCard}>
             <Text style={styles.summaryTitle}>Résumé de la partie</Text>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Films à deviner</Text>
-              <Text style={styles.summaryValue}>{roundCount}</Text>
+              <Text style={styles.summaryLabel}>Titres à deviner</Text>
+              <Text style={styles.summaryValue}>{Math.min(roundCount, poolSize)}</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Joueurs</Text>
@@ -151,14 +178,14 @@ export default function CineFlashSetupScreen({ navigation }) {
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Max points possibles</Text>
-              <Text style={styles.summaryValue}>{roundCount * 3} pts</Text>
+              <Text style={styles.summaryValue}>{Math.min(roundCount, poolSize) * 3} pts</Text>
             </View>
           </View>
         </Animated.View>
 
         {/* Launch */}
         <Animated.View style={{ opacity: fadeIn, paddingHorizontal: spacing.xl, paddingBottom: 48 }}>
-          <TouchableOpacity onPress={handleStart} style={styles.launchBtn} activeOpacity={0.88}>
+          <TouchableOpacity onPress={handleStart} disabled={!poolSize} style={[styles.launchBtn, !poolSize && { opacity: 0.4 }]} activeOpacity={0.88}>
             <LinearGradient
               colors={GOLD_GRADIENT}
               start={{ x: 0, y: 0 }}

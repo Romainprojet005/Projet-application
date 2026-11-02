@@ -39,6 +39,9 @@ function isCorrectGuess(input, title) {
   return tit === inp || (inp.length >= 4 && tit.includes(inp));
 }
 
+// Titre ou l'un de ses autres noms (titre original, anglais…)
+const matchesFilm = (input, film) => [film.title, ...(film.aliases || [])].some(n => isCorrectGuess(input, n));
+
 // ── Image : /cineflash/[Titre]/1.jpg → .jpeg → .png → .webp → placeholder ───
 const EXTS = ['jpg', 'jpeg', 'png', 'webp'];
 
@@ -101,10 +104,10 @@ function DotRow({ total, active }) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 export default function CineFlashGameScreen({ navigation, route }) {
-  const { playerNames = [], roundCount = 10 } = route.params || {};
+  const { playerNames = [], roundCount = 10, category = 'film' } = route.params || {};
   const hasPlayers = playerNames.length > 0;
 
-  const [films]        = useState(() => selectFilms(roundCount));
+  const [films]        = useState(() => selectFilms(roundCount, category));
   const [filmIdx,  setFilmIdx]  = useState(0);
   const [imgIdx,   setImgIdx]   = useState(0);
   const [phase,    setPhase]    = useState('playing'); // 'playing'|'feedback'|'answer'|'final'
@@ -145,7 +148,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
   const handleTextSubmit = () => {
     if (phase !== 'playing' || !inputText.trim()) return;
 
-    if (isCorrectGuess(inputText, film.title)) {
+    if (matchesFilm(inputText, film)) {
       // ✅ Bonne réponse
       const pts = currentPts;
       if (hasPlayers && currentPlayer) {
@@ -383,7 +386,7 @@ export default function CineFlashGameScreen({ navigation, route }) {
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.textInput}
-                placeholder="Tapez le titre du film..."
+                placeholder={category === 'anime' ? "Tapez le titre de l'animé..." : 'Tapez le titre du film...'}
                 placeholderTextColor={CIN + '66'}
                 value={inputText}
                 onChangeText={setInputText}
