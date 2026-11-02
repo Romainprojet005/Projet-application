@@ -71,6 +71,20 @@ export const SEO_JEUX = {
       ['Quelles catégories d’énigmes ?', 'Films, musique, séries, célébrités et jeux vidéo : choisissez celles que vous voulez.'],
     ],
   },
+  otaku: {
+    motCle: 'quiz animé et manga',
+    intro: 'Otaku Arena est le quiz des fans d’animés et de mangas : devinez l’animé en trois indices, retrouvez qui a dit une réplique culte, qui lance une attaque spéciale, ou quel animé se cache derrière des emojis. Le premier qui crie la bonne réponse marque.',
+    regles: [
+      'Posez le téléphone au milieu : une personne lit la question à voix haute.',
+      'Le premier qui crie la bonne réponse marque les points.',
+      'Devine l’animé : 3 points au premier indice, 2 au deuxième, 1 au troisième.',
+      'Les autres questions valent 2 points, ou 1 point si vous demandez l’aide.',
+    ],
+    faq: [
+      ['Quels animés sont dans le quiz ?', 'One Piece, Naruto, Dragon Ball, L’Attaque des Titans, Demon Slayer, Jujutsu Kaisen, Pokémon, les films Ghibli et bien d’autres.'],
+      ['Combien de joueurs faut-il ?', 'De 2 à 10 joueurs, sur un seul téléphone.'],
+    ],
+  },
   vote: {
     motCle: 'jeu de vote majorité',
     intro: 'Vote majorité pose des questions, des débats et des dilemmes « tu préfères » : chacun vote en secret, et ceux qui pensent comme la majorité marquent des points.',

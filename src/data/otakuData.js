@@ -6,10 +6,10 @@
 //   emoji      : emojis = [...] → quel animé ? (hint optionnel, coûte 1 pt)
 
 export const OTAKU_CATEGORIES = [
-  { id: 'indices',   emoji: '🔍', label: 'Devine l\'animé', desc: '3 indices, de plus en plus faciles' },
-  { id: 'citation',  emoji: '💬', label: 'Qui a dit ça ?',  desc: 'Une réplique culte, trouve le perso' },
-  { id: 'technique', emoji: '⚡', label: 'Attaque spéciale', desc: 'Une technique, trouve son utilisateur' },
-  { id: 'emoji',     emoji: '😀', label: 'Emoji animé',      desc: 'Des emojis, trouve l\'animé' },
+  { value: 'indices',   label: 'Devine l\'animé',  question: 'De quel animé s\'agit-il ?' },
+  { value: 'citation',  label: 'Qui a dit ça ?',   question: 'Qui a dit ça ?' },
+  { value: 'technique', label: 'Attaque spéciale', question: 'Qui utilise cette technique ?' },
+  { value: 'emoji',     label: 'Emoji animé',      question: 'Quel animé se cache derrière ces emojis ?' },
 ];
 
 export const OTAKU_INDICES = [
@@ -120,35 +120,13 @@ export const OTAKU_EMOJIS = [
   { emojis: ['🎣', '🃏', '🟢'], answer: 'Hunter x Hunter', hint: 'Gon cherche son père' },
 ];
 
-const BY_CATEGORY = {
+export const OTAKU_BY_CATEGORY = {
   indices:   OTAKU_INDICES,
   citation:  OTAKU_CITATIONS,
   technique: OTAKU_TECHNIQUES,
   emoji:     OTAKU_EMOJIS,
 };
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// Tire `count` questions mélangées parmi les catégories choisies, en alternant les catégories
-export function buildOtakuDeck(categoryIds, count) {
-  const piles = categoryIds.map(id => shuffle(BY_CATEGORY[id] || []).map(item => ({ ...item, category: id })));
-  const deck = [];
-  let i = 0;
-  while (deck.length < count && piles.some(p => p.length)) {
-    const pile = piles[i % piles.length];
-    if (pile.length) deck.push(pile.shift());
-    i++;
-  }
-  return shuffle(deck);
-}
-
 export function otakuPoolSize(categoryIds) {
-  return categoryIds.reduce((n, id) => n + (BY_CATEGORY[id]?.length || 0), 0);
+  return categoryIds.reduce((n, id) => n + (OTAKU_BY_CATEGORY[id]?.length || 0), 0);
 }

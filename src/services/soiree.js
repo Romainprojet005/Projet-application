@@ -11,7 +11,7 @@ export const SETUP_ROUTES = {
   personality: 'PersonalitySetup', emojiquiz: 'EmojiQuizSetup', motdepasse: 'MotDePasseSetup',
   blindtest: 'BlindTestSetup', vote: 'VoteSetup', quiestleplus: 'QuiEstLePlusSetup',
   oracle: 'OracleSetup', trouveLaRegle: 'TrouveLaRegleSetup', confessions: 'ConfessionsSetup',
-  verites: 'VeritesSetup', defis: 'DefisSetup', blanc_manger: 'BlancSetup',
+  verites: 'VeritesSetup', otaku: 'OtakuSetup', defis: 'DefisSetup', blanc_manger: 'BlancSetup',
   tripotes: 'TriPotesSetup', verre: 'VerreSetup',
 };
 export const jeuxDeSoiree = () => characters.filter((c) => SETUP_ROUTES[c.game] && !c.construction);
