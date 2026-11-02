@@ -61,6 +61,8 @@ import ConfessionsSetupScreen from '../screens/confessions/ConfessionsSetupScree
 import ConfessionsGameScreen from '../screens/confessions/ConfessionsGameScreen';
 import VeritesSetupScreen from '../screens/verites/VeritesSetupScreen';
 import VeritesGameScreen from '../screens/verites/VeritesGameScreen';
+import OtakuSetupScreen from '../screens/otaku/OtakuSetupScreen';
+import OtakuGameScreen from '../screens/otaku/OtakuGameScreen';
 import DefisSetupScreen from '../screens/defis/DefisSetupScreen';
 import DefisGameScreen from '../screens/defis/DefisGameScreen';
 import BlancSetupScreen from '../screens/blanc/BlancSetupScreen';
@@ -144,6 +146,8 @@ const linking = {
       ConfessionsGame: 'confessions/game',
       VeritesSetup: 'verites',
       VeritesGame: 'verites/game',
+      OtakuSetup: 'otaku',
+      OtakuGame: 'otaku/game',
       DefisSetup: 'defis',
       DefisGame: 'defis/game',
       BlancSetup: 'blanc',
@@ -262,6 +266,8 @@ export default function AppNavigator() {
         <Stack.Screen name="ConfessionsGame" component={ConfessionsGameScreen} />
         <Stack.Screen name="VeritesSetup" component={VeritesSetupScreen} />
         <Stack.Screen name="VeritesGame" component={VeritesGameScreen} />
+        <Stack.Screen name="OtakuSetup" component={OtakuSetupScreen} />
+        <Stack.Screen name="OtakuGame" component={OtakuGameScreen} />
         <Stack.Screen name="DefisSetup" component={DefisSetupScreen} />
         <Stack.Screen name="DefisGame" component={DefisGameScreen} />
         <Stack.Screen name="BlancSetup" component={BlancSetupScreen} />

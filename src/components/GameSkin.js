@@ -10,7 +10,7 @@ import { familyOf } from './BoosterCard';
 // Préfixe du nom de route → clé du jeu dans characters.js (les plus longs d'abord)
 const ROUTE_GAMES = [
   ['TrouveLaRegle', 'trouveLaRegle'], ['QuiEstLePlus', 'quiestleplus'], ['Personality', 'personality'],
-  ['Confessions', 'confessions'], ['Verites', 'verites'], ['MotDePasse', 'motdepasse'], ['Undercover', 'undercover'],
+  ['Confessions', 'confessions'], ['Verites', 'verites'], ['Otaku', 'otaku'],['MotDePasse', 'motdepasse'], ['Undercover', 'undercover'],
   ['EmojiQuiz', 'emojiquiz'], ['CineFlash', 'cineflash'], ['LolSelect', 'lolselect'],
   ['Tribunal', 'tribunal'], ['TriPotes', 'tripotes'], ['Amitie', 'amitie'], ['Buzzer', 'buzzer'],
   ['Oracle', 'oracle'], ['Blind', 'blindtest'], ['Blanc', 'blanc_manger'], ['Verre', 'verre'],

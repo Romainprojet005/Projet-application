@@ -347,6 +347,27 @@ const TOUS = [
     },
   },
   {
+    id: 'otaku',
+    name: 'Le Sensei',
+    emoji: '🍥',
+    title: 'Maître des Otakus',
+    description:
+      'Le grand quiz des animés ! Devine l\'animé en 3 indices, retrouve qui a dit cette réplique culte, à qui appartient cette attaque spéciale, ou quel animé se cache derrière ces emojis. Le premier qui crie la bonne réponse marque !',
+    catchphrase: '"Montre-moi ta puissance otaku !"',
+    color: '#F472B6',
+    gradientColors: ['#2A0518', '#4A0A2C'],
+    game: 'otaku',
+    gameName: 'OTAKU ARENA',
+    players: '2–10',
+    time: '15 min',
+    available: true,
+    stats: {
+      Culture: 98,
+      Rapidité: 92,
+      Nostalgie: 90,
+    },
+  },
+  {
     id: 'defis',
     name: "Le Maître des défis",
     emoji: '🃏',

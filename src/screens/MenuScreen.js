@@ -1264,6 +1264,7 @@ export default function MenuScreen({ navigation }) {
       trouveLaRegle: 'TrouveLaRegleSetup',
       confessions: 'ConfessionsSetup',
       verites: 'VeritesSetup',
+      otaku: 'OtakuSetup',
       defis: 'DefisSetup',
       blanc_manger: 'BlancSetup',
       tripotes: 'TriPotesSetup',
