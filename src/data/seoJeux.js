@@ -85,6 +85,21 @@ export const SEO_JEUX = {
       ['Combien de joueurs faut-il ?', 'De 2 à 10 joueurs, sur un seul téléphone.'],
     ],
   },
+  ouinon: {
+    motCle: 'jeu oui ou non soirée',
+    intro: 'Oui ou Non est le jeu de soirée où l’honnêteté se paie : une question pour tout le groupe, chacun répond oui ou non en secret sur le téléphone, puis devine combien de « oui » il y a eu. Le résultat s’affiche sans jamais dire qui a répondu quoi.',
+    regles: [
+      'Une question s’affiche, par exemple : « Est-ce que tu embrasserais quelqu’un dans ce cercle ? »',
+      'Chacun à son tour répond OUI ou NON en secret, puis pronostique le nombre total de « oui ».',
+      'Le nombre de « oui » est révélé, sans dire qui a répondu quoi.',
+      'Bon pronostic : rien à faire. Mauvais pronostic : un gage, ou une gorgée dans la version à boire.',
+    ],
+    faq: [
+      ['Combien de joueurs faut-il ?', 'De 3 à 12 joueurs, sur un seul téléphone qu’on se passe.'],
+      ['Les réponses restent-elles secrètes ?', 'Oui : seul le nombre total de « oui » est affiché, jamais les réponses individuelles.'],
+      ['Existe-t-il une version hot ?', 'Oui, la catégorie Hot est réservée aux adultes et signalée 18+.'],
+    ],
+  },
   vote: {
     motCle: 'jeu de vote majorité',
     intro: 'Vote majorité pose des questions, des débats et des dilemmes « tu préfères » : chacun vote en secret, et ceux qui pensent comme la majorité marquent des points.',

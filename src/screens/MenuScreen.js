@@ -1265,6 +1265,7 @@ export default function MenuScreen({ navigation }) {
       confessions: 'ConfessionsSetup',
       verites: 'VeritesSetup',
       otaku: 'OtakuSetup',
+      ouinon: 'OuiNonSetup',
       defis: 'DefisSetup',
       blanc_manger: 'BlancSetup',
       tripotes: 'TriPotesSetup',
